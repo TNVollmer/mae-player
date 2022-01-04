@@ -1,0 +1,22 @@
+server:
+  port: 8099
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:localhost:29092}
+    consumer:
+      group-id: generic-player
+  endpoints:
+    logfile:
+      enabled: true
+    actuator:
+      enabled: true
+
+dungeon:
+  mode: "SINGLE" # either "SINGLE" (if you build a player based on this), or "MULTI" (to test the core services)
+  singlePlayer:
+    playerName: # "Martina Musterfrau" - if undefined, a random name will be chosen
+    playerEmail: # "martina@musterfrau.de" - if undefined, a random name will be chosen
+  multiPlayer:
+    number: 25
+  services:
+    game: ${GAME_SERVICE}
