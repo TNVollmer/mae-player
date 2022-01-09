@@ -1,5 +1,16 @@
 server:
-  port: 8099
+  port: 8100
+
+logging:
+  file:
+    path: ./logs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: logs
+
 spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_ADDRESS:localhost:29092}

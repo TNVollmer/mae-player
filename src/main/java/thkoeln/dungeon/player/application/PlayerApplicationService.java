@@ -6,13 +6,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.command.CommandExecutor;
 import thkoeln.dungeon.game.domain.Game;
-import thkoeln.dungeon.player.domain.*;
+import thkoeln.dungeon.player.domain.GameParticipationRepository;
+import thkoeln.dungeon.player.domain.Player;
+import thkoeln.dungeon.player.domain.PlayerMode;
+import thkoeln.dungeon.player.domain.PlayerRepository;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.restadapter.exceptions.RESTConnectionFailureException;
 import thkoeln.dungeon.restadapter.exceptions.RESTRequestDeniedException;
-import thkoeln.dungeon.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.restadapter.exceptions.UnexpectedRESTException;
 
 import java.util.List;
@@ -31,7 +33,6 @@ public class PlayerApplicationService {
     private Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
     private ModelMapper modelMapper = new ModelMapper();
 
-    private CommandExecutor commandExecutor;
     private PlayerRepository playerRepository;
     private GameParticipationRepository gameParticipationRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
@@ -50,11 +51,9 @@ public class PlayerApplicationService {
 
     @Autowired
     public PlayerApplicationService(
-            CommandExecutor commandExecutor,
             PlayerRepository playerRepository,
             GameParticipationRepository gameParticipationRepository,
             GameServiceRESTAdapter gameServiceRESTAdapter ) {
-        this.commandExecutor = commandExecutor;
         this.playerRepository = playerRepository;
         this.gameParticipationRepository = gameParticipationRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
@@ -171,29 +170,4 @@ public class PlayerApplicationService {
     }
 
 
-
-
-
-    public void playRound( Integer roundNumber ) {
-        logger.info( "Starting round " + roundNumber );
-        Iterable<Player> players = playerRepository.findAll();
-        for ( Player player : players ) {
-            player.playRound();
-        }
-        UUID transactionId = commandExecutor.executeCommand( null );
-        logger.info( "transactionId " + transactionId );
-        logger.info( "Ending round " + roundNumber );
-    }
-
-
-
-
-    public void receiveCommandAnswer(UUID transactionId, String payload) {
-
-    }
-
-
-    public void learnAboutMoveByEnemyRobot() {
-
-    }
 }
