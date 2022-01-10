@@ -24,6 +24,9 @@ public class GameEventConsumerService {
         this.gameStatusEventRepository = gameStatusEventRepository;
     }
 
+    public void thisIsJustAnUnusedTestMethod() {
+        // this method does nothing, just used as a test case for merging
+    }
 
     /**
      * "Status changed" event published by GameService, esp. after a game has been created, started, or finished
