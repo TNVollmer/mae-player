@@ -4,17 +4,11 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.eventconsumer.game.GameEventConsumerService;
-import thkoeln.dungeon.eventconsumer.game.GameStatusEvent;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.game.domain.GameException;
 import thkoeln.dungeon.game.domain.GameRepository;
 import thkoeln.dungeon.game.domain.GameStatus;
-import thkoeln.dungeon.player.application.PlayerApplicationService;
 import thkoeln.dungeon.restadapter.GameDto;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.restadapter.exceptions.RESTConnectionFailureException;
@@ -35,15 +29,112 @@ public class GameApplicationService {
 
     @Autowired
     public GameApplicationService(GameRepository gameRepository,
-                                  GameServiceRESTAdapter gameServiceRESTAdapter,
-                                  PlayerApplicationService playerApplicationService ) {
+                                  GameServiceRESTAdapter gameServiceRESTAdapter ) {
         this.gameRepository = gameRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
     }
 
 
-    public List<Game> retrieveActiveGames() {
-        return gameRepository.findAllByGameStatusEquals( GameStatus.GAME_RUNNING );
+
+    public Optional<Game> retrieveRunningGame() {
+        List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.RUNNING);
+        if ( foundGames.size() > 1 ) throw new GameException( "More than one running game!" );
+        if ( foundGames.size() == 1 ) {
+            return Optional.of( foundGames.get( 0 ) );
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+
+    public Optional<Game> findByGameId( UUID gameId ) {
+        List<Game> foundGames = gameRepository.findByGameId( gameId );
+        if ( foundGames.size() > 1 ) {
+            throw new GameException( "Found more than one game with gameId " + gameId );
+        }
+        if ( foundGames.size() == 1 ) {
+            return Optional.of( foundGames.get( 0 ) );
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+
+
+    /**
+     * We received notice (by event) that a certain game has been created.
+     * @param gameId ID of the new game
+     */
+    public Game gameExternallyCreated ( UUID gameId ) {
+        logger.info( "Processing external event that the game with gameId " + gameId + " has been created" );
+        Game game = findAndIfNeededCreateGame( gameId );
+        game.resetToNewlyCreated();
+        gameRepository.save( game );
+        return game;
+    }
+
+
+
+    /**
+     * We received notice (by event) that a certain game has started.
+     * In that case, we simply assume that there is only ONE game currently running, and that it is THIS
+     * game. All other games I might have here in the player will be set to GAME_FINISHED state.
+     * @param gameId ID of the new game
+     */
+    public Game gameExternallyStarted ( UUID gameId ) {
+        logger.info( "Processing external event that the game with gameId " + gameId + " has started" );
+        List<Game> allGames = gameRepository.findAll();
+        for ( Game game: allGames ) {
+            game.setGameStatus( GameStatus.FINISHED);
+            gameRepository.save( game );
+        }
+        Game game = findAndIfNeededCreateGame( gameId );
+        game.setGameStatus( GameStatus.RUNNING);
+        gameRepository.save( game );
+        return game;
+    }
+
+
+
+    /**
+     * We received notice (by event) that a certain game has finished.
+     * @param gameId
+     */
+    public Game gameExternallyFinished( UUID gameId ) {
+        logger.info( "Processing external event that the game with gameId " + gameId + " has ended" );
+        Game game = findAndIfNeededCreateGame( gameId );
+        game.setGameStatus( GameStatus.FINISHED);
+        gameRepository.save( game );
+        return game;
+    }
+
+
+
+
+    private Game findAndIfNeededCreateGame( UUID gameId ) {
+        List<Game> fittingGames = gameRepository.findByGameId( gameId );
+        Game game = null;
+        if ( fittingGames.size() == 0 ) {
+            game = Game.newlyCreatedGame( gameId );
+        }
+        else {
+            if ( fittingGames.size() > 1 ) throw new GameException( "More than one game with gameId " + gameId );
+            game = fittingGames.get( 0 );
+        }
+        gameRepository.save( game );
+        return game;
+    }
+
+
+    /**
+     * To be called by event consumer listening to GameService event
+     * @param gameId
+     */
+    public void newRound( UUID gameId, Integer roundNumber ) {
+        logger.info( "Processing 'new round' event for round no. " + roundNumber );
+        // todo
     }
 
 
@@ -53,6 +144,11 @@ public class GameApplicationService {
      * state - we just assume that GameService does a proper job. So we just store
      * the incoming games. Only in the case that a game should suddenly "disappear",
      * we keep it and mark it as ORPHANED - there may be local references to it.
+     *
+     * This method is currently not actively called; just kept in for safety reasons.
+     * We currently assume that no "cleanup" will be necessary. If such a cleanup
+     * (after a messed-up communication with GameService) is needed, this is the
+     * method to call.
      */
     public void synchronizeGameState() {
         GameDto[] gameDtos = new GameDto[0];
@@ -95,80 +191,4 @@ public class GameApplicationService {
         logger.info( "Retrieval of new game state finished" );
     }
 
-
-    /**
-     * "Status changed" event published by GameService, esp. after a game has been created
-     */
-    public void gameStatusExternallyChanged( UUID gameId, GameStatus gameStatus ) {
-        switch (gameStatus) {
-            case CREATED:
-                gameExternallyCreated(gameId);
-                break;
-        }
-    }
-
-
-    /**
-     * To be called by event consumer listening to GameService event
-     * @param gameId ID of the new game
-     */
-    public void gameExternallyCreated ( UUID gameId ) {
-        logger.info( "Processing external event that the game has been created");
-        List<Game> fittingGames = gameRepository.findByGameId( gameId );
-        Game game = null;
-        if ( fittingGames.size() == 0 ) {
-            game = Game.newlyCreatedGame( gameId );
-            gameRepository.save( game );
-        }
-        else {
-            if ( fittingGames.size() > 1 ) game = mergeGamesIntoOne( fittingGames );
-            game.resetToNewlyCreated();
-            gameRepository.save( game );
-        }
-    }
-
-
-    /**
-     * Repair the situation that there are seemingly several games sharing the same gameId. This should not
-     * happen. Do this by "merging" the games.
-     * @param fittingGames
-     */
-    public Game mergeGamesIntoOne( List<Game> fittingGames ) {
-        if ( fittingGames == null ) throw new GameException( "List of games to be merged must not be null!" );
-        if ( fittingGames.size() <= 1 ) throw new GameException( "List of games to be merged must contain at least 2 entries!" );
-
-        // todo - needs to be properly implemented
-        return fittingGames.get( 0 );
-    }
-
-
-
-    /**
-     * To be called by event consumer listening to GameService event
-     * @param eventId
-     */
-    public void gameExternallyStarted ( UUID eventId ) {
-        logger.info( "Processing external event that the game with id " + eventId + " has started");
-        List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.GAME_RUNNING );
-    }
-
-
-
-    /**
-     * To be called by event consumer listening to GameService event
-     * @param gameId
-     */
-    public void gameEnded( UUID gameId ) {
-        logger.info( "Processing 'game ended' event");
-        // todo
-    }
-
-    /**
-     * To be called by event consumer listening to GameService event
-     * @param gameId
-     */
-    public void newRound( UUID gameId, Integer roundNumber ) {
-        logger.info( "Processing 'new round' event for round no. " + roundNumber );
-        // todo
-    }
 }

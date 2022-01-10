@@ -30,7 +30,7 @@ public abstract class AbstractEvent {
     @Transient
     protected Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
 
-    private static final String TRANSACTION_ID_KEY = "transactionId";
+    public static final String TRANSACTION_ID_KEY = "transactionId";
 
     public AbstractEvent( MessageHeaders messageHeaders ) {
         setEventId( messageHeaders.getId() );

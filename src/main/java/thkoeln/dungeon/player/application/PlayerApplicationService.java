@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.player.domain.GameParticipationRepository;
 import thkoeln.dungeon.player.domain.Player;
@@ -36,6 +37,7 @@ public class PlayerApplicationService {
     private PlayerRepository playerRepository;
     private GameParticipationRepository gameParticipationRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
+    private GameApplicationService gameApplicationService;
 
     @Value("${dungeon.singlePlayer.playerName}")
     private String singlePlayerName;
@@ -53,10 +55,12 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameParticipationRepository gameParticipationRepository,
+            GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter ) {
         this.playerRepository = playerRepository;
         this.gameParticipationRepository = gameParticipationRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
+        this.gameApplicationService = gameApplicationService;
     }
 
     public PlayerMode currentMode() {
@@ -94,9 +98,9 @@ public class PlayerApplicationService {
     /**
      * Obtain the bearer token for all players defined in this service
      */
-    public void obtainBearerTokensForPlayers() {
+    public void obtainBearerTokensForMultiplePlayers() {
         List<Player> players = playerRepository.findAll();
-        for (Player player : players) obtainBearerTokenForOnePlayer( player );
+        for (Player player : players) obtainBearerTokenForPlayer( player );
     }
 
 
@@ -105,7 +109,7 @@ public class PlayerApplicationService {
      * @param player
      * @return true if successful
      */
-    protected void obtainBearerTokenForOnePlayer( Player player ) {
+    public void obtainBearerTokenForPlayer(Player player ) {
         if ( player.getBearerToken() != null ) return;
         try {
             PlayerRegistryDto playerDto = modelMapper.map(player, PlayerRegistryDto.class);
@@ -130,12 +134,16 @@ public class PlayerApplicationService {
     }
 
 
+
+
     /**
-     * Once we received the event that a game has been created, this method can be called to register the players
+     * We have received the event that a game has been created. So make sure that the game state is suitable,
+     * and that our player(s) can join.
      * for the game.
-     * @param game
+     * @param gameId
      */
-    public void registerPlayersForGame( Game game ) {
+    public void joinPlayersInNewlyCreatedGame( UUID gameId ) {
+        Game game = gameApplicationService.gameExternallyCreated( gameId );
         List<Player> players = playerRepository.findAll();
         for (Player player : players) registerOnePlayerForGame( player, game );
     }
@@ -150,7 +158,7 @@ public class PlayerApplicationService {
     public void registerOnePlayerForGame( Player player, Game game ) {
         try {
             if (player.getBearerToken() == null) {
-                obtainBearerTokenForOnePlayer( player );
+                obtainBearerTokenForPlayer( player );
             }
             if (player.getBearerToken() == null) {
                 logger.error("No bearer token for " + player + " also after another attempt - cannot register for game!");

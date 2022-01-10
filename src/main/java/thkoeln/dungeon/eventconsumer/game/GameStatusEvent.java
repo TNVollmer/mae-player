@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.messaging.MessageHeaders;
 import thkoeln.dungeon.eventconsumer.core.AbstractEvent;
+import thkoeln.dungeon.eventconsumer.core.DungeonEventException;
 import thkoeln.dungeon.game.domain.GameStatus;
 
 import javax.persistence.Entity;
@@ -19,12 +20,18 @@ public class GameStatusEvent extends AbstractEvent {
     private GameStatus gameStatus;
     private UUID gameId;
 
-    private static final String TYPE_KEY = "type";
-    private static final String GAME_ID_KEY = "gameId";
+    public static final String TYPE_KEY = "type";
+    public static final String GAME_ID_KEY = "gameId";
 
-    public GameStatusEvent( MessageHeaders messageHeaders, GameStatusEventPayload gameStatusEventPayload ) {
+    public GameStatusEvent( MessageHeaders messageHeaders, GameStatusEventPayloadDto gameStatusEventPayloadDto ) {
         super( messageHeaders );
-        setGameStatus( gameStatusEventPayload.gameStatus() );
-        setGameId( gameStatusEventPayload.gameId() );
+        setGameStatus( gameStatusEventPayloadDto.getGameStatus() );
+        setGameId( gameStatusEventPayloadDto.getGameId() );
+        if ( !isValid() ) throw new DungeonEventException(
+                "Invalid GameStatusEvent, gameStatus= " + getGameStatus() + ", gameId=" + getGameId() );
+    }
+
+    public boolean isValid() {
+        return ( gameId != null && gameStatus != null );
     }
 }
