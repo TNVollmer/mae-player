@@ -149,6 +149,10 @@ public class PlayerApplicationService {
     }
 
 
+    /**
+     * Dummy method to make merge more complex - TODO delete later!
+     */
+    public void dummy1() {}
 
     /**
      * Register one specific player for a game
@@ -176,6 +180,11 @@ public class PlayerApplicationService {
                     " due to connection problems - try again later.");
         }
     }
+
+    /**
+     * Dummy method to make merge more complex - TODO delete later!
+     */
+    public void dummy2() {}
 
 
 }
