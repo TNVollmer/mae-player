@@ -53,7 +53,7 @@ public class GameSynchronizationTest {
 
     private GameDto[] allRemoteGames;
 
-    @Value("${GAME_SERVICE}")
+    @Value("${GAME_SERVICE:http://localhost:8080}")
     private String gameServiceURIString;
     private URI gamesEndpointURI;
 

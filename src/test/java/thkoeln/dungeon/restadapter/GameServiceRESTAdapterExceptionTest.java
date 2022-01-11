@@ -41,7 +41,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
 public class GameServiceRESTAdapterExceptionTest {
-    @Value("${GAME_SERVICE}")
+    @Value("${GAME_SERVICE:http://localhost:8080}")
     private String gameServiceURIString;
     private ModelMapper modelMapper = new ModelMapper();
     private PlayerRegistryDto playerRegistryDto = new PlayerRegistryDto();

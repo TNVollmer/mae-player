@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.lang.reflect.Method;
 import java.util.List;

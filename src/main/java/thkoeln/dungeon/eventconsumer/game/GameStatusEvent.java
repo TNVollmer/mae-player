@@ -1,5 +1,6 @@
 package thkoeln.dungeon.eventconsumer.game;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,13 +24,18 @@ public class GameStatusEvent extends AbstractEvent {
     public static final String TYPE_KEY = "type";
     public static final String GAME_ID_KEY = "gameId";
 
-    public GameStatusEvent( MessageHeaders messageHeaders, GameStatusEventPayloadDto gameStatusEventPayloadDto ) {
-        super( messageHeaders );
-        setGameStatus( gameStatusEventPayloadDto.getGameStatus() );
-        setGameId( gameStatusEventPayloadDto.getGameId() );
-        if ( !isValid() ) throw new DungeonEventException(
-                "Invalid GameStatusEvent, gameStatus= " + getGameStatus() + ", gameId=" + getGameId() );
+    public GameStatusEvent( String eventIdStr, String timestampStr, String transactionIdStr, String payloadString ) {
+        super(  eventIdStr, timestampStr, transactionIdStr );
+        try {
+            GameStatusEventPayloadDto payload = GameStatusEventPayloadDto.fromJsonString(payloadString);
+            setGameStatus( payload.getGameStatus() );
+            setGameId( payload.getGameId() );
+        }
+        catch(JsonProcessingException conversionFailed ) {
+            logger.error( "Error converting payload for event: " + payloadString );
+        }
     }
+
 
     public boolean isValid() {
         return ( gameId != null && gameStatus != null );

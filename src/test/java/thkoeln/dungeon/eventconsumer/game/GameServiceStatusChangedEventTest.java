@@ -48,7 +48,6 @@ public class GameServiceStatusChangedEventTest extends AbstractRESTEndpointMocki
     private UUID transactionId = UUID.randomUUID();
     private GameStatusEventPayloadDto createdEventPayload;
     private String eventPayloadString;
-    private MessageHeaders messageHeaders;
     private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @Before
@@ -66,11 +65,6 @@ public class GameServiceStatusChangedEventTest extends AbstractRESTEndpointMocki
             playerRepository.save( player );
         }
         createdEventPayload = new GameStatusEventPayloadDto( gameId, CREATED );
-        HashMap<String, Object> map = new HashMap<>();
-        map.put( ID, UUID.randomUUID() );
-        map.put( TIMESTAMP, 999999L );
-        map.put( TRANSACTION_ID_KEY, transactionId );
-        messageHeaders = new MessageHeaders( map );
     }
 
     @Test
@@ -81,7 +75,9 @@ public class GameServiceStatusChangedEventTest extends AbstractRESTEndpointMocki
         eventPayloadString = objectMapper.writeValueAsString( createdEventPayload );
 
         // when
-        gameEventConsumerService.consumeGameStatusEvent( eventPayloadString, messageHeaders );
+        gameEventConsumerService.consumeGameStatusEvent(
+                String.valueOf( UUID.randomUUID() ), "99999L", String.valueOf( UUID.randomUUID() ),
+                eventPayloadString );
 
         // then
         assertEquals( 1, gameRepository.findAll().size() );

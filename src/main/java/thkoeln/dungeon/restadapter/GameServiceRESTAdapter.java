@@ -28,7 +28,7 @@ public class GameServiceRESTAdapter {
 
     private RestTemplate restTemplate;
     private Logger logger = LoggerFactory.getLogger( GameServiceRESTAdapter.class );
-    @Value("${GAME_SERVICE}")
+    @Value("${GAME_SERVICE:http://localhost:8080}")
     private String gameServiceUrlString;
 
     @Autowired

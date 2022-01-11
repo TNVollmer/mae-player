@@ -21,7 +21,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 public class AbstractRESTEndpointMockingTest {
-    @Value("${GAME_SERVICE}")
+    @Value("${GAME_SERVICE:http://localhost:8080}")
     protected String gameServiceURIString;
     protected URI playersEndpointURI;
     protected Game game;
