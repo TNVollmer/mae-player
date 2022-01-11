@@ -176,6 +176,7 @@ public class PlayerApplicationService {
             }
         } catch (RESTConnectionFailureException | RESTRequestDeniedException e) {
             // shouldn't happen - cannot do more than logging and retrying later
+            logger.error( "Something went wrong ... ");
             logger.error("Could not be get bearer token for player " + player +
                     " due to connection problems - try again later.");
         }
