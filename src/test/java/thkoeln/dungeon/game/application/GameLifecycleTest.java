@@ -43,6 +43,7 @@ public class GameLifecycleTest {
     @Before
     public void setUp() throws Exception {
         playerRepository.deleteAll();
+        playerRepository.deleteAll();
         gameRepository.deleteAll();
         game0 = Game.newlyCreatedGame( GAME_ID_0 );
         game1 = Game.newlyCreatedGame( GAME_ID_1 );

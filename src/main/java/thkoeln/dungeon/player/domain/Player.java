@@ -4,30 +4,36 @@ package thkoeln.dungeon.player.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import thkoeln.dungeon.game.domain.Game;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Setter
 @Getter
 @NoArgsConstructor
 public class Player {
     @Id
     private final UUID id = UUID.randomUUID();
 
+    @Setter
     private String name;
+    @Setter
     private String email;
+    @Setter
     private UUID bearerToken;
+    @Setter
+    private UUID playerId;
+    @Setter
+    private Integer money = 0;
 
-    @OneToMany ( cascade = { CascadeType.MERGE, CascadeType.REMOVE }, fetch = FetchType.EAGER )
-    private final List<GameParticipation> gameParticipations = new ArrayList<>();
+    private UUID registrationTransactionId;
 
+    @ManyToOne
+    private Game currentGame;
 
     /**
      * Choose a random and unique name and email for the player
@@ -39,28 +45,15 @@ public class Player {
     }
 
     public boolean isReadyToPlay() {
-        return ( bearerToken != null );
+        return ( bearerToken != null && playerId != null );
     }
 
-
-    public void participateInGame( Game game ) {
-        GameParticipation gameParticipation = new GameParticipation( game );
-        gameParticipations.add( gameParticipation );
+    public void registerFor ( Game game, UUID registrationTransactionId ) {
+        if ( game == null ) throw new PlayerDomainException( "Game must not be null!" );
+        if ( registrationTransactionId == null ) throw new PlayerDomainException( "registrationTransactionId must not be null!" );
+        this.currentGame = game;
+        this.registrationTransactionId = registrationTransactionId;
     }
-
-
-    public boolean isParticipantInGame( Game game ) {
-        return ( findParticipationFor( game ) != null );
-    }
-
-
-    private GameParticipation findParticipationFor( Game game ) {
-        Optional<GameParticipation> found = gameParticipations.stream()
-                        .filter( gp -> gp.getGame().equals( game ) ).findFirst();
-        return found.isPresent() ? found.get() : null;
-    }
-
-
 
     public void playRound() {
         // todo
@@ -68,6 +61,19 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player '" + name + "' (bearerToken: " + bearerToken + ")";
+        return "Player '" + name + "' (bearerToken: " + bearerToken + " playerId: " + playerId + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Player)) return false;
+        Player player = (Player) o;
+        return Objects.equals(id, player.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

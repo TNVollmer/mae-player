@@ -99,7 +99,7 @@ public class PlayerBearerTokenTest extends AbstractRESTEndpointMockingTest {
         for ( Player player: allPlayers ) {
             assertNotNull( player.getEmail(), "player email" );
             assertNotNull( player.getName(), "player name"  );
-            assert( player.isReadyToPlay() );
+            assertNotNull( player.getBearerToken() );
         }
     }
 
@@ -124,7 +124,7 @@ public class PlayerBearerTokenTest extends AbstractRESTEndpointMockingTest {
         for ( Player player: allPlayers ) {
             assertNotNull( player.getEmail(), "player email" );
             assertNotNull( player.getName(), "player name"  );
-            assert( player.isReadyToPlay() );
+            assertNotNull( player.getBearerToken() );
         }
     }
 

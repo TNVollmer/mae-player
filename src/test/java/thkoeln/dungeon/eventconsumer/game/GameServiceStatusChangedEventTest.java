@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.messaging.MessageHeaders.ID;
 import static org.springframework.messaging.MessageHeaders.TIMESTAMP;
 import static thkoeln.dungeon.eventconsumer.core.AbstractEvent.TRANSACTION_ID_KEY;
@@ -61,7 +62,7 @@ public class GameServiceStatusChangedEventTest extends AbstractRESTEndpointMocki
         for ( Player player: players ) mockBearerTokenEndpointFor( player );
         for ( Player player: players ) {
             playerApplicationService.obtainBearerTokenForPlayer( player );
-            assertTrue( player.isReadyToPlay() );
+            assertNotNull( player.getBearerToken() );
             playerRepository.save( player );
         }
         createdEventPayload = new GameStatusEventPayloadDto( gameId, CREATED );
@@ -84,7 +85,7 @@ public class GameServiceStatusChangedEventTest extends AbstractRESTEndpointMocki
         assertEquals( gameId, gameRepository.findAllByGameStatusEquals( CREATED ).get( 0 ).getGameId() );
         for ( Player player: players ) {
             player.setBearerToken( bearerToken );
-            assertTrue( player.isReadyToPlay() );
+            assertNotNull( player.getBearerToken() );
         }
     }
 }

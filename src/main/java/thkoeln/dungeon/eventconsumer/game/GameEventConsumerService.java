@@ -25,15 +25,18 @@ public class GameEventConsumerService {
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
     private GameStatusEventRepository gameStatusEventRepository;
+    private PlayerStatusEventRepository playerStatusEventRepository;
     private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
 
     @Autowired
     public GameEventConsumerService( GameApplicationService gameApplicationService,
                                      GameStatusEventRepository gameStatusEventRepository,
+                                     PlayerStatusEventRepository playerStatusEventRepository,
                                      PlayerApplicationService playerApplicationService ) {
         this.gameApplicationService = gameApplicationService;
         this.gameStatusEventRepository = gameStatusEventRepository;
+        this.playerStatusEventRepository = playerStatusEventRepository;
         this.playerApplicationService = playerApplicationService;
     }
 
@@ -44,53 +47,49 @@ public class GameEventConsumerService {
     /**
      * "Status changed" event published by GameService, esp. after a game has been created, started, or finished
      */
-    @KafkaListener( topics = "status" )  // that is what the documentation says
+    @KafkaListener( topics = "status" )
     public void consumeGameStatusEvent( @Header String eventId, @Header String timestamp, @Header String transactionId,
                                         @Payload String payload ) {
         GameStatusEvent gameStatusEvent = new GameStatusEvent( eventId, timestamp, transactionId, payload );
-        gameStatusEventRepository.save(gameStatusEvent);
-        if (gameStatusEvent.isValid()) {
-            switch (gameStatusEvent.getGameStatus()) {
+        // saving the event is not really mandatory, just to keep track / "just in case"
+        gameStatusEventRepository.save( gameStatusEvent );
+        if ( gameStatusEvent.isValid() ) {
+            switch ( gameStatusEvent.getGameStatus() ) {
                 case CREATED:
-                    playerApplicationService.joinPlayersInNewlyCreatedGame(gameStatusEvent.getGameId());
+                    playerApplicationService.joinPlayersInNewlyCreatedGame( gameStatusEvent.getGameId() );
                     break;
                 case RUNNING:
-                    gameApplicationService.gameExternallyStarted(gameStatusEvent.getGameId());
+                    gameApplicationService.gameExternallyStarted( gameStatusEvent.getGameId() );
                     break;
                 case FINISHED:
-                    gameApplicationService.gameExternallyFinished(gameStatusEvent.getGameId());
+                    gameApplicationService.gameExternallyFinished( gameStatusEvent.getGameId() );
                     break;
             }
         }
-    }
-
-/*
-    //@KafkaListener( topics = "status" )  // that is what the documentation says
-    public void consumeGameStatusEvent2( ProducerRecord<String, String> consumerRecord ) {
-        try {
-            GameStatusEventPayloadDto gameStatusEventPayload = GameStatusEventPayloadDto.fromJsonString( consumerRecord.value() );
-            GameStatusEvent gameStatusEvent = new GameStatusEvent(null, gameStatusEventPayload);
-            gameStatusEventRepository.save(gameStatusEvent);
-            if (gameStatusEvent.isValid()) {
-                switch (gameStatusEvent.getGameStatus()) {
-                    case CREATED:
-                        playerApplicationService.joinPlayersInNewlyCreatedGame(gameStatusEvent.getGameId());
-                        break;
-                    case RUNNING:
-                        gameApplicationService.gameExternallyStarted(gameStatusEvent.getGameId());
-                        break;
-                    case FINISHED:
-                        gameApplicationService.gameExternallyFinished(gameStatusEvent.getGameId());
-                        break;
-                }
-            }
-        }
-        catch( JsonProcessingException conversionFailed ) {
-            logger.error( "Error converting payload for Game Status Changed event: " + consumerRecord.value() );
+        else {
+            logger.warn( "Caught invalid GameStatusEvent " + gameStatusEvent );
         }
     }
 
-*/
+
+    /**
+     * Event published by GameService after registering a player. Needed to get the playerId ... <sigh>
+     */
+    @KafkaListener( topics = "playerStatus" )
+    public void consumePlayerStatusEvent( @Header String eventId, @Header String timestamp, @Header String transactionId,
+                                          @Payload String payload ) {
+        PlayerStatusEvent playerStatusEvent = new PlayerStatusEvent( eventId, timestamp, transactionId, payload );
+        // saving the event is not really mandatory, just to keep track / "just in case"
+        playerStatusEventRepository.save( playerStatusEvent );
+        if ( playerStatusEvent.isValid() ) {
+            playerApplicationService.assignPlayerId(
+                    playerStatusEvent.getTransactionId(), playerStatusEvent.getPlayerId() );
+        }
+        else {
+            logger.warn( "Caught invalid PlayerStatusEvent " + playerStatusEvent );
+        }
+    }
+
 
     public void consumeNewRoundStartedEvent() {
         // todo

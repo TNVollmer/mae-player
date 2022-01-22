@@ -5,9 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.messaging.MessageHeaders;
 import thkoeln.dungeon.eventconsumer.core.AbstractEvent;
-import thkoeln.dungeon.eventconsumer.core.DungeonEventException;
 import thkoeln.dungeon.game.domain.GameStatus;
 
 import javax.persistence.Entity;
@@ -17,19 +15,14 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor ( access = AccessLevel.PROTECTED )
-public class GameStatusEvent extends AbstractEvent {
-    private GameStatus gameStatus;
-    private UUID gameId;
+public class PlayerStatusEvent extends AbstractEvent {
+    private UUID playerId;
 
-    public static final String TYPE_KEY = "type";
-    public static final String GAME_ID_KEY = "gameId";
-
-    public GameStatusEvent( String eventIdStr, String timestampStr, String transactionIdStr, String payloadString ) {
+    public PlayerStatusEvent( String eventIdStr, String timestampStr, String transactionIdStr, String payloadString ) {
         super(  eventIdStr, timestampStr, transactionIdStr );
         try {
-            GameStatusEventPayloadDto payload = GameStatusEventPayloadDto.fromJsonString( payloadString );
-            setGameStatus( payload.getGameStatus() );
-            setGameId( payload.getGameId() );
+            PlayerStatusEventPayloadDto payload = PlayerStatusEventPayloadDto.fromJsonString( payloadString );
+            setPlayerId( payload.getPlayerId() );
         }
         catch(JsonProcessingException conversionFailed ) {
             logger.error( "Error converting payload for event: " + payloadString );
@@ -38,6 +31,6 @@ public class GameStatusEvent extends AbstractEvent {
 
 
     public boolean isValid() {
-        return ( gameId != null && gameStatus != null );
+        return ( playerId != null );
     }
 }
