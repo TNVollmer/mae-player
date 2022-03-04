@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.domainprimitives.MineableResource;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
@@ -41,6 +42,10 @@ public class Planet {
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
     private Planet westNeighbour;
+
+    @Embedded
+    @Setter
+    private MineableResource mineableResource;
 
     @Transient
     private Logger logger = LoggerFactory.getLogger( Planet.class );
