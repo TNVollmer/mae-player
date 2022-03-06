@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.domainprimitives.CompassDirection;
+import thkoeln.dungeon.domainprimitives.Coordinate;
 import thkoeln.dungeon.domainprimitives.MineableResource;
 
 import javax.persistence.*;
@@ -28,7 +30,10 @@ public class Planet {
     @Setter
     @Getter ( AccessLevel.NONE )
     private Boolean spacestation = Boolean.FALSE;
-    public Boolean isSpaceStation() { return spacestation; }
+
+    @Setter
+    @Embedded
+    private Coordinate coordinate;
 
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
@@ -73,15 +78,22 @@ public class Planet {
         logger.info( "Established neighbouring relationship between planet '" + this + "' and '" + otherPlanet + "'." );
     }
 
+    public void resetAllNeighbours() {
+        setNorthNeighbour( null );
+        setWestNeighbour( null );
+        setEastNeighbour( null );
+        setSouthNeighbour( null );
+    }
+
 
     protected Method neighbouringGetter( CompassDirection direction ) throws NoSuchMethodException {
-        String name = "get" + WordUtils.capitalize( String.valueOf( direction ) ) + "Neighbour";
+        String name = "get" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) ) + "Neighbour";
         return this.getClass().getDeclaredMethod( name );
     }
 
 
     protected Method neighbouringSetter( CompassDirection direction ) throws NoSuchMethodException {
-        String name = "set" + WordUtils.capitalize( String.valueOf( direction ) ) + "Neighbour";
+        String name = "set" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) ) + "Neighbour";
         return this.getClass().getDeclaredMethod( name, new Class[]{ this.getClass() } );
     }
 
@@ -94,6 +106,8 @@ public class Planet {
         if ( getSouthNeighbour() != null ) allNeighbours.add( getSouthNeighbour() );
         return allNeighbours;
     }
+
+    public Boolean isSpaceStation() { return spacestation; }
 
 
     @Override
