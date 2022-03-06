@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>th-koeln.dungeon</groupId>
-    <artifactId>player-template-java</artifactId>
+    <artifactId>player-monte</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>player-template-java</name>
-    <description>player-template-java</description>
+    <name>player-monte</name>
+    <description>player-monte</description>
     <properties>
         <java.version>11</java.version>
     </properties>
@@ -28,6 +28,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
