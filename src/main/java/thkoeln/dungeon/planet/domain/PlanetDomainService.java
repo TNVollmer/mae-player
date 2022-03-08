@@ -20,17 +20,21 @@ public class PlanetDomainService {
         this.planetRepository = planetRepository;
     }
 
-    public void addPlanet( Planet newPlanet ) {
+    /**
+     * Add a new space station we learn about from an external event
+     * @param newSpaceStation
+     */
+    public void addSpaceStation( Planet newSpaceStation ) {
         List<Planet> foundPlanets = planetRepository.findAll();
         if( foundPlanets.isEmpty() ) {
-            newPlanet.setCoordinate( Coordinate.initialCoordinate() );
-            newPlanet.resetAllNeighbours();
+            newSpaceStation.setCoordinate( Coordinate.initialCoordinate() );
+            newSpaceStation.resetAllNeighbours();
         }
         else {
             // this is not yet properly thought through ... need to clarify first in which order you learn about
             // space stations. Do you need to listen to spacestation events by Map?
         }
-        planetRepository.save( newPlanet );
+        planetRepository.save( newSpaceStation );
     }
 
 

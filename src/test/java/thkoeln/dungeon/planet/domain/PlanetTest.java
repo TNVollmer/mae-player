@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import thkoeln.dungeon.domainprimitives.CompassDirection;
+import thkoeln.dungeon.domainprimitives.Coordinate;
 
 import javax.transaction.Transactional;
 import java.lang.reflect.Method;
@@ -25,7 +26,7 @@ public class PlanetTest {
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
                 planetArray[i][j] = new Planet();
-                planetArray[i][j].setName( "p" + String.valueOf( i ) + String.valueOf( j ) );
+                planetArray[i][j].setCoordinate( Coordinate.fromInteger( i, j ) );
             }
         }
     }
@@ -68,8 +69,8 @@ public class PlanetTest {
         planetArray[1][2].defineNeighbour( planetArray[1][1], CompassDirection.WEST);
         planetRepository.save( planetArray[1][1] );
         planetRepository.save( planetArray[1][2] );
-        Planet p11 = planetRepository.findByName( "p11" ).get();
-        Planet p12 = planetRepository.findByName( "p12" ).get();
+        Planet p11 = planetRepository.findByCoordinate_XAndCoordinate_Y( 1, 1 ).get();
+        Planet p12 = planetRepository.findByCoordinate_XAndCoordinate_Y( 1, 2  ).get();
 
         // then
         List<Planet> persistentPlanets = planetRepository.findAll();

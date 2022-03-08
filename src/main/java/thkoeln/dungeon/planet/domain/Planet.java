@@ -2,6 +2,7 @@ package thkoeln.dungeon.planet.domain;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
@@ -20,33 +21,40 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@NoArgsConstructor( access = AccessLevel.PROTECTED )
 public class Planet {
     @Id
     private final UUID id = UUID.randomUUID();
 
-    @Setter
-    private String name;
+    // this is the EXTERNAL id that we receive from MapService. We could use this also as our own id, but then
+    // we'll run into problems in case MapService messes up their ids. So, better we better keep these two apart.
+    private UUID planetId;
 
     @Setter
-    @Getter ( AccessLevel.NONE )
+    @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getSpacestation()
     private Boolean spacestation = Boolean.FALSE;
+    public Boolean isSpaceStation() { return spacestation; }
 
-    @Setter
+    @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getVisited()
+    private Boolean visited = Boolean.FALSE;
+    public Boolean hasBeenVisited() { return visited; }
+
+    @Setter // really?
     @Embedded
-    private Coordinate coordinate;
+    private Coordinate coordinate = null;
 
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet northNeighbour;
+    private Planet northNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet eastNeighbour;
+    private Planet eastNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet southNeighbour;
+    private Planet southNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet westNeighbour;
+    private Planet westNeighbour = null;
 
     @Embedded
     @Setter
@@ -54,6 +62,15 @@ public class Planet {
 
     @Transient
     private Logger logger = LoggerFactory.getLogger( Planet.class );
+
+    public Planet( UUID planetId ) {
+        this.planetId = planetId;
+    }
+
+    public static Planet createFirstSpacestation( UUID planetId ) {
+        return null;
+    }
+
 
     /**
      * A neighbour relationship is always set on BOTH sides.
@@ -77,6 +94,7 @@ public class Planet {
         }
         logger.info( "Established neighbouring relationship between planet '" + this + "' and '" + otherPlanet + "'." );
     }
+
 
     public void resetAllNeighbours() {
         setNorthNeighbour( null );
@@ -107,7 +125,7 @@ public class Planet {
         return allNeighbours;
     }
 
-    public Boolean isSpaceStation() { return spacestation; }
+
 
 
     @Override
@@ -125,6 +143,7 @@ public class Planet {
 
     @Override
     public String toString() {
-        return getName() + " (" + getId() + ")";
+        if ( coordinate != null ) return coordinate.toString();
+        return "";
     }
 }
