@@ -38,8 +38,8 @@ public class MapEventConsumerService {
         GameWorldCreatedEvent gameWorldCreatedEvent = new GameWorldCreatedEvent()
                 .fillWithPayload( payload )
                 .fillHeader( eventId, timestamp, transactionId );
-        gameWorldEventCreatedRepository.save( gameWorldCreatedEvent );
         if ( gameWorldCreatedEvent.isValid() ) {
+            gameWorldEventCreatedRepository.save( gameWorldCreatedEvent );
             logger.info( "Successfully consumed gameworld-created event " + gameWorldCreatedEvent );
             for ( UUID spaceStationId : gameWorldCreatedEvent.getSpaceStationIds() ) {
                 planetApplicationService.addPlanetWithoutNeighbours( spaceStationId, true );
@@ -69,7 +69,7 @@ public class MapEventConsumerService {
             planetApplicationService.addPlanetWithoutNeighbours( spaceStationCreatedEvent.getPlanetId(), true );
         }
         else {
-            logger.warn( "Caught invalid GameWorldCreatedEvent " + spaceStationCreatedEvent );
+            logger.warn( "Caught invalid SpaceStationCreatedEvent " + spaceStationCreatedEvent );
         }
     }
 

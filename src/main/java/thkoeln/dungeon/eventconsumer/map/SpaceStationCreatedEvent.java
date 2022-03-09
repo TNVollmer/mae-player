@@ -1,5 +1,6 @@
 package thkoeln.dungeon.eventconsumer.map;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor ( access = AccessLevel.PROTECTED )
+@JsonIgnoreProperties( ignoreUnknown = true )
 public class SpaceStationCreatedEvent extends AbstractEvent {
     @JsonProperty( "planet_id" )
     private UUID planetId;

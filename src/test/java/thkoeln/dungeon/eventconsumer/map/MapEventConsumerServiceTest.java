@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import thkoeln.dungeon.DungeonPlayerConfiguration;
+import thkoeln.dungeon.core.AbstractDungeonMockingTest;
 import thkoeln.dungeon.core.EventPayloadTestFactory;
 import thkoeln.dungeon.planet.domain.Planet;
 import thkoeln.dungeon.planet.domain.PlanetRepository;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
-public class MapEventConsumerServiceTest {
+public class MapEventConsumerServiceTest extends AbstractDungeonMockingTest {
     private List<UUID> planetIds;
     private UUID pid1, pid2, pid3;
 
@@ -34,7 +35,8 @@ public class MapEventConsumerServiceTest {
     PlanetRepository planetRepository;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         planetRepository.deleteAll();
         pid1 = UUID.randomUUID();
         pid2 = UUID.randomUUID();
@@ -50,7 +52,7 @@ public class MapEventConsumerServiceTest {
         // given
         // when
         mapEventConsumerService.consumeGameWorldCreatedEvent(
-                UUID.randomUUID().toString(), EventPayloadTestFactory.timestamp(), UUID.randomUUID().toString(),
+                genericEventIdStr, EventPayloadTestFactory.timestamp(), genericTransactionIdStr,
                 EventPayloadTestFactory.gameworldCreatedPayload( planetIds ) );
 
         // then
@@ -66,7 +68,7 @@ public class MapEventConsumerServiceTest {
         // given
         // when
         mapEventConsumerService.consumeSpaceStationCreatedEvent(
-                UUID.randomUUID().toString(), EventPayloadTestFactory.timestamp(), UUID.randomUUID().toString(),
+                genericEventIdStr, EventPayloadTestFactory.timestamp(), genericTransactionIdStr,
                 EventPayloadTestFactory.spaceStationCreatedPayload( pid1 ) );
 
         // then

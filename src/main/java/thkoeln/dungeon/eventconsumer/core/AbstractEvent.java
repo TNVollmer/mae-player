@@ -32,10 +32,9 @@ public abstract class AbstractEvent /*<PayloadDtoType extends AbstractEventPaylo
     protected UUID eventId;
     protected Long timestamp;
     protected UUID transactionId;
-
-    // TODO obsolete
-    //@Embedded
-    //private PayloadDtoType payloadDto;
+    @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getProcessed()
+    protected Boolean processed = Boolean.FALSE;
+    public Boolean hasBeenProcessed() { return processed; }
 
     @Transient
     protected Logger logger = LoggerFactory.getLogger( AbstractEvent.class );

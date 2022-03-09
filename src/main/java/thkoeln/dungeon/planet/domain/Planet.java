@@ -37,6 +37,7 @@ public class Planet {
     public Boolean isSpaceStation() { return spacestation; }
 
     @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getVisited()
+    @Setter
     private Boolean visited = Boolean.FALSE;
     public Boolean hasBeenVisited() { return visited; }
 

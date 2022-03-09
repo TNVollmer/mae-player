@@ -39,8 +39,6 @@ public class AbstractDungeonMockingTest {
 
     protected final UUID genericEventId = UUID.randomUUID();
     protected final String genericEventIdStr = genericEventId.toString();
-    protected final Long genericEventTimestamp = 99999L;
-    protected final String genericEventTimestampStr = genericEventTimestamp.toString();
     protected final UUID genericTransactionId = UUID.randomUUID();
     protected final String genericTransactionIdStr = genericTransactionId.toString();
 
