@@ -7,13 +7,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.eventconsumer.game.GameStatusEvent;
-import thkoeln.dungeon.eventconsumer.game.GameStatusEventRepository;
-import thkoeln.dungeon.eventconsumer.game.PlayerStatusEvent;
-import thkoeln.dungeon.eventconsumer.game.PlayerStatusEventRepository;
-import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.planet.application.PlanetApplicationService;
-import thkoeln.dungeon.player.application.PlayerApplicationService;
 
 import java.util.UUID;
 
@@ -22,12 +16,12 @@ public class MapEventConsumerService {
     private Logger logger = LoggerFactory.getLogger( MapEventConsumerService.class );
 
     private SpaceStationEventCreatedRepository spaceStationEventCreatedRepository;
-    private GameWorldEventCreatedRepository gameWorldEventCreatedRepository;
+    private GameWorldCreatedEventRepository gameWorldEventCreatedRepository;
     private PlanetApplicationService planetApplicationService;
 
 
     @Autowired
-    public MapEventConsumerService( GameWorldEventCreatedRepository gameWorldEventCreatedRepository,
+    public MapEventConsumerService( GameWorldCreatedEventRepository gameWorldEventCreatedRepository,
                                     SpaceStationEventCreatedRepository spaceStationEventCreatedRepository,
                                     PlanetApplicationService planetApplicationService ) {
         this.gameWorldEventCreatedRepository = gameWorldEventCreatedRepository;
@@ -57,6 +51,9 @@ public class MapEventConsumerService {
     }
 
 
+
+
+
     /**
      * Event published by MapService, informing about a new space station (e.g. transformed from a regular planet?)
      */
@@ -66,9 +63,9 @@ public class MapEventConsumerService {
         SpaceStationCreatedEvent spaceStationCreatedEvent = new SpaceStationCreatedEvent()
                 .fillWithPayload( payload )
                 .fillHeader( eventId, timestamp, transactionId );
-        spaceStationEventCreatedRepository.save( spaceStationCreatedEvent );
         if ( spaceStationCreatedEvent.isValid() ) {
             logger.info( "Successfully consumed gameworld-created event " + spaceStationCreatedEvent );
+            spaceStationEventCreatedRepository.save( spaceStationCreatedEvent );
             planetApplicationService.addPlanetWithoutNeighbours( spaceStationCreatedEvent.getPlanetId(), true );
         }
         else {

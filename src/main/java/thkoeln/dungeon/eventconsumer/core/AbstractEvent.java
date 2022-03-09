@@ -28,7 +28,7 @@ import java.util.UUID;
 public abstract class AbstractEvent /*<PayloadDtoType extends AbstractEventPayloadDto> */{
     @Id
     @Setter( AccessLevel.NONE )
-    protected UUID id = UUID.randomUUID();
+    protected UUID localId = UUID.randomUUID();
     protected UUID eventId;
     protected Long timestamp;
     protected UUID transactionId;

@@ -39,8 +39,8 @@ public class GameEventConsumerService {
         GameStatusEvent gameStatusEvent = new GameStatusEvent()
                 .fillWithPayload( payload )
                 .fillHeader( eventId, timestamp, transactionId );
-        gameStatusEventRepository.save( gameStatusEvent );
         if ( gameStatusEvent.isValid() ) {
+            gameStatusEventRepository.save( gameStatusEvent );
             switch ( gameStatusEvent.getStatus() ) {
                 case CREATED:
                     playerApplicationService.registerPlayersForNewlyCreatedGame( gameStatusEvent.getGameId() );
@@ -68,8 +68,8 @@ public class GameEventConsumerService {
         PlayerStatusEvent playerStatusEvent = new PlayerStatusEvent()
                 .fillWithPayload( payload )
                 .fillHeader( eventId, timestamp, transactionId );
-        playerStatusEventRepository.save( playerStatusEvent );
         if ( playerStatusEvent.isValid() ) {
+            playerStatusEventRepository.save( playerStatusEvent );
             playerApplicationService.assignPlayerId(
                     playerStatusEvent.getTransactionId(), playerStatusEvent.getPlayerId() );
         }

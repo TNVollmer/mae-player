@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.domainprimitives.CompassDirection;
 import thkoeln.dungeon.domainprimitives.Coordinate;
 import thkoeln.dungeon.domainprimitives.MineableResource;
+import thkoeln.dungeon.domainprimitives.MovementDifficulty;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
@@ -59,6 +60,10 @@ public class Planet {
     @Embedded
     @Setter
     private MineableResource mineableResource;
+
+    @Embedded
+    @Setter
+    private MovementDifficulty movementDifficulty;
 
     @Transient
     private Logger logger = LoggerFactory.getLogger( Planet.class );
@@ -124,8 +129,6 @@ public class Planet {
         if ( getSouthNeighbour() != null ) allNeighbours.add( getSouthNeighbour() );
         return allNeighbours;
     }
-
-
 
 
     @Override

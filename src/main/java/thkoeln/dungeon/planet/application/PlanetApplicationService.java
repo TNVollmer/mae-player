@@ -49,6 +49,17 @@ public class PlanetApplicationService {
     }
 
 
+    public void planetHasBeenVisited( UUID planetId, Integer movementDifficultyAsInt, String planetTypeAsString ) {
+        // set movement difficulty
+    }
+
+
+    public void learnAboutNeighboursOfVisitedPlanet() {
+
+    }
+
+
+
 
     /**
      * Add a new space station we learn about from an external event

@@ -5,6 +5,6 @@ import thkoeln.dungeon.eventconsumer.game.PlayerStatusEvent;
 
 import java.util.UUID;
 
-public interface GameWorldEventCreatedRepository extends CrudRepository<GameWorldCreatedEvent, UUID> {
+public interface GameWorldCreatedEventRepository extends CrudRepository<GameWorldCreatedEvent, UUID> {
 
 }
