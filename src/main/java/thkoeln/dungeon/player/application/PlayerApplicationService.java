@@ -1,5 +1,6 @@
 package thkoeln.dungeon.player.application;
 
+import lombok.val;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,11 +212,21 @@ public class PlayerApplicationService {
      */
     public void adjustBankAccount( UUID playerId, Integer moneyAsInt ) {
         Moneten newMoney = Moneten.fromInteger( moneyAsInt );
-        List<Player> foundPlayers = playerRepository.findByPlayerId( playerId );
+        Player foundPlayer = findUniquePlayerById(playerId);
+        foundPlayer.setMoneten( newMoney );
+        playerRepository.save(foundPlayer);
+    }
+
+    /**
+     * Find a unique player using the given id.
+     * Throws PlayerApplicationException if no or more players are found.
+     */
+    public Player findUniquePlayerById( UUID playerId ) {
+        val foundPlayers = playerRepository.findByPlayerId( playerId );
         if ( foundPlayers.size() != 1 ) {
             throw new PlayerApplicationException( "Found not exactly 1 player with playerId " + playerId
                     + ", but " + foundPlayers.size() );
         }
-        foundPlayers.get( 0 ).setMoneten( newMoney );
+        return foundPlayers.get( 0 );
     }
 }

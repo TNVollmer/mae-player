@@ -44,7 +44,7 @@ public class TradingEventConsumerService {
                 .fillHeader( eventId, timestamp, transactionId );
         bankCreatedEventRepository.save( bankCreatedEvent );
         if ( bankCreatedEvent.isValid() ) {
-            // https://github.com/The-Microservice-Dungeon/player-monte/issues/7
+            playerApplicationService.adjustBankAccount(bankCreatedEvent.getPlayerId(), bankCreatedEvent.getMoney());
         }
         else {
             logger.warn( "Caught invalid GameStatusEvent " + bankCreatedEvent );
