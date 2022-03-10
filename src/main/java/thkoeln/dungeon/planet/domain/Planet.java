@@ -99,6 +99,26 @@ public class Planet {
             throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
         }
         logger.info( "Established neighbouring relationship between planet '" + this + "' and '" + otherPlanet + "'." );
+        closeNeighbouringCycleForAllDirectionsBut( direction );
+    }
+
+
+    public void closeNeighbouringCycleForAllDirectionsBut( CompassDirection notInThisDirection ) {
+        for ( CompassDirection compassDirection: CompassDirection.values() ) {
+            if ( compassDirection.equals( notInThisDirection ) ) continue;
+            Planet neighbour = getNeighbour( compassDirection );
+            if ( neighbour != null ) {
+                for ( CompassDirection ninetyDegrees: compassDirection.ninetyDegrees() ) {
+                    if( this.getNeighbour( ninetyDegrees ) != null &&
+                            neighbour.getNeighbour( ninetyDegrees ) != null &&
+                            this.getNeighbour( ninetyDegrees ).getNeighbour( compassDirection ) == null ) {
+                        this.getNeighbour( ninetyDegrees ).defineNeighbour(
+                                neighbour.getNeighbour( ninetyDegrees ), compassDirection );
+                        logger.info( "Closed cycle ..." );
+                    }
+                }
+            }
+        }
     }
 
 
@@ -110,7 +130,17 @@ public class Planet {
     }
 
 
-    protected Method neighbouringGetter( CompassDirection direction ) throws NoSuchMethodException {
+    public Planet getNeighbour( CompassDirection compassDirection ) {
+        try {
+            Method getter = neighbouringGetter( compassDirection );
+            return (Planet) getter.invoke( this );
+        }
+        catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
+            throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
+        }
+    }
+
+    protected Method neighbouringGetter(CompassDirection direction ) throws NoSuchMethodException {
         String name = "get" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) ) + "Neighbour";
         return this.getClass().getDeclaredMethod( name );
     }

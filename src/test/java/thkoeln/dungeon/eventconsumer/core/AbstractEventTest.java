@@ -106,7 +106,7 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
 
     }
 
-    protected void startGame() throws Exception {
+    protected void startGame( List<UUID> spaceStationIds ) throws Exception {
         gameStatusEventPayloadDto = new GameStatusEventPayloadDto( gameId, RUNNING );
         eventPayloadString = objectMapper.writeValueAsString( gameStatusEventPayloadDto );
         gameEventConsumerService.consumeGameStatusEvent(

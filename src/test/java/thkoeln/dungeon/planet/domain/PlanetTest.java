@@ -106,4 +106,49 @@ public class PlanetTest {
         }
     }
 
+
+    @Test
+    public void testClosingCycles() {
+        // given
+        Planet n = new Planet();
+        Planet s = new Planet();
+        Planet ne = new Planet();
+        Planet nee = new Planet();
+        Planet se = new Planet();
+        Planet see = new Planet();
+
+        // when
+        n.defineNeighbour( s, CompassDirection.SOUTH );
+        //    N
+        //    |
+        //    S
+
+        n.defineNeighbour( ne, CompassDirection.EAST );
+        //    N--NE
+        //    |
+        //    S
+
+        ne.defineNeighbour( nee, CompassDirection.EAST );
+        //    N--NE--NEE
+        //    |
+        //    S
+
+        s.defineNeighbour( se, CompassDirection.EAST );
+        //    N--NE--NEE
+        //    |
+        //    S--SE
+
+        se.defineNeighbour( see, CompassDirection.EAST );
+        //    N--NE--NEE
+        //    |
+        //    S--SE--SEE
+
+        // then
+        assertEquals( nee,
+                s.getNorthNeighbour().
+                    getEastNeighbour().
+                        getSouthNeighbour().
+                            getEastNeighbour().
+                                getNorthNeighbour() );
+    }
 }

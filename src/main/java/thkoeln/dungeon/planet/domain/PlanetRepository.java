@@ -11,4 +11,5 @@ public interface PlanetRepository extends CrudRepository<Planet, UUID> {
     public List<Planet> findAll();
     Optional<Planet> findByCoordinate_XAndCoordinate_Y( Integer x, Integer y );
     Optional<Planet> findByPlanetId( UUID planetId );
+    public List<Planet> findBySpacestationEquals( Boolean spaceStationFlag );
 }

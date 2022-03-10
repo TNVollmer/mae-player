@@ -16,11 +16,14 @@ import thkoeln.dungeon.planet.domain.Planet;
 import thkoeln.dungeon.planet.domain.PlanetRepository;
 import thkoeln.dungeon.player.domain.Player;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static thkoeln.dungeon.game.domain.GameStatus.CREATED;
 
 @RunWith(SpringRunner.class)
@@ -34,6 +37,7 @@ public class GameEventConsumerTest extends AbstractEventTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        planetRepository.deleteAll();
         neighbours.put( CompassDirection.NORTH, UUID.randomUUID() );
         neighbours.put( CompassDirection.SOUTH, UUID.randomUUID() );
         neighbours.put( CompassDirection.WEST, UUID.randomUUID() );
@@ -83,9 +87,9 @@ public class GameEventConsumerTest extends AbstractEventTest {
     @Test
     public void testPlanetMapAfterOneMove() throws Exception {
         // given
-        setUpGame();
-        setUpPlayer();
-        startGame();
+        super.setUpGame();
+        super.setUpPlayer();
+        super.startGame( super.spaceStationIds );
 
         // when
         UUID movementTransactionId = UUID.randomUUID();
