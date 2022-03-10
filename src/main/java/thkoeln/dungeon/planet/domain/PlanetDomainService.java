@@ -46,6 +46,36 @@ public class PlanetDomainService {
         planetRepository.save( newSpaceStation );
     }
 
+
+    /**
+     * Add a new planet (may be space station) we learn about from an external event,
+     * without having any information about its neighbours. That could be e.g. when
+     * new space stations are declared.
+     * @param newPlanetId
+     */
+    public void addPlanetWithoutNeighbours( UUID newPlanetId, boolean isSpaceStation ) {
+        Planet newPlanet = null;
+        List<Planet> foundPlanets = planetRepository.findAll();
+        if( foundPlanets.isEmpty() ) {
+            // no planets yet. Assign (0,0) to this first one.
+            newPlanet = new Planet( newPlanetId );
+            newPlanet.setCoordinate( Coordinate.initialCoordinate() );
+        }
+        else {
+            Optional<Planet> foundOptional = planetRepository.findByPlanetId( newPlanetId );
+            if( foundOptional.isPresent() ) {
+                // not sure if this can happen ... but just to make sure, all the same.
+                newPlanet = foundOptional.get();
+            }
+            else {
+                newPlanet = new Planet( newPlanetId );
+            }
+        }
+        newPlanet.setSpacestation( isSpaceStation );
+        planetRepository.save( newPlanet );
+    }
+
+
     public void visitPlanet( UUID planetId, Integer movementDifficulty ) {
         logger.info( "Visit planet " + planetId + " with movement difficulty " + movementDifficulty );
         Planet planet = planetRepository.findByPlanetId( planetId )

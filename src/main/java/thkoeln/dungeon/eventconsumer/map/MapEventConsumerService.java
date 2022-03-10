@@ -7,7 +7,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.planet.application.PlanetApplicationService;
+import thkoeln.dungeon.planet.domain.PlanetDomainService;
 
 import java.util.UUID;
 
@@ -17,16 +17,16 @@ public class MapEventConsumerService {
 
     private SpaceStationEventCreatedRepository spaceStationEventCreatedRepository;
     private GameWorldCreatedEventRepository gameWorldEventCreatedRepository;
-    private PlanetApplicationService planetApplicationService;
+    private PlanetDomainService planetDomainService;
 
 
     @Autowired
     public MapEventConsumerService( GameWorldCreatedEventRepository gameWorldEventCreatedRepository,
                                     SpaceStationEventCreatedRepository spaceStationEventCreatedRepository,
-                                    PlanetApplicationService planetApplicationService ) {
+                                    PlanetDomainService planetDomainService ) {
         this.gameWorldEventCreatedRepository = gameWorldEventCreatedRepository;
         this.spaceStationEventCreatedRepository = spaceStationEventCreatedRepository;
-        this.planetApplicationService = planetApplicationService;
+        this.planetDomainService = planetDomainService;
     }
 
     /**
@@ -42,7 +42,7 @@ public class MapEventConsumerService {
             gameWorldEventCreatedRepository.save( gameWorldCreatedEvent );
             logger.info( "Successfully consumed gameworld-created event " + gameWorldCreatedEvent );
             for ( UUID spaceStationId : gameWorldCreatedEvent.getSpaceStationIds() ) {
-                planetApplicationService.addPlanetWithoutNeighbours( spaceStationId, true );
+                planetDomainService.addPlanetWithoutNeighbours( spaceStationId, true );
             }
         }
         else {
@@ -66,7 +66,7 @@ public class MapEventConsumerService {
         if ( spaceStationCreatedEvent.isValid() ) {
             logger.info( "Successfully consumed gameworld-created event " + spaceStationCreatedEvent );
             spaceStationEventCreatedRepository.save( spaceStationCreatedEvent );
-            planetApplicationService.addPlanetWithoutNeighbours( spaceStationCreatedEvent.getPlanetId(), true );
+            planetDomainService.addPlanetWithoutNeighbours( spaceStationCreatedEvent.getPlanetId(), true );
         }
         else {
             logger.warn( "Caught invalid SpaceStationCreatedEvent " + spaceStationCreatedEvent );

@@ -3,6 +3,7 @@ package thkoeln.dungeon.planet.domain;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,19 +13,15 @@ import thkoeln.dungeon.core.EventPayloadTestFactory;
 import thkoeln.dungeon.domainprimitives.CompassDirection;
 import thkoeln.dungeon.domainprimitives.Coordinate;
 import thkoeln.dungeon.eventconsumer.core.AbstractEventTest;
-import thkoeln.dungeon.game.domain.Game;
-import thkoeln.dungeon.player.domain.Player;
 
 import java.util.*;
 
-import static org.apache.commons.lang3.math.NumberUtils.min;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
-import static thkoeln.dungeon.game.domain.GameStatus.CREATED;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
 public class PlanetDomainServiceTest extends AbstractEventTest {
+    private UUID pid1, pid2, pid3;
     private final int maxX = 5;
     private final int maxY = 3;
     private UUID[][] planetIds = new UUID[maxX][maxY];
@@ -44,9 +41,17 @@ public class PlanetDomainServiceTest extends AbstractEventTest {
     @Autowired
     private PlanetRepository planetRepository;
 
+    @Autowired
+    private PlanetDomainService planetDomainService;
+
+
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        pid1 = UUID.randomUUID();
+        pid2 = UUID.randomUUID();
+        pid3 = UUID.randomUUID();
         planetRepository.deleteAll();
         setUpTestPlanetData();
     }
@@ -216,6 +221,57 @@ public class PlanetDomainServiceTest extends AbstractEventTest {
         planet = planetRepository.findByPlanetId( planetIds[2][0] ).orElseThrow( () -> new RuntimeException() );
         planet = planet.getEastNeighbour().getNorthNeighbour().getWestNeighbour().getSouthNeighbour();
         assertEquals( planetIds[2][0], planet.getPlanetId() );
+    }
+
+    @Test
+    public void testIfInitialPlanetHasInitialCoordinates_forSpacestation() {
+        // given
+        // when
+        planetDomainService.addPlanetWithoutNeighbours( pid1, true );
+        Optional<Planet> found = planetRepository.findByPlanetId( pid1 );
+
+        // then
+        assertTrue( found.isPresent() );
+        Planet planet = found.get();
+        assertTrue( planet.isSpaceStation() );
+        assertEquals( Coordinate.initialCoordinate(), planet.getCoordinate() );
+    }
+
+    @Test
+    public void testIfInitialPlanetHasInitialCoordinates_forRegularPlanet() {
+        // given
+        // when
+        planetDomainService.addPlanetWithoutNeighbours( pid1, false );
+        Optional<Planet> found = planetRepository.findByPlanetId( pid1 );
+
+        // then
+        assertTrue( found.isPresent() );
+        Planet planet = found.get();
+        assertFalse( planet.isSpaceStation() );
+        assertEquals( Coordinate.initialCoordinate(), planet.getCoordinate() );
+    }
+
+
+    @Test
+    public void testAddSeveralPlanets() {
+        // given
+        // when
+        planetDomainService.addPlanetWithoutNeighbours( pid1, true );
+        planetDomainService.addPlanetWithoutNeighbours( pid2, false );
+        planetDomainService.addPlanetWithoutNeighbours( pid3, true );
+
+        // then
+        List<Planet> allPlanets = planetRepository.findAll();
+        assertEquals( 3, allPlanets.size() );
+        Optional<Planet> found1 = planetRepository.findByCoordinate_XAndCoordinate_Y( 0, 0 );
+        assertTrue( found1.isPresent() );
+        assertEquals( Coordinate.initialCoordinate(), found1.get().getCoordinate() );
+        Optional<Planet> found2 = planetRepository.findByPlanetId( pid2 );
+        assertTrue( found2.isPresent() );
+        Assertions.assertNull( found2.get().getCoordinate() );
+        Optional<Planet> found3 = planetRepository.findByPlanetId( pid3 );
+        assertTrue( found3.isPresent() );
+        Assertions.assertNull( found3.get().getCoordinate() );
     }
 
 }
