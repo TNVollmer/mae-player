@@ -26,6 +26,9 @@ public class PlanetApplicationService {
         this.planetRepository = planetRepository;
     }
 
-
+    /**
+     * Method to create arrays for display of the planet map
+     */
+    public void xxx() {}
 
 }
