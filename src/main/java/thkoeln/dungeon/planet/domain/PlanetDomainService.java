@@ -80,4 +80,8 @@ public class PlanetDomainService {
         planetRepository.save( neighbour );
     }
 
+    public void saveAll() {
+        List<Planet> allPlanets = planetRepository.findAll();
+        for ( Planet planet: allPlanets ) planetRepository.save( planet );
+    }
 }

@@ -22,9 +22,9 @@ public class CoordinateTest {
 
     @Test
     public void testNeighbouringMethod() {
-        assertEquals( c24, c23.neighbourCoordinate( CompassDirection.NORTH ) );
+        assertEquals( c22, c23.neighbourCoordinate( CompassDirection.NORTH ) );
         assertEquals( c13, c23.neighbourCoordinate( CompassDirection.WEST ) );
-        assertEquals( c22, c23.neighbourCoordinate( CompassDirection.SOUTH ) );
+        assertEquals( c24, c23.neighbourCoordinate( CompassDirection.SOUTH ) );
         assertEquals( c33, c23.neighbourCoordinate( CompassDirection.EAST ) );
     }
 
