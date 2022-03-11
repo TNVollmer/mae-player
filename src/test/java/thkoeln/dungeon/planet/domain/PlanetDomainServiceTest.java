@@ -3,7 +3,6 @@ package thkoeln.dungeon.planet.domain;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +10,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import thkoeln.dungeon.DungeonPlayerConfiguration;
 import thkoeln.dungeon.core.EventPayloadTestFactory;
 import thkoeln.dungeon.domainprimitives.CompassDirection;
-import thkoeln.dungeon.domainprimitives.Coordinate;
 import thkoeln.dungeon.eventconsumer.core.AbstractEventTest;
 
 import java.util.*;
@@ -234,7 +232,6 @@ public class PlanetDomainServiceTest extends AbstractEventTest {
         assertTrue( found.isPresent() );
         Planet planet = found.get();
         assertTrue( planet.isSpaceStation() );
-        assertEquals( Coordinate.initialCoordinate(), planet.getCoordinate() );
     }
 
     @Test
@@ -248,7 +245,6 @@ public class PlanetDomainServiceTest extends AbstractEventTest {
         assertTrue( found.isPresent() );
         Planet planet = found.get();
         assertFalse( planet.isSpaceStation() );
-        assertEquals( Coordinate.initialCoordinate(), planet.getCoordinate() );
     }
 
 
@@ -263,15 +259,10 @@ public class PlanetDomainServiceTest extends AbstractEventTest {
         // then
         List<Planet> allPlanets = planetRepository.findAll();
         assertEquals( 3, allPlanets.size() );
-        Optional<Planet> found1 = planetRepository.findByCoordinate_XAndCoordinate_Y( 0, 0 );
-        assertTrue( found1.isPresent() );
-        assertEquals( Coordinate.initialCoordinate(), found1.get().getCoordinate() );
         Optional<Planet> found2 = planetRepository.findByPlanetId( pid2 );
         assertTrue( found2.isPresent() );
-        Assertions.assertNull( found2.get().getCoordinate() );
         Optional<Planet> found3 = planetRepository.findByPlanetId( pid3 );
         assertTrue( found3.isPresent() );
-        Assertions.assertNull( found3.get().getCoordinate() );
     }
 
 }

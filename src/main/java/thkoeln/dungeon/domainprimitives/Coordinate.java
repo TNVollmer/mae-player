@@ -17,6 +17,8 @@ public class Coordinate {
     private Integer y;
 
     public static Coordinate fromInteger( Integer x, Integer y ) {
+        if ( x < 0 ) throw new CoordinateException( "x must be >= 0: " + x );
+        if ( y < 0 ) throw new CoordinateException( "y must be >= 0: " + y );
         return new Coordinate( x, y );
     }
 
@@ -52,6 +54,10 @@ public class Coordinate {
         return ( this.x <= anotherCoordinate.getX() && this.y <= anotherCoordinate.getY() );
     }
 
+    public boolean isLargerThan( Coordinate anotherCoordinate ) {
+        if ( anotherCoordinate == null ) return false;
+        return ( this.x > anotherCoordinate.getX() || this.y > anotherCoordinate.getY() );
+    }
 
     public Coordinate neighbourCoordinate( CompassDirection compassDirection ) {
         if ( compassDirection == null ) throw new CoordinateException( "compassDirection must not be null." );
@@ -64,6 +70,7 @@ public class Coordinate {
 
         return new Coordinate( newX, newY );
     }
+
 
     @Override
     public String toString() {

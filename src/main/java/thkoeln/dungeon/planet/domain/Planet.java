@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.domainprimitives.TwoDimDynamicArray;
 import thkoeln.dungeon.domainprimitives.CompassDirection;
 import thkoeln.dungeon.domainprimitives.Coordinate;
 import thkoeln.dungeon.domainprimitives.MineableResource;
@@ -15,10 +16,9 @@ import thkoeln.dungeon.domainprimitives.MovementDifficulty;
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+
+import static thkoeln.dungeon.domainprimitives.CompassDirection.*;
 
 @Entity
 @Getter
@@ -41,9 +41,14 @@ public class Planet {
     private Boolean visited = Boolean.FALSE;
     public Boolean hasBeenVisited() { return visited; }
 
-    @Setter // really?
-    @Embedded
-    private Coordinate coordinate = null;
+    @Setter
+    private String name;
+
+    // Flag needed for recursive output of all planets ... I know, this is not ideal, but couldn't yet
+    // think of a better solution.
+    @Setter
+    private Boolean temporaryProcessingFlag;
+
 
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
@@ -71,6 +76,14 @@ public class Planet {
 
     public Planet( UUID planetId ) {
         this.planetId = planetId;
+    }
+
+    /**
+     * Just for testing ...
+     */
+    public Planet( String name ) {
+        this.name = name;
+        this.planetId = UUID.randomUUID();
     }
 
     public static Planet createFirstSpacestation( UUID planetId ) {
@@ -152,15 +165,32 @@ public class Planet {
     }
 
 
-    public List<Planet> allNeighbours() {
-        List<Planet> allNeighbours = new ArrayList<>();
-        if ( getNorthNeighbour() != null ) allNeighbours.add( getNorthNeighbour() );
-        if ( getWestNeighbour() != null ) allNeighbours.add( getWestNeighbour() );
-        if ( getEastNeighbour() != null ) allNeighbours.add( getEastNeighbour() );
-        if ( getSouthNeighbour() != null ) allNeighbours.add( getSouthNeighbour() );
-        return allNeighbours;
+    public Map<CompassDirection, Planet> allNeighbours() {
+        Map<CompassDirection, Planet> allNeighboursMap = new HashMap<>();
+        if ( getNorthNeighbour() != null ) allNeighboursMap.put( NORTH, getNorthNeighbour() );
+        if ( getWestNeighbour() != null ) allNeighboursMap.put( WEST, getWestNeighbour() );
+        if ( getEastNeighbour() != null ) allNeighboursMap.put( EAST, getEastNeighbour() );
+        if ( getSouthNeighbour() != null ) allNeighboursMap.put( SOUTH, getSouthNeighbour() );
+        return allNeighboursMap;
     }
 
+    /**
+     * Add the neighbours to an existing 2d array of planets - grow the array if needed.
+     * @param existingLocalIsland
+     * @param Coordinate localCoordinate - position where this planet is in the array
+     * @return
+     */
+    public void constructLocalIsland( TwoDimDynamicArray<Planet> existingLocalIsland, Coordinate localCoordinate ) {
+        Map<CompassDirection, Planet> allNeighbours = allNeighbours();
+        for (Map.Entry<CompassDirection, Planet> entry : allNeighbours.entrySet()) {
+            CompassDirection direction = entry.getKey();
+            Planet neighbour = entry.getValue();
+            existingLocalIsland.enhanceIfNeededAt(localCoordinate, direction);
+            Coordinate newCoordinate = localCoordinate.neighbourCoordinate(direction);
+            existingLocalIsland.put(newCoordinate, neighbour);
+            neighbour.constructLocalIsland(existingLocalIsland, newCoordinate);
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -177,7 +207,7 @@ public class Planet {
 
     @Override
     public String toString() {
-        if ( coordinate != null ) return coordinate.toString();
-        return "";
+        if ( name != null ) return name;
+        return ( "S: " + isSpaceStation() + ", " + getPlanetId() );
     }
 }

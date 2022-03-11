@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CoordinateTest {
-    private Coordinate c00, c23, c24, c22, c33, c13, c_10;
+    private Coordinate c00, c23, c24, c22, c33, c13;
 
     @BeforeEach
     public void setUp() {
@@ -18,12 +18,10 @@ public class CoordinateTest {
         c22 = Coordinate.fromInteger( 2, 2 );
         c33 = Coordinate.fromInteger( 3, 3 );
         c13 = Coordinate.fromInteger( 1, 3 );
-        c_10 = Coordinate.fromInteger( -1, 0 );
     }
 
     @Test
     public void testNeighbouringMethod() {
-        assertEquals( c_10, c00.neighbourCoordinate( CompassDirection.WEST ) );
         assertEquals( c24, c23.neighbourCoordinate( CompassDirection.NORTH ) );
         assertEquals( c13, c23.neighbourCoordinate( CompassDirection.WEST ) );
         assertEquals( c22, c23.neighbourCoordinate( CompassDirection.SOUTH ) );
@@ -35,6 +33,23 @@ public class CoordinateTest {
         assertThrows( CoordinateException.class, () -> {
             c23.neighbourCoordinate( null );
         });
+        assertThrows( CoordinateException.class, () -> {
+            Coordinate.fromInteger( -1, 2 );
+        });
+        assertThrows( CoordinateException.class, () -> {
+            Coordinate.fromInteger( 1, -2 );
+        });
+    }
+
+    @Test
+    public void testLargerAndSmallerAndEuals() {
+        assertEquals( c00, Coordinate.initialCoordinate() );
+        assertTrue( c00.isSmallerEqualsThan( Coordinate.initialCoordinate() ) );
+        assertFalse( c00.isLargerThan( Coordinate.initialCoordinate() ) );
+        assertTrue( c23.isSmallerEqualsThan( c24 ) );
+        assertTrue( c24.isLargerThan( c23 ) );
+        assertTrue( c22.isSmallerEqualsThan( c33 ) );
+        assertTrue( c13.isLargerThan( c22 ) );
     }
 
 }

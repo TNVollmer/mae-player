@@ -1,4 +1,4 @@
-package thkoeln.dungeon.core;
+package thkoeln.dungeon.domainprimitives;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -28,24 +28,6 @@ public class PlanetDomainService {
         this.planetRepository = planetRepository;
     }
 
-    /**
-     * Add a new space station we learn about from an external event
-     * @param newSpaceStation
-     */
-    public void addSpaceStation( Planet newSpaceStation ) {
-        logger.info( "Add space station " + newSpaceStation );
-        List<Planet> foundPlanets = planetRepository.findAll();
-        if( foundPlanets.isEmpty() ) {
-            newSpaceStation.setCoordinate( Coordinate.initialCoordinate() );
-            newSpaceStation.resetAllNeighbours();
-        }
-        else {
-            // this is not yet properly thought through ... need to clarify first in which order you learn about
-            // space stations. Do you need to listen to spacestation events by Map?
-        }
-        planetRepository.save( newSpaceStation );
-    }
-
 
     /**
      * Add a new planet (may be space station) we learn about from an external event,
@@ -59,7 +41,6 @@ public class PlanetDomainService {
         if( foundPlanets.isEmpty() ) {
             // no planets yet. Assign (0,0) to this first one.
             newPlanet = new Planet( newPlanetId );
-            newPlanet.setCoordinate( Coordinate.initialCoordinate() );
         }
         else {
             Optional<Planet> foundOptional = planetRepository.findByPlanetId( newPlanetId );

@@ -26,7 +26,6 @@ public class PlanetTest {
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
                 planetArray[i][j] = new Planet();
-                planetArray[i][j].setCoordinate( Coordinate.fromInteger( i, j ) );
             }
         }
     }
@@ -69,8 +68,8 @@ public class PlanetTest {
         planetArray[1][2].defineNeighbour( planetArray[1][1], CompassDirection.WEST);
         planetRepository.save( planetArray[1][1] );
         planetRepository.save( planetArray[1][2] );
-        Planet p11 = planetRepository.findByCoordinate_XAndCoordinate_Y( 1, 1 ).get();
-        Planet p12 = planetRepository.findByCoordinate_XAndCoordinate_Y( 1, 2  ).get();
+        Planet p11 = planetArray[1][1];
+        Planet p12 = planetArray[1][2];
 
         // then
         List<Planet> persistentPlanets = planetRepository.findAll();
