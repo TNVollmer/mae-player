@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit4.SpringRunner;
 import thkoeln.dungeon.DungeonPlayerConfiguration;
 import thkoeln.dungeon.core.AbstractDungeonMockingTest;
@@ -55,15 +54,15 @@ public class PlayerGameRegistrationTest extends AbstractDungeonMockingTest {
     @Test
     public void testRegisterPlayerWithToken() throws Exception {
         // given
-        mockBearerTokenEndpointFor( player );
-        playerApplicationService.obtainBearerTokenForPlayer( player );
-        assert ( player.getBearerToken() != null );
+        mockPlayerIdEndpointFor( player );
+        playerApplicationService.obtainPlayerId( player );
+        assert ( player.getPlayerId() != null );
         super.resetMockServer();
-        mockBearerTokenEndpointFor( player );
+        mockPlayerIdEndpointFor( player );
         mockRegistrationEndpointFor( player, game.getGameId() );
 
         // when
-        playerApplicationService.registerPlayersForNewlyCreatedGame( game.getGameId() );
+        playerApplicationService.registerPlayerForGame( game.getGameId() );
 
         // then
         List<Player> playersForGame = playerRepository.findByCurrentGame( game );
@@ -79,13 +78,13 @@ public class PlayerGameRegistrationTest extends AbstractDungeonMockingTest {
     @Test
     public void testAssignPlayerId() throws Exception {
         // given
-        mockBearerTokenEndpointFor( player );
-        playerApplicationService.obtainBearerTokenForPlayer( player );
-        assert ( player.getBearerToken() != null );
+        mockPlayerIdEndpointFor( player );
+        playerApplicationService.obtainPlayerId( player );
+        assert ( player.getPlayerId() != null );
         super.resetMockServer();
-        mockBearerTokenEndpointFor( player );
+        mockPlayerIdEndpointFor( player );
         mockRegistrationEndpointFor( player, game.getGameId() );
-        playerApplicationService.registerPlayersForNewlyCreatedGame( game.getGameId() );
+        playerApplicationService.registerPlayerForGame( game.getGameId() );
 
         // when
         playerApplicationService.assignPlayerId(genericTransactionId, playerId );

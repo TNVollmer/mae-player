@@ -62,7 +62,7 @@ public class GameEventConsumerTest extends AbstractEventTest {
         assertEquals( 1, playerRepository.findByRegistrationTransactionId( genericTransactionId ).size() );
         assertEquals( 1, playerRepository.findByCurrentGame( newGame ).size() );
         Player newlyRegisteredPlayer = playerRepository.findByCurrentGame( newGame ).get( 0 );
-        assertNotNull( newlyRegisteredPlayer.getBearerToken() );
+        assertNotNull( newlyRegisteredPlayer.getPlayerId() );
         assertNull( newlyRegisteredPlayer.getPlayerId() );
     }
 

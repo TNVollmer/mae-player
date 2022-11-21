@@ -26,7 +26,7 @@ import static thkoeln.dungeon.game.domain.GameStatus.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
-public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
+public class PlayerIdTest extends AbstractDungeonMockingTest {
     @Autowired
     private Environment env;
     @Autowired
@@ -89,11 +89,11 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
         List<Player> allPlayers = playerRepository.findAll();
         for ( Player player: allPlayers ) {
             mockRegistrationEndpointFor( player, game.getGameId() );
-            mockBearerTokenEndpointFor( player );
+            mockPlayerIdEndpointFor( player );
         }
 
         // when
-        playerApplicationService.obtainBearerTokenForPlayer();
+        playerApplicationService.obtainPlayerId();
 
         // then
         allPlayers = playerRepository.findAll();
@@ -101,7 +101,7 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
         for ( Player player: allPlayers ) {
             assertNotNull( player.getEmail(), "player email" );
             assertNotNull( player.getName(), "player name"  );
-            assertNotNull( player.getBearerToken() );
+            assertNotNull( player.getPlayerId() );
         }
     }
 
@@ -113,12 +113,12 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
         List<Player> allPlayers = playerRepository.findAll();
         for ( Player player: allPlayers ) {
             mockRegistrationEndpointFor( player, game.getGameId() );
-            mockBearerTokenEndpointFor( player );
+            mockPlayerIdEndpointFor( player );
         }
 
         // when
-        playerApplicationService.obtainBearerTokenForPlayer();
-        playerApplicationService.obtainBearerTokenForPlayer();
+        playerApplicationService.obtainPlayerId();
+        playerApplicationService.obtainPlayerId();
 
         // then
         allPlayers = playerRepository.findAll();
@@ -126,7 +126,7 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
         for ( Player player: allPlayers ) {
             assertNotNull( player.getEmail(), "player email" );
             assertNotNull( player.getName(), "player name"  );
-            assertNotNull( player.getBearerToken() );
+            assertNotNull( player.getPlayerId() );
         }
     }
 

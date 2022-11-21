@@ -58,7 +58,7 @@ public class GameEventConsumerService {
             gameStatusEventRepository.save( gameStatusEvent );
             switch ( gameStatusEvent.getStatus() ) {
                 case CREATED:
-                    playerApplicationService.registerPlayersForNewlyCreatedGame( gameStatusEvent.getGameId() );
+                    playerApplicationService.registerPlayerForGame( gameStatusEvent.getGameId() );
                     break;
                 case RUNNING:
                     gameApplicationService.gameExternallyStarted( gameStatusEvent.getGameId() );

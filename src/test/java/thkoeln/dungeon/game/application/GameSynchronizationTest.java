@@ -87,7 +87,7 @@ public class GameSynchronizationTest {
 
     @Test
     public void noExceptionWhenConnectionMissing() {
-        gameApplicationService.synchronizeGameState();
+        gameApplicationService.resetGames();
         assert( true );
     }
 
@@ -99,12 +99,12 @@ public class GameSynchronizationTest {
         mockCallToGamesEndpoint_1();
 
         // when
-        gameApplicationService.synchronizeGameState();
+        gameApplicationService.resetGames();
 
         // then
         mockServer.verify();
         List<Game> games = gameRepository.findAll();
-        assertEquals( 3, games.size() );
+        assertEquals( 1, games.size() );
         Optional<Game> optional = gameApplicationService.retrieveRunningGame();
         assertTrue( optional.isPresent() );
         assertEquals( gameDto1.getGameId(), optional.get().getGameId() );
@@ -116,11 +116,11 @@ public class GameSynchronizationTest {
         // given
         mockServer = MockRestServiceServer.createServer(restTemplate);
         mockCallToGamesEndpoint_1();
-        gameApplicationService.synchronizeGameState();
+        gameApplicationService.resetGames();
         mockCallToGamesEndpoint_2();
 
         // when
-        gameApplicationService.synchronizeGameState();
+        gameApplicationService.resetGames();
 
         // then
         mockServer.verify();

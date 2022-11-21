@@ -17,11 +17,11 @@ import java.util.UUID;
 public class PlayerRegistryDto {
     private String name;
     private String email;
-    private UUID bearerToken;
+    private UUID playerId;
 
     public PlayerRegistryDto clone() {
         PlayerRegistryDto myClone = new PlayerRegistryDto();
-        myClone.setBearerToken( this.bearerToken );
+        myClone.setPlayerId( this.playerId );
         myClone.setName( this.name );
         myClone.setEmail( this.email );
         return myClone;

@@ -77,11 +77,11 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
         playerApplicationService.createPlayer();
         players = playerRepository.findAll();
         resetMockServer();
-        for ( Player player: players ) mockBearerTokenEndpointFor( player );
-        playerApplicationService.obtainBearerTokenForPlayer();
+        for ( Player player: players ) mockPlayerIdEndpointFor( player );
+        playerApplicationService.obtainPlayerId();
         players = playerRepository.findAll();
         assertEquals( 1, players.size() );
-        assertNotNull( players.get( 0 ).getBearerToken() );
+        assertNotNull( players.get( 0 ).getPlayerId() );
         spaceStationIds.add( spaceStation1Id );
         spaceStationIds.add( spaceStation2Id );
     }

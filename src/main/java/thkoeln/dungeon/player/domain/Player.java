@@ -23,8 +23,6 @@ public class Player {
     @Setter
     private String email;
     @Setter
-    private UUID bearerToken;
-    @Setter
     private UUID playerId;
     @Setter
     @Embedded
@@ -45,7 +43,7 @@ public class Player {
     }
 
     public boolean isReadyToPlay() {
-        return ( bearerToken != null && playerId != null && moneten != null );
+        return ( playerId != null && moneten != null );
     }
 
     public void registerFor ( Game game, UUID registrationTransactionId ) {
@@ -61,7 +59,7 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player '" + name + "' (bearerToken: " + bearerToken + " playerId: " + playerId + ")";
+        return "Player '" + name + "' (email: " + getEmail() + ", playerId: " + playerId + ")";
     }
 
     @Override

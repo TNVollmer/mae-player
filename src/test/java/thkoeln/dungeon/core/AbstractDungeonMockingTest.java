@@ -51,11 +51,10 @@ public class AbstractDungeonMockingTest {
         mockServer = MockRestServiceServer.bindTo( restTemplate ).ignoreExpectOrder( true ).build();
     }
 
-    protected void mockBearerTokenEndpointFor( Player player ) throws Exception {
+    protected void mockPlayerIdEndpointFor(Player player ) throws Exception {
         PlayerRegistryDto playerRegistryDto = modelMapper.map(player, PlayerRegistryDto.class);
         PlayerRegistryDto responseDto = playerRegistryDto.clone();
-        responseDto.setBearerToken(UUID.randomUUID());
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( playersEndpointURI ) )
+        mockServer.expect( ExpectedCount.max( 999 ), requestTo( playersEndpointURI ) )
                 .andExpect( method(POST) )
                 .andExpect( content().json(objectMapper.writeValueAsString( playerRegistryDto )))
                 .andRespond( withSuccess(objectMapper.writeValueAsString(responseDto), MediaType.APPLICATION_JSON) );
@@ -63,10 +62,10 @@ public class AbstractDungeonMockingTest {
 
 
     protected void mockRegistrationEndpointFor( Player player, UUID gameId ) throws Exception {
-        URI uri = new URI(gameServiceURIString + "/games/" + gameId + "/players/" + player.getBearerToken());
+        URI uri = new URI(gameServiceURIString + "/games/" + gameId + "/players/" + player.getPlayerId() );
         TransactionIdResponseDto transactionIdResponseDto =
                 new TransactionIdResponseDto(genericTransactionId);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo(uri) )
+        mockServer.expect( ExpectedCount.max( 999 ), requestTo(uri) )
                 .andExpect( method(PUT) )
                 .andRespond( withSuccess(objectMapper.writeValueAsString( transactionIdResponseDto ), MediaType.APPLICATION_JSON) );
     }

@@ -44,7 +44,7 @@ public class GameServiceRESTAdapterExceptionTest {
     @Before
     public void setUp() throws Exception {
         playerRegistryDto.setName( "abcd" );
-
+        playerRegistryDto.setEmail( "abcd@def.de");
     }
 
 
@@ -60,7 +60,7 @@ public class GameServiceRESTAdapterExceptionTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.fetchCurrentGameState();
+            gameServiceRESTAdapter.checkForOpenGames();
         });
     }
 
@@ -78,7 +78,7 @@ public class GameServiceRESTAdapterExceptionTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.fetchCurrentGameState();
+            gameServiceRESTAdapter.checkForOpenGames();
         });
     }
 
@@ -95,7 +95,7 @@ public class GameServiceRESTAdapterExceptionTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.getBearerTokenForPlayer( playerRegistryDto );
+            gameServiceRESTAdapter.obtainPlayerIdForPlayer( playerRegistryDto.getName(), playerRegistryDto.getEmail() );
         });
     }
 
@@ -113,7 +113,7 @@ public class GameServiceRESTAdapterExceptionTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.getBearerTokenForPlayer( playerRegistryDto );
+            gameServiceRESTAdapter.obtainPlayerIdForPlayer( playerRegistryDto.getName(), playerRegistryDto.getEmail() );
         });
     }
 

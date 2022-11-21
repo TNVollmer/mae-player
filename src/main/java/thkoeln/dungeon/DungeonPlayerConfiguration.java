@@ -54,6 +54,7 @@ public class DungeonPlayerConfiguration {
         props.put( ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put( ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);
+
     }
 
     @Bean

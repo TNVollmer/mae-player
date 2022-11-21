@@ -34,9 +34,26 @@ public class GameApplicationService {
     }
 
 
+    /**
+     * Throw away all stored games, and fetch a new one. Only interesting if open.
+     */
+    public void resetGames() {
+        gameRepository.deleteAll();
+        GameDto[] openGameDtos = gameServiceRESTAdapter.checkForOpenGames();
+        if ( openGameDtos.length > 0 ) {
+            Game game = new Game();
+            modelMapper.map( openGameDtos[0], game );
+            gameRepository.save( game );
+            logger.info( "Open game found: " + game );
+            if ( openGameDtos.length > 1 ) logger.warn( "More than one open game found!" );
+        }
+    }
+
+
+
 
     public Optional<Game> retrieveRunningGame() {
-        List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.RUNNING);
+        List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.RUNNING );
         if ( foundGames.size() > 1 ) throw new GameException( "More than one running game!" );
         if ( foundGames.size() == 1 ) {
             return Optional.of( foundGames.get( 0 ) );
@@ -138,57 +155,5 @@ public class GameApplicationService {
     }
 
 
-    /**
-     * Makes sure that our own game state is consistent with what GameService says.
-     * We take a very simple approach here. We, as a Player, don't manage any game
-     * state - we just assume that GameService does a proper job. So we just store
-     * the incoming games. Only in the case that a game should suddenly "disappear",
-     * we keep it and mark it as ORPHANED - there may be local references to it.
-     *
-     * This method is currently not actively called; just kept in for safety reasons.
-     * We currently assume that no "cleanup" will be necessary. If such a cleanup
-     * (after a messed-up communication with GameService) is needed, this is the
-     * method to call.
-     */
-    public void synchronizeGameState() {
-        GameDto[] gameDtos = new GameDto[0];
-        try {
-            gameDtos = gameServiceRESTAdapter.fetchCurrentGameState();
-        }
-        catch ( RESTAdapterException e ) {
-            logger.warn( "Problems with GameService while synchronizing game state - need to try again later.\n" +
-                    e.getStackTrace() );
-        }
-
-        // We need to treat the new games (those we haven't stored yet) and those we
-        // already have in a different way. Therefore let's split the list.
-        List<GameDto> unknownGameDtos = new ArrayList<>();
-        List<GameDto> knownGameDtos = new ArrayList<>();
-        for ( GameDto gameDto: gameDtos ) {
-            if ( gameRepository.existsByGameId( gameDto.getGameId() ) ) knownGameDtos.add( gameDto );
-            else unknownGameDtos.add( gameDto );
-        }
-
-        List<Game> storedGames = gameRepository.findAll();
-        for ( Game game: storedGames ) {
-            Optional<GameDto> foundDtoOptional = knownGameDtos.stream()
-                    .filter( dto -> game.getGameId().equals( dto.getGameId() )).findAny();
-            if ( foundDtoOptional.isPresent() ) {
-                modelMapper.map( foundDtoOptional.get(), game );
-                gameRepository.save( game );
-                logger.info( "Updated game " + game );
-            }
-            else {
-                game.makeOrphan();
-                gameRepository.save( game );
-            }
-        }
-        for ( GameDto gameDto: unknownGameDtos ) {
-            Game game = modelMapper.map( gameDto, Game.class );
-            gameRepository.save( game );
-            logger.info( "Received game " + game + " for the first time");
-        }
-        logger.info( "Retrieval of new game state finished" );
-    }
 
 }

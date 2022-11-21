@@ -14,7 +14,6 @@ import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.game.domain.GameRepository;
 import thkoeln.dungeon.player.domain.Player;
-import thkoeln.dungeon.player.domain.PlayerMode;
 import thkoeln.dungeon.player.domain.PlayerRepository;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.restadapter.PlayerRegistryDto;
@@ -79,42 +78,24 @@ public class PlayerApplicationService {
     /**
      * Obtain the bearer token for all players defined in this service
      */
-    public void obtainBearerTokenForPlayer() {
+    public void obtainPlayerId() {
         List<Player> players = playerRepository.findAll();
         if ( players.size() != 1 ) logger.error( "Found " + players.size() + " players!" );
-        obtainBearerTokenForPlayer( players.get( 0 ) );
+        obtainPlayerId( players.get( 0 ) );
     }
 
 
     /**
      * Obtain the bearer token for one specific player
      * @param player
-     * @return true if successful
      */
-    public void obtainBearerTokenForPlayer( Player player ) {
-        if ( player.getBearerToken() != null ) return;
-        try {
-            PlayerRegistryDto playerDto = modelMapper.map(player, PlayerRegistryDto.class);
-            PlayerRegistryDto registeredPlayerDto = gameServiceRESTAdapter.getBearerTokenForPlayer(playerDto);
-            if ( registeredPlayerDto != null ) {
-                if ( registeredPlayerDto.getBearerToken() == null ) logger.error( "Received no bearer token for " + player + "!");
-                else player.setBearerToken( registeredPlayerDto.getBearerToken() );
-                playerRepository.save( player );
-                logger.info("Bearer token received for " + player );
-            }
-            else {
-                logger.error( "PlayerRegistryDto returned by REST service is null for player " + player );
-            }
-        }
-        catch ( RESTAdapterException e ) {
-            if ( HttpStatus.FORBIDDEN.equals( e.getReturnValue() ) ) {
-                // TODO - unclear what to do in this cases
-                logger.error("Name collision while getting bearer token for player " + player);
-            }
-            else {
-                logger.error( "No connection or no valid response from GameService - no bearer token for player " + player );
-            }
-        }
+    protected void obtainPlayerId( Player player ) {
+        if ( player.getPlayerId() != null ) return;
+        UUID playerId = gameServiceRESTAdapter.obtainPlayerIdForPlayer( player.getName(), player.getEmail() );
+        if ( playerId == null ) throw new PlayerApplicationException( "Can't register player " + player );
+        player.setPlayerId( playerId );
+        playerRepository.save( player );
+        logger.info( "PlayerId sucessfully obtained for " + player );
     }
 
 
@@ -125,7 +106,7 @@ public class PlayerApplicationService {
      * for the game.
      * @param gameId
      */
-    public void registerPlayersForNewlyCreatedGame( UUID gameId ) {
+    public void registerPlayerForGame( UUID gameId ) {
         Game game = gameApplicationService.gameExternallyCreated( gameId );
         List<Player> players = playerRepository.findAll();
         for (Player player : players) registerOnePlayerForGame( player, game );
@@ -136,13 +117,13 @@ public class PlayerApplicationService {
      * @param player
      * @param game
      */
-    public void registerOnePlayerForGame( Player player, Game game ) {
-        if ( player.getBearerToken() == null ) {
-            logger.error( "Player" + player + " has no BearerToken!" );
+    protected void registerOnePlayerForGame( Player player, Game game ) {
+        if ( player.getPlayerId() == null ) {
+            logger.error( "Player" + player + " has no player ID!" );
             return;
         }
         try {
-            UUID transactionId = gameServiceRESTAdapter.registerPlayerForGame( game.getGameId(), player.getBearerToken() );
+            UUID transactionId = gameServiceRESTAdapter.registerPlayerForGame( game.getGameId(), player.getPlayerId() );
             if ( transactionId != null ) {
                 player.registerFor( game, transactionId );
                 playerRepository.save( player );
