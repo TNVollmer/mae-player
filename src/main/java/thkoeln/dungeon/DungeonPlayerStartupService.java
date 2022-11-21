@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.game.application.GameApplicationService;
-import thkoeln.dungeon.game.domain.GameRepository;
 import thkoeln.dungeon.player.application.PlayerApplicationService;
 
 @Service
@@ -24,7 +22,7 @@ public class DungeonPlayerStartupService implements ApplicationListener<ContextR
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        playerApplicationService.createPlayers();
-        playerApplicationService.obtainBearerTokensForMultiplePlayers();
+        playerApplicationService.createPlayer();
+        playerApplicationService.obtainBearerTokenForPlayer();
     }
 }

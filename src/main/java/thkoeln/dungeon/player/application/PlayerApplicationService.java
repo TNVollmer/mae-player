@@ -62,42 +62,27 @@ public class PlayerApplicationService {
         this.env = env;
     }
 
-    public int numberOfPlayers() {
-        int numberOfPlayers = Integer.valueOf( env.getProperty( "dungeon.playerNumber" ) );
-        return numberOfPlayers;
-    }
-
-
     /**
      * Create player(s), if not there already
      */
-    public void createPlayers() {
+    public void createPlayer() {
         List<Player> players = playerRepository.findAll();
-        int numberOfPlayers = numberOfPlayers();
-        if (players.size() == 0) {
-            for (int iPlayer = 0; iPlayer < numberOfPlayers; iPlayer++) {
-                Player player = new Player();
-                if ( (numberOfPlayers == 1) && (! "".equals(playerName) ) && (! "".equals(playerEmail) )  ) {
-                    player.setName( playerName );
-                    player.setEmail( playerEmail );
-                }
-                else {
-                    player.assignRandomName();
-                }
-                playerRepository.save(player);
-                logger.info("Created new player: " + player);
-                players.add(player);
-            }
-        }
+        if (players.size() > 0) return;
+        Player player = new Player();
+        player.setName( playerName );
+        player.setEmail( playerEmail );
+        playerRepository.save(player);
+        logger.info("Created new player: " + player);
     }
 
 
     /**
      * Obtain the bearer token for all players defined in this service
      */
-    public void obtainBearerTokensForMultiplePlayers() {
+    public void obtainBearerTokenForPlayer() {
         List<Player> players = playerRepository.findAll();
-        for (Player player : players) obtainBearerTokenForPlayer( player );
+        if ( players.size() != 1 ) logger.error( "Found " + players.size() + " players!" );
+        obtainBearerTokenForPlayer( players.get( 0 ) );
     }
 
 
@@ -146,12 +131,6 @@ public class PlayerApplicationService {
         for (Player player : players) registerOnePlayerForGame( player, game );
     }
 
-
-    /**
-     * Dummy method to make merge more complex - TODO delete later!
-     */
-    public void dummy1() {}
-
     /**
      * Register one specific player for a game
      * @param player
@@ -179,15 +158,7 @@ public class PlayerApplicationService {
         }
     }
 
-    /**
-     * Dummy method to make merge more complex - TODO delete later!
-     */
-    public void dummy2() {}
-
-
-
-
-    /**
+     /**
      * Method to be called when the answer event after a game registration has been received
      */
     public void assignPlayerId( UUID registrationTransactionId, UUID playerId ) {

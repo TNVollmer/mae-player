@@ -27,7 +27,6 @@ import static thkoeln.dungeon.game.domain.GameStatus.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
 public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
-    private static final int NUM_OF_PLAYERS = 30;
     @Autowired
     private Environment env;
     @Autowired
@@ -40,13 +39,11 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
 
     @BeforeClass
     public static void beforeAll() {
-        System.setProperty("dungeon.playerNumber", String.valueOf( NUM_OF_PLAYERS ));
-    }
-    @AfterClass
-    public static void afterAll() {
-        System.setProperty("dungeon.playerNumber", "1");
     }
 
+    @AfterClass
+    public static void afterAll() {
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -63,20 +60,20 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
 
     @Test
     public void noExceptionWhenConnectionMissing() {
-        playerApplicationService.createPlayers();
+        playerApplicationService.createPlayer();
         assert( true );
     }
 
     @Test
     public void testCreatePlayers() {
         // given
-        playerApplicationService.createPlayers();
+        playerApplicationService.createPlayer();
 
         // when
         List<Player> allPlayers = playerRepository.findAll();
 
         // then
-        assertEquals( Integer.valueOf( NUM_OF_PLAYERS ), allPlayers.size() );
+        assertEquals( 1, allPlayers.size() );
         for ( Player player: allPlayers ) {
             assertNotNull( player.getEmail(), "player email" );
             assertNotNull( player.getName(), "player name"  );
@@ -88,7 +85,7 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
     @Test
     public void testRegisterPlayers() throws Exception {
         // given
-        playerApplicationService.createPlayers();
+        playerApplicationService.createPlayer();
         List<Player> allPlayers = playerRepository.findAll();
         for ( Player player: allPlayers ) {
             mockRegistrationEndpointFor( player, game.getGameId() );
@@ -96,11 +93,11 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
         }
 
         // when
-        playerApplicationService.obtainBearerTokensForMultiplePlayers();
+        playerApplicationService.obtainBearerTokenForPlayer();
 
         // then
         allPlayers = playerRepository.findAll();
-        assertEquals( Integer.valueOf( NUM_OF_PLAYERS ), allPlayers.size() );
+        assertEquals( 1, allPlayers.size() );
         for ( Player player: allPlayers ) {
             assertNotNull( player.getEmail(), "player email" );
             assertNotNull( player.getName(), "player name"  );
@@ -112,7 +109,7 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
     @Test
     public void testDoublyRegisterPlayers() throws Exception {
         // given
-        playerApplicationService.createPlayers();
+        playerApplicationService.createPlayer();
         List<Player> allPlayers = playerRepository.findAll();
         for ( Player player: allPlayers ) {
             mockRegistrationEndpointFor( player, game.getGameId() );
@@ -120,12 +117,12 @@ public class PlayerBearerTokenTest extends AbstractDungeonMockingTest {
         }
 
         // when
-        playerApplicationService.obtainBearerTokensForMultiplePlayers();
-        playerApplicationService.obtainBearerTokensForMultiplePlayers();
+        playerApplicationService.obtainBearerTokenForPlayer();
+        playerApplicationService.obtainBearerTokenForPlayer();
 
         // then
         allPlayers = playerRepository.findAll();
-        assertEquals( Integer.valueOf( NUM_OF_PLAYERS ), allPlayers.size() );
+        assertEquals( 1, allPlayers.size() );
         for ( Player player: allPlayers ) {
             assertNotNull( player.getEmail(), "player email" );
             assertNotNull( player.getName(), "player name"  );
