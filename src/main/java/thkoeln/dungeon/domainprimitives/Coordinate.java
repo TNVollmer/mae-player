@@ -7,6 +7,18 @@ import lombok.Setter;
 
 import javax.persistence.Embeddable;
 
+/*
+ * For convenience (compatibility with our reading directions), Coordinates seen as growing from top to bottom
+ * and from left to right. I.e. it looks like this:
+ *
+ *        x---->
+ *         0  1  2  3  4
+ *   y   0
+ *   |   1
+ *   |   2
+ *   V   3
+ */
+
 @Getter
 @Setter( AccessLevel.PROTECTED )
 @Embeddable
@@ -17,6 +29,8 @@ public class Coordinate {
     private Integer y;
 
     public static Coordinate fromInteger( Integer x, Integer y ) {
+        if ( x == null ) throw new CoordinateException( "x must not be null!" );
+        if ( y == null ) throw new CoordinateException( "y must not be null!" );
         if ( x < 0 ) throw new CoordinateException( "x must be >= 0: " + x );
         if ( y < 0 ) throw new CoordinateException( "y must be >= 0: " + y );
         return new Coordinate( x, y );
@@ -63,12 +77,12 @@ public class Coordinate {
         if ( compassDirection == null ) throw new CoordinateException( "compassDirection must not be null." );
         Integer newX = this.x;
         Integer newY = this.y;
-        if ( compassDirection == CompassDirection.NORTH ) newY++;
+        if ( compassDirection == CompassDirection.NORTH ) newY = Math.max( newY-1, 0 );
         if ( compassDirection == CompassDirection.EAST ) newX++;
-        if ( compassDirection == CompassDirection.SOUTH ) newY--;
-        if ( compassDirection == CompassDirection.WEST ) newX--;
+        if ( compassDirection == CompassDirection.SOUTH ) newY++;
+        if ( compassDirection == CompassDirection.WEST ) newX = Math.max( newX-1, 0 );
 
-        return new Coordinate( newX, newY );
+        return Coordinate.fromInteger( newX, newY );
     }
 
 

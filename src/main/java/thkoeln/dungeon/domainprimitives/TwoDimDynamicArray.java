@@ -64,7 +64,50 @@ public class TwoDimDynamicArray<T> {
         if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
         if ( coordinate.isLargerThan( getMaxCoordinate() ) )
             throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
-        array.get( coordinate.getY() ).set( coordinate.getX(), value );
+        array.get(coordinate.getY()).set(coordinate.getX(), value);
+    }
+
+    /**
+     * Put a value into the array no/we/so/ea of the given coordinate. Enhance the array if needed.
+     * @param coordinate
+     * @param compassDirection
+     * @param value
+     * @return the Coordinate of the (potentially enlarged) array, where the value is now located
+     */
+    public Coordinate putAndEnhance( Coordinate coordinate, CompassDirection compassDirection, T value ) {
+        if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
+        if ( coordinate.isLargerThan( getMaxCoordinate() ) )
+            throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
+        if ( compassDirection == null ) throw new TwoDimDynamicArrayException( "compassDirection must not be null" );
+
+        Coordinate whereToInsert = enhanceIfNeededAt( coordinate, compassDirection );
+        put( whereToInsert, value );
+        return whereToInsert;
+    }
+
+    /**
+     * Enhance the array at a given position if this is needed, in the compass direction specified
+     * @param coordinate
+     * @param compassDirection
+     * @return
+     */
+    protected Coordinate enhanceIfNeededAt( Coordinate coordinate, CompassDirection compassDirection ) {
+        if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
+        if ( coordinate.isLargerThan( getMaxCoordinate() ) )
+            throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
+        if ( compassDirection == null ) throw new TwoDimDynamicArrayException( "compassDirection must not be null" );
+        Coordinate neighbourCoordinate = coordinate.neighbourCoordinate( compassDirection );
+        if ( neighbourCoordinate.isLargerThan( getMaxCoordinate() ) ||
+                ( coordinate.getY() == 0 && compassDirection.equals( CompassDirection.NORTH ) ) ||
+                ( coordinate.getX() == 0 && compassDirection.equals( CompassDirection.WEST ) ) ) {
+            switch (compassDirection) {
+                case NORTH: addRowAt( 0 ); break; // just the opposite of what is intuitive: 0 = north!
+                case EAST: addColumnAt(coordinate.getX() + 1); break;
+                case SOUTH: addRowAt(coordinate.getY() + 1);break;
+                case WEST: addColumnAt(coordinate.getX());
+            }
+        }
+        return neighbourCoordinate;
     }
 
     public void addRowAt( int y ) {
@@ -84,30 +127,8 @@ public class TwoDimDynamicArray<T> {
     }
 
 
-    /**
-     * Enhance the array at a given position if this is needed, in the compass direction specified
-     * @param coordinate
-     * @param compassDirection
-     */
-    public void enhanceIfNeededAt( Coordinate coordinate, CompassDirection compassDirection ) {
-        if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
-        if ( coordinate.isLargerThan( getMaxCoordinate() ) )
-            throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
-        if ( compassDirection == null ) throw new TwoDimDynamicArrayException( "compassDirection must not be null" );
-        Coordinate neighbourCoordinate = coordinate.neighbourCoordinate( compassDirection );
-        if ( neighbourCoordinate.isLargerThan( getMaxCoordinate() ) ||
-                ( coordinate.equals( Coordinate.initialCoordinate() )
-                     && compassDirection.equals( CompassDirection.NORTH ) ) ||
-                ( coordinate.equals( Coordinate.initialCoordinate() )
-                        && compassDirection.equals( CompassDirection.WEST ) ) ) {
-            switch (compassDirection) {
-                case NORTH: addRowAt(coordinate.getY() + 1);break;
-                case EAST: addColumnAt(coordinate.getX() + 1); break;
-                case SOUTH: addRowAt(coordinate.getY()); break;
-                case WEST: addColumnAt(coordinate.getX());
-            }
-        }
-    }
+
+
 
 
     @Override

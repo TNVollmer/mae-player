@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.domainprimitives.TwoDimDynamicArray;
 import thkoeln.dungeon.domainprimitives.Coordinate;
 import thkoeln.dungeon.planet.domain.Planet;
+import thkoeln.dungeon.planet.domain.PlanetDomainService;
 import thkoeln.dungeon.planet.domain.PlanetRepository;
 
 import java.util.*;
@@ -15,9 +16,12 @@ import java.util.*;
 public class PlanetApplicationService {
     private Logger logger = LoggerFactory.getLogger( PlanetApplicationService.class );
     private PlanetRepository planetRepository;
+    private PlanetDomainService planetDomainService;
+
 
     @Autowired
-    public PlanetApplicationService( PlanetRepository planetRepository ) {
+    public PlanetApplicationService( PlanetRepository planetRepository, PlanetDomainService planetDomainService ) {
+        this.planetDomainService = planetDomainService;
         this.planetRepository = planetRepository;
     }
 
@@ -36,17 +40,12 @@ public class PlanetApplicationService {
         // discovered to be connected, one of it is taken out of the map (to avoid printing planets twice)
         List<Planet> spacestations = planetRepository.findBySpacestationEquals( Boolean.TRUE );
         for ( Planet spacestation: spacestations ) {
-            TwoDimDynamicArray<Planet> island = new TwoDimDynamicArray<>( 1, 1 );
-            island.put( Coordinate.initialCoordinate(), spacestation );
-            planetMap.put( spacestation, island );
-        }
-        for ( Planet spacestation: spacestations ) {
             if ( !spacestation.getTemporaryProcessingFlag() ) {
+                TwoDimDynamicArray<Planet> island = new TwoDimDynamicArray<>( spacestation );
                 // not already visited, i.e. this is really an island (= partial graph)
-                TwoDimDynamicArray<Planet> island = new TwoDimDynamicArray<>(1, 1);
-                island.put( Coordinate.initialCoordinate(), spacestation );
                 spacestation.constructLocalIsland( island, Coordinate.initialCoordinate() );
                 planetMap.put( spacestation, island );
+                planetDomainService.saveAll();
             }
         }
         return planetMap;

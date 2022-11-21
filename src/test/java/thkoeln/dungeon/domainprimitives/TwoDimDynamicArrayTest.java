@@ -163,11 +163,11 @@ public class TwoDimDynamicArrayTest {
 
         // then
         assertEquals(2, arrNorth.sizeX());
-        assertEquals(4, arrNorth.sizeY());
+        assertEquals(3, arrNorth.sizeY());
         assertEquals(3, arrEast.sizeX());
         assertEquals(3, arrEast.sizeY());
         assertEquals(2, arrSouth.sizeX());
-        assertEquals(3, arrSouth.sizeY());
+        assertEquals(4, arrSouth.sizeY());
         assertEquals(2, arrWest.sizeX());
         assertEquals(3, arrWest.sizeY());
     }

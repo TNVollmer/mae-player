@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.text.WordUtils;
+import org.apache.kafka.common.protocol.types.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.domainprimitives.TwoDimDynamicArray;
@@ -18,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static java.lang.Boolean.TRUE;
 import static thkoeln.dungeon.domainprimitives.CompassDirection.*;
 
 @Entity
@@ -177,19 +179,25 @@ public class Planet {
     /**
      * Add the neighbours to an existing 2d array of planets - grow the array if needed.
      * @param existingLocalIsland
-     * @param Coordinate localCoordinate - position where this planet is in the array
+     * @param localCoordinate - position where this planet is in the array
      * @return
      */
-    public void constructLocalIsland( TwoDimDynamicArray<Planet> existingLocalIsland, Coordinate localCoordinate ) {
+    public TwoDimDynamicArray<Planet> constructLocalIsland(
+            TwoDimDynamicArray<Planet> existingLocalIsland, Coordinate localCoordinate ) {
+        if ( getTemporaryProcessingFlag() ) return existingLocalIsland;
+
+        setTemporaryProcessingFlag( TRUE );
+        TwoDimDynamicArray<Planet> localIsland = existingLocalIsland;
         Map<CompassDirection, Planet> allNeighbours = allNeighbours();
         for (Map.Entry<CompassDirection, Planet> entry : allNeighbours.entrySet()) {
             CompassDirection direction = entry.getKey();
             Planet neighbour = entry.getValue();
-            existingLocalIsland.enhanceIfNeededAt(localCoordinate, direction);
-            Coordinate newCoordinate = localCoordinate.neighbourCoordinate(direction);
-            existingLocalIsland.put(newCoordinate, neighbour);
-            neighbour.constructLocalIsland(existingLocalIsland, newCoordinate);
+            if ( !neighbour.getTemporaryProcessingFlag() ) {
+                Coordinate newCoordinate = localIsland.putAndEnhance( localCoordinate, direction, neighbour );
+                localIsland = neighbour.constructLocalIsland( localIsland, newCoordinate );
+            }
         }
+        return localIsland;
     }
 
     @Override
