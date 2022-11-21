@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.domainprimitives.Moneten;
 import thkoeln.dungeon.game.application.GameApplicationService;
@@ -16,10 +15,11 @@ import thkoeln.dungeon.game.domain.GameRepository;
 import thkoeln.dungeon.player.domain.Player;
 import thkoeln.dungeon.player.domain.PlayerRepository;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.restadapter.PlayerRegistryDto;
+import thkoeln.dungeon.restadapter.PlayerJoinDto;
 import thkoeln.dungeon.restadapter.RESTAdapterException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -62,101 +62,85 @@ public class PlayerApplicationService {
     }
 
     /**
-     * Create player(s), if not there already
+     * @return The current player, if there is one.
+     */
+    public Optional<Player> fetchPlayer() {
+        List<Player> players = playerRepository.findAll();
+        if ( players.size() == 1 ) {
+            return Optional.of( players.get( 0 ) );
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Create player(s), if not there already, register it at Game service,
+     * and let it join an open game, if there is already one.
      */
     public void createPlayer() {
-        List<Player> players = playerRepository.findAll();
-        if (players.size() > 0) return;
-        Player player = new Player();
-        player.setName( playerName );
-        player.setEmail( playerEmail );
-        playerRepository.save(player);
-        logger.info("Created new player: " + player);
+        Optional<Player> perhapsPlayer = fetchPlayer();
+        Player player = null;
+        if ( !perhapsPlayer.isPresent() ) {
+            player = new Player();
+            player.setName( playerName );
+            player.setEmail( playerEmail );
+            playerRepository.save(player);
+            logger.info( "Created new player (not yet registered): " + player );
+        }
+        registerPlayer();
+        letPlayerJoinOpenGame();
     }
 
 
     /**
-     * Obtain the bearer token for all players defined in this service
+     * Register the current player (or do nothing, if it is already registered)
      */
-    public void obtainPlayerId() {
-        List<Player> players = playerRepository.findAll();
-        if ( players.size() != 1 ) logger.error( "Found " + players.size() + " players!" );
-        obtainPlayerId( players.get( 0 ) );
-    }
-
-
-    /**
-     * Obtain the bearer token for one specific player
-     * @param player
-     */
-    protected void obtainPlayerId( Player player ) {
-        if ( player.getPlayerId() != null ) return;
+    public void registerPlayer() {
+        Optional<Player> perhapsPlayer = fetchPlayer();
+        if ( !perhapsPlayer.isPresent() ) {
+            logger.error( "No player to register!" );
+            return;
+        }
+        Player player = perhapsPlayer.get();
+        if ( player.getPlayerId() != null ) {
+            logger.info( "Player " + player + " is already registered." );
+            return;
+        }
         UUID playerId = gameServiceRESTAdapter.obtainPlayerIdForPlayer( player.getName(), player.getEmail() );
         if ( playerId == null ) throw new PlayerApplicationException( "Can't register player " + player );
         player.setPlayerId( playerId );
         playerRepository.save( player );
-        logger.info( "PlayerId sucessfully obtained for " + player );
+        logger.info( "PlayerId sucessfully obtained for " + player + ", is now registered." );
     }
 
 
-
     /**
-     * We have received the event that a game has been created. So make sure that the game state is suitable,
-     * and that our player(s) can join.
-     * for the game.
-     * @param gameId
+     * Check if our player is not currently in a game, and if so, let him join the game -
+     * if there is one, and it is open.
      */
-    public void registerPlayerForGame( UUID gameId ) {
-        Game game = gameApplicationService.gameExternallyCreated( gameId );
-        List<Player> players = playerRepository.findAll();
-        for (Player player : players) registerOnePlayerForGame( player, game );
-    }
-
-    /**
-     * Register one specific player for a game
-     * @param player
-     * @param game
-     */
-    protected void registerOnePlayerForGame( Player player, Game game ) {
-        if ( player.getPlayerId() == null ) {
-            logger.error( "Player" + player + " has no player ID!" );
+    public void letPlayerJoinOpenGame() {
+        Optional<Player> perhapsPlayer = fetchPlayer();
+        if ( !perhapsPlayer.isPresent() || perhapsPlayer.get().getPlayerId() == null ) {
+            logger.warn( "No registered player - cannot join a game." );
             return;
         }
-        try {
-            UUID transactionId = gameServiceRESTAdapter.registerPlayerForGame( game.getGameId(), player.getPlayerId() );
-            if ( transactionId != null ) {
-                player.registerFor( game, transactionId );
-                playerRepository.save( player );
-                logger.info( "Player " + player + " successfully registered for game " + game +
-                        " with transactionId " + transactionId );
-            }
-        } catch ( RESTAdapterException e ) {
-            // shouldn't happen - cannot do more than logging and retrying later
-            logger.error( "Something went wrong ... ");
-            // todo - err msg wrong
-            logger.error( "Could not register " + player + " for " + game +
-                    "\nOriginal Exception:\n" + e.getMessage() + "\n" + e.getStackTrace() );
+        Optional<Game> perhapsOpenGame = gameApplicationService.retrieveOpenGame();
+        if ( !perhapsOpenGame.isPresent() ) {
+            logger.info( "No open game at the moment - cannot join a game." );
+            return;
         }
+        Player player = perhapsPlayer.get();
+        Game game = perhapsOpenGame.get();
+        String playerQueue =
+                gameServiceRESTAdapter.registerPlayerForGame( game.getGameId(), player.getPlayerId() );
+        if ( playerQueue == null ) return;
+        player.setPlayerQueue( playerQueue );
+        playerRepository.save( player );
+        logger.info( "Player " + player + " successfully registered for game " + game +
+                ", listening via player queue " + playerQueue );
     }
 
-     /**
-     * Method to be called when the answer event after a game registration has been received
-     */
-    public void assignPlayerId( UUID registrationTransactionId, UUID playerId ) {
-        logger.info( "Assign playerId from game registration" );
-        if ( registrationTransactionId == null )
-            throw new PlayerApplicationException( "registrationTransactionId cannot be null!" );
-        if ( playerId == null )  throw new PlayerApplicationException( "PlayerId cannot be null!" );
-        List<Player> foundPlayers =
-                playerRepository.findByRegistrationTransactionId( registrationTransactionId );
-        if ( foundPlayers.size() != 1 ) {
-            throw new PlayerApplicationException( "Found not exactly 1 player with transactionId"
-                    + registrationTransactionId + ", but " + foundPlayers.size() );
-        }
-        Player player = foundPlayers.get( 0 );
-        player.setPlayerId( playerId );
-        playerRepository.save( player );
-    }
 
     /**
      * @param playerId

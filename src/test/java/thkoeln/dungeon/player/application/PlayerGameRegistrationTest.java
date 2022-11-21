@@ -55,14 +55,14 @@ public class PlayerGameRegistrationTest extends AbstractDungeonMockingTest {
     public void testRegisterPlayerWithToken() throws Exception {
         // given
         mockPlayerIdEndpointFor( player );
-        playerApplicationService.obtainPlayerId( player );
+        playerApplicationService.registerPlayer( player );
         assert ( player.getPlayerId() != null );
         super.resetMockServer();
         mockPlayerIdEndpointFor( player );
         mockRegistrationEndpointFor( player, game.getGameId() );
 
         // when
-        playerApplicationService.registerPlayerForGame( game.getGameId() );
+        playerApplicationService.letPlayerJoinOpenGame( game.getGameId() );
 
         // then
         List<Player> playersForGame = playerRepository.findByCurrentGame( game );
@@ -79,12 +79,12 @@ public class PlayerGameRegistrationTest extends AbstractDungeonMockingTest {
     public void testAssignPlayerId() throws Exception {
         // given
         mockPlayerIdEndpointFor( player );
-        playerApplicationService.obtainPlayerId( player );
+        playerApplicationService.registerPlayer( player );
         assert ( player.getPlayerId() != null );
         super.resetMockServer();
         mockPlayerIdEndpointFor( player );
         mockRegistrationEndpointFor( player, game.getGameId() );
-        playerApplicationService.registerPlayerForGame( game.getGameId() );
+        playerApplicationService.letPlayerJoinOpenGame( game.getGameId() );
 
         // when
         playerApplicationService.assignPlayerId(genericTransactionId, playerId );

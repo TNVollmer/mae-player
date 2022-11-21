@@ -37,7 +37,7 @@ public class GameApplicationService {
     /**
      * Throw away all stored games, and fetch a new one. Only interesting if open.
      */
-    public void resetGames() {
+    public void refetchGame() {
         gameRepository.deleteAll();
         GameDto[] openGameDtos = gameServiceRESTAdapter.checkForOpenGames();
         if ( openGameDtos.length > 0 ) {
@@ -49,9 +49,25 @@ public class GameApplicationService {
         }
     }
 
+    /**
+     * @return The currently avaible open game
+     * todo OBSOLETE
+     */
+    public Optional<Game> retrieveOpenGame() {
+        List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.CREATED );
+        if ( foundGames.size() > 1 ) throw new GameException( "More than one open game!" );
+        if ( foundGames.size() == 1 ) {
+            return Optional.of( foundGames.get( 0 ) );
+        }
+        else {
+            return Optional.empty();
+        }
+    }
 
-
-
+    /**
+     * @return The currently avaible open game
+     * todo OBSOLETE
+     */
     public Optional<Game> retrieveRunningGame() {
         List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.RUNNING );
         if ( foundGames.size() > 1 ) throw new GameException( "More than one running game!" );
@@ -82,6 +98,7 @@ public class GameApplicationService {
     /**
      * We received notice (by event) that a certain game has been created.
      * @param gameId ID of the new game
+     * todo OBSOLETE (I think)
      */
     public Game gameExternallyCreated ( UUID gameId ) {
         logger.info( "Processing external event that the game with gameId " + gameId + " has been created" );
@@ -99,6 +116,7 @@ public class GameApplicationService {
      * In that case, we simply assume that there is only ONE game currently running, and that it is THIS
      * game. All other games I might have here in the player will be set to GAME_FINISHED state.
      * @param gameId ID of the new game
+     * todo OBSOLETE (I think)
      */
     public Game gameExternallyStarted ( UUID gameId ) {
         logger.info( "Processing external event that the game with gameId " + gameId + " has started" );
@@ -117,6 +135,7 @@ public class GameApplicationService {
 
     /**
      * We received notice (by event) that a certain game has finished.
+     * todo OBSOLETE (I think)
      * @param gameId
      */
     public Game gameExternallyFinished( UUID gameId ) {
@@ -128,8 +147,11 @@ public class GameApplicationService {
     }
 
 
-
-
+    /**
+     * todo OBSOLETE (I think)
+     * @param gameId
+     * @return
+     */
     private Game findAndIfNeededCreateGame( UUID gameId ) {
         List<Game> fittingGames = gameRepository.findByGameId( gameId );
         Game game = null;
@@ -143,17 +165,6 @@ public class GameApplicationService {
         gameRepository.save( game );
         return game;
     }
-
-
-    /**
-     * To be called by event consumer listening to GameService event
-     * @param gameId
-     */
-    public void newRound( UUID gameId, Integer roundNumber ) {
-        logger.info( "Processing 'new round' event for round no. " + roundNumber );
-        // todo
-    }
-
 
 
 }

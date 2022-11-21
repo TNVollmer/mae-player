@@ -58,7 +58,7 @@ public class GameEventConsumerService {
             gameStatusEventRepository.save( gameStatusEvent );
             switch ( gameStatusEvent.getStatus() ) {
                 case CREATED:
-                    playerApplicationService.registerPlayerForGame( gameStatusEvent.getGameId() );
+                    playerApplicationService.letPlayerJoinOpenGame();
                     break;
                 case RUNNING:
                     gameApplicationService.gameExternallyStarted( gameStatusEvent.getGameId() );
@@ -86,8 +86,6 @@ public class GameEventConsumerService {
                 .fillHeader( eventId, timestamp, transactionId );
         if ( playerStatusEvent.isValid() ) {
             playerStatusEventRepository.save( playerStatusEvent );
-            playerApplicationService.assignPlayerId(
-                    playerStatusEvent.getTransactionId(), playerStatusEvent.getPlayerId() );
         }
         else {
             logger.warn( "Caught invalid PlayerStatusEvent " + playerStatusEvent );

@@ -93,7 +93,7 @@ public class PlayerIdTest extends AbstractDungeonMockingTest {
         }
 
         // when
-        playerApplicationService.obtainPlayerId();
+        playerApplicationService.registerPlayer();
 
         // then
         allPlayers = playerRepository.findAll();
@@ -117,8 +117,8 @@ public class PlayerIdTest extends AbstractDungeonMockingTest {
         }
 
         // when
-        playerApplicationService.obtainPlayerId();
-        playerApplicationService.obtainPlayerId();
+        playerApplicationService.registerPlayer();
+        playerApplicationService.registerPlayer();
 
         // then
         allPlayers = playerRepository.findAll();

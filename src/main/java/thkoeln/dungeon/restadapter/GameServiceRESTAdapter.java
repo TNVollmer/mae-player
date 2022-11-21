@@ -17,7 +17,6 @@ import thkoeln.dungeon.DungeonPlayerRuntimeException;
 import thkoeln.dungeon.game.domain.GameStatus;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.UUID;
 
 import static org.springframework.http.HttpMethod.*;
@@ -125,13 +124,14 @@ public class GameServiceRESTAdapter {
      * @param bearerToken of the player
      * @return transactionId if successful
      */
-    public UUID registerPlayerForGame( UUID gameId, UUID bearerToken ) {
+    public String registerPlayerForGame( UUID gameId, UUID bearerToken ) {
         String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + bearerToken;
         try {
-            TransactionIdResponseDto transactionIdResponseDto =
-                    restTemplate.execute( urlString, PUT, requestCallback(), registryForGameResponseExtractor() );
-            return transactionIdResponseDto.getTransactionId();
+            PlayerJoinDto playerJoinDto =
+                    restTemplate.execute( urlString, PUT, requestCallback(), playerJoinResponseExtractor() );
+            return playerJoinDto.getPlayerQueue();
         }
+        // todo this is wrong
         catch ( HttpClientErrorException e ) {
             if ( e.getStatusCode().equals( HttpStatus.NOT_ACCEPTABLE ) ) {
                 // this is a business logic problem - so let the application service handle this
@@ -168,9 +168,9 @@ public class GameServiceRESTAdapter {
         };
     }
 
-    private ResponseExtractor<TransactionIdResponseDto> registryForGameResponseExtractor() {
+    private ResponseExtractor<PlayerJoinDto> playerJoinResponseExtractor() {
         return response -> {
-            return objectMapper.readValue( response.getBody(), TransactionIdResponseDto.class );
+            return objectMapper.readValue( response.getBody(), PlayerJoinDto.class );
         };
     }
 }

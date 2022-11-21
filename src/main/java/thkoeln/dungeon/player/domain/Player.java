@@ -25,6 +25,9 @@ public class Player {
     @Setter
     private UUID playerId;
     @Setter
+    private String playerQueue;
+
+    @Setter
     @Embedded
     private Moneten moneten = Moneten.fromInteger( 0 );
 
@@ -55,6 +58,14 @@ public class Player {
 
     public void playRound() {
         // todo
+    }
+
+    public boolean isRegistered() {
+        return getPlayerId() != null;
+    }
+
+    public boolean hasJoinedGame() {
+        return getPlayerQueue() != null;
     }
 
     @Override
