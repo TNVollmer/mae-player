@@ -81,6 +81,15 @@ public class GameServiceRESTAdapter {
             returnedPlayerRegistryDto =
                     restTemplate.execute( urlString, GET, requestCallback(), playerRegistryResponseExtractor() );
         }
+        catch ( RestClientResponseException e ) {
+            if ( e.getRawStatusCode() == 404 ) {
+                logger.info("No player exists for " + playerName + " and " + email);
+            }
+            else {
+                logger.error("Return code " + e.getRawStatusCode() + " for request " + urlString);
+            }
+            return null;
+        }
         catch ( RestClientException e ) {
             logger.error( "Problem with the GET request '" + urlString + "', msg: " + e.getMessage() );
             return null;

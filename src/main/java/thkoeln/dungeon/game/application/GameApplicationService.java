@@ -80,6 +80,11 @@ public class GameApplicationService {
     }
 
 
+    /**
+     * todo do we need this?
+     * @param gameId
+     * @return
+     */
     public Optional<Game> findByGameId( UUID gameId ) {
         List<Game> foundGames = gameRepository.findByGameId( gameId );
         if ( foundGames.size() > 1 ) {

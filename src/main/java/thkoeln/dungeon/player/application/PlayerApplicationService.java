@@ -34,11 +34,9 @@ import java.util.UUID;
 public class PlayerApplicationService {
     private Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
     private ModelMapper modelMapper = new ModelMapper();
-    private Environment env;
 
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
-    private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
 
     @Value("${dungeon.playerName}")
@@ -51,15 +49,12 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
-            GameRepository gameRepository,
-            GameServiceRESTAdapter gameServiceRESTAdapter,
-            Environment env ) {
+            GameServiceRESTAdapter gameServiceRESTAdapter ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
-        this.gameRepository = gameRepository;
         this.gameApplicationService = gameApplicationService;
-        this.env = env;
     }
+
 
     /**
      * @return The current player, if there is one.
@@ -156,6 +151,7 @@ public class PlayerApplicationService {
     /**
      * Find a unique player using the given id.
      * Throws PlayerApplicationException if no or more players are found.
+     * todo should not be needed
      */
     public Player findUniquePlayerById( UUID playerId ) {
         val foundPlayers = playerRepository.findByPlayerId( playerId );

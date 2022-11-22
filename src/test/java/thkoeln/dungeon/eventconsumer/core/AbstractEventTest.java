@@ -77,7 +77,7 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
         playerApplicationService.createPlayer();
         players = playerRepository.findAll();
         resetMockServer();
-        for ( Player player: players ) mockPlayerIdEndpointFor( player );
+        for ( Player player: players ) mockPlayerPost();
         playerApplicationService.registerPlayer();
         players = playerRepository.findAll();
         assertEquals( 1, players.size() );
