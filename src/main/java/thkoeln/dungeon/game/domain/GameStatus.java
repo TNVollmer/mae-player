@@ -9,6 +9,10 @@ public enum GameStatus {
     RUNNING,
     @JsonProperty("ended")
     FINISHED,
-    ORPHANED // this is the state a game takes when the GameService doesn't list it anymore
+    ORPHANED; // this is the state a game takes when the GameService doesn't list it anymore
 
+
+    public boolean isActive() {
+        return ( this.equals( CREATED ) || this.equals( RUNNING ) );
+    }
 }

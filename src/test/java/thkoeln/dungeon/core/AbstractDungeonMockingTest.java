@@ -78,7 +78,7 @@ public class AbstractDungeonMockingTest {
         gameDtosWithRunningGame[1].setCurrentRoundNumber( 34 );
 
         gameDtosWithCreatedGame = new GameDto[2];
-        gameDtosWithCreatedGame[0] = gameDtosWithCreatedGame[0];
+        gameDtosWithCreatedGame[0] = gameDtosWithRunningGame[0];
         gameDtosWithCreatedGame[1] = new GameDto();
         gameDtosWithCreatedGame[1].setGameStatus( GameStatus.CREATED );
         gameDtosWithCreatedGame[1].setGameId( UUID.randomUUID() );

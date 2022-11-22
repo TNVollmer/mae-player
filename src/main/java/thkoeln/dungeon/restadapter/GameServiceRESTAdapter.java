@@ -44,13 +44,13 @@ public class GameServiceRESTAdapter {
         String urlString = gameServiceUrlString + "/games";
         try {
             allGames = restTemplate.getForObject( urlString, GameDto[].class );
-            if ( allGames == null ) {
+            if ( allGames == null || allGames.length == 0 ) {
                 logger.error( "Received a null GameDto array from " + urlString );
                 return new GameDto[0];
             }
             logger.info( "Got " + allGames.length + " game(s) via REST ...");
-            openGames = Arrays.stream(allGames).filter(
-                    gameDto -> gameDto.getGameStatus().equals( GameStatus.CREATED )).toArray( GameDto[]::new );
+            openGames = Arrays.stream(allGames).filter( gameDto -> gameDto.getGameStatus().isActive() )
+                    .toArray( GameDto[]::new );
         }
         catch ( RestClientException e ) {
             logger.error( "Error when contacting " + urlString + ", message: " + e.getMessage() );

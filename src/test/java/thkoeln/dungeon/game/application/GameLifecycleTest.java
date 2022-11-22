@@ -45,6 +45,8 @@ public class GameLifecycleTest {
         game2 = Game.newlyCreatedGame( GAME_ID_2 );
     }
 
+    @Test
+    public void dummy() {}
 /*
 
     @Test
