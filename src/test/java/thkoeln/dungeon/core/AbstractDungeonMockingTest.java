@@ -10,7 +10,9 @@ import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.game.domain.Game;
+import thkoeln.dungeon.game.domain.GameStatus;
 import thkoeln.dungeon.player.domain.Player;
+import thkoeln.dungeon.restadapter.GameDto;
 import thkoeln.dungeon.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.restadapter.TransactionIdResponseDto;
 
@@ -34,6 +36,8 @@ public class AbstractDungeonMockingTest {
 
     protected URI gamesURI;
     protected Game game;
+    protected GameDto[] gameDtosWithCreatedGame;
+    protected GameDto[] gameDtosWithRunningGame;
 
     @Autowired
     protected RestTemplate restTemplate;
@@ -52,15 +56,34 @@ public class AbstractDungeonMockingTest {
         String getExtension = "/players?name=" + playerName + "&mail=" + playerEmail;
         playersGetURI = new URI( gameServiceURIString + getExtension );
         playersPostURI = new URI( gameServiceURIString + "/players" );
-        resetMockServer();
         playerRegistryDto = new PlayerRegistryDto();
+        gamesURI = new URI( gameServiceURIString + "/games" );
+        createMockGameDtos();
+        resetMockServer();
     }
 
     protected void resetMockServer() {
         mockServer = MockRestServiceServer.bindTo( restTemplate ).ignoreExpectOrder( true ).build();
     }
 
+    protected void createMockGameDtos() {
+        gameDtosWithRunningGame = new GameDto[2];
+        gameDtosWithRunningGame[0] = new GameDto();
+        gameDtosWithRunningGame[0].setGameStatus( GameStatus.FINISHED );
+        gameDtosWithRunningGame[0].setGameId( UUID.randomUUID() );
+        gameDtosWithRunningGame[0].setCurrentRoundNumber( 100 );
+        gameDtosWithRunningGame[1] = new GameDto();
+        gameDtosWithRunningGame[1].setGameStatus( GameStatus.RUNNING );
+        gameDtosWithRunningGame[1].setGameId( UUID.randomUUID() );
+        gameDtosWithRunningGame[1].setCurrentRoundNumber( 34 );
 
+        gameDtosWithCreatedGame = new GameDto[2];
+        gameDtosWithCreatedGame[0] = gameDtosWithCreatedGame[0];
+        gameDtosWithCreatedGame[1] = new GameDto();
+        gameDtosWithCreatedGame[1].setGameStatus( GameStatus.CREATED );
+        gameDtosWithCreatedGame[1].setGameId( UUID.randomUUID() );
+        gameDtosWithCreatedGame[1].setCurrentRoundNumber( 0 );
+    }
 
 
     protected void mockPlayerPost() throws Exception {
@@ -88,6 +111,19 @@ public class AbstractDungeonMockingTest {
     }
 
 
+    protected void mockGamesGetWithRunning() throws Exception {
+        mockServer.expect( ExpectedCount.manyTimes(), requestTo( gamesURI ) )
+                .andExpect( method(GET) )
+                .andRespond( withSuccess(objectMapper.writeValueAsString(gameDtosWithRunningGame), MediaType.APPLICATION_JSON) );
+    }
+
+
+
+    protected void mockGamesGetWithCreated() throws Exception {
+        mockServer.expect( ExpectedCount.manyTimes(), requestTo( gamesURI ) )
+                .andExpect( method(GET) )
+                .andRespond( withSuccess(objectMapper.writeValueAsString(gameDtosWithCreatedGame), MediaType.APPLICATION_JSON) );
+    }
 
 
     protected void mockRegistrationEndpointFor( Player player, UUID gameId ) throws Exception {

@@ -118,7 +118,8 @@ public class GameServiceRESTAdapter {
                     "Unexpected error converting requestDto to JSON: " + requestDto );
         }
         catch ( RestClientException e ) {
-            throw new RESTAdapterException( urlString, e.getMessage(), null );
+            logger.error( "Problem with connection to server, cannot register player! Exception: " + e.getMessage() );
+            return null;
         }
         UUID playerId = returnedPlayerRegistryDto.getPlayerId();
         logger.info( "Registered player via REST, got playerId: " + playerId );

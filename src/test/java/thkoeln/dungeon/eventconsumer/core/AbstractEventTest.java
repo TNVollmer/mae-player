@@ -114,7 +114,7 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
         mapEventConsumerService.consumeGameWorldCreatedEvent(
                 genericEventIdStr, EventPayloadTestFactory.timestamp(), genericTransactionIdStr,
                 EventPayloadTestFactory.gameworldCreatedPayload( spaceStationIds ) );
-        Optional<Game> gameOpt = gameApplicationService.retrieveRunningGame();
+        Optional<Game> gameOpt = gameApplicationService.retrieveActiveGame();
         assertTrue( gameOpt.isPresent() );
         assertEquals( gameId, gameOpt.get().getGameId() );
     }

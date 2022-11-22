@@ -6,17 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.domainprimitives.Moneten;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
-import thkoeln.dungeon.game.domain.GameRepository;
 import thkoeln.dungeon.player.domain.Player;
 import thkoeln.dungeon.player.domain.PlayerRepository;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.restadapter.PlayerJoinDto;
-import thkoeln.dungeon.restadapter.RESTAdapterException;
 
 import java.util.List;
 import java.util.Optional;
@@ -103,7 +99,10 @@ public class PlayerApplicationService {
             return;
         }
         UUID playerId = gameServiceRESTAdapter.obtainPlayerIdForPlayer( player.getName(), player.getEmail() );
-        if ( playerId == null ) throw new PlayerApplicationException( "Can't register player " + player );
+        if ( playerId == null ) {
+            logger.error( "Registration for player " + player + " failed." );
+            return;
+        }
         player.setPlayerId( playerId );
         playerRepository.save( player );
         logger.info( "PlayerId sucessfully obtained for " + player + ", is now registered." );
@@ -120,7 +119,7 @@ public class PlayerApplicationService {
             logger.warn( "No registered player - cannot join a game." );
             return;
         }
-        Optional<Game> perhapsOpenGame = gameApplicationService.retrieveOpenGame();
+        Optional<Game> perhapsOpenGame = gameApplicationService.retrieveActiveGame();
         if ( !perhapsOpenGame.isPresent() ) {
             logger.info( "No open game at the moment - cannot join a game." );
             return;

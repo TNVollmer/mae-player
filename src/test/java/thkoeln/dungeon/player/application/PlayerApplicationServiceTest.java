@@ -94,6 +94,7 @@ public class PlayerApplicationServiceTest extends AbstractDungeonMockingTest {
 
 
 
+
     @Test
     public void testRegisterPlayer() throws Exception {
         // given

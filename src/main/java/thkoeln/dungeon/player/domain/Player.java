@@ -50,8 +50,8 @@ public class Player {
     }
 
     public void registerFor ( Game game, UUID registrationTransactionId ) {
-        if ( game == null ) throw new PlayerDomainException( "Game must not be null!" );
-        if ( registrationTransactionId == null ) throw new PlayerDomainException( "registrationTransactionId must not be null!" );
+        if ( game == null ) throw new CannotRegisterPlayerException( "Game must not be null!" );
+        if ( registrationTransactionId == null ) throw new CannotRegisterPlayerException( "registrationTransactionId must not be null!" );
         this.currentGame = game;
         this.registrationTransactionId = registrationTransactionId;
     }

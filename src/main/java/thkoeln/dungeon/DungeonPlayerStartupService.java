@@ -25,8 +25,8 @@ public class DungeonPlayerStartupService implements ApplicationListener<ContextR
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        gameApplicationService.refetchGame();
+    public void onApplicationEvent( ContextRefreshedEvent event ) {
+        gameApplicationService.fetchRemoteGame();
         playerApplicationService.createPlayer();
     }
 }

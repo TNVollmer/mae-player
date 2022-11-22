@@ -37,7 +37,7 @@ public class GameApplicationService {
     /**
      * Throw away all stored games, and fetch a new one. Only interesting if open.
      */
-    public void refetchGame() {
+    public void fetchRemoteGame() {
         gameRepository.deleteAll();
         GameDto[] openGameDtos = gameServiceRESTAdapter.checkForOpenGames();
         if ( openGameDtos.length > 0 ) {
@@ -50,12 +50,11 @@ public class GameApplicationService {
     }
 
     /**
-     * @return The currently avaible open game
-     * todo OBSOLETE
+     * @return The currently available open game
      */
-    public Optional<Game> retrieveOpenGame() {
-        List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.CREATED );
-        if ( foundGames.size() > 1 ) throw new GameException( "More than one open game!" );
+    public Optional<Game> retrieveActiveGame() {
+        List<Game> foundGames = gameRepository.findAllByGameStatusBetween( GameStatus.CREATED, GameStatus.RUNNING );
+        if ( foundGames.size() > 1 ) throw new GameException( "More than one active game!" );
         if ( foundGames.size() == 1 ) {
             return Optional.of( foundGames.get( 0 ) );
         }
@@ -64,20 +63,6 @@ public class GameApplicationService {
         }
     }
 
-    /**
-     * @return The currently avaible open game
-     * todo OBSOLETE
-     */
-    public Optional<Game> retrieveRunningGame() {
-        List<Game> foundGames = gameRepository.findAllByGameStatusEquals( GameStatus.RUNNING );
-        if ( foundGames.size() > 1 ) throw new GameException( "More than one running game!" );
-        if ( foundGames.size() == 1 ) {
-            return Optional.of( foundGames.get( 0 ) );
-        }
-        else {
-            return Optional.empty();
-        }
-    }
 
 
     /**

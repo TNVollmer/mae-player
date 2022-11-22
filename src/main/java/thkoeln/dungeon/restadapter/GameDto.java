@@ -15,5 +15,5 @@ import java.util.UUID;
 public class GameDto {
     private UUID gameId;
     private GameStatus gameStatus;
-    private Integer currentRoundCount;
+    private Integer currentRoundNumber;
 }

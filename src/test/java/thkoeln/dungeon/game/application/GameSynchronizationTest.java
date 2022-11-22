@@ -87,7 +87,7 @@ public class GameSynchronizationTest {
 
     @Test
     public void noExceptionWhenConnectionMissing() {
-        gameApplicationService.refetchGame();
+        gameApplicationService.fetchRemoteGame();
         assert( true );
     }
 
@@ -99,13 +99,13 @@ public class GameSynchronizationTest {
         mockCallToGamesEndpoint_1();
 
         // when
-        gameApplicationService.refetchGame();
+        gameApplicationService.fetchRemoteGame();
 
         // then
         mockServer.verify();
         List<Game> games = gameRepository.findAll();
         assertEquals( 1, games.size() );
-        Optional<Game> optional = gameApplicationService.retrieveRunningGame();
+        Optional<Game> optional = gameApplicationService.retrieveActiveGame();
         assertTrue( optional.isPresent() );
         assertEquals( gameDto1.getGameId(), optional.get().getGameId() );
     }
@@ -116,17 +116,17 @@ public class GameSynchronizationTest {
         // given
         mockServer = MockRestServiceServer.createServer(restTemplate);
         mockCallToGamesEndpoint_1();
-        gameApplicationService.refetchGame();
+        gameApplicationService.fetchRemoteGame();
         mockCallToGamesEndpoint_2();
 
         // when
-        gameApplicationService.refetchGame();
+        gameApplicationService.fetchRemoteGame();
 
         // then
         mockServer.verify();
         List<Game> games = gameRepository.findAll();
         assertEquals( 4, games.size() );
-        Optional<Game> optional = gameApplicationService.retrieveRunningGame();
+        Optional<Game> optional = gameApplicationService.retrieveActiveGame();
         assertTrue( optional.isPresent() );
         assertEquals(gameDto0.getGameId(), optional.get().getGameId() );
         Game game = gameRepository.findByGameId(GAME_ID_1).get( 0 );
