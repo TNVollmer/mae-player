@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
 import thkoeln.dungeon.DungeonPlayerRuntimeException;
-import thkoeln.dungeon.game.domain.GameStatus;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -54,27 +53,15 @@ public class GameServiceRESTAdapter {
         }
         catch ( RestClientException e ) {
             logger.error( "Error when contacting " + urlString + ", message: " + e.getMessage() );
-            return new GameDto[0];
+            throw new RESTAdapterException( urlString, e );
         }
         return openGames;
     }
 
 
 
-    public UUID obtainPlayerIdForPlayer( String playerName, String email ) {
-        UUID playerId = getRequestForPlayerId( playerName, email );
-        if ( playerId != null ) return playerId;
 
-        // player wasn't there already
-        PlayerRegistryDto requestDto = new PlayerRegistryDto();
-        requestDto.setName( playerName );
-        requestDto.setEmail( email );
-        playerId = postRequestForPlayerId( requestDto );
-        return playerId;
-    }
-
-
-    private UUID getRequestForPlayerId( String playerName, String email ) {
+    public UUID sendGetRequestForPlayerId( String playerName, String email ) {
         String urlString = gameServiceUrlString + "/players?name=" + playerName + "&mail=" + email;
         PlayerRegistryDto returnedPlayerRegistryDto = null;
         try {
@@ -83,16 +70,18 @@ public class GameServiceRESTAdapter {
         }
         catch ( RestClientResponseException e ) {
             if ( e.getRawStatusCode() == 404 ) {
+                // actually, the proper answer would be an empty array, not 404.
                 logger.info("No player exists for " + playerName + " and " + email);
+                return null;
             }
             else {
                 logger.error("Return code " + e.getRawStatusCode() + " for request " + urlString);
+                throw new RESTAdapterException( urlString, e );
             }
-            return null;
         }
         catch ( RestClientException e ) {
             logger.error( "Problem with the GET request '" + urlString + "', msg: " + e.getMessage() );
-            return null;
+            throw new RESTAdapterException( urlString, e );
         }
         UUID playerId = returnedPlayerRegistryDto.getPlayerId();
         logger.info( "Player is already registered, with playerId: " + playerId );
@@ -101,7 +90,10 @@ public class GameServiceRESTAdapter {
 
 
 
-    private UUID postRequestForPlayerId( PlayerRegistryDto requestDto ) {
+    public UUID sendPostRequestForPlayerId( String playerName, String email ) {
+        PlayerRegistryDto requestDto = new PlayerRegistryDto();
+        requestDto.setName( playerName );
+        requestDto.setEmail( email );
         String urlString = gameServiceUrlString + "/players";
         PlayerRegistryDto returnedPlayerRegistryDto = null;
         try {
@@ -114,12 +106,11 @@ public class GameServiceRESTAdapter {
                     restTemplate.postForObject( urlString, request, PlayerRegistryDto.class );
         }
         catch ( JsonProcessingException e ) {
-            throw new DungeonPlayerRuntimeException(
-                    "Unexpected error converting requestDto to JSON: " + requestDto );
+            throw new RESTAdapterException( "Unexpected error converting requestDto to JSON: " + requestDto );
         }
         catch ( RestClientException e ) {
             logger.error( "Problem with connection to server, cannot register player! Exception: " + e.getMessage() );
-            return null;
+            throw new RESTAdapterException( urlString, e );
         }
         UUID playerId = returnedPlayerRegistryDto.getPlayerId();
         logger.info( "Registered player via REST, got playerId: " + playerId );

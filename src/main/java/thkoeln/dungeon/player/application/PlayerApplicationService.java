@@ -53,34 +53,23 @@ public class PlayerApplicationService {
 
 
     /**
-     * @return The current player, if there is one.
+     * Fetch the existing player. If there isn't one yet, it is created and stored to the database.
+     * @return The current player.
      */
-    public Optional<Player> fetchPlayer() {
+    public Player queryAndIfNeededCreatePlayer() {
+        Player player = null;
         List<Player> players = playerRepository.findAll();
-        if ( players.size() == 1 ) {
-            return Optional.of( players.get( 0 ) );
+        if ( players.size() >= 1 ) {
+            return players.get( 0 );
         }
         else {
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Create player(s), if not there already, register it at Game service,
-     * and let it join an open game, if there is already one.
-     */
-    public void createPlayer() {
-        Optional<Player> perhapsPlayer = fetchPlayer();
-        Player player = null;
-        if ( !perhapsPlayer.isPresent() ) {
             player = new Player();
             player.setName( playerName );
             player.setEmail( playerEmail );
             playerRepository.save(player);
             logger.info( "Created new player (not yet registered): " + player );
         }
-        registerPlayer();
-        letPlayerJoinOpenGame();
+        return player;
     }
 
 
@@ -88,17 +77,15 @@ public class PlayerApplicationService {
      * Register the current player (or do nothing, if it is already registered)
      */
     public void registerPlayer() {
-        Optional<Player> perhapsPlayer = fetchPlayer();
-        if ( !perhapsPlayer.isPresent() ) {
-            logger.error( "No player to register!" );
-            return;
-        }
-        Player player = perhapsPlayer.get();
+        Player player = queryAndIfNeededCreatePlayer();
         if ( player.getPlayerId() != null ) {
             logger.info( "Player " + player + " is already registered." );
             return;
         }
-        UUID playerId = gameServiceRESTAdapter.obtainPlayerIdForPlayer( player.getName(), player.getEmail() );
+        UUID playerId = gameServiceRESTAdapter.sendGetRequestForPlayerId( player.getName(), player.getEmail() );
+        if ( playerId == null ) {
+            playerId = gameServiceRESTAdapter.sendPostRequestForPlayerId( player.getName(), player.getEmail() );
+        }
         if ( playerId == null ) {
             logger.error( "Registration for player " + player + " failed." );
             return;
@@ -114,17 +101,12 @@ public class PlayerApplicationService {
      * if there is one, and it is open.
      */
     public void letPlayerJoinOpenGame() {
-        Optional<Player> perhapsPlayer = fetchPlayer();
-        if ( !perhapsPlayer.isPresent() || perhapsPlayer.get().getPlayerId() == null ) {
-            logger.warn( "No registered player - cannot join a game." );
-            return;
-        }
+        Player player = queryAndIfNeededCreatePlayer();
         Optional<Game> perhapsOpenGame = gameApplicationService.retrieveActiveGame();
         if ( !perhapsOpenGame.isPresent() ) {
             logger.info( "No open game at the moment - cannot join a game." );
             return;
         }
-        Player player = perhapsPlayer.get();
         Game game = perhapsOpenGame.get();
         String playerQueue =
                 gameServiceRESTAdapter.registerPlayerForGame( game.getGameId(), player.getPlayerId() );
@@ -134,6 +116,7 @@ public class PlayerApplicationService {
         logger.info( "Player " + player + " successfully registered for game " + game +
                 ", listening via player queue " + playerQueue );
     }
+
 
 
     /**

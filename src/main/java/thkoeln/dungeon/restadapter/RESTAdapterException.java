@@ -13,10 +13,19 @@ public class RESTAdapterException extends DungeonPlayerRuntimeException {
     private String endPoint;
     private HttpStatus returnValue;
 
+    public RESTAdapterException( String message ) {
+        super( message );
+    }
+
     public RESTAdapterException( String endPoint, String message, HttpStatus returnValue ) {
-        super(  "Error in communication with GameService calling " + endPoint + " endpoint. Message:\n\t"
-                + message + "\n\tReturn value: " + ((returnValue == null) ? "unknown" : returnValue) );
+        super( "Error in communication with GameService calling " + endPoint + " endpoint. Message:\n\t"
+                + message + "\n\tReturn value: " + ((returnValue == null) ? "unknown" : returnValue));
         this.endPoint = endPoint;
         this.returnValue = returnValue;
+    }
+
+    public RESTAdapterException( String endPoint, RuntimeException originalException ) {
+        super( "Error in communication with GameService calling " + " endpoint. Message:\n\t"
+                + originalException.getMessage() );
     }
 }

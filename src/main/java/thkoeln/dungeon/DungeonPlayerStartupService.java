@@ -9,6 +9,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.player.application.PlayerApplicationService;
+import thkoeln.dungeon.player.domain.Player;
 
 @Service
 public class DungeonPlayerStartupService implements ApplicationListener<ContextRefreshedEvent> {
@@ -24,9 +25,23 @@ public class DungeonPlayerStartupService implements ApplicationListener<ContextR
         this.gameApplicationService = gameApplicationService;
     }
 
+    /**
+     * In this method, the player participation is prepared. If there are problems (connection
+     * problems, no running game, etc.) the player waits 10s and tries again.
+     * @param event
+     */
     @Override
     public void onApplicationEvent( ContextRefreshedEvent event ) {
-        gameApplicationService.fetchRemoteGame();
-        playerApplicationService.createPlayer();
+        Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
+        while ( !player.hasJoinedGame() ) {
+            try {
+                gameApplicationService.fetchRemoteGame();
+                playerApplicationService.registerPlayer();
+                playerApplicationService.letPlayerJoinOpenGame();
+            } catch ( DungeonPlayerRuntimeException exc ) {
+                logger.error( "Error when initializing player: " + exc.getMessage() );
+                try { Thread.sleep( 10000 ); } catch ( InterruptedException e ) {}
+            }
+        }
     }
 }

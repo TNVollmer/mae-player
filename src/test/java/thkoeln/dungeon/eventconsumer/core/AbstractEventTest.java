@@ -44,7 +44,7 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
     @Autowired
     protected RobotEventConsumerService robotEventConsumerService;
 
-    protected List<Player> players;
+    protected Player player;
     protected final UUID gameId = UUID.randomUUID();
     protected final UUID playerId = UUID.randomUUID();
     protected String eventPayloadString;
@@ -74,14 +74,12 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
         super.setUp();
         playerRepository.deleteAll();
         gameRepository.deleteAll();
-        playerApplicationService.createPlayer();
-        players = playerRepository.findAll();
+        player = playerApplicationService.queryAndIfNeededCreatePlayer();
         resetMockServer();
-        for ( Player player: players ) mockPlayerPost();
+        mockPlayerPost();
         playerApplicationService.registerPlayer();
-        players = playerRepository.findAll();
-        assertEquals( 1, players.size() );
-        assertNotNull( players.get( 0 ).getPlayerId() );
+        player = playerApplicationService.queryAndIfNeededCreatePlayer();
+        assertNotNull( player.getPlayerId() );
         spaceStationIds.add( spaceStation1Id );
         spaceStationIds.add( spaceStation2Id );
     }
@@ -89,7 +87,7 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
     protected void setUpGame() throws Exception {
         resetMockServer();
         gameStatusEventPayloadDto = new GameStatusEventPayloadDto( gameId, CREATED );
-        for ( Player player: players ) mockRegistrationEndpointFor( player, gameId );
+        mockRegistrationEndpointFor( player, gameId );
         eventPayloadString = objectMapper.writeValueAsString( gameStatusEventPayloadDto );
         gameEventConsumerService.consumeGameStatusEvent(
                 genericEventIdStr, EventPayloadTestFactory.timestamp(), genericTransactionIdStr, eventPayloadString );

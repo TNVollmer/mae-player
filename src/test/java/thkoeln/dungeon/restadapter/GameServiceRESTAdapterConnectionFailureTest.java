@@ -19,6 +19,7 @@ import thkoeln.dungeon.DungeonPlayerConfiguration;
 import java.net.URI;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
-public class GameServiceRESTAdapterExceptionTest {
+public class GameServiceRESTAdapterConnectionFailureTest {
     @Value("${GAME_SERVICE:http://localhost:8080}")
     private String gameServiceURIString;
     private ModelMapper modelMapper = new ModelMapper();
@@ -67,24 +68,22 @@ public class GameServiceRESTAdapterExceptionTest {
 
 
     @Test
-    public void testFetchCurrentGameState_throws_UnexpectedRESTException() throws Exception {
+    public void testCheckForOpenGames_delivers_empty_collection() throws Exception {
         // given: mock with no body ...
         URI uri = new URI( gameServiceURIString + "/games" );
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        mockServer.expect( ExpectedCount.manyTimes(),
-                        requestTo( uri ))
+        mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
                 .andExpect( method( GET ))
                 .andRespond( withStatus( HttpStatus.OK ) );
 
         // when/then
-        assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.checkForOpenGames();
-        });
+        GameDto[] gameDtos = gameServiceRESTAdapter.checkForOpenGames();
+        assertEquals( 0, gameDtos.length );
     }
 
 
     @Test
-    public void testGetBearerTokenForPlayer_throws_RESTConnectionFailureException() throws Exception {
+    public void test_sendPostRequestForPlayerId_with_connection_failure() throws Exception {
         // given
         URI uri = new URI( gameServiceURIString + "/players" );
         mockServer = MockRestServiceServer.createServer(restTemplate);
@@ -95,27 +94,10 @@ public class GameServiceRESTAdapterExceptionTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.obtainPlayerIdForPlayer( playerRegistryDto.getName(), playerRegistryDto.getEmail() );
+            gameServiceRESTAdapter.sendPostRequestForPlayerId( playerRegistryDto.getName(), playerRegistryDto.getEmail() );
         });
     }
 
-
-
-    @Test
-    public void testGetBearerTokenForPlayer_throws_HttpClientErrorException() throws Exception {
-        // given
-        URI uri = new URI( gameServiceURIString + "/players" );
-        mockServer = MockRestServiceServer.createServer(restTemplate);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
-                .andExpect( method( POST ))
-                .andExpect( content().json(mapper.writeValueAsString( playerRegistryDto )) )
-                .andRespond( withStatus( HttpStatus.NOT_ACCEPTABLE ) );
-
-        // when/then
-        assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.obtainPlayerIdForPlayer( playerRegistryDto.getName(), playerRegistryDto.getEmail() );
-        });
-    }
 
 
     @Test
@@ -139,7 +121,7 @@ public class GameServiceRESTAdapterExceptionTest {
 
 
     @Test
-    public void testRegisterPlayerForGame_throws_HttpClientErrorException_when_NOT_ACCEPTABLE() throws Exception {
+    public void testRegisterPlayerForGame_when_Error() throws Exception {
         // given
         UUID gameId = UUID.randomUUID();
         UUID playerToken = UUID.randomUUID();
@@ -147,7 +129,7 @@ public class GameServiceRESTAdapterExceptionTest {
         mockServer = MockRestServiceServer.createServer(restTemplate);
         mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
                 .andExpect( method( PUT ))
-                .andRespond( withStatus( HttpStatus.NOT_ACCEPTABLE ) );
+                .andRespond( withStatus( HttpStatus.BAD_REQUEST ) );
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
