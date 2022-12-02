@@ -11,7 +11,7 @@ import thkoeln.dungeon.player.domain.PlayerRepository;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class PlayerApplicationServiceWithoutConnectionTest {
+public class PlayerRegistrationWithoutConnectionTest {
     @Autowired
     PlayerRepository playerRepository;
     @Autowired
@@ -36,6 +36,6 @@ public class PlayerApplicationServiceWithoutConnectionTest {
         // then
         assertEquals( playerEmail, player.getEmail(), "player email" );
         assertEquals( playerName, player.getName(), "player name" );
-        assertFalse( player.isReadyToPlay(), "should be ready to play" );
+        assertFalse( player.isRegistered(), "should not be registered" );
     }
 }

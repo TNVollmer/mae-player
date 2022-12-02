@@ -29,17 +29,17 @@ public class PlayerTest {
         Player player = new Player();
         player.setName( playerName );
         player.setEmail( playerEmail );
-        Assert.assertFalse( player.isReadyToPlay() );
+        Assert.assertFalse( player.isRegistered() );
         Assert.assertFalse( player.hasJoinedGame() );
 
         // when / then
         player.setPlayerId( UUID.randomUUID() );
-        Assert.assertTrue( player.isReadyToPlay() );
+        Assert.assertTrue( player.isRegistered() );
         Assert.assertFalse( player.hasJoinedGame() );
 
         // when / then
         player.setPlayerQueue( "someString" );
-        Assert.assertTrue( player.isReadyToPlay() );
+        Assert.assertTrue( player.isRegistered() );
         Assert.assertTrue( player.hasJoinedGame() );
 
     }

@@ -45,20 +45,6 @@ public class Player {
         setEmail( randomNickname + "@microservicedungeon.com" );
     }
 
-    public boolean isReadyToPlay() {
-        return ( playerId != null && moneten != null );
-    }
-
-    public void registerFor ( Game game, UUID registrationTransactionId ) {
-        if ( game == null ) throw new CannotRegisterPlayerException( "Game must not be null!" );
-        if ( registrationTransactionId == null ) throw new CannotRegisterPlayerException( "registrationTransactionId must not be null!" );
-        this.currentGame = game;
-        this.registrationTransactionId = registrationTransactionId;
-    }
-
-    public void playRound() {
-        // todo
-    }
 
     public boolean isRegistered() {
         return getPlayerId() != null;
@@ -67,6 +53,12 @@ public class Player {
     public boolean hasJoinedGame() {
         return getPlayerQueue() != null;
     }
+
+
+    public void playRound() {
+        // todo
+    }
+
 
     @Override
     public String toString() {

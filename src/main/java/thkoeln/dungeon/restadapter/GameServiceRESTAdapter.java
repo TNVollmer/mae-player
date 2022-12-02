@@ -122,34 +122,18 @@ public class GameServiceRESTAdapter {
      * Register a specific player for a specific game via call to GameService endpoint.
      * Caveat: GameService returns somewhat weird error codes (non-standard).
      * @param gameId of the game
-     * @param bearerToken of the player
+     * @param playerId of the player
      * @return transactionId if successful
      */
-    public String registerPlayerForGame( UUID gameId, UUID bearerToken ) {
-        String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + bearerToken;
+    public String registerPlayerForGame( UUID gameId, UUID playerId ) {
+        String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + playerId;
         try {
             PlayerJoinDto playerJoinDto =
                     restTemplate.execute( urlString, PUT, requestCallback(), playerJoinResponseExtractor() );
             return playerJoinDto.getPlayerQueue();
         }
-        // todo this is wrong
-        catch ( HttpClientErrorException e ) {
-            if ( e.getStatusCode().equals( HttpStatus.NOT_ACCEPTABLE ) ) {
-                // this is a business logic problem - so let the application service handle this
-                throw new RESTAdapterException( urlString, "Player with bearer token " + bearerToken +
-                        " already registered in game with id " + gameId, e.getStatusCode() );
-            }
-            else if ( e.getStatusCode().equals( HttpStatus.BAD_REQUEST ) ) {
-                throw new RESTAdapterException( urlString, "For player with bearer token " + bearerToken +
-                        " and game with id " + gameId + " the player registration went wrong; original error msg: "
-                        + e.getMessage(), e.getStatusCode() );
-            }
-            else {
-                throw new RESTAdapterException( urlString, e.getMessage(), e.getStatusCode() );
-            }
-        }
         catch ( RestClientException e ) {
-            throw new RESTAdapterException( urlString, e.getMessage(), null );
+            throw new RESTAdapterException( urlString, e );
         }
     }
 

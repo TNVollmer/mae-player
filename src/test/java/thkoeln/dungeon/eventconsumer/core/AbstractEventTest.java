@@ -87,7 +87,7 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
     protected void setUpGame() throws Exception {
         resetMockServer();
         gameStatusEventPayloadDto = new GameStatusEventPayloadDto( gameId, CREATED );
-        mockRegistrationEndpointFor( player, gameId );
+        mockRegistrationEndpointFor( gameId, player.getPlayerId() );
         eventPayloadString = objectMapper.writeValueAsString( gameStatusEventPayloadDto );
         gameEventConsumerService.consumeGameStatusEvent(
                 genericEventIdStr, EventPayloadTestFactory.timestamp(), genericTransactionIdStr, eventPayloadString );

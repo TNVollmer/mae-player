@@ -33,14 +33,13 @@ public class DungeonPlayerStartupService implements ApplicationListener<ContextR
     @Override
     public void onApplicationEvent( ContextRefreshedEvent event ) {
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
-        while ( !player.hasJoinedGame() ) {
+        if ( !player.hasJoinedGame() ) {
             try {
                 gameApplicationService.fetchRemoteGame();
                 playerApplicationService.registerPlayer();
                 playerApplicationService.letPlayerJoinOpenGame();
             } catch ( DungeonPlayerRuntimeException exc ) {
                 logger.error( "Error when initializing player: " + exc.getMessage() );
-                try { Thread.sleep( 10000 ); } catch ( InterruptedException e ) {}
             }
         }
     }

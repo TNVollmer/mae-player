@@ -47,7 +47,7 @@ public class GameEventConsumerTest extends AbstractEventTest {
     public void testGameStatusEventReceiced() throws Exception {
         // given
         resetMockServer();
-        mockRegistrationEndpointFor( player, gameId );
+        mockRegistrationEndpointFor( gameId, player.getPlayerId() );
         gameStatusEventPayloadDto = new GameStatusEventPayloadDto( gameId, CREATED );
         eventPayloadString = objectMapper.writeValueAsString( gameStatusEventPayloadDto );
 
