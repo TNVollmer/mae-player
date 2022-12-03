@@ -32,6 +32,7 @@ public class MapEventConsumerService {
     /**
      * Event published by MapService, sending the list of newly created space stations
      */
+/*
     @KafkaListener( topics = "gameworld-created" )
     public void consumeGameWorldCreatedEvent(
             @Header String eventId, @Header String timestamp, @Header String transactionId, @Payload String payload ) {
@@ -50,13 +51,14 @@ public class MapEventConsumerService {
         }
     }
 
-
+*/
 
 
 
     /**
      * Event published by MapService, informing about a new space station (e.g. transformed from a regular planet?)
      */
+/*
     @KafkaListener( topics = "spacestation-created" )
     public void consumeSpaceStationCreatedEvent(
             @Header String eventId, @Header String timestamp, @Header String transactionId, @Payload String payload ) {
@@ -72,5 +74,5 @@ public class MapEventConsumerService {
             logger.warn( "Caught invalid SpaceStationCreatedEvent " + spaceStationCreatedEvent );
         }
     }
-
+*/
 }

@@ -47,6 +47,7 @@ public class GameEventConsumerService {
     /**
      * "Status changed" event published by GameService, esp. after a game has been created, started, or finished
      */
+/*
     @KafkaListener( topics = "status" )
     public void consumeGameStatusEvent( @Header String eventId, @Header String timestamp, @Header String transactionId,
                                         @Payload String payload ) {
@@ -72,11 +73,12 @@ public class GameEventConsumerService {
             logger.warn( "Caught invalid GameStatusEvent " + gameStatusEvent );
         }
     }
-
+*/
 
     /**
      * Event published by GameService after registering a player. Needed to get the playerId ... <sigh>
      */
+/*
     @KafkaListener( topics = "playerStatus" )
     public void consumePlayerStatusEvent( @Header String eventId, @Header String timestamp, @Header String transactionId,
                                           @Payload String payload ) {
@@ -138,4 +140,6 @@ public class GameEventConsumerService {
             logger.warn( "Caught invalid RoundStartedEvent " + roundStatusEvent );
         }
     }
+
+ */
 }

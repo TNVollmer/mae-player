@@ -34,6 +34,7 @@ public class RobotEventConsumerService {
     /**
      * Event published by MapService, sending the list of newly created space stations
      */
+/*
     @KafkaListener( topics = "movement" )
     public void consumeMovementEvent(
             @Header String eventId, @Header String timestamp, @Header String transactionId, @Payload String payload ) {
@@ -51,11 +52,12 @@ public class RobotEventConsumerService {
             logger.warn( "Caught invalid MovementEvent " + movementEvent );
         }
     }
-
+*/
 
     /**
      * Event published by MapService, sending the list of newly created space stations
      */
+/*
     @KafkaListener( topics = "neighbours" )
     public void consumeNeighboursEvent(
             @Header String eventId, @Header String timestamp, @Header String transactionId, @Payload String payload ) {
@@ -72,6 +74,6 @@ public class RobotEventConsumerService {
             logger.warn( "Caught invalid NeighboursEvent " + neighboursEvent );
         }
     }
-
+*/
 
 }

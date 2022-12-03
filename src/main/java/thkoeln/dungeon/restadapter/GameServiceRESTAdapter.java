@@ -106,6 +106,7 @@ public class GameServiceRESTAdapter {
                     restTemplate.postForObject( urlString, request, PlayerRegistryDto.class );
         }
         catch ( JsonProcessingException e ) {
+            logger.error( "Unexpected error converting requestDto to JSON: " + requestDto );
             throw new RESTAdapterException( "Unexpected error converting requestDto to JSON: " + requestDto );
         }
         catch ( RestClientException e ) {
@@ -127,12 +128,14 @@ public class GameServiceRESTAdapter {
      */
     public String registerPlayerForGame( UUID gameId, UUID playerId ) {
         String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + playerId;
+        logger.info( "Try to registerPlayerForGame at: " + urlString );
         try {
             PlayerJoinDto playerJoinDto =
                     restTemplate.execute( urlString, PUT, requestCallback(), playerJoinResponseExtractor() );
             return playerJoinDto.getPlayerQueue();
         }
         catch ( RestClientException e ) {
+            logger.error( "Exception encountered in registerPlayerForGame" );
             throw new RESTAdapterException( urlString, e );
         }
     }

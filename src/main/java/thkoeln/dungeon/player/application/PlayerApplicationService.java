@@ -113,8 +113,7 @@ public class PlayerApplicationService {
         if ( playerQueue == null ) return;
         player.setPlayerQueue( playerQueue );
         playerRepository.save( player );
-        logger.info( "Player " + player + " successfully registered for game " + game +
-                ", listening via player queue " + playerQueue );
+        logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
     }
 
 

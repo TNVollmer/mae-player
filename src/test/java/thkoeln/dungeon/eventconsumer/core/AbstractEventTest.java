@@ -69,6 +69,7 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
     }
     protected PlayerStatusEventPayloadDto playerStatusEventPayloadDto;
 
+    /*
     @Before
     protected void setUp() throws Exception {
         super.setUp();
@@ -117,5 +118,5 @@ public class AbstractEventTest extends AbstractDungeonMockingTest {
         assertTrue( gameOpt.isPresent() );
         assertEquals( gameId, gameOpt.get().getGameId() );
     }
-
+*/
 }

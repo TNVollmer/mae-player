@@ -44,7 +44,7 @@ public class PlanetDomainServiceTest extends AbstractEventTest {
     @Autowired
     private PlanetDomainService planetDomainService;
 
-
+/*
 
     @Before
     public void setUp() throws Exception {
@@ -104,6 +104,7 @@ public class PlanetDomainServiceTest extends AbstractEventTest {
                 EventPayloadTestFactory.roundStatusPayload( gameId, "started" ) );
     }
 
+*/
 
     @Test
     public void dummy_remove_when_the_other_tests_have_been_restored() {

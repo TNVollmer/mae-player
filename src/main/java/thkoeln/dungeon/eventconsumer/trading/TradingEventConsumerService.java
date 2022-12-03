@@ -36,6 +36,7 @@ public class TradingEventConsumerService {
     /**
      * "Status changed" event published by GameService, esp. after a game has been created, started, or finished
      */
+/*
     @KafkaListener( topics = "bank-created" )
     public void consumeGameStatusEvent( @Header String eventId, @Header String timestamp, @Header String transactionId,
                                         @Payload String payload ) {
@@ -50,5 +51,5 @@ public class TradingEventConsumerService {
             logger.warn( "Caught invalid GameStatusEvent " + bankCreatedEvent );
         }
     }
-
+*/
 }
