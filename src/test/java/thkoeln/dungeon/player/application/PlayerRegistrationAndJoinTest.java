@@ -50,6 +50,8 @@ public class PlayerRegistrationAndJoinTest extends AbstractDungeonMockingTest {
         // given
         // when
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
+
+        // then
         assertNotNull( player.getEmail(), "player email" );
         assertNotNull( player.getName(), "player name"  );
         assertFalse( player.isRegistered(), "Player must not be registered" );
@@ -107,7 +109,6 @@ public class PlayerRegistrationAndJoinTest extends AbstractDungeonMockingTest {
 
         // when
         gameApplicationService.fetchRemoteGame();
-        Game game = gameApplicationService.retrieveActiveGame().get();
         playerApplicationService.queryAndIfNeededCreatePlayer();
         playerApplicationService.registerPlayer();
         playerApplicationService.letPlayerJoinOpenGame();

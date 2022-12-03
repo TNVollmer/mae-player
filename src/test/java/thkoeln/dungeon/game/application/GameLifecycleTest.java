@@ -46,7 +46,7 @@ public class GameLifecycleTest {
     }
 
     @Test
-    public void dummy() {}
+    public void dummy_remove_when_the_other_tests_have_been_restored() {}
 /*
 
     @Test
