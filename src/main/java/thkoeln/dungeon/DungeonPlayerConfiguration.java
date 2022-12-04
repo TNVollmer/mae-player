@@ -3,6 +3,8 @@ package thkoeln.dungeon;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -35,10 +37,30 @@ public class DungeonPlayerConfiguration {
     @Autowired
     private Environment env;
 
+
+    /**
+     * Needed for configuration of the RabbitMQ connection
+     * @return
+     */
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+        connectionFactory.setUsername( "admin" );
+        connectionFactory.setPassword( "admin" );
+        return connectionFactory;
+    }
+
+    /**
+     * todo needed?
+     * @return
+     */
     @Bean
     public RestTemplate restTemplate() {
         return restTemplateBuilder.build();
     }
+
+
+
 
     // todo needed?
     @Bean
@@ -46,6 +68,10 @@ public class DungeonPlayerConfiguration {
         return new ByteArrayJsonMessageConverter();
     }
 
+    /**
+     * todo obsolete
+     * @return
+     */
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -57,6 +83,10 @@ public class DungeonPlayerConfiguration {
 
     }
 
+    /**
+     * todo obsolete
+     * @return
+     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory =

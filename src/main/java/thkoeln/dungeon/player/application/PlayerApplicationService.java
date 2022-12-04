@@ -36,7 +36,7 @@ public class PlayerApplicationService {
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
-    private __OBSOLETE_RabbitMQListener rabbitMQListener;
+
 
     @Value("${dungeon.playerName}")
     private String playerName;
@@ -48,12 +48,10 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
-            GameServiceRESTAdapter gameServiceRESTAdapter,
-            __OBSOLETE_RabbitMQListener rabbitMQListener ) {
+            GameServiceRESTAdapter gameServiceRESTAdapter ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
-        this.rabbitMQListener = rabbitMQListener;
     }
 
 
@@ -123,9 +121,7 @@ public class PlayerApplicationService {
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
 
-        // todo move this code?
-        rabbitMQListener.startupListener( playerQueue, new GameEventsCallback() );
-        logger.info( "Listener started." );
+        // todo add queue here
         // queue: player-fe529bc7-1bae-4017-8691-ccc6a744ff05
     }
 
