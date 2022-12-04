@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.domainprimitives.Moneten;
-import thkoeln.dungeon.eventlistener.AbstractEventCallback;
-import thkoeln.dungeon.eventlistener.RabbitMQListener;
+import thkoeln.dungeon.eventlistener.__OBSOLETE_RabbitMQListener;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.application.events.GameEventsCallback;
 import thkoeln.dungeon.game.domain.Game;
@@ -37,7 +36,7 @@ public class PlayerApplicationService {
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
-    private RabbitMQListener rabbitMQListener;
+    private __OBSOLETE_RabbitMQListener rabbitMQListener;
 
     @Value("${dungeon.playerName}")
     private String playerName;
@@ -50,7 +49,7 @@ public class PlayerApplicationService {
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
-            RabbitMQListener rabbitMQListener ) {
+            __OBSOLETE_RabbitMQListener rabbitMQListener ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
@@ -127,6 +126,7 @@ public class PlayerApplicationService {
         // todo move this code?
         rabbitMQListener.startupListener( playerQueue, new GameEventsCallback() );
         logger.info( "Listener started." );
+        // queue: player-fe529bc7-1bae-4017-8691-ccc6a744ff05
     }
 
 

@@ -1,55 +1,49 @@
 package thkoeln.dungeon.eventlistener;
 
-import com.rabbitmq.client.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import thkoeln.dungeon.player.application.PlayerApplicationService;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
-/**
- * Listener for a rabbitmq queue
- */
-@NoArgsConstructor
-@Service
+@SpringBootApplication
 public class RabbitMQListener {
     private Logger logger = LoggerFactory.getLogger(RabbitMQListener.class);
-    private EventCallback eventCallback;
-    private String playerQueue;
+    static final String queueName = "player-fe529bc7-1bae-4017-8691-ccc6a744ff05";
 
-    public RabbitMQListener( String playerQueue, EventCallback eventCallback ) {
-        this.playerQueue = playerQueue;
-        this.eventCallback = eventCallback;
+    @Bean
+    Queue queue() {
+        return new Queue(queueName, false);
     }
 
 
-    /**
-     * Configure and start up the player queue listening to various events, streaming in via the RabbitMQ
-     * queue that has been set up specifically for this player.
-     */
-    public void startupListener( String playerQueue, EventCallback eventCallback ) {
-        // todo: I need some kind of "master callback" where the dedicated handlers can plug into
-        this.playerQueue = playerQueue;
-        this.eventCallback = eventCallback;
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setUsername( "admin" );
-        factory.setPassword( "admin" );
-        try {
-            Connection connection = factory.newConnection();
-            Channel channel = connection.createChannel();
-            CancelCallback cancelCallback = consumerTag -> {};
-            Consumer consumer = new DefaultConsumer( channel );
-            channel.basicConsume( playerQueue, true, eventCallback, cancelCallback );
-        }
-        catch ( IOException ioException ) {
-            logger.error( "Exception while starting up RabbitMQ channel " + playerQueue + ": " + ioException );
-        }
-        catch ( TimeoutException timeoutException ) {
-            logger.error( "Exception while starting up RabbitMQ channel " + playerQueue + ": " + timeoutException );
-        }
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+        connectionFactory.setUsername( "admin" );
+        connectionFactory.setPassword( "admin" );
+        return connectionFactory;
     }
+
+    @Bean
+    SimpleMessageListenerContainer container( ConnectionFactory connectionFactory,
+                                              MessageListenerAdapter listenerAdapter ) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory( connectionFactory );
+        container.setQueueNames( queueName );
+        container.setMessageListener( listenerAdapter );
+        return container;
+    }
+
+    @Bean
+    MessageListenerAdapter listenerAdapter( XXXTestReceiver receiver ) {
+        return new MessageListenerAdapter( receiver, "receiveMessage" );
+    }
+
+
 }
