@@ -126,16 +126,16 @@ public class GameServiceRESTAdapter {
      * @param playerId of the player
      * @return transactionId if successful
      */
-    public String registerPlayerForGame( UUID gameId, UUID playerId ) {
+    public String sendPutRequestToLetPlayerJoinGame(UUID gameId, UUID playerId ) {
         String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + playerId;
-        logger.info( "Try to registerPlayerForGame at: " + urlString );
+        logger.info( "Try to sendPutRequestToLetPlayerJoinGame at: " + urlString );
         try {
             PlayerJoinDto playerJoinDto =
                     restTemplate.execute( urlString, PUT, requestCallback(), playerJoinResponseExtractor() );
             return playerJoinDto.getPlayerQueue();
         }
         catch ( RestClientException e ) {
-            logger.error( "Exception encountered in registerPlayerForGame" );
+            logger.error( "Exception encountered in sendPutRequestToLetPlayerJoinGame" );
             throw new RESTAdapterException( urlString, e );
         }
     }

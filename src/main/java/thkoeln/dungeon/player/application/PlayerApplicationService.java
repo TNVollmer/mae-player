@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.domainprimitives.Moneten;
+import thkoeln.dungeon.eventlistener.AbstractEventCallback;
+import thkoeln.dungeon.eventlistener.RabbitMQListener;
 import thkoeln.dungeon.game.application.GameApplicationService;
+import thkoeln.dungeon.game.application.events.GameEventsCallback;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.player.domain.Player;
 import thkoeln.dungeon.player.domain.PlayerRepository;
@@ -34,6 +37,7 @@ public class PlayerApplicationService {
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
+    private RabbitMQListener rabbitMQListener;
 
     @Value("${dungeon.playerName}")
     private String playerName;
@@ -45,10 +49,12 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
-            GameServiceRESTAdapter gameServiceRESTAdapter ) {
+            GameServiceRESTAdapter gameServiceRESTAdapter,
+            RabbitMQListener rabbitMQListener ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
+        this.rabbitMQListener = rabbitMQListener;
     }
 
 
@@ -109,11 +115,18 @@ public class PlayerApplicationService {
         }
         Game game = perhapsOpenGame.get();
         String playerQueue =
-                gameServiceRESTAdapter.registerPlayerForGame( game.getGameId(), player.getPlayerId() );
-        if ( playerQueue == null ) return;
+                gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( game.getGameId(), player.getPlayerId() );
+        if ( playerQueue == null ) {
+            logger.warn( "letPlayerJoinOpenGame: no join happened!" );
+            return;
+        }
         player.setPlayerQueue( playerQueue );
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
+
+        // todo move this code?
+        rabbitMQListener.startupListener( playerQueue, new GameEventsCallback() );
+        logger.info( "Listener started." );
     }
 
 

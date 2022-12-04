@@ -1,17 +1,9 @@
 package thkoeln.dungeon.eventconsumer.trading;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.eventconsumer.game.GameStatusEvent;
-import thkoeln.dungeon.eventconsumer.game.GameStatusEventRepository;
-import thkoeln.dungeon.eventconsumer.game.PlayerStatusEvent;
-import thkoeln.dungeon.eventconsumer.game.PlayerStatusEventRepository;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.player.application.PlayerApplicationService;
 
@@ -48,7 +40,7 @@ public class TradingEventConsumerService {
             playerApplicationService.adjustBankAccount(bankCreatedEvent.getPlayerId(), bankCreatedEvent.getMoney());
         }
         else {
-            logger.warn( "Caught invalid GameStatusEvent " + bankCreatedEvent );
+            logger.warn( "Caught invalid __OBSOLETE_GameStatusEvent " + bankCreatedEvent );
         }
     }
 */

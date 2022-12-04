@@ -113,7 +113,7 @@ public class GameServiceRESTAdapterConnectionFailureTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.registerPlayerForGame( gameId, playerToken );
+            gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( gameId, playerToken );
         });
     }
 
@@ -133,7 +133,7 @@ public class GameServiceRESTAdapterConnectionFailureTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.registerPlayerForGame( gameId, playerToken );
+            gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( gameId, playerToken );
         });
     }
 
@@ -151,7 +151,7 @@ public class GameServiceRESTAdapterConnectionFailureTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.registerPlayerForGame( gameId, playerToken );
+            gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( gameId, playerToken );
         });
     }
 

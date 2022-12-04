@@ -3,24 +3,18 @@ package thkoeln.dungeon.eventconsumer.game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.eventconsumer.robot.*;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.planet.domain.PlanetDomainService;
 import thkoeln.dungeon.player.application.PlayerApplicationService;
 
-import java.util.List;
-import java.util.UUID;
-
 @Service
 public class GameEventConsumerService {
     private Logger logger = LoggerFactory.getLogger( GameEventConsumerService.class );
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
-    private GameStatusEventRepository gameStatusEventRepository;
+    private __OBSOLETE_GameStatusEventRepository gameStatusEventRepository;
     private PlayerStatusEventRepository playerStatusEventRepository;
     private MovementEventRepository movementEventRepository;
     private NeighboursEventRepository neighboursEventRepository;
@@ -29,7 +23,7 @@ public class GameEventConsumerService {
 
     @Autowired
     public GameEventConsumerService( GameApplicationService gameApplicationService,
-                                     GameStatusEventRepository gameStatusEventRepository,
+                                     __OBSOLETE_GameStatusEventRepository gameStatusEventRepository,
                                      PlayerStatusEventRepository playerStatusEventRepository,
                                      PlayerApplicationService playerApplicationService,
                                      MovementEventRepository movementEventRepository,
@@ -52,7 +46,7 @@ public class GameEventConsumerService {
     public void consumeGameStatusEvent( @Header String eventId, @Header String timestamp, @Header String transactionId,
                                         @Payload String payload ) {
         logger.info( "Consume game status event with payload " + payload );
-        GameStatusEvent gameStatusEvent = new GameStatusEvent()
+        __OBSOLETE_GameStatusEvent gameStatusEvent = new __OBSOLETE_GameStatusEvent()
                 .fillWithPayload( payload )
                 .fillHeader( eventId, timestamp, transactionId );
         if ( gameStatusEvent.isValid() ) {
@@ -70,7 +64,7 @@ public class GameEventConsumerService {
             }
         }
         else {
-            logger.warn( "Caught invalid GameStatusEvent " + gameStatusEvent );
+            logger.warn( "Caught invalid __OBSOLETE_GameStatusEvent " + gameStatusEvent );
         }
     }
 */

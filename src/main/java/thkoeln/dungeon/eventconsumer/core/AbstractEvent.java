@@ -9,13 +9,7 @@ import lombok.Setter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.handler.annotation.Header;
-import thkoeln.dungeon.eventconsumer.game.GameStatusEvent;
-import thkoeln.dungeon.player.application.PlayerApplicationService;
 
-import javax.persistence.Embedded;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
