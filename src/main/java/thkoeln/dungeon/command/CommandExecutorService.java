@@ -7,7 +7,7 @@ import thkoeln.dungeon.command.Command;
 import java.util.UUID;
 
 @Component
-public class CommandExecutorService implements thkoeln.dungeon.command.CommandExecutor {
+public class CommandExecutorService implements CommandExecutor {
 
     @Override
     public UUID executeCommand( Command command ) {

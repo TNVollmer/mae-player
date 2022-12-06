@@ -50,7 +50,7 @@ public class PlayerEventListener {
      * @param timestampStr
      * @param payload
      */
-    @RabbitListener( queues = "player-fe529bc7-1bae-4017-8691-ccc6a744ff05" )
+    @RabbitListener( id = "player-queue" /* queues = "player-fe529bc7-1bae-4017-8691-ccc6a744ff05" */ )
     public void receiveEvent( @Header( EVENT_ID_KEY ) String eventIdStr,
                               @Header( TRANSACTION_ID_KEY ) String transactionIdStr,
                               @Header( PLAYER_ID_KEY ) String playerIdStr,

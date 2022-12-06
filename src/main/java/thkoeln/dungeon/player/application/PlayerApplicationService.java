@@ -4,6 +4,8 @@ import lombok.val;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class PlayerApplicationService {
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
+    private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
 
 
     @Value("${dungeon.playerName}")
@@ -46,10 +49,12 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
-            GameServiceRESTAdapter gameServiceRESTAdapter ) {
+            GameServiceRESTAdapter gameServiceRESTAdapter,
+            RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
+        this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
     }
 
 
@@ -116,13 +121,17 @@ public class PlayerApplicationService {
             return;
         }
         player.setPlayerQueue( playerQueue );
+        openRabbitQueue( player );
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
-
-        // todo add queue here
-        // queue: player-fe529bc7-1bae-4017-8691-ccc6a744ff05
     }
 
+
+    protected void openRabbitQueue( Player player ) {
+        AbstractMessageListenerContainer listenerContainer = (AbstractMessageListenerContainer)
+                rabbitListenerEndpointRegistry.getListenerContainer( "player-queue" );
+        listenerContainer.addQueueNames( player.getPlayerQueue() );
+    }
 
 
     /**
