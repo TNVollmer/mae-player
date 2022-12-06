@@ -1,22 +1,18 @@
 package thkoeln.dungeon.planet.domain;
 
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import thkoeln.dungeon.DungeonPlayerConfiguration;
-import thkoeln.dungeon.core.EventPayloadTestFactory;
-import thkoeln.dungeon.domainprimitives.CompassDirection;
-import thkoeln.dungeon.eventconsumer.core.AbstractEventTest;
+import thkoeln.dungeon.__obsololete__eventconsumer.core.AbstractEventTest;
 
 import java.util.*;
 
 import static java.lang.Boolean.TRUE;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
