@@ -2,10 +2,7 @@ package thkoeln.dungeon.eventlistener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
+@ToString
 public abstract class AbstractEvent {
     @Id
     @Setter( AccessLevel.NONE )
@@ -25,7 +23,7 @@ public abstract class AbstractEvent {
     protected Logger logger = LoggerFactory.getLogger( AbstractEvent.class );
 
     @Embedded
-    private EventHeader eventHeader;
+    protected EventHeader eventHeader;
     protected String messageBodyAsJson;
 
     @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getProcessed()

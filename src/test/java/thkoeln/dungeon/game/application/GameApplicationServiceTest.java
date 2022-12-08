@@ -44,7 +44,7 @@ public class GameApplicationServiceTest extends AbstractDungeonMockingTest {
         gameApplicationService.fetchRemoteGame();
 
         // then
-        Optional<Game> perhapsGame = gameApplicationService.retrieveActiveGame();
+        Optional<Game> perhapsGame = gameApplicationService.queryActiveGame();
         assertTrue( perhapsGame.isPresent() );
         assertEquals( GameStatus.RUNNING, perhapsGame.get().getGameStatus() );
     }
@@ -58,7 +58,7 @@ public class GameApplicationServiceTest extends AbstractDungeonMockingTest {
         gameApplicationService.fetchRemoteGame();
 
         // then
-        Optional<Game> perhapsGame = gameApplicationService.retrieveActiveGame();
+        Optional<Game> perhapsGame = gameApplicationService.queryActiveGame();
         assertTrue( perhapsGame.isPresent() );
         assertEquals( GameStatus.CREATED, perhapsGame.get().getGameStatus() );
     }

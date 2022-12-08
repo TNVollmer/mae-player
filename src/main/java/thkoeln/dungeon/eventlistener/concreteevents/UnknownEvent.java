@@ -1,4 +1,4 @@
-package thkoeln.dungeon.eventlistener.gameevents;
+package thkoeln.dungeon.eventlistener.concreteevents;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +13,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
-public class GameStatusEvent extends AbstractEvent {
-    private UUID gameId;
-    private GameStatus status;
-
+public class UnknownEvent extends AbstractEvent {
     public boolean isValid() {
-        return ( gameId != null && status != null );
+        return true;
     }
 }

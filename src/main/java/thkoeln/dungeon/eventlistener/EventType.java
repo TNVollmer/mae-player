@@ -21,11 +21,8 @@ public enum EventType {
                 .orElse( UNKNOWN );
     }
 
-    public boolean isPlayerRelated () {
-        return GAME_STATUS.equals( this );
-    }
-
-    public boolean isGameRelated() {
-        return false;
+    public boolean isRobotRelated() {
+        if ( this.equals( GAME_STATUS ) || this.equals( UNKNOWN ) ) return false;
+        return true;
     }
 }

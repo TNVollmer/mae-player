@@ -11,9 +11,7 @@ import thkoeln.dungeon.game.domain.GameRepository;
 import thkoeln.dungeon.game.domain.GameStatus;
 import thkoeln.dungeon.restadapter.GameDto;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.restadapter.RESTAdapterException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,7 +50,7 @@ public class GameApplicationService {
     /**
      * @return The currently available open game
      */
-    public Optional<Game> retrieveActiveGame() {
+    public Optional<Game> queryActiveGame() {
         List<Game> foundGames = gameRepository.findAllByGameStatusBetween( GameStatus.CREATED, GameStatus.RUNNING );
         if ( foundGames.size() > 1 ) throw new GameException( "More than one active game!" );
         if ( foundGames.size() == 1 ) {
@@ -66,95 +64,41 @@ public class GameApplicationService {
 
 
     /**
-     * todo do we need this?
-     * @param gameId
-     * @return
-     */
-    public Optional<Game> findByGameId( UUID gameId ) {
-        List<Game> foundGames = gameRepository.findByGameId( gameId );
-        if ( foundGames.size() > 1 ) {
-            throw new GameException( "Found more than one game with gameId " + gameId );
-        }
-        if ( foundGames.size() == 1 ) {
-            return Optional.of( foundGames.get( 0 ) );
-        }
-        else {
-            return Optional.empty();
-        }
-    }
-
-
-
-    /**
-     * We received notice (by event) that a certain game has been created.
-     * @param gameId ID of the new game
-     * todo OBSOLETE (I think)
-     */
-    public Game gameExternallyCreated ( UUID gameId ) {
-        logger.info( "Processing external event that the game with gameId " + gameId + " has been created" );
-        Game game = findAndIfNeededCreateGame( gameId );
-        game.resetToNewlyCreated();
-        gameRepository.save( game );
-        return game;
-    }
-
-
-
-
-    /**
      * We received notice (by event) that a certain game has started.
      * In that case, we simply assume that there is only ONE game currently running, and that it is THIS
-     * game. All other games I might have here in the player will be set to GAME_FINISHED state.
-     * @param gameId ID of the new game
-     * todo OBSOLETE (I think)
+     * game.
      */
-    public Game gameExternallyStarted ( UUID gameId ) {
-        logger.info( "Processing external event that the game with gameId " + gameId + " has started" );
-        List<Game> allGames = gameRepository.findAll();
-        for ( Game game: allGames ) {
-            game.setGameStatus( GameStatus.FINISHED);
-            gameRepository.save( game );
-        }
-        Game game = findAndIfNeededCreateGame( gameId );
-        game.setGameStatus( GameStatus.RUNNING);
-        gameRepository.save( game );
-        return game;
+    public void startGame( UUID gameId ) {
+        changeGameStatus( gameId, GameStatus.RUNNING );
     }
 
 
 
     /**
      * We received notice (by event) that a certain game has finished.
-     * todo OBSOLETE (I think)
      * @param gameId
      */
-    public Game gameExternallyFinished( UUID gameId ) {
-        logger.info( "Processing external event that the game with gameId " + gameId + " has ended" );
-        Game game = findAndIfNeededCreateGame( gameId );
-        game.setGameStatus( GameStatus.FINISHED);
-        gameRepository.save( game );
-        return game;
+    public void finishGame( UUID gameId ) {
+        changeGameStatus( gameId, GameStatus.FINISHED );
     }
+
 
 
     /**
-     * todo OBSOLETE (I think)
+     * We received notice (by event) that a certain game has finished.
      * @param gameId
-     * @return
      */
-    private Game findAndIfNeededCreateGame( UUID gameId ) {
-        List<Game> fittingGames = gameRepository.findByGameId( gameId );
-        Game game = null;
-        if ( fittingGames.size() == 0 ) {
-            game = Game.newlyCreatedGame( gameId );
+    public void changeGameStatus( UUID gameId, GameStatus gameStatus ) {
+        logger.info( "Change status for game with gameId " + gameId + " to " + gameStatus );
+        if ( gameId == null ) throw new GameException( "gameId == null" );
+
+        Optional<Game> perhapsGame = queryActiveGame();
+        if ( !perhapsGame.isPresent() ) {
+            logger.error( "No game with id " + gameId + " found!" );
+            return;
         }
-        else {
-            if ( fittingGames.size() > 1 ) throw new GameException( "More than one game with gameId " + gameId );
-            game = fittingGames.get( 0 );
-        }
+        Game game = perhapsGame.get();
+        game.setGameStatus( gameStatus );
         gameRepository.save( game );
-        return game;
     }
-
-
 }

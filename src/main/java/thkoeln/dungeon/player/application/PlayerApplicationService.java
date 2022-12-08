@@ -1,6 +1,5 @@
 package thkoeln.dungeon.player.application;
 
-import lombok.val;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +107,7 @@ public class PlayerApplicationService {
      */
     public void letPlayerJoinOpenGame() {
         Player player = queryAndIfNeededCreatePlayer();
-        Optional<Game> perhapsOpenGame = gameApplicationService.retrieveActiveGame();
+        Optional<Game> perhapsOpenGame = gameApplicationService.queryActiveGame();
         if ( !perhapsOpenGame.isPresent() ) {
             logger.info( "No open game at the moment - cannot join a game." );
             return;

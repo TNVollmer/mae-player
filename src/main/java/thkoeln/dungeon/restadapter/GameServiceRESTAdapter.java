@@ -126,7 +126,7 @@ public class GameServiceRESTAdapter {
      * @param playerId of the player
      * @return transactionId if successful
      */
-    public String sendPutRequestToLetPlayerJoinGame(UUID gameId, UUID playerId ) {
+    public String sendPutRequestToLetPlayerJoinGame( UUID gameId, UUID playerId ) {
         String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + playerId;
         logger.info( "Try to sendPutRequestToLetPlayerJoinGame at: " + urlString );
         try {
@@ -136,6 +136,13 @@ public class GameServiceRESTAdapter {
         }
         catch ( RestClientException e ) {
             logger.error( "Exception encountered in sendPutRequestToLetPlayerJoinGame" );
+            if ( e.getMessage() != null && e.getMessage().contains( "Player is already participating" ) ) {
+                // this is a very specific design flaw in /games/id/players/pid - it throws a 400 if player has
+                // already joined. As a workaround, we improvise the queue name ...
+                String playerQueue = "player-" + playerId.toString();
+                logger.info( "... but player is already participating. So we assume this player queue: " + playerQueue );
+                return playerQueue;
+            }
             throw new RESTAdapterException( urlString, e );
         }
     }

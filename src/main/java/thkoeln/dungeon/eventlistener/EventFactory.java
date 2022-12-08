@@ -3,7 +3,8 @@ package thkoeln.dungeon.eventlistener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.eventlistener.gameevents.GameStatusEvent;
+import thkoeln.dungeon.eventlistener.concreteevents.GameStatusEvent;
+import thkoeln.dungeon.eventlistener.concreteevents.UnknownEvent;
 
 @Service
 public class EventFactory {
@@ -16,7 +17,10 @@ public class EventFactory {
         switch ( eventHeader.getEventType() ) {
             case GAME_STATUS:
                 newEvent = new GameStatusEvent();
+                break;
             // todo add other event types here
+            default:
+                newEvent = new UnknownEvent();
         }
         newEvent.setEventHeader( eventHeader );
         newEvent.fillWithPayload( payload );
