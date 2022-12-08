@@ -1,17 +1,13 @@
 package thkoeln.dungeon.core;
 
 
-
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import thkoeln.dungeon.domainprimitives.CompassDirection;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 /**
  * This class is used to provide samples for event payloads used for testing.

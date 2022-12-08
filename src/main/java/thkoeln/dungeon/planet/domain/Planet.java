@@ -5,19 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.text.WordUtils;
-import org.apache.kafka.common.protocol.types.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thkoeln.dungeon.domainprimitives.TwoDimDynamicArray;
-import thkoeln.dungeon.domainprimitives.CompassDirection;
-import thkoeln.dungeon.domainprimitives.Coordinate;
-import thkoeln.dungeon.domainprimitives.MineableResource;
-import thkoeln.dungeon.domainprimitives.MovementDifficulty;
+import thkoeln.dungeon.domainprimitives.*;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
 import static thkoeln.dungeon.domainprimitives.CompassDirection.*;
