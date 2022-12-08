@@ -95,7 +95,9 @@ public class PlayerApplicationService {
             logger.error( "Registration for player " + player + " failed." );
             return;
         }
-        player.setPlayerId( playerId );
+        player.assignPlayerId( playerId );
+        // We need the queue now, not at joining the game ... so we "guess" the queue name.
+        openRabbitQueue( player );
         playerRepository.save( player );
         logger.info( "PlayerId sucessfully obtained for " + player + ", is now registered." );
     }
@@ -119,8 +121,10 @@ public class PlayerApplicationService {
             logger.warn( "letPlayerJoinOpenGame: no join happened!" );
             return;
         }
-        player.setPlayerQueue( playerQueue );
-        openRabbitQueue( player );
+        // Player queue is set already at registering
+        // player.setPlayerQueue( playerQueue );
+        // openRabbitQueue( player );
+        player.setCurrentGame( game );
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
     }

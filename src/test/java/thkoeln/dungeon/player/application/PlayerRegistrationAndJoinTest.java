@@ -76,7 +76,7 @@ public class PlayerRegistrationAndJoinTest extends AbstractDungeonMockingTest {
         assertEquals( playerEmail, player.getEmail(), "player email" );
         assertEquals( playerName, player.getName(), "player name" );
         assertTrue( player.isRegistered(), "Player must be registered" );
-        assertFalse( player.hasJoinedGame(), "Player must have joined game" );
+        assertTrue( player.hasJoinedGame(), "Player must have joined game" );
     }
 
 

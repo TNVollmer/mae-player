@@ -1,11 +1,16 @@
 package thkoeln.dungeon.player.domain;
 
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.domainprimitives.Moneten;
+import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
+import thkoeln.dungeon.planet.domain.PlanetException;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -15,6 +20,9 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class Player {
+    @Transient
+    private Logger logger = LoggerFactory.getLogger( Player.class );
+
     @Id
     private final UUID id = UUID.randomUUID();
 
@@ -22,7 +30,7 @@ public class Player {
     private String name;
     @Setter
     private String email;
-    @Setter
+    @Setter( AccessLevel.PROTECTED )
     private UUID playerId;
     @Setter
     private String playerQueue;
@@ -33,7 +41,8 @@ public class Player {
 
     private UUID registrationTransactionId;
 
-    @ManyToOne
+    @OneToOne
+    @Setter
     private Game currentGame;
 
     /**
@@ -44,6 +53,19 @@ public class Player {
         setName( randomNickname );
         setEmail( randomNickname + "@microservicedungeon.com" );
     }
+
+    public void assignPlayerId( UUID playerId ) {
+        if ( playerId == null ) throw new PlayerException( "playerId == null" );
+        this.playerId = playerId;
+        // this we do in order to register the queue early - before joining the game
+        resetToDefaultPlayerQueue();
+    }
+
+    public void resetToDefaultPlayerQueue() {
+        if ( playerId == null ) return;
+        this.playerQueue = "player-" + playerId;
+    }
+
 
 
     public boolean isRegistered() {
