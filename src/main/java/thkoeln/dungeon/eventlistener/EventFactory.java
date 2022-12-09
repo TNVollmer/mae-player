@@ -3,7 +3,9 @@ package thkoeln.dungeon.eventlistener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.eventlistener.concreteevents.BankInitializedEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.GameStatusEvent;
+import thkoeln.dungeon.eventlistener.concreteevents.RoundStatusEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.UnknownEvent;
 
 @Service
@@ -17,6 +19,12 @@ public class EventFactory {
         switch ( eventHeader.getEventType() ) {
             case GAME_STATUS:
                 newEvent = new GameStatusEvent();
+                break;
+            case BANK_INITIALIZED:
+                newEvent = new BankInitializedEvent();
+                break;
+            case ROUND_STATUS:
+                newEvent = new RoundStatusEvent();
                 break;
             // todo add other event types here
             default:

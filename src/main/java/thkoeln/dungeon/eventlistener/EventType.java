@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 public enum EventType {
     GAME_STATUS( "game-status" ),
+    BANK_INITIALIZED( "BankAccountInitialized" ),
+    ROUND_STATUS( "round-status" ),
     UNKNOWN( "UNKNOWN" );
 
     private final String stringValue;
@@ -22,7 +24,8 @@ public enum EventType {
     }
 
     public boolean isRobotRelated() {
-        if ( this.equals( GAME_STATUS ) || this.equals( UNKNOWN ) ) return false;
+        if ( this.equals( GAME_STATUS ) || this.equals( BANK_INITIALIZED ) || this.equals( UNKNOWN ) ||
+             this.equals( ROUND_STATUS ) ) return false;
         return true;
     }
 }

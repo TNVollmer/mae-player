@@ -108,6 +108,7 @@ public class PlayerApplicationService {
      * if there is one, and it is open.
      */
     public void letPlayerJoinOpenGame() {
+        logger.info( "Trying to join game ..." );
         Player player = queryAndIfNeededCreatePlayer();
         Optional<Game> perhapsOpenGame = gameApplicationService.queryActiveGame();
         if ( !perhapsOpenGame.isPresent() ) {
@@ -121,9 +122,9 @@ public class PlayerApplicationService {
             logger.warn( "letPlayerJoinOpenGame: no join happened!" );
             return;
         }
-        // Player queue is set already at registering
-        // player.setPlayerQueue( playerQueue );
-        // openRabbitQueue( player );
+        // Player queue is set already at registering - but we do it again
+        player.setPlayerQueue( playerQueue );
+        openRabbitQueue( player );
         player.setCurrentGame( game );
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
@@ -142,6 +143,7 @@ public class PlayerApplicationService {
      * @param moneyAsInt
      */
     public void adjustBankAccount( UUID playerId, Integer moneyAsInt ) {
+        logger.info( "Adjust bank account to " + moneyAsInt );
         Moneten newMoney = Moneten.fromInteger( moneyAsInt );
         Player player = queryAndIfNeededCreatePlayer();
         player.setMoneten( newMoney );

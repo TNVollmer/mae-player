@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.eventlistener.AbstractEvent;
 import thkoeln.dungeon.eventlistener.EventFactory;
 import thkoeln.dungeon.eventlistener.EventHeader;
+import thkoeln.dungeon.eventlistener.concreteevents.BankInitializedEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.GameStatusEvent;
+import thkoeln.dungeon.eventlistener.concreteevents.RoundStatusEvent;
 import thkoeln.dungeon.game.application.GameApplicationService;
+import thkoeln.dungeon.player.domain.Player;
 
 import static thkoeln.dungeon.eventlistener.EventHeader.*;
 import static thkoeln.dungeon.game.domain.GameStatus.*;
@@ -85,6 +88,12 @@ public class PlayerEventListener {
             case GAME_STATUS:
                 handleGameStatusEvent( (GameStatusEvent) event );
                 break;
+            case BANK_INITIALIZED:
+                handleBankInitializedEvent( (BankInitializedEvent) event );
+                break;
+            case ROUND_STATUS:
+                handleRoundStatusEvent( (RoundStatusEvent) event );
+                break;
             default:
         }
     }
@@ -103,4 +112,16 @@ public class PlayerEventListener {
             gameApplicationService.finishGame( gameStatusEvent.getGameId() );
         }
     }
+
+    private void handleBankInitializedEvent( BankInitializedEvent bankInitializedEvent ) {
+        playerApplicationService.adjustBankAccount(
+                bankInitializedEvent.getPlayerId(), bankInitializedEvent.getBalance() );
+    }
+
+    private void handleRoundStatusEvent( RoundStatusEvent event ) {
+        // todo add business logic - calculate which commands to issue
+        // todo differentiate according to roundStatus - "started" is interesting
+        logger.info( "------> ROUND_STATUS event to be handled" );
+    }
+
 }
