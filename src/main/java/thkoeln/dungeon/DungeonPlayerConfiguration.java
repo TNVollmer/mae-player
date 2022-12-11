@@ -1,8 +1,5 @@
 package thkoeln.dungeon;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Description;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.support.converter.ByteArrayJsonMessageConverter;
 import org.springframework.web.client.RestTemplate;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import javax.servlet.ServletContext;
 import java.util.HashMap;
@@ -62,36 +53,5 @@ public class DungeonPlayerConfiguration {
 
 
 
-    // todo needed?
-    @Bean
-    public ByteArrayJsonMessageConverter byteArrayJsonMessageConverter() {
-        return new ByteArrayJsonMessageConverter();
-    }
 
-    /**
-     * todo obsolete
-     * @return
-     */
-    @Bean
-    public ConsumerFactory<String, Object> consumerFactory() {
-        Map<String, Object> props = new HashMap<>();
-        props.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.getProperty( "spring.kafka.bootstrap-servers") );
-        props.put( ConsumerConfig.GROUP_ID_CONFIG, env.getProperty( "spring.kafka.consumer.group-id") );
-        props.put( ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put( ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(props);
-
-    }
-
-    /**
-     * todo obsolete
-     * @return
-     */
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
-        return factory;
-    }
 }
