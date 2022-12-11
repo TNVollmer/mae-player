@@ -38,11 +38,6 @@ public class Game {
         logger.warn( "Reset game " + this + " to CREATED!" );
     }
 
-    public void makeOrphan() {
-        setGameStatus( GameStatus.ORPHANED );
-        logger.warn( "Marked game " + this + " as ORPHANED!" );
-    }
-
     public static Game newlyCreatedGame( UUID gameId ) {
         Game game = new Game();
         game.setGameId( gameId );

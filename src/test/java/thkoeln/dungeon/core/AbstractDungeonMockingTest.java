@@ -1,35 +1,44 @@
 package thkoeln.dungeon.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.game.domain.GameStatus;
-import thkoeln.dungeon.player.domain.Player;
+import thkoeln.dungeon.restadapter.GameDto;
+import thkoeln.dungeon.restadapter.PlayerJoinDto;
 import thkoeln.dungeon.restadapter.PlayerRegistryDto;
-import thkoeln.dungeon.restadapter.TransactionIdResponseDto;
 
 import java.net.URI;
 import java.util.UUID;
 
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.http.HttpMethod.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 public class AbstractDungeonMockingTest {
     @Value("${GAME_SERVICE:http://localhost:8080}")
     protected String gameServiceURIString;
-    protected URI playersEndpointURI;
+    protected URI playersGetURI;
+    protected URI playersPostURI;
+    @Value("${dungeon.playerName}")
+    protected String playerName;
+    @Value("${dungeon.playerEmail}")
+    protected String playerEmail;
+
+    protected URI gamesURI;
     protected Game game;
+    protected UUID openGameId;
+    protected GameDto[] gameDtosWithCreatedGame;
+    protected GameDto[] gameDtosWithRunningGame;
 
     @Autowired
     protected RestTemplate restTemplate;
@@ -39,13 +48,24 @@ public class AbstractDungeonMockingTest {
 
     protected final UUID genericEventId = UUID.randomUUID();
     protected final String genericEventIdStr = genericEventId.toString();
-    protected final Long genericEventTimestamp = 99999L;
-    protected final String genericEventTimestampStr = genericEventTimestamp.toString();
     protected final UUID genericTransactionId = UUID.randomUUID();
     protected final String genericTransactionIdStr = genericTransactionId.toString();
+    protected final UUID playerId = UUID.randomUUID();
+    protected PlayerRegistryDto playerRegistryDto;
+    protected PlayerJoinDto playerJoinDto;
 
     protected void setUp() throws Exception {
-        playersEndpointURI = new URI( gameServiceURIString + "/players" );
+        String getExtension = "/players?name=" + playerName + "&mail=" + playerEmail;
+        playersGetURI = new URI( gameServiceURIString + getExtension );
+        playersPostURI = new URI( gameServiceURIString + "/players" );
+        playerRegistryDto = new PlayerRegistryDto();
+
+        playerJoinDto = new PlayerJoinDto();
+        playerJoinDto.setPlayerQueue( "my_new_player_queue" );
+        playerJoinDto.setGameExchange( "whatever_game_exchange_may_be" );
+
+        gamesURI = new URI( gameServiceURIString + "/games" );
+        createMockGameDtos();
         resetMockServer();
     }
 
@@ -53,24 +73,73 @@ public class AbstractDungeonMockingTest {
         mockServer = MockRestServiceServer.bindTo( restTemplate ).ignoreExpectOrder( true ).build();
     }
 
-    protected void mockBearerTokenEndpointFor( Player player ) throws Exception {
-        PlayerRegistryDto playerRegistryDto = modelMapper.map(player, PlayerRegistryDto.class);
+    protected void createMockGameDtos() {
+        gameDtosWithRunningGame = new GameDto[2];
+        gameDtosWithRunningGame[0] = new GameDto();
+        gameDtosWithRunningGame[0].setGameStatus( GameStatus.FINISHED );
+        gameDtosWithRunningGame[0].setGameId( UUID.randomUUID() );
+        gameDtosWithRunningGame[0].setCurrentRoundNumber( 100 );
+        gameDtosWithRunningGame[1] = new GameDto();
+        gameDtosWithRunningGame[1].setGameStatus( GameStatus.RUNNING );
+        gameDtosWithRunningGame[1].setGameId( UUID.randomUUID() );
+        gameDtosWithRunningGame[1].setCurrentRoundNumber( 34 );
+
+        gameDtosWithCreatedGame = new GameDto[2];
+        gameDtosWithCreatedGame[0] = gameDtosWithRunningGame[0];
+        gameDtosWithCreatedGame[1] = new GameDto();
+        gameDtosWithCreatedGame[1].setGameStatus( GameStatus.CREATED );
+        gameDtosWithCreatedGame[1].setGameId( UUID.randomUUID() );
+        gameDtosWithCreatedGame[1].setCurrentRoundNumber( 0 );
+    }
+
+
+    protected void mockPlayerPost() throws Exception {
         PlayerRegistryDto responseDto = playerRegistryDto.clone();
-        responseDto.setBearerToken(UUID.randomUUID());
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( playersEndpointURI ) )
+        responseDto.setPlayerId( playerId );
+        mockServer.expect( ExpectedCount.once(), requestTo( playersPostURI ) )
                 .andExpect( method(POST) )
-                .andExpect( content().json(objectMapper.writeValueAsString( playerRegistryDto )))
+                .andRespond( withSuccess(objectMapper.writeValueAsString( responseDto ), MediaType.APPLICATION_JSON) );
+    }
+
+
+    protected void mockPlayerGetNotFound() throws Exception {
+        mockServer.expect( ExpectedCount.once(), requestTo(playersGetURI) )
+                .andExpect( method(GET) )
+                .andRespond( withStatus( HttpStatus.NOT_FOUND ) );
+    }
+
+
+    protected void mockPlayerGetFound() throws Exception {
+        PlayerRegistryDto responseDto = playerRegistryDto.clone();
+        responseDto.setPlayerId( playerId );
+        mockServer.expect( ExpectedCount.once(), requestTo(playersGetURI) )
+                .andExpect( method(GET) )
                 .andRespond( withSuccess(objectMapper.writeValueAsString(responseDto), MediaType.APPLICATION_JSON) );
     }
 
 
-    protected void mockRegistrationEndpointFor( Player player, UUID gameId ) throws Exception {
-        URI uri = new URI(gameServiceURIString + "/games/" + gameId + "/players/" + player.getBearerToken());
-        TransactionIdResponseDto transactionIdResponseDto =
-                new TransactionIdResponseDto(genericTransactionId);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo(uri) )
+    protected void mockGamesGetWithRunning() throws Exception {
+        openGameId = null;
+        mockServer.expect( ExpectedCount.once(), requestTo( gamesURI ) )
+                .andExpect( method(GET) )
+                .andRespond( withSuccess(objectMapper.writeValueAsString(gameDtosWithRunningGame), MediaType.APPLICATION_JSON) );
+    }
+
+
+
+    protected void mockGamesGetWithCreated() throws Exception {
+        openGameId = gameDtosWithCreatedGame[1].getGameId();
+        mockServer.expect( ExpectedCount.once(), requestTo( gamesURI ) )
+                .andExpect( method(GET) )
+                .andRespond( withSuccess(objectMapper.writeValueAsString(gameDtosWithCreatedGame), MediaType.APPLICATION_JSON) );
+    }
+
+
+    protected void mockRegistrationEndpointFor( UUID gameId, UUID playerId ) throws Exception {
+        URI uri = new URI(gameServiceURIString + "/games/" + gameId + "/players/" + playerId );
+        mockServer.expect( ExpectedCount.once(), requestTo(uri) )
                 .andExpect( method(PUT) )
-                .andRespond( withSuccess(objectMapper.writeValueAsString( transactionIdResponseDto ), MediaType.APPLICATION_JSON) );
+                .andRespond( withSuccess(objectMapper.writeValueAsString( playerJoinDto ), MediaType.APPLICATION_JSON) );
     }
 
 

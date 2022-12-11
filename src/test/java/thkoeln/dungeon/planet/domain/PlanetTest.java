@@ -4,7 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.jetbrains.annotations.NotNull;
+import thkoeln.dungeon.domainprimitives.CompassDirection;
+import thkoeln.dungeon.domainprimitives.Coordinate;
 
 import javax.transaction.Transactional;
 import java.lang.reflect.Method;
@@ -25,7 +26,6 @@ public class PlanetTest {
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
                 planetArray[i][j] = new Planet();
-                planetArray[i][j].setName( "p" + String.valueOf( i ) + String.valueOf( j ) );
             }
         }
     }
@@ -36,8 +36,8 @@ public class PlanetTest {
         Planet planet = new Planet();
 
         // when
-        Method getter = planet.neighbouringGetter( CompassDirection.south );
-        Method setter = planet.neighbouringSetter( CompassDirection.west );
+        Method getter = planet.neighbouringGetter( CompassDirection.SOUTH);
+        Method setter = planet.neighbouringSetter( CompassDirection.WEST);
 
         // then
         assertEquals( "getSouthNeighbour", getter.getName() );
@@ -48,8 +48,8 @@ public class PlanetTest {
     public void testEstablishNeighbouringRelationship() {
         // given
         // when
-        planetArray[0][1].defineNeighbour( planetArray[1][1], CompassDirection.east );
-        planetArray[0][1].defineNeighbour( planetArray[0][2], CompassDirection.north );
+        planetArray[0][1].defineNeighbour( planetArray[1][1], CompassDirection.EAST);
+        planetArray[0][1].defineNeighbour( planetArray[0][2], CompassDirection.NORTH);
 
         // then
         assertEquals( planetArray[1][1], planetArray[0][1].getEastNeighbour() );
@@ -65,11 +65,11 @@ public class PlanetTest {
         planetRepository.save( planetArray[1][1] );
 
         // when
-        planetArray[1][2].defineNeighbour( planetArray[1][1], CompassDirection.west );
+        planetArray[1][2].defineNeighbour( planetArray[1][1], CompassDirection.WEST);
         planetRepository.save( planetArray[1][1] );
         planetRepository.save( planetArray[1][2] );
-        Planet p11 = planetRepository.findByName( "p11" ).get();
-        Planet p12 = planetRepository.findByName( "p12" ).get();
+        Planet p11 = planetArray[1][1];
+        Planet p12 = planetArray[1][2];
 
         // then
         List<Planet> persistentPlanets = planetRepository.findAll();
@@ -84,8 +84,8 @@ public class PlanetTest {
         // given
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
-                if ( i < 2 ) planetArray[i][j].defineNeighbour( planetArray[i+1][j], CompassDirection.east );
-                if ( j < 2 ) planetArray[i][j].defineNeighbour( planetArray[i][j+1], CompassDirection.south );
+                if ( i < 2 ) planetArray[i][j].defineNeighbour( planetArray[i+1][j], CompassDirection.EAST);
+                if ( j < 2 ) planetArray[i][j].defineNeighbour( planetArray[i][j+1], CompassDirection.SOUTH);
             }
         }
 
@@ -105,4 +105,49 @@ public class PlanetTest {
         }
     }
 
+
+    @Test
+    public void testClosingCycles() {
+        // given
+        Planet n = new Planet();
+        Planet s = new Planet();
+        Planet ne = new Planet();
+        Planet nee = new Planet();
+        Planet se = new Planet();
+        Planet see = new Planet();
+
+        // when
+        n.defineNeighbour( s, CompassDirection.SOUTH );
+        //    N
+        //    |
+        //    S
+
+        n.defineNeighbour( ne, CompassDirection.EAST );
+        //    N--NE
+        //    |
+        //    S
+
+        ne.defineNeighbour( nee, CompassDirection.EAST );
+        //    N--NE--NEE
+        //    |
+        //    S
+
+        s.defineNeighbour( se, CompassDirection.EAST );
+        //    N--NE--NEE
+        //    |
+        //    S--SE
+
+        se.defineNeighbour( see, CompassDirection.EAST );
+        //    N--NE--NEE
+        //    |
+        //    S--SE--SEE
+
+        // then
+        assertEquals( nee,
+                s.getNorthNeighbour().
+                    getEastNeighbour().
+                        getSouthNeighbour().
+                            getEastNeighbour().
+                                getNorthNeighbour() );
+    }
 }

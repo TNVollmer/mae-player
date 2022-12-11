@@ -16,10 +16,9 @@ import org.springframework.web.client.*;
 import thkoeln.dungeon.DungeonPlayerRuntimeException;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.UUID;
 
-import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.*;
 
 /**
  * Adapter for sending Game and Player life cycle calls to GameService
@@ -38,55 +37,85 @@ public class GameServiceRESTAdapter {
     }
 
 
-    public GameDto[] fetchCurrentGameState() {
-        GameDto[] gameDtos = new GameDto[0];
+    public GameDto[] checkForOpenGames() {
+        GameDto[] allGames;
+        GameDto[] openGames;
         String urlString = gameServiceUrlString + "/games";
         try {
-            gameDtos = restTemplate.getForObject( urlString, GameDto[].class );
-            if ( gameDtos == null ) throw new RESTAdapterException( urlString, "Received a null GameDto array - wtf ...?", null );
-            logger.info( "Got " + gameDtos.length + " game(s) via REST ...");
-            Iterator<GameDto> iterator = Arrays.stream(gameDtos).iterator();
-            while ( iterator.hasNext() ) { logger.info( "... " + iterator.next() ); }
+            allGames = restTemplate.getForObject( urlString, GameDto[].class );
+            if ( allGames == null || allGames.length == 0 ) {
+                logger.error( "Received a null GameDto array from " + urlString );
+                return new GameDto[0];
+            }
+            logger.info( "Got " + allGames.length + " game(s) via REST ...");
+            openGames = Arrays.stream(allGames).filter( gameDto -> gameDto.getGameStatus().isActive() )
+                    .toArray( GameDto[]::new );
         }
         catch ( RestClientException e ) {
-            throw new RESTAdapterException( urlString, e.getMessage(), null );
+            logger.error( "Error when contacting " + urlString + ", message: " + e.getMessage() );
+            throw new RESTAdapterException( urlString, e );
         }
-        return gameDtos;
+        return openGames;
     }
 
 
 
-    public PlayerRegistryDto getBearerTokenForPlayer( PlayerRegistryDto playerRegistryDto ) {
+
+    public UUID sendGetRequestForPlayerId( String playerName, String email ) {
+        String urlString = gameServiceUrlString + "/players?name=" + playerName + "&mail=" + email;
         PlayerRegistryDto returnedPlayerRegistryDto = null;
+        try {
+            returnedPlayerRegistryDto =
+                    restTemplate.execute( urlString, GET, requestCallback(), playerRegistryResponseExtractor() );
+        }
+        catch ( RestClientResponseException e ) {
+            if ( e.getRawStatusCode() == 404 ) {
+                // actually, the proper answer would be an empty array, not 404.
+                logger.info("No player exists for " + playerName + " and " + email);
+                return null;
+            }
+            else {
+                logger.error("Return code " + e.getRawStatusCode() + " for request " + urlString);
+                throw new RESTAdapterException( urlString, e );
+            }
+        }
+        catch ( RestClientException e ) {
+            logger.error( "Problem with the GET request '" + urlString + "', msg: " + e.getMessage() );
+            throw new RESTAdapterException( urlString, e );
+        }
+        UUID playerId = returnedPlayerRegistryDto.getPlayerId();
+        logger.info( "Player is already registered, with playerId: " + playerId );
+        return playerId;
+    }
+
+
+
+    public UUID sendPostRequestForPlayerId( String playerName, String email ) {
+        PlayerRegistryDto requestDto = new PlayerRegistryDto();
+        requestDto.setName( playerName );
+        requestDto.setEmail( email );
         String urlString = gameServiceUrlString + "/players";
+        PlayerRegistryDto returnedPlayerRegistryDto = null;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(playerRegistryDto);
+            String json = objectMapper.writeValueAsString( requestDto );
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType( MediaType.APPLICATION_JSON );
             HttpEntity<String> request = new HttpEntity<String>( json, headers );
             returnedPlayerRegistryDto =
-                     restTemplate.postForObject( urlString, request, PlayerRegistryDto.class);
+                    restTemplate.postForObject( urlString, request, PlayerRegistryDto.class );
         }
         catch ( JsonProcessingException e ) {
-            throw new DungeonPlayerRuntimeException(
-                    "Unexpected error converting playerRegistryDto to JSON: " + playerRegistryDto );
-        }
-        catch ( HttpClientErrorException e ) {
-            if ( e.getStatusCode().equals( HttpStatus.FORBIDDEN ) ) {
-                // this is a business logic problem - so let the application service handle this
-                throw new RESTAdapterException( "Player " + playerRegistryDto + " already registered",
-                        urlString, e.getStatusCode() );
-            }
-            else {
-                throw new RESTAdapterException( urlString, e.getMessage(), e.getStatusCode() );
-            }
+            logger.error( "Unexpected error converting requestDto to JSON: " + requestDto );
+            throw new RESTAdapterException( "Unexpected error converting requestDto to JSON: " + requestDto );
         }
         catch ( RestClientException e ) {
-            throw new RESTAdapterException( urlString, e.getMessage(), null );
+            logger.error( "Problem with connection to server, cannot register player! Exception: " + e.getMessage() );
+            throw new RESTAdapterException( urlString, e );
         }
-        logger.info( "Registered player via REST, got bearer token: " + returnedPlayerRegistryDto.getBearerToken() );
-        return returnedPlayerRegistryDto;
+        UUID playerId = returnedPlayerRegistryDto.getPlayerId();
+        logger.info( "Registered player via REST, got playerId: " + playerId );
+        return playerId;
     }
 
 
@@ -94,33 +123,27 @@ public class GameServiceRESTAdapter {
      * Register a specific player for a specific game via call to GameService endpoint.
      * Caveat: GameService returns somewhat weird error codes (non-standard).
      * @param gameId of the game
-     * @param bearerToken of the player
+     * @param playerId of the player
      * @return transactionId if successful
      */
-    public UUID registerPlayerForGame( UUID gameId, UUID bearerToken ) {
-        String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + bearerToken;
+    public String sendPutRequestToLetPlayerJoinGame( UUID gameId, UUID playerId ) {
+        String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + playerId;
+        logger.info( "Try to sendPutRequestToLetPlayerJoinGame at: " + urlString );
         try {
-            TransactionIdResponseDto transactionIdResponseDto =
-                    restTemplate.execute( urlString, PUT, requestCallback(), responseExtractor() );
-            return transactionIdResponseDto.getTransactionId();
-        }
-        catch ( HttpClientErrorException e ) {
-            if ( e.getStatusCode().equals( HttpStatus.NOT_ACCEPTABLE ) ) {
-                // this is a business logic problem - so let the application service handle this
-                throw new RESTAdapterException( urlString, "Player with bearer token " + bearerToken +
-                        " already registered in game with id " + gameId, e.getStatusCode() );
-            }
-            else if ( e.getStatusCode().equals( HttpStatus.BAD_REQUEST ) ) {
-                throw new RESTAdapterException( urlString, "For player with bearer token " + bearerToken +
-                        " and game with id " + gameId + " the player registration went wrong; original error msg: "
-                        + e.getMessage(), e.getStatusCode() );
-            }
-            else {
-                throw new RESTAdapterException( urlString, e.getMessage(), e.getStatusCode() );
-            }
+            PlayerJoinDto playerJoinDto =
+                    restTemplate.execute( urlString, PUT, requestCallback(), playerJoinResponseExtractor() );
+            return playerJoinDto.getPlayerQueue();
         }
         catch ( RestClientException e ) {
-            throw new RESTAdapterException( urlString, e.getMessage(), null );
+            logger.error( "Exception encountered in sendPutRequestToLetPlayerJoinGame" );
+            if ( e.getMessage() != null && e.getMessage().contains( "Player is already participating" ) ) {
+                // this is a very specific design flaw in /games/id/players/pid - it throws a 400 if player has
+                // already joined. As a workaround, we improvise the queue name ...
+                String playerQueue = "player-" + playerId.toString();
+                logger.info( "... but player is already participating. So we assume this player queue: " + playerQueue );
+                return playerQueue;
+            }
+            throw new RESTAdapterException( urlString, e );
         }
     }
 
@@ -134,9 +157,15 @@ public class GameServiceRESTAdapter {
         };
     }
 
-    private ResponseExtractor<TransactionIdResponseDto> responseExtractor() {
+    private ResponseExtractor<PlayerRegistryDto> playerRegistryResponseExtractor() {
         return response -> {
-            return objectMapper.readValue( response.getBody(), TransactionIdResponseDto.class );
+            return objectMapper.readValue( response.getBody(), PlayerRegistryDto.class );
+        };
+    }
+
+    private ResponseExtractor<PlayerJoinDto> playerJoinResponseExtractor() {
+        return response -> {
+            return objectMapper.readValue( response.getBody(), PlayerJoinDto.class );
         };
     }
 }

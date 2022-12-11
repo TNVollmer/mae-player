@@ -3,23 +3,21 @@ package thkoeln.dungeon.player.application;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.domainprimitives.Moneten;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
-import thkoeln.dungeon.game.domain.GameRepository;
 import thkoeln.dungeon.player.domain.Player;
-import thkoeln.dungeon.player.domain.PlayerMode;
 import thkoeln.dungeon.player.domain.PlayerRepository;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.restadapter.PlayerRegistryDto;
-import thkoeln.dungeon.restadapter.RESTAdapterException;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -34,12 +32,12 @@ import java.util.UUID;
 public class PlayerApplicationService {
     private Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
     private ModelMapper modelMapper = new ModelMapper();
-    private Environment env;
 
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
-    private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
+    private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
+
 
     @Value("${dungeon.playerName}")
     private String playerName;
@@ -51,161 +49,114 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
-            GameRepository gameRepository,
             GameServiceRESTAdapter gameServiceRESTAdapter,
-            Environment env ) {
+            RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
-        this.gameRepository = gameRepository;
         this.gameApplicationService = gameApplicationService;
-        this.env = env;
-    }
-
-    public int numberOfPlayers() {
-        int numberOfPlayers = Integer.valueOf( env.getProperty( "dungeon.playerNumber" ) );
-        return numberOfPlayers;
+        this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
     }
 
 
     /**
-     * Create player(s), if not there already
+     * Fetch the existing player. If there isn't one yet, it is created and stored to the database.
+     * @return The current player.
      */
-    public void createPlayers() {
+    public Player queryAndIfNeededCreatePlayer() {
+        Player player = null;
         List<Player> players = playerRepository.findAll();
-        int numberOfPlayers = numberOfPlayers();
-        if (players.size() == 0) {
-            for (int iPlayer = 0; iPlayer < numberOfPlayers; iPlayer++) {
-                Player player = new Player();
-                if ( (numberOfPlayers == 1) && (! "".equals(playerName) ) && (! "".equals(playerEmail) )  ) {
-                    player.setName( playerName );
-                    player.setEmail( playerEmail );
-                }
-                else {
-                    player.assignRandomName();
-                }
-                playerRepository.save(player);
-                logger.info("Created new player: " + player);
-                players.add(player);
-            }
+        if ( players.size() >= 1 ) {
+            return players.get( 0 );
         }
-    }
-
-
-    /**
-     * Obtain the bearer token for all players defined in this service
-     */
-    public void obtainBearerTokensForMultiplePlayers() {
-        List<Player> players = playerRepository.findAll();
-        for (Player player : players) obtainBearerTokenForPlayer( player );
-    }
-
-
-    /**
-     * Obtain the bearer token for one specific player
-     * @param player
-     * @return true if successful
-     */
-    public void obtainBearerTokenForPlayer( Player player ) {
-        if ( player.getBearerToken() != null ) return;
-        try {
-            PlayerRegistryDto playerDto = modelMapper.map(player, PlayerRegistryDto.class);
-            PlayerRegistryDto registeredPlayerDto = gameServiceRESTAdapter.getBearerTokenForPlayer(playerDto);
-            if ( registeredPlayerDto != null ) {
-                if ( registeredPlayerDto.getBearerToken() == null ) logger.error( "Received no bearer token for " + player + "!");
-                else player.setBearerToken( registeredPlayerDto.getBearerToken() );
-                playerRepository.save( player );
-                logger.info("Bearer token received for " + player );
-            }
-            else {
-                logger.error( "PlayerRegistryDto returned by REST service is null for player " + player );
-            }
+        else {
+            player = new Player();
+            player.setName( playerName );
+            player.setEmail( playerEmail );
+            playerRepository.save(player);
+            logger.info( "Created new player (not yet registered): " + player );
         }
-        catch ( RESTAdapterException e ) {
-            if ( HttpStatus.FORBIDDEN.equals( e.getReturnValue() ) ) {
-                // TODO - unclear what to do in this cases
-                logger.error("Name collision while getting bearer token for player " + player);
-            }
-            else {
-                logger.error( "No connection or no valid response from GameService - no bearer token for player " + player );
-            }
-        }
+        return player;
     }
 
 
-
     /**
-     * We have received the event that a game has been created. So make sure that the game state is suitable,
-     * and that our player(s) can join.
-     * for the game.
-     * @param gameId
+     * Register the current player (or do nothing, if it is already registered)
      */
-    public void registerPlayersForNewlyCreatedGame( UUID gameId ) {
-        Game game = gameApplicationService.gameExternallyCreated( gameId );
-        List<Player> players = playerRepository.findAll();
-        for (Player player : players) registerOnePlayerForGame( player, game );
-    }
-
-
-
-    /**
-     * Register one specific player for a game
-     * @param player
-     * @param game
-     */
-    public void registerOnePlayerForGame( Player player, Game game ) {
-        if ( player.getBearerToken() == null ) {
-            logger.error( "Player" + player + " has no BearerToken!" );
+    public void registerPlayer() {
+        Player player = queryAndIfNeededCreatePlayer();
+        if ( player.getPlayerId() != null ) {
+            logger.info( "Player " + player + " is already registered." );
             return;
         }
-        try {
-            UUID transactionId = gameServiceRESTAdapter.registerPlayerForGame( game.getGameId(), player.getBearerToken() );
-            if ( transactionId != null ) {
-                player.registerFor( game, transactionId );
-                playerRepository.save( player );
-                logger.info( "Player " + player + " successfully registered for game " + game +
-                        " with transactionId " + transactionId );
-            }
-        } catch ( RESTAdapterException e ) {
-            // shouldn't happen - cannot do more than logging and retrying later
-            // todo - err msg wrong
-            logger.error( "Could not register " + player + " for " + game +
-                    "\nOriginal Exception:\n" + e.getMessage() + "\n" + e.getStackTrace() );
+        UUID playerId = gameServiceRESTAdapter.sendGetRequestForPlayerId( player.getName(), player.getEmail() );
+        if ( playerId == null ) {
+            playerId = gameServiceRESTAdapter.sendPostRequestForPlayerId( player.getName(), player.getEmail() );
         }
+        if ( playerId == null ) {
+            logger.error( "Registration for player " + player + " failed." );
+            return;
+        }
+        player.assignPlayerId( playerId );
+        // We need the queue now, not at joining the game ... so we "guess" the queue name.
+        openRabbitQueue( player );
+        playerRepository.save( player );
+        logger.info( "PlayerId sucessfully obtained for " + player + ", is now registered." );
     }
-
-
 
 
     /**
-     * Method to be called when the answer event after a game registration has been received
+     * Check if our player is not currently in a game, and if so, let him join the game -
+     * if there is one, and it is open.
      */
-    public void assignPlayerId( UUID registrationTransactionId, UUID playerId ) {
-        logger.info( "Assign playerId from game registration" );
-        if ( registrationTransactionId == null )
-            throw new PlayerApplicationException( "registrationTransactionId cannot be null!" );
-        if ( playerId == null )  throw new PlayerApplicationException( "PlayerId cannot be null!" );
-        List<Player> foundPlayers =
-                playerRepository.findByRegistrationTransactionId( registrationTransactionId );
-        if ( foundPlayers.size() != 1 ) {
-            throw new PlayerApplicationException( "Found not exactly 1 player with transactionId"
-                    + registrationTransactionId + ", but " + foundPlayers.size() );
+    public void letPlayerJoinOpenGame() {
+        logger.info( "Trying to join game ..." );
+        Player player = queryAndIfNeededCreatePlayer();
+        Optional<Game> perhapsOpenGame = gameApplicationService.queryActiveGame();
+        if ( !perhapsOpenGame.isPresent() ) {
+            logger.info( "No open game at the moment - cannot join a game." );
+            return;
         }
-        Player player = foundPlayers.get( 0 );
-        player.setPlayerId( playerId );
+        Game game = perhapsOpenGame.get();
+        String playerQueue =
+                gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( game.getGameId(), player.getPlayerId() );
+        if ( playerQueue == null ) {
+            logger.warn( "letPlayerJoinOpenGame: no join happened!" );
+            return;
+        }
+        // Player queue is set already at registering - but we do it again
+        player.setPlayerQueue( playerQueue );
+        openRabbitQueue( player );
         playerRepository.save( player );
+        logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
     }
+
+
+    protected void openRabbitQueue( Player player ) {
+        String playerQueue = player.getPlayerQueue();
+        if ( playerQueue == null ) throw new PlayerApplicationException( "playerQueue == null" );
+        AbstractMessageListenerContainer listenerContainer = (AbstractMessageListenerContainer)
+                rabbitListenerEndpointRegistry.getListenerContainer( "player-queue" );
+        String[] queueNames = listenerContainer.getQueueNames();
+        if ( !Arrays.stream(queueNames).anyMatch( s->s.equals( playerQueue ) ) ) {
+            listenerContainer.addQueueNames( player.getPlayerQueue() );
+            logger.info( "Added queue " + playerQueue + " to listener." );
+        }
+        else {
+            logger.info( "Queue " + playerQueue + " is already listened to.");
+        }
+    }
+
 
     /**
      * @param playerId
      * @param moneyAsInt
      */
     public void adjustBankAccount( UUID playerId, Integer moneyAsInt ) {
+        logger.info( "Adjust bank account to " + moneyAsInt );
         Moneten newMoney = Moneten.fromInteger( moneyAsInt );
-        List<Player> foundPlayers = playerRepository.findByPlayerId( playerId );
-        if ( foundPlayers.size() != 1 ) {
-            throw new PlayerApplicationException( "Found not exactly 1 player with playerId " + playerId
-                    + ", but " + foundPlayers.size() );
-        }
-        foundPlayers.get( 0 ).setMoneten( newMoney );
+        Player player = queryAndIfNeededCreatePlayer();
+        player.setMoneten( newMoney );
+        playerRepository.save( player );
     }
+
 }

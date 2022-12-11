@@ -9,7 +9,5 @@ import java.util.UUID;
 
 public interface PlayerRepository extends CrudRepository<Player, UUID> {
     List<Player> findAll();
-    List<Player> findByCurrentGame( Game game );
-    List<Player> findByRegistrationTransactionId( UUID transactionId );
     List<Player> findByPlayerId( UUID playerId );
 }

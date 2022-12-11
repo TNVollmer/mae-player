@@ -1,3 +1,5 @@
+(this is outdated and needs to be revised!)
+
 # Generic Player template for _The Microservice Dungeon_
 
 This repo contains a generic, Java-based Dungeon player template. It can be used to build an own player based on it. 

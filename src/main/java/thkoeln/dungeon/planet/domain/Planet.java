@@ -2,48 +2,94 @@ package thkoeln.dungeon.planet.domain;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.domainprimitives.*;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static java.lang.Boolean.TRUE;
+import static thkoeln.dungeon.domainprimitives.CompassDirection.*;
+
 @Entity
 @Getter
+@NoArgsConstructor( access = AccessLevel.PROTECTED )
 public class Planet {
     @Id
     private final UUID id = UUID.randomUUID();
 
-    @Setter
-    private String name;
+    // this is the EXTERNAL id that we receive from MapService. We could use this also as our own id, but then
+    // we'll run into problems in case MapService messes up their ids. So, better we better keep these two apart.
+    private UUID planetId;
 
     @Setter
-    @Getter ( AccessLevel.NONE )
+    @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getSpacestation()
     private Boolean spacestation = Boolean.FALSE;
     public Boolean isSpaceStation() { return spacestation; }
 
+    @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getVisited()
+    @Setter
+    private Boolean visited = Boolean.FALSE;
+    public Boolean hasBeenVisited() { return visited; }
+
+    @Setter
+    private String name;
+
+    // Flag needed for recursive output of all planets ... I know, this is not ideal, but couldn't yet
+    // think of a better solution.
+    @Setter
+    private Boolean temporaryProcessingFlag;
+
+
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet northNeighbour;
+    private Planet northNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet eastNeighbour;
+    private Planet eastNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet southNeighbour;
+    private Planet southNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
-    private Planet westNeighbour;
+    private Planet westNeighbour = null;
+
+    @Embedded
+    @Setter
+    private MineableResource mineableResource;
+
+    @Embedded
+    @Setter
+    private MovementDifficulty movementDifficulty;
 
     @Transient
     private Logger logger = LoggerFactory.getLogger( Planet.class );
+
+    public Planet( UUID planetId ) {
+        this.planetId = planetId;
+    }
+
+    /**
+     * Just for testing ...
+     */
+    public Planet( String name ) {
+        this.name = name;
+        this.planetId = UUID.randomUUID();
+    }
+
+    public static Planet createFirstSpacestation( UUID planetId ) {
+        return null;
+    }
+
 
     /**
      * A neighbour relationship is always set on BOTH sides.
@@ -66,30 +112,91 @@ public class Planet {
             throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
         }
         logger.info( "Established neighbouring relationship between planet '" + this + "' and '" + otherPlanet + "'." );
+        closeNeighbouringCycleForAllDirectionsBut( direction );
     }
 
 
-    protected Method neighbouringGetter( CompassDirection direction ) throws NoSuchMethodException {
-        String name = "get" + WordUtils.capitalize( String.valueOf( direction ) ) + "Neighbour";
+    public void closeNeighbouringCycleForAllDirectionsBut( CompassDirection notInThisDirection ) {
+        for ( CompassDirection compassDirection: CompassDirection.values() ) {
+            if ( compassDirection.equals( notInThisDirection ) ) continue;
+            Planet neighbour = getNeighbour( compassDirection );
+            if ( neighbour != null ) {
+                for ( CompassDirection ninetyDegrees: compassDirection.ninetyDegrees() ) {
+                    if( this.getNeighbour( ninetyDegrees ) != null &&
+                            neighbour.getNeighbour( ninetyDegrees ) != null &&
+                            this.getNeighbour( ninetyDegrees ).getNeighbour( compassDirection ) == null ) {
+                        this.getNeighbour( ninetyDegrees ).defineNeighbour(
+                                neighbour.getNeighbour( ninetyDegrees ), compassDirection );
+                        logger.info( "Closed cycle ..." );
+                    }
+                }
+            }
+        }
+    }
+
+
+    public void resetAllNeighbours() {
+        setNorthNeighbour( null );
+        setWestNeighbour( null );
+        setEastNeighbour( null );
+        setSouthNeighbour( null );
+    }
+
+
+    public Planet getNeighbour( CompassDirection compassDirection ) {
+        try {
+            Method getter = neighbouringGetter( compassDirection );
+            return (Planet) getter.invoke( this );
+        }
+        catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
+            throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
+        }
+    }
+
+    protected Method neighbouringGetter(CompassDirection direction ) throws NoSuchMethodException {
+        String name = "get" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) ) + "Neighbour";
         return this.getClass().getDeclaredMethod( name );
     }
 
 
     protected Method neighbouringSetter( CompassDirection direction ) throws NoSuchMethodException {
-        String name = "set" + WordUtils.capitalize( String.valueOf( direction ) ) + "Neighbour";
+        String name = "set" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) ) + "Neighbour";
         return this.getClass().getDeclaredMethod( name, new Class[]{ this.getClass() } );
     }
 
 
-    public List<Planet> allNeighbours() {
-        List<Planet> allNeighbours = new ArrayList<>();
-        if ( getNorthNeighbour() != null ) allNeighbours.add( getNorthNeighbour() );
-        if ( getWestNeighbour() != null ) allNeighbours.add( getWestNeighbour() );
-        if ( getEastNeighbour() != null ) allNeighbours.add( getEastNeighbour() );
-        if ( getSouthNeighbour() != null ) allNeighbours.add( getSouthNeighbour() );
-        return allNeighbours;
+    public Map<CompassDirection, Planet> allNeighbours() {
+        Map<CompassDirection, Planet> allNeighboursMap = new HashMap<>();
+        if ( getNorthNeighbour() != null ) allNeighboursMap.put( NORTH, getNorthNeighbour() );
+        if ( getWestNeighbour() != null ) allNeighboursMap.put( WEST, getWestNeighbour() );
+        if ( getEastNeighbour() != null ) allNeighboursMap.put( EAST, getEastNeighbour() );
+        if ( getSouthNeighbour() != null ) allNeighboursMap.put( SOUTH, getSouthNeighbour() );
+        return allNeighboursMap;
     }
 
+    /**
+     * Add the neighbours to an existing 2d array of planets - grow the array if needed.
+     * @param existingLocalIsland
+     * @param localCoordinate - position where this planet is in the array
+     * @return
+     */
+    public TwoDimDynamicArray<Planet> constructLocalIsland(
+            TwoDimDynamicArray<Planet> existingLocalIsland, Coordinate localCoordinate ) {
+        if ( getTemporaryProcessingFlag() ) return existingLocalIsland;
+
+        setTemporaryProcessingFlag( TRUE );
+        TwoDimDynamicArray<Planet> localIsland = existingLocalIsland;
+        Map<CompassDirection, Planet> allNeighbours = allNeighbours();
+        for (Map.Entry<CompassDirection, Planet> entry : allNeighbours.entrySet()) {
+            CompassDirection direction = entry.getKey();
+            Planet neighbour = entry.getValue();
+            if ( !neighbour.getTemporaryProcessingFlag() ) {
+                Coordinate newCoordinate = localIsland.putAndEnhance( localCoordinate, direction, neighbour );
+                localIsland = neighbour.constructLocalIsland( localIsland, newCoordinate );
+            }
+        }
+        return localIsland;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -106,6 +213,7 @@ public class Planet {
 
     @Override
     public String toString() {
-        return getName() + " (" + getId() + ")";
+        if ( name != null ) return name;
+        return ( "S: " + isSpaceStation() + ", " + getPlanetId() );
     }
 }
