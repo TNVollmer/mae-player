@@ -52,7 +52,11 @@ This will (probably) tell you that there are merge conflicts. Open Intellij, go 
 - middle is the result
 - right is the generic player source
 
-Resolve it step by step and then test.
+Resolve it step by step and then test. If all went ok, you can merge it the `new_version` branch back into `main`: 
+
+* `git push`
+* `git checkout main`
+* `git merge new_version`
 
 
 
