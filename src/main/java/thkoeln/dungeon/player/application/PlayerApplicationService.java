@@ -15,6 +15,7 @@ import thkoeln.dungeon.player.domain.Player;
 import thkoeln.dungeon.player.domain.PlayerRepository;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -125,16 +126,24 @@ public class PlayerApplicationService {
         // Player queue is set already at registering - but we do it again
         player.setPlayerQueue( playerQueue );
         openRabbitQueue( player );
-        player.setCurrentGame( game );
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
     }
 
 
     protected void openRabbitQueue( Player player ) {
+        String playerQueue = player.getPlayerQueue();
+        if ( playerQueue == null ) throw new PlayerApplicationException( "playerQueue == null" );
         AbstractMessageListenerContainer listenerContainer = (AbstractMessageListenerContainer)
                 rabbitListenerEndpointRegistry.getListenerContainer( "player-queue" );
-        listenerContainer.addQueueNames( player.getPlayerQueue() );
+        String[] queueNames = listenerContainer.getQueueNames();
+        if ( !Arrays.stream(queueNames).anyMatch( s->s.equals( playerQueue ) ) ) {
+            listenerContainer.addQueueNames( player.getPlayerQueue() );
+            logger.info( "Added queue " + playerQueue + " to listener." );
+        }
+        else {
+            logger.info( "Queue " + playerQueue + " is already listened to.");
+        }
     }
 
 

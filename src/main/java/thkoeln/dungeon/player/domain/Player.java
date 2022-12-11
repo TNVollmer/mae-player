@@ -41,10 +41,6 @@ public class Player {
 
     private UUID registrationTransactionId;
 
-    @OneToOne
-    @Setter
-    private Game currentGame;
-
     /**
      * Choose a random and unique name and email for the player
      */
