@@ -11,9 +11,7 @@ import thkoeln.dungeon.domainprimitives.TradableType;
 import thkoeln.dungeon.eventlistener.AbstractEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -33,12 +31,12 @@ public class TradablePricesEvent extends AbstractEvent {
     public void fillWithPayload( String jsonString ) {
         try {
             ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-            TradablePriceDto[] tradablePriceDtos = objectMapper.readValue( jsonString, TradablePriceDto[].class );
-            for ( TradablePriceDto tradablePriceDto : tradablePriceDtos ) {
+            TradableItemDto[] tradableItemDtos = objectMapper.readValue( jsonString, TradableItemDto[].class );
+            for ( TradableItemDto tradableItemDto : tradableItemDtos) {
                 TradableItem tradableItem =  new TradableItem(
-                        tradablePriceDto.getName(),
-                        Moneten.fromInteger( tradablePriceDto.getPrice() ),
-                        TradableType.valueOf( tradablePriceDto.getType() ) );
+                        tradableItemDto.getName(),
+                        Moneten.fromInteger( tradableItemDto.getPrice() ),
+                        TradableType.valueOf( tradableItemDto.getType() ) );
                 tradableItems.add( tradableItem );
             }
         }
