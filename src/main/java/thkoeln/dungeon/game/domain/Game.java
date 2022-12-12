@@ -1,6 +1,7 @@
 package thkoeln.dungeon.game.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,8 +11,11 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+
+import static java.lang.Boolean.FALSE;
 
 @Entity
 @Getter
@@ -29,12 +33,16 @@ public class Game {
     private GameStatus gameStatus;
     private Integer currentRoundCount;
 
+    @Setter( AccessLevel.PROTECTED )
+    private Boolean ourPlayerHasJoined;
+
     @Transient
     private Logger logger = LoggerFactory.getLogger( Game.class );
 
     public void resetToNewlyCreated() {
         setGameStatus( GameStatus.CREATED );
         setCurrentRoundCount( 0 );
+        setOurPlayerHasJoined( FALSE );
         logger.warn( "Reset game " + this + " to CREATED!" );
     }
 
@@ -44,6 +52,18 @@ public class Game {
         game.resetToNewlyCreated();
         return game;
     }
+
+    /**
+     * Can be called with the String[] of joined player names
+     * @param namesOfJoinedPlayers
+     */
+    public void checkIfOurPlayerHasJoined( String[] namesOfJoinedPlayers, String playerName ) {
+        if ( namesOfJoinedPlayers == null || playerName == null )
+            throw new GameException( "namesOfJoinedPlayers == null || playerName == null" );
+        Boolean found = Arrays.stream( namesOfJoinedPlayers ).anyMatch( s->s.equals( playerName ) );
+        setOurPlayerHasJoined( found );
+    }
+
 
     @Override
     public boolean equals(Object o) {

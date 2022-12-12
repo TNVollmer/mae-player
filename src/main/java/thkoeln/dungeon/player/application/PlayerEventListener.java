@@ -13,6 +13,7 @@ import thkoeln.dungeon.eventlistener.EventHeader;
 import thkoeln.dungeon.eventlistener.concreteevents.BankInitializedEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.GameStatusEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.RoundStatusEvent;
+import thkoeln.dungeon.eventlistener.concreteevents.TradablePricesEvent;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.player.domain.Player;
 
@@ -94,6 +95,9 @@ public class PlayerEventListener {
             case ROUND_STATUS:
                 handleRoundStatusEvent( (RoundStatusEvent) event );
                 break;
+            case TRADABLE_PRICES:
+                handleTradablePricesEvent( (TradablePricesEvent) event );
+                break;
             default:
         }
     }
@@ -113,15 +117,25 @@ public class PlayerEventListener {
         }
     }
 
+
     private void handleBankInitializedEvent( BankInitializedEvent bankInitializedEvent ) {
         playerApplicationService.adjustBankAccount(
                 bankInitializedEvent.getPlayerId(), bankInitializedEvent.getBalance() );
     }
 
+
     private void handleRoundStatusEvent( RoundStatusEvent event ) {
         // todo add business logic - calculate which commands to issue
         // todo differentiate according to roundStatus - "started" is interesting
-        logger.info( "------> ROUND_STATUS event to be handled" );
+        logger.info( environment.getProperty( "ANSI_RED" ) +
+                     "------> ROUND_STATUS event to be handled" + environment.getProperty( "ANSI_RESET" ) );
+    }
+
+
+    private void handleTradablePricesEvent( TradablePricesEvent event ) {
+        // todo add business logic
+        logger.info( environment.getProperty( "ANSI_RED" ) +
+                "------> TRADABLE_PRICES event to be handled" + environment.getProperty( "ANSI_RESET" ) );
     }
 
 }

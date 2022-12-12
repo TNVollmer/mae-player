@@ -71,8 +71,8 @@ public class EventHeader {
         return "Header:" +
                 ", {eventType=" + eventType +
                 ", eventTypeString=" + eventTypeString +
-                ", eventId=" + eventId +
                 ", transactionId=" + transactionId +
+                ", eventId=" + eventId + "\n\t" +
                 ", playerId=" + playerId +
                 ", isBroadcast=" + isBroadcast() +
                 ", eventType=" + eventType +
