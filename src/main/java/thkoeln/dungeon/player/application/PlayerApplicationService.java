@@ -117,17 +117,19 @@ public class PlayerApplicationService {
             return;
         }
         Game game = perhapsOpenGame.get();
-        String playerQueue =
-                gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( game.getGameId(), player.getPlayerId() );
-        if ( playerQueue == null ) {
-            logger.warn( "letPlayerJoinOpenGame: no join happened!" );
-            return;
+        if ( !game.getOurPlayerHasJoined() ) {
+            String playerQueue =
+                    gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( game.getGameId(), player.getPlayerId() );
+            if ( playerQueue == null ) {
+                logger.warn( "letPlayerJoinOpenGame: no join happened!" );
+                return;
+            }
+            // Player queue is set already at registering - but we do it again
+            if ( playerQueue != null ) player.setPlayerQueue( playerQueue );
         }
-        // Player queue is set already at registering - but we do it again
-        player.setPlayerQueue( playerQueue );
         openRabbitQueue( player );
         playerRepository.save( player );
-        logger.info( "Player successfully joined game " + game + ", listening via player queue " + playerQueue );
+        logger.info( "Player successfully joined game " + game + ", listening via player queue " + player.getPlayerQueue() );
     }
 
 

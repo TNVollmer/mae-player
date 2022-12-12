@@ -61,7 +61,7 @@ public class GameServiceRESTAdapterConnectionFailureTest {
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
-            gameServiceRESTAdapter.checkForOpenGames();
+            gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
         });
     }
 
@@ -77,7 +77,7 @@ public class GameServiceRESTAdapterConnectionFailureTest {
                 .andRespond( withStatus( HttpStatus.OK ) );
 
         // when/then
-        GameDto[] gameDtos = gameServiceRESTAdapter.checkForOpenGames();
+        GameDto[] gameDtos = gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
         assertEquals( 0, gameDtos.length );
     }
 

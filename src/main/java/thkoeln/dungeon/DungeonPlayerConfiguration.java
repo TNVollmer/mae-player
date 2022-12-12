@@ -9,14 +9,8 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Description;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
-
-import javax.servlet.ServletContext;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @EnableAutoConfiguration
@@ -26,7 +20,7 @@ public class DungeonPlayerConfiguration {
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
     @Autowired
-    private Environment env;
+    private Environment environment;
 
 
     /**
@@ -36,8 +30,10 @@ public class DungeonPlayerConfiguration {
     @Bean
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
-        connectionFactory.setUsername( "admin" );
-        connectionFactory.setPassword( "admin" );
+        String username = environment.getProperty( "queue.username" );
+        String password = environment.getProperty( "queue.password" );
+        connectionFactory.setUsername( username );
+        connectionFactory.setPassword( password );
         return connectionFactory;
     }
 

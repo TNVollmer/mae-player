@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.game.domain.GameException;
@@ -20,27 +21,32 @@ import java.util.UUID;
 public class GameApplicationService {
     private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
+    private Environment environment;
 
     private Logger logger = LoggerFactory.getLogger( GameApplicationService.class );
     ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
-    public GameApplicationService(GameRepository gameRepository,
-                                  GameServiceRESTAdapter gameServiceRESTAdapter ) {
+    public GameApplicationService( GameRepository gameRepository,
+                                   GameServiceRESTAdapter gameServiceRESTAdapter,
+                                   Environment environment ) {
         this.gameRepository = gameRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
+        this.environment = environment;
     }
 
 
     /**
-     * Throw away all stored games, and fetch a new one. Only interesting if open.
+     * Throw away all stored games, and fetch the currently active game (if any).
      */
     public void fetchRemoteGame() {
         gameRepository.deleteAll();
-        GameDto[] openGameDtos = gameServiceRESTAdapter.checkForOpenGames();
+        GameDto[] openGameDtos = gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
         if ( openGameDtos.length > 0 ) {
             Game game = new Game();
             modelMapper.map( openGameDtos[0], game );
+            game.checkIfOurPlayerHasJoined(
+                    openGameDtos[0].getParticipatingPlayers(), environment.getProperty( "dungeon.playerName" ));
             gameRepository.save( game );
             logger.info( "Open game found: " + game );
             if ( openGameDtos.length > 1 ) logger.warn( "More than one open game found!" );

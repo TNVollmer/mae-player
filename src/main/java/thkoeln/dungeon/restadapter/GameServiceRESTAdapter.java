@@ -9,11 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
-import thkoeln.dungeon.DungeonPlayerRuntimeException;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -37,7 +35,10 @@ public class GameServiceRESTAdapter {
     }
 
 
-    public GameDto[] checkForOpenGames() {
+    /**
+     * @return An array of all games (as DTOs) that are either CREATED or RUNNING
+     */
+    public GameDto[] sendGetRequestForAllActiveGames() {
         GameDto[] allGames;
         GameDto[] openGames;
         String urlString = gameServiceUrlString + "/games";

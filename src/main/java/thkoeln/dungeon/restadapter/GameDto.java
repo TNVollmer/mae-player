@@ -16,4 +16,6 @@ public class GameDto {
     private UUID gameId;
     private GameStatus gameStatus;
     private Integer currentRoundNumber;
+    private Integer roundLengthInMillis;
+    private String[] participatingPlayers;
 }
