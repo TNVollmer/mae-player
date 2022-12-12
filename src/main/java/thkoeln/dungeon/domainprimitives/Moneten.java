@@ -9,6 +9,7 @@ import javax.persistence.Embeddable;
 @Getter
 @EqualsAndHashCode
 @Embeddable
+@ToString
 public class Moneten {
     private Integer amount = 0;
 
