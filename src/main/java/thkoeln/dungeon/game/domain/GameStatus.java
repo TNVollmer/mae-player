@@ -13,9 +13,10 @@ public enum GameStatus {
     public boolean isActive() {
         return ( this.equals( CREATED ) || this.equals( RUNNING ) );
     }
-
     public boolean isOpenForJoining() {
         return ( this.equals( CREATED ) );
     }
-
+    public boolean isRunning() {
+        return ( this.equals( RUNNING ) );
+    }
 }

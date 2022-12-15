@@ -31,8 +31,8 @@ public class TradablePricesEvent extends AbstractEvent {
     public void fillWithPayload( String jsonString ) {
         try {
             ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-            TradablePriceDto[] tradablePriceDtos = objectMapper.readValue( jsonString, TradablePriceDto[].class );
-            for ( TradablePriceDto tradablePriceDto : tradablePriceDtos ) {
+            TradeablePriceDto[] tradeablePriceDtos = objectMapper.readValue( jsonString, TradeablePriceDto[].class );
+            for ( TradeablePriceDto tradablePriceDto : tradeablePriceDtos ) {
                 TradeableItem tradeableItem =  new TradeableItem(
                         tradablePriceDto.getName(),
                         Money.fromInteger( tradablePriceDto.getPrice() ),

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.domainprimitives.Moneten;
 import thkoeln.dungeon.eventlistener.AbstractEvent;
 import thkoeln.dungeon.eventlistener.EventFactory;
 import thkoeln.dungeon.eventlistener.EventHeader;
@@ -52,8 +53,8 @@ public class PlayerEventListener {
      */
     @RabbitListener( id = "player-queue" )
     public void receiveEvent( @Header( EVENT_ID_KEY ) String eventIdStr,
-                              @Header( TRANSACTION_ID_KEY ) String transactionIdStr,
-                              @Header( PLAYER_ID_KEY ) String playerIdStr,
+                              @Header( required = false, value = TRANSACTION_ID_KEY ) String transactionIdStr,
+                              @Header( required = false, value = PLAYER_ID_KEY ) String playerIdStr,
                               @Header( TYPE_KEY ) String type,
                               @Header( VERSION_KEY ) String version,
                               @Header( TIMESTAMP_KEY ) String timestampStr,
@@ -125,10 +126,15 @@ public class PlayerEventListener {
 
 
     private void handleRoundStatusEvent( RoundStatusEvent event ) {
-        // todo add business logic - calculate which commands to issue
-        // todo differentiate according to roundStatus - "started" is interesting
+        // todo this logic should be moved elsewhere - the handler just just delegate
+        logger.info( "Round started: Buy robots!" );
+        Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
+        Moneten priceForRobot = Moneten.fromInteger( 100 );
+        int numOfNewRobots = player.getMoneten().canBuyThatManyFor( priceForRobot );
+        playerApplicationService.buyRobots( numOfNewRobots );
+
         logger.info( environment.getProperty( "ANSI_RED" ) +
-                     "------> ROUND_STATUS event to be handled" + environment.getProperty( "ANSI_RESET" ) );
+                "------> more business logic to be added!" + environment.getProperty( "ANSI_RESET" ) );
     }
 
 

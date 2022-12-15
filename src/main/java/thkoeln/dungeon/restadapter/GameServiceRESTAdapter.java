@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
+import thkoeln.dungeon.domainprimitives.Command;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -118,6 +119,34 @@ public class GameServiceRESTAdapter {
         logger.info( "Registered player via REST, got playerId: " + playerId );
         return playerId;
     }
+
+
+    public UUID sendPostRequestForCommand( Command command ) {
+        logger.info( "Try to send command  " + command );
+        String urlString = gameServiceUrlString + "/commands";
+        CommandAnswerDto commandAnswerDto = null;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString( command );
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType( MediaType.APPLICATION_JSON );
+            HttpEntity<String> request = new HttpEntity<String>( json, headers );
+            commandAnswerDto =
+                    restTemplate.postForObject( urlString, request, CommandAnswerDto.class );
+        }
+        catch ( JsonProcessingException e ) {
+            logger.error( "Unexpected error converting command to JSON: " + command );
+            throw new RESTAdapterException( "Unexpected error converting requestDto to JSON: " + command );
+        }
+        catch ( RestClientException e ) {
+            logger.error( "Problem with connection to server, cannot register player! Exception: " + e.getMessage() );
+            throw new RESTAdapterException( urlString, e );
+        }
+        UUID transactionId = commandAnswerDto.getTransactionId();
+        logger.info( "Successfully sent command, got transaction ID: " + transactionId );
+        return transactionId;
+    }
+
 
 
     /**
