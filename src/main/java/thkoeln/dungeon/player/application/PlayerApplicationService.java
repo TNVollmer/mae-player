@@ -8,6 +8,9 @@ import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.domainprimitives.Command;
+import thkoeln.dungeon.domainprimitives.CommandObject;
+import thkoeln.dungeon.domainprimitives.CommandType;
 import thkoeln.dungeon.domainprimitives.Moneten;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
@@ -159,6 +162,26 @@ public class PlayerApplicationService {
         Player player = queryAndIfNeededCreatePlayer();
         player.setMoneten( newMoney );
         playerRepository.save( player );
+    }
+
+
+    /**
+     * Buys new robots via REST command to Game service
+     * @param numOfNewRobots
+     */
+    public void buyRobots( int numOfNewRobots ) {
+        if ( numOfNewRobots < 0 ) throw new PlayerApplicationException( "numOfNewRobots < 0" );
+        Player player = queryAndIfNeededCreatePlayer();
+        Game currentGame = gameApplicationService.queryActiveGame().orElseThrow( ()-> {
+            return new PlayerApplicationException( "Can't buy robots without running game!" );
+        });
+        if ( currentGame.getGameStatus().isRunning() ) {
+            CommandObject commandObject = new CommandObject(
+                    CommandType.BUYING, null, null, "ROBOT", numOfNewRobots);
+            Command command = new Command(
+                    currentGame.getGameId(), player.getPlayerId(), null, CommandType.BUYING, commandObject);
+            gameServiceRESTAdapter.sendPostRequestForCommand(command);
+        }
     }
 
 }

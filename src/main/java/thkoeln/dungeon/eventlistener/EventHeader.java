@@ -30,28 +30,28 @@ public class EventHeader {
     @Transient
     private Logger logger = LoggerFactory.getLogger( EventHeader.class );
 
-    private UUID eventId;
-    private UUID transactionId;
-    private UUID playerId;
+    private UUID eventId = null;
+    private UUID transactionId = null;
+    private UUID playerId = null;
     private boolean broadcast;
-    private EventType eventType;
-    private String eventTypeString;
-    private String version;
-    private String timestampString;
+    private EventType eventType = EventType.UNKNOWN;
+    private String eventTypeString = null;
+    private String version = null;
+    private String timestampString = null;
 
 
     public EventHeader (
             String type, String eventIdStr, String playerIdStr, String transactionIdStr,
             String timestampStr, String version ) {
         try {
-            setEventId( UUID.fromString( eventIdStr ) );
-            setTransactionId( UUID.fromString( transactionIdStr ) );
+            if ( eventIdStr != null) setEventId( UUID.fromString( eventIdStr ) );
+            if ( transactionIdStr != null) setTransactionId( UUID.fromString( transactionIdStr ) );
             if ( BROADCAST_EVENT_KEY.equals( playerIdStr ) ) {
                 setBroadcast( true );
             }
             else {
                 setBroadcast( false );
-                setPlayerId( UUID.fromString( playerIdStr ) );
+                if ( playerIdStr != null) setPlayerId( UUID.fromString( playerIdStr ) );
             }
         }
         catch ( IllegalArgumentException e ) {
@@ -66,13 +66,14 @@ public class EventHeader {
     }
 
 
+
     @Override
     public String toString() {
         return "Header:" +
                 ", {eventType=" + eventType +
-                ", eventTypeString=" + eventTypeString +
+                ", eventTypeString=" + eventTypeString + "\n\t" +
                 ", transactionId=" + transactionId +
-                ", eventId=" + eventId + "\n\t" +
+                ", eventId=" + eventId +
                 ", playerId=" + playerId +
                 ", isBroadcast=" + isBroadcast() +
                 ", eventType=" + eventType +

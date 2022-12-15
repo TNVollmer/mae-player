@@ -18,4 +18,9 @@ public class Moneten {
         if ( amount < 0 ) throw new MonetenException( "Amount must be >= 0!" );
         return new Moneten( amount );
     }
+
+    public int canBuyThatManyFor( Moneten price ) {
+        if ( amount == null ) throw new MonetenException( "price == null" );
+        return ( this.amount / price.amount );
+    }
 }
