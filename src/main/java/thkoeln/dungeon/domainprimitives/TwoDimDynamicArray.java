@@ -26,7 +26,7 @@ public class TwoDimDynamicArray<T> {
 
     public TwoDimDynamicArray( int maxX, int maxY ) {
         if ( maxX <= 0 || maxY <= 0 )
-            throw new TwoDimDynamicArrayException( "maxX / maxY must be > 0: " + maxX + ", " + maxY );
+            throw new DomainPrimitiveException( "maxX / maxY must be > 0: " + maxX + ", " + maxY );
         for ( int y = 0; y < maxY; y++ ) {
             array.add( createNullRow( maxX )  );
         }
@@ -54,16 +54,16 @@ public class TwoDimDynamicArray<T> {
     }
 
     public T get( Coordinate coordinate ) {
-        if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
+        if ( coordinate == null ) throw new DomainPrimitiveException( "coordinate must not be null" );
         if ( coordinate.isLargerThan( getMaxCoordinate() ) )
-            throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
+            throw new DomainPrimitiveException( "coordinate out of bounds: " + coordinate );
         return array.get( coordinate.getY() ).get( coordinate.getX() );
     }
 
     public void put( Coordinate coordinate, T value ) {
-        if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
+        if ( coordinate == null ) throw new DomainPrimitiveException( "coordinate must not be null" );
         if ( coordinate.isLargerThan( getMaxCoordinate() ) )
-            throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
+            throw new DomainPrimitiveException( "coordinate out of bounds: " + coordinate );
         array.get(coordinate.getY()).set(coordinate.getX(), value);
     }
 
@@ -75,10 +75,10 @@ public class TwoDimDynamicArray<T> {
      * @return the Coordinate of the (potentially enlarged) array, where the value is now located
      */
     public Coordinate putAndEnhance( Coordinate coordinate, CompassDirection compassDirection, T value ) {
-        if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
+        if ( coordinate == null ) throw new DomainPrimitiveException( "coordinate must not be null" );
         if ( coordinate.isLargerThan( getMaxCoordinate() ) )
-            throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
-        if ( compassDirection == null ) throw new TwoDimDynamicArrayException( "compassDirection must not be null" );
+            throw new DomainPrimitiveException( "coordinate out of bounds: " + coordinate );
+        if ( compassDirection == null ) throw new DomainPrimitiveException( "compassDirection must not be null" );
 
         Coordinate whereToInsert = enhanceIfNeededAt( coordinate, compassDirection );
         put( whereToInsert, value );
@@ -92,10 +92,10 @@ public class TwoDimDynamicArray<T> {
      * @return
      */
     protected Coordinate enhanceIfNeededAt( Coordinate coordinate, CompassDirection compassDirection ) {
-        if ( coordinate == null ) throw new TwoDimDynamicArrayException( "coordinate must not be null" );
+        if ( coordinate == null ) throw new DomainPrimitiveException( "coordinate must not be null" );
         if ( coordinate.isLargerThan( getMaxCoordinate() ) )
-            throw new TwoDimDynamicArrayException( "coordinate out of bounds: " + coordinate );
-        if ( compassDirection == null ) throw new TwoDimDynamicArrayException( "compassDirection must not be null" );
+            throw new DomainPrimitiveException( "coordinate out of bounds: " + coordinate );
+        if ( compassDirection == null ) throw new DomainPrimitiveException( "compassDirection must not be null" );
         Coordinate neighbourCoordinate = coordinate.neighbourCoordinate( compassDirection );
         if ( neighbourCoordinate.isLargerThan( getMaxCoordinate() ) ||
                 ( coordinate.getY() == 0 && compassDirection.equals( CompassDirection.NORTH ) ) ||
@@ -111,15 +111,15 @@ public class TwoDimDynamicArray<T> {
     }
 
     public void addRowAt( int y ) {
-        if ( y < 0 ) throw new TwoDimDynamicArrayException( "can't add row at index < 0: " + y );
-        if ( y > sizeY() ) throw new TwoDimDynamicArrayException( "can't add row at index > sizeY: " + y );
+        if ( y < 0 ) throw new DomainPrimitiveException( "can't add row at index < 0: " + y );
+        if ( y > sizeY() ) throw new DomainPrimitiveException( "can't add row at index > sizeY: " + y );
         if ( y < sizeY() ) array.add( y, createNullRow( sizeX() ) );
         else array.add( createNullRow( sizeX() ) );
     }
 
     public void addColumnAt( int x ) {
-        if( x < 0 ) throw new TwoDimDynamicArrayException( "can't add column at index < 0: " + x );
-        if( x > sizeX() ) throw new TwoDimDynamicArrayException( "can't add column at index > sizeX: " + x );
+        if( x < 0 ) throw new DomainPrimitiveException( "can't add column at index < 0: " + x );
+        if( x > sizeX() ) throw new DomainPrimitiveException( "can't add column at index > sizeX: " + x );
         for ( int y = 0; y < sizeY(); y++ ) {
             if ( x < sizeX() ) array.get( y ).add( x, null );
             else array.get( y ).add( null );

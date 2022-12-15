@@ -13,9 +13,9 @@ public class MovementDifficulty {
     private Integer difficulty = 1;
 
     public static MovementDifficulty fromInteger( Integer difficulty ) {
-        if ( difficulty == null ) throw new MovementDifficultyException( "Difficulty cannot be null!" );
-        if ( difficulty < 1 ) throw new MovementDifficultyException( "Difficulty must be >= 1!" );
-        if ( difficulty > 3 ) throw new MovementDifficultyException( "Difficulty must be <= 3!" );
+        if ( difficulty == null ) throw new DomainPrimitiveException( "Difficulty cannot be null!" );
+        if ( difficulty < 1 ) throw new DomainPrimitiveException( "Difficulty must be >= 1!" );
+        if ( difficulty > 3 ) throw new DomainPrimitiveException( "Difficulty must be <= 3!" );
         return new MovementDifficulty( difficulty );
     }
 }

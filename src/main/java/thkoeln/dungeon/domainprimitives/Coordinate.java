@@ -29,10 +29,10 @@ public class Coordinate {
     private Integer y;
 
     public static Coordinate fromInteger( Integer x, Integer y ) {
-        if ( x == null ) throw new CoordinateException( "x must not be null!" );
-        if ( y == null ) throw new CoordinateException( "y must not be null!" );
-        if ( x < 0 ) throw new CoordinateException( "x must be >= 0: " + x );
-        if ( y < 0 ) throw new CoordinateException( "y must be >= 0: " + y );
+        if ( x == null ) throw new DomainPrimitiveException( "x must not be null!" );
+        if ( y == null ) throw new DomainPrimitiveException( "y must not be null!" );
+        if ( x < 0 ) throw new DomainPrimitiveException( "x must be >= 0: " + x );
+        if ( y < 0 ) throw new DomainPrimitiveException( "y must be >= 0: " + y );
         return new Coordinate( x, y );
     }
 
@@ -41,7 +41,7 @@ public class Coordinate {
      */
     public static Coordinate fromString( String coordinateString ) {
         String[] coords = coordinateString.replaceAll("\\(","").replaceAll("\\)","").split(",");
-        if ( coords.length != 2 ) throw new CoordinateException( "Not a valid string" );
+        if ( coords.length != 2 ) throw new DomainPrimitiveException( "Not a valid string" );
 
         Integer x = Integer.valueOf(coords[0]);
         Integer y = Integer.valueOf(coords[1]);
@@ -74,7 +74,7 @@ public class Coordinate {
     }
 
     public Coordinate neighbourCoordinate( CompassDirection compassDirection ) {
-        if ( compassDirection == null ) throw new CoordinateException( "compassDirection must not be null." );
+        if ( compassDirection == null ) throw new DomainPrimitiveException( "compassDirection must not be null." );
         Integer newX = this.x;
         Integer newY = this.y;
         if ( compassDirection == CompassDirection.NORTH ) newY = Math.max( newY-1, 0 );

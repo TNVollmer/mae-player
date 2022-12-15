@@ -26,10 +26,10 @@ public class MonetenTest {
 
     @Test
     public void testValidation() {
-        assertThrows( MonetenException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             Moneten.fromInteger( null );
         });
-        assertThrows( MonetenException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             Moneten.fromInteger( -1 );
         });
     }
