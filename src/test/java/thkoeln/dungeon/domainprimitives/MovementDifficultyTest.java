@@ -25,16 +25,16 @@ public class MovementDifficultyTest {
 
     @Test
     public void testValidation() {
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( null );
         });
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( -1 );
         });
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( 0 );
         });
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( 4 );
         });
     }
