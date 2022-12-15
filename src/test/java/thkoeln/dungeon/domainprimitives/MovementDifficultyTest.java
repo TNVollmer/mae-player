@@ -18,23 +18,23 @@ public class MovementDifficultyTest {
     }
 
     @Test
-    public void testTwoMoneyEqualAndUnequal() {
+    public void testTwogit straMoneyEqualAndUnequal() {
         assertEquals( m2_1, m2_2 );
         assertNotEquals( m2_1, m3 );
     }
 
     @Test
     public void testValidation() {
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( null );
         });
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( -1 );
         });
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( 0 );
         });
-        assertThrows( MovementDifficultyException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MovementDifficulty.fromInteger( 4 );
         });
     }

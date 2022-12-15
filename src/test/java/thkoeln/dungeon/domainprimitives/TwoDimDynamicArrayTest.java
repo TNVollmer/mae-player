@@ -11,16 +11,16 @@ public class TwoDimDynamicArrayTest {
 
     @Test
     public void testCreationValidation() {
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( -1, 5 );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, -12 );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 0, 5 );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, 0 );
         });
     }
@@ -29,13 +29,13 @@ public class TwoDimDynamicArrayTest {
     public void testCreation() {
         // given
         // when
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( -1, 5 );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, -1 );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 0, 0 );
         });
         TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, 5 );
@@ -56,31 +56,31 @@ public class TwoDimDynamicArrayTest {
         TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, 5 );
 
         // when
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.put( null, "hallo" );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.put( Coordinate.fromInteger( 2, 6 ), "hallo" );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.put( Coordinate.fromInteger( 3, 5 ), "hallo" );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.put( Coordinate.fromInteger( 3, 4 ), "hallo" );
         });
         arr.put( Coordinate.fromInteger( 1, 2 ), "yeah" );
 
         // then
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.get( null );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.get( Coordinate.fromInteger( 2, 6 ) );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.get( Coordinate.fromInteger( 3, 5 ) );
         });
-        assertThrows( TwoDimDynamicArrayException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             arr.get( Coordinate.fromInteger( 3, 4 ) );
         });
         assertEquals( "yeah", arr.get( Coordinate.fromInteger( 1, 2 ) ) );
@@ -108,16 +108,16 @@ public class TwoDimDynamicArrayTest {
         // |       | Leonard |        |
 
         // when
-        assertThrows(TwoDimDynamicArrayException.class, () -> {
+        assertThrows(DomainPrimitiveException.class, () -> {
             arr.addRowAt(-1);
         });
-        assertThrows(TwoDimDynamicArrayException.class, () -> {
+        assertThrows(DomainPrimitiveException.class, () -> {
             arr.addRowAt(5);
         });
-        assertThrows(TwoDimDynamicArrayException.class, () -> {
+        assertThrows(DomainPrimitiveException.class, () -> {
             arr.addColumnAt(-1);
         });
-        assertThrows(TwoDimDynamicArrayException.class, () -> {
+        assertThrows(DomainPrimitiveException.class, () -> {
             arr.addColumnAt(4);
         });
         arr.addRowAt(2);

@@ -25,13 +25,13 @@ public class MineableResourcesTest {
 
     @Test
     public void testValidation() {
-        assertThrows( MineableResourceException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MineableResource.fromTypeAndAmount( null, 12 );
         });
-        assertThrows( MineableResourceException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MineableResource.fromTypeAndAmount( MineableResourceType.GOLD, 0 );
         });
-        assertThrows( MineableResourceException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             MineableResource.fromTypeAndAmount( MineableResourceType.GOLD, -1 );
         });
     }

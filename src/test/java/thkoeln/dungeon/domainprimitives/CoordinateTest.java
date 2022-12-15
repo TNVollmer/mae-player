@@ -30,13 +30,13 @@ public class CoordinateTest {
 
     @Test
     public void testValidation() {
-        assertThrows( CoordinateException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             c23.neighbourCoordinate( null );
         });
-        assertThrows( CoordinateException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             Coordinate.fromInteger( -1, 2 );
         });
-        assertThrows( CoordinateException.class, () -> {
+        assertThrows( DomainPrimitiveException.class, () -> {
             Coordinate.fromInteger( 1, -2 );
         });
     }
