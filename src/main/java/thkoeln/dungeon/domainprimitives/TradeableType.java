@@ -1,5 +1,5 @@
 package thkoeln.dungeon.domainprimitives;
 
-public enum TradableType {
+public enum TradeableType {
     ITEM, UPGRADE, RESTORATION, RESOURCE;
 }

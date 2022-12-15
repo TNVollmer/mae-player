@@ -2,20 +2,19 @@ package thkoeln.dungeon.domainprimitives;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import thkoeln.dungeon.restadapter.RESTAdapterException;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MonetenTest {
-    private Moneten m27_1, m27_2, m28;
+public class MoneyTest {
+    private Money m27_1, m27_2, m28;
 
     @BeforeEach
     public void setUp() {
-        m27_1 = Moneten.fromInteger( 27 );
-        m27_2 = Moneten.fromInteger( 27 );
-        m28 = Moneten.fromInteger( 28 );
+        m27_1 = Money.fromInteger( 27 );
+        m27_2 = Money.fromInteger( 27 );
+        m28 = Money.fromInteger( 28 );
     }
 
     @Test
@@ -27,10 +26,10 @@ public class MonetenTest {
     @Test
     public void testValidation() {
         assertThrows( MonetenException.class, () -> {
-            Moneten.fromInteger( null );
+            Money.fromInteger( null );
         });
         assertThrows( MonetenException.class, () -> {
-            Moneten.fromInteger( -1 );
+            Money.fromInteger( -1 );
         });
     }
 

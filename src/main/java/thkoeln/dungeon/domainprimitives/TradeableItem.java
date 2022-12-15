@@ -9,8 +9,8 @@ import javax.persistence.Embeddable;
 @EqualsAndHashCode
 @Embeddable
 @ToString
-public class TradableItem {
+public class TradeableItem {
     private String name;
-    private Moneten price;
-    private TradableType type;
+    private Money price;
+    private TradeableType type;
 }

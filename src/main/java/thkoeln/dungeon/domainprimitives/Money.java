@@ -10,12 +10,12 @@ import javax.persistence.Embeddable;
 @EqualsAndHashCode
 @Embeddable
 @ToString
-public class Moneten {
+public class Money {
     private Integer amount = 0;
 
-    public static Moneten fromInteger( Integer amount ) {
+    public static Money fromInteger(Integer amount ) {
         if ( amount == null ) throw new MonetenException( "Amount cannot be null!" );
         if ( amount < 0 ) throw new MonetenException( "Amount must be >= 0!" );
-        return new Moneten( amount );
+        return new Money( amount );
     }
 }

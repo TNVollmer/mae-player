@@ -8,7 +8,7 @@ import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.domainprimitives.Moneten;
+import thkoeln.dungeon.domainprimitives.Money;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.player.domain.Player;
@@ -155,9 +155,9 @@ public class PlayerApplicationService {
      */
     public void adjustBankAccount( UUID playerId, Integer moneyAsInt ) {
         logger.info( "Adjust bank account to " + moneyAsInt );
-        Moneten newMoney = Moneten.fromInteger( moneyAsInt );
+        Money newMoney = Money.fromInteger( moneyAsInt );
         Player player = queryAndIfNeededCreatePlayer();
-        player.setMoneten( newMoney );
+        player.setMoney( newMoney );
         playerRepository.save( player );
     }
 

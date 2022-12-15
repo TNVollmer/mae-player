@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thkoeln.dungeon.domainprimitives.Moneten;
-import thkoeln.dungeon.game.application.GameApplicationService;
-import thkoeln.dungeon.game.domain.Game;
-import thkoeln.dungeon.planet.domain.PlanetException;
+import thkoeln.dungeon.domainprimitives.Money;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -37,7 +34,7 @@ public class Player {
 
     @Setter
     @Embedded
-    private Moneten moneten = Moneten.fromInteger( 0 );
+    private Money money = Money.fromInteger( 0 );
 
     private UUID registrationTransactionId;
 
