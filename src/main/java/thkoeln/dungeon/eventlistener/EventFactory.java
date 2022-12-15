@@ -24,7 +24,7 @@ public class EventFactory {
                 newEvent = new RoundStatusEvent();
                 break;
             case TRADABLE_PRICES:
-                newEvent = new TradablePricesEvent();
+                newEvent = new TradeablePricesEvent();
                 break;
             // todo add other event types here
             default:

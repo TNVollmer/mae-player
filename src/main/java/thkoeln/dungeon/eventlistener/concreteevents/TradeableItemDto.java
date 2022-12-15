@@ -7,7 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class TradableItemDto {
+public class TradeableItemDto {
     private String name;
     private Integer price;
     private String type;

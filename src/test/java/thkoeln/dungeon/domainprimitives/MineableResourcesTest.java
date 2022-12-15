@@ -18,7 +18,7 @@ public class MineableResourcesTest {
     }
 
     @Test
-    public void testTwoMonetenEqualAndUnequal() {
+    public void testTwoMoneyEqualAndUnequal() {
         assertEquals( gold12_1, gold12_2 );
         assertNotEquals( gold12_2, platin12 );
     }

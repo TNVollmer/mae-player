@@ -7,14 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.domainprimitives.Moneten;
+import thkoeln.dungeon.domainprimitives.Money;
 import thkoeln.dungeon.eventlistener.AbstractEvent;
 import thkoeln.dungeon.eventlistener.EventFactory;
 import thkoeln.dungeon.eventlistener.EventHeader;
 import thkoeln.dungeon.eventlistener.concreteevents.BankInitializedEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.GameStatusEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.RoundStatusEvent;
-import thkoeln.dungeon.eventlistener.concreteevents.TradablePricesEvent;
+import thkoeln.dungeon.eventlistener.concreteevents.TradeablePricesEvent;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.player.domain.Player;
 
@@ -97,7 +97,7 @@ public class PlayerEventListener {
                 handleRoundStatusEvent( (RoundStatusEvent) event );
                 break;
             case TRADABLE_PRICES:
-                handleTradablePricesEvent( (TradablePricesEvent) event );
+                handleTradablePricesEvent( (TradeablePricesEvent) event );
                 break;
             default:
         }
@@ -129,8 +129,8 @@ public class PlayerEventListener {
         // todo this logic should be moved elsewhere - the handler just just delegate
         logger.info( "Round started: Buy robots!" );
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
-        Moneten priceForRobot = Moneten.fromInteger( 100 );
-        int numOfNewRobots = player.getMoneten().canBuyThatManyFor( priceForRobot );
+        Money priceForRobot = Money.fromInteger( 100 );
+        int numOfNewRobots = player.getMoney().canBuyThatManyFor( priceForRobot );
         playerApplicationService.buyRobots( numOfNewRobots );
 
         logger.info( environment.getProperty( "ANSI_RED" ) +
@@ -138,7 +138,7 @@ public class PlayerEventListener {
     }
 
 
-    private void handleTradablePricesEvent( TradablePricesEvent event ) {
+    private void handleTradablePricesEvent( TradeablePricesEvent event ) {
         // todo add business logic
         logger.info( environment.getProperty( "ANSI_RED" ) +
                 "------> TRADABLE_PRICES event to be handled" + environment.getProperty( "ANSI_RESET" ) );

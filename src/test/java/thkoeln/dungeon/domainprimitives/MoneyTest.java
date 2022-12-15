@@ -18,7 +18,7 @@ public class MoneyTest {
     }
 
     @Test
-    public void testTwoMonetenEqualAndUnequal() {
+    public void testTwoMoneyEqualAndUnequal() {
         assertEquals( m27_1, m27_2 );
         assertNotEquals( m27_1, m28 );
     }

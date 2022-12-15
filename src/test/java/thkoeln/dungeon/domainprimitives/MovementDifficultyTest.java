@@ -18,7 +18,7 @@ public class MovementDifficultyTest {
     }
 
     @Test
-    public void testTwoMonetenEqualAndUnequal() {
+    public void testTwoMoneyEqualAndUnequal() {
         assertEquals( m2_1, m2_2 );
         assertNotEquals( m2_1, m3 );
     }

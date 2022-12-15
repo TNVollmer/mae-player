@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TradablePricesEvent extends AbstractEvent {
+public class TradeablePricesEvent extends AbstractEvent {
     private List<TradeableItem> tradeableItems = new ArrayList<>();
 
     public boolean isValid() {
@@ -31,23 +31,23 @@ public class TradablePricesEvent extends AbstractEvent {
     public void fillWithPayload( String jsonString ) {
         try {
             ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-            TradeablePriceDto[] tradeablePriceDtos = objectMapper.readValue( jsonString, TradeablePriceDto[].class );
-            for ( TradeablePriceDto tradablePriceDto : tradeablePriceDtos ) {
+            TradeableItemDto[] tradeableItemDtos = objectMapper.readValue( jsonString, TradeableItemDto[].class );
+            for ( TradeableItemDto tradableItemDto : tradeableItemDtos ) {
                 TradeableItem tradeableItem =  new TradeableItem(
-                        tradablePriceDto.getName(),
-                        Money.fromInteger( tradablePriceDto.getPrice() ),
-                        TradeableType.valueOf( tradablePriceDto.getType() ) );
+                        tradableItemDto.getName(),
+                        Money.fromInteger( tradableItemDto.getPrice() ),
+                        TradeableType.valueOf( tradableItemDto.getType() ) );
                 tradeableItems.add(tradeableItem);
             }
         }
         catch( JsonProcessingException conversionFailed ) {
-            logger.error( "Error converting payload for TradablePricesEvent with jsonString " + jsonString );
+            logger.error( "Error converting payload for TradeablePricesEvent with jsonString " + jsonString );
         }
     }
 
     @Override
     public String toString() {
-        String retVal = "TradablePricesEvent: " + eventHeader;
+        String retVal = "TradeablePricesEvent: " + eventHeader;
         if ( tradeableItems.size() == 0 ) {
             retVal += "\n\tNo tradablePriceDtos!";
         }
@@ -59,7 +59,7 @@ public class TradablePricesEvent extends AbstractEvent {
     }
 
     public String toStringDetailed() {
-        String retVal = "TradablePricesEvent: " + eventHeader;
+        String retVal = "TradeablePricesEvent: " + eventHeader;
         for ( TradeableItem tradeableItem : tradeableItems) {
             retVal += tradeableItem + "\n";
         }

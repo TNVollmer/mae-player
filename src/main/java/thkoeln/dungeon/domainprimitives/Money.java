@@ -7,6 +7,7 @@ import javax.persistence.Embeddable;
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
 @AllArgsConstructor
 @Getter
+@Setter( AccessLevel.PROTECTED )
 @EqualsAndHashCode
 @Embeddable
 @ToString
@@ -19,7 +20,7 @@ public class Money {
         return new Money( amount );
     }
 
-    public int canBuyThatManyFor( Moneten price ) {
+    public int canBuyThatManyFor( Money price ) {
         if ( amount == null ) throw new MonetenException( "price == null" );
         return ( this.amount / price.amount );
     }

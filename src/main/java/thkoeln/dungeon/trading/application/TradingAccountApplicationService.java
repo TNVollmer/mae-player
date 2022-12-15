@@ -23,8 +23,15 @@ public class TradingAccountApplicationService {
 
     public TradingAccount queryAndIfNeededCreateTradingAccount() {
         List<TradingAccount> tradingAccounts = tradingAccountRepository.findAll();
-        if ( tradingAccounts.size() != 1 ) throw new TradingException( "" );
-        TradingAccount tradingAccount =  tradingAccounts.get( 0 );
+        TradingAccount tradingAccount;
+        if ( tradingAccounts.size() > 1 ) throw new TradingException( "More than one Trading-Account" );
+        if ( tradingAccounts.size() == 0 ) {
+            tradingAccount = new TradingAccount();
+            tradingAccountRepository.save( tradingAccount );
+        }
+        else {
+            tradingAccount = tradingAccounts.get(0);
+        }
         return tradingAccount;
     }
 }
