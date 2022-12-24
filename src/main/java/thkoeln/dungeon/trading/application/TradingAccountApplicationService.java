@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.player.domain.Player;
+import thkoeln.dungeon.eventlistener.concreteevents.TradeablePricesEvent;
 import thkoeln.dungeon.trading.domain.TradingAccount;
 import thkoeln.dungeon.trading.domain.TradingAccountRepository;
 import thkoeln.dungeon.trading.domain.TradingException;
@@ -33,5 +33,10 @@ public class TradingAccountApplicationService {
             tradingAccount = tradingAccounts.get(0);
         }
         return tradingAccount;
+    }
+
+    public void updatePrices( TradeablePricesEvent tradeablePricesEvent ) {
+        TradingAccount tradingAccount = queryAndIfNeededCreateTradingAccount();
+
     }
 }

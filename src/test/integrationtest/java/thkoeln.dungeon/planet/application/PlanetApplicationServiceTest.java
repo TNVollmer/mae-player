@@ -19,7 +19,7 @@ import thkoeln.dungeon.planet.domain.PlanetRepository;
 import java.util.Map;
 
 import static java.lang.Boolean.TRUE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
@@ -45,13 +45,13 @@ public class PlanetApplicationServiceTest {
 
         planetRepository.deleteAll();
         n = new Planet( "n" );
-        n.setSpacestation( TRUE );
+        n.setSpacestation( Boolean.TRUE );
         s = new Planet( "s" );
         ne = new Planet( "ne" );
         nee = new Planet( "nee" );
         se = new Planet( "se" );
         see = new Planet( "see" );
-        see.setSpacestation( TRUE );
+        see.setSpacestation( Boolean.TRUE );
         planetRepository.save( n );
         planetRepository.save( s );
         planetRepository.save( ne );

@@ -15,7 +15,6 @@ import java.util.UUID;
 @Setter( AccessLevel.PROTECTED )
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class Command {
     private UUID gameId;
     private UUID playerId;
@@ -24,4 +23,13 @@ public class Command {
 
     @Embedded
     private CommandObject commandObject;
+
+    @Override
+    public String toString() {
+        return "Command{" +
+                "robotId=" + robotId +
+                ", commandType=" + commandType + "\n\t" +
+                ", commandObject=" + commandObject +
+                '}';
+    }
 }

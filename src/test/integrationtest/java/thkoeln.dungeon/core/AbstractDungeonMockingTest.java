@@ -4,10 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.match.MockRestRequestMatchers;
+import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.game.domain.GameStatus;
@@ -24,6 +28,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+@SpringBootTest
 public class AbstractDungeonMockingTest {
     @Value("${GAME_SERVICE:http://localhost:8080}")
     protected String gameServiceURIString;
@@ -96,50 +101,50 @@ public class AbstractDungeonMockingTest {
     protected void mockPlayerPost() throws Exception {
         PlayerRegistryDto responseDto = playerRegistryDto.clone();
         responseDto.setPlayerId( playerId );
-        mockServer.expect( ExpectedCount.once(), requestTo( playersPostURI ) )
-                .andExpect( method(POST) )
-                .andRespond( withSuccess(objectMapper.writeValueAsString( responseDto ), MediaType.APPLICATION_JSON) );
+        mockServer.expect( ExpectedCount.once(), MockRestRequestMatchers.requestTo( playersPostURI ) )
+                .andExpect( MockRestRequestMatchers.method(HttpMethod.POST) )
+                .andRespond( MockRestResponseCreators.withSuccess(objectMapper.writeValueAsString( responseDto ), MediaType.APPLICATION_JSON) );
     }
 
 
     protected void mockPlayerGetNotFound() throws Exception {
-        mockServer.expect( ExpectedCount.once(), requestTo(playersGetURI) )
-                .andExpect( method(GET) )
-                .andRespond( withStatus( HttpStatus.NOT_FOUND ) );
+        mockServer.expect( ExpectedCount.once(), MockRestRequestMatchers.requestTo(playersGetURI) )
+                .andExpect( MockRestRequestMatchers.method(HttpMethod.GET) )
+                .andRespond( MockRestResponseCreators.withStatus( HttpStatus.NOT_FOUND ) );
     }
 
 
     protected void mockPlayerGetFound() throws Exception {
         PlayerRegistryDto responseDto = playerRegistryDto.clone();
         responseDto.setPlayerId( playerId );
-        mockServer.expect( ExpectedCount.once(), requestTo(playersGetURI) )
-                .andExpect( method(GET) )
-                .andRespond( withSuccess(objectMapper.writeValueAsString(responseDto), MediaType.APPLICATION_JSON) );
+        mockServer.expect( ExpectedCount.once(), MockRestRequestMatchers.requestTo(playersGetURI) )
+                .andExpect( MockRestRequestMatchers.method(HttpMethod.GET) )
+                .andRespond( MockRestResponseCreators.withSuccess(objectMapper.writeValueAsString(responseDto), MediaType.APPLICATION_JSON) );
     }
 
 
     protected void mockGamesGetWithRunning() throws Exception {
         openGameId = null;
-        mockServer.expect( ExpectedCount.once(), requestTo( gamesURI ) )
-                .andExpect( method(GET) )
-                .andRespond( withSuccess(objectMapper.writeValueAsString(gameDtosWithRunningGame), MediaType.APPLICATION_JSON) );
+        mockServer.expect( ExpectedCount.once(), MockRestRequestMatchers.requestTo( gamesURI ) )
+                .andExpect( MockRestRequestMatchers.method(HttpMethod.GET) )
+                .andRespond( MockRestResponseCreators.withSuccess(objectMapper.writeValueAsString(gameDtosWithRunningGame), MediaType.APPLICATION_JSON) );
     }
 
 
 
     protected void mockGamesGetWithCreated() throws Exception {
         openGameId = gameDtosWithCreatedGame[1].getGameId();
-        mockServer.expect( ExpectedCount.once(), requestTo( gamesURI ) )
-                .andExpect( method(GET) )
-                .andRespond( withSuccess(objectMapper.writeValueAsString(gameDtosWithCreatedGame), MediaType.APPLICATION_JSON) );
+        mockServer.expect( ExpectedCount.once(), MockRestRequestMatchers.requestTo( gamesURI ) )
+                .andExpect( MockRestRequestMatchers.method(HttpMethod.GET) )
+                .andRespond( MockRestResponseCreators.withSuccess(objectMapper.writeValueAsString(gameDtosWithCreatedGame), MediaType.APPLICATION_JSON) );
     }
 
 
     protected void mockRegistrationEndpointFor( UUID gameId, UUID playerId ) throws Exception {
         URI uri = new URI(gameServiceURIString + "/games/" + gameId + "/players/" + playerId );
-        mockServer.expect( ExpectedCount.once(), requestTo(uri) )
-                .andExpect( method(PUT) )
-                .andRespond( withSuccess(objectMapper.writeValueAsString( playerJoinDto ), MediaType.APPLICATION_JSON) );
+        mockServer.expect( ExpectedCount.once(), MockRestRequestMatchers.requestTo(uri) )
+                .andExpect( MockRestRequestMatchers.method(HttpMethod.PUT) )
+                .andRespond( MockRestResponseCreators.withSuccess(objectMapper.writeValueAsString( playerJoinDto ), MediaType.APPLICATION_JSON) );
     }
 
 

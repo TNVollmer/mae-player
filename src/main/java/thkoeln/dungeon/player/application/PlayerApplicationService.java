@@ -15,6 +15,7 @@ import thkoeln.dungeon.domainprimitives.CommandType;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.game.domain.Game;
 import thkoeln.dungeon.player.domain.Player;
+import thkoeln.dungeon.player.domain.PlayerException;
 import thkoeln.dungeon.player.domain.PlayerRepository;
 import thkoeln.dungeon.restadapter.GameServiceRESTAdapter;
 
@@ -138,7 +139,7 @@ public class PlayerApplicationService {
 
     protected void openRabbitQueue( Player player ) {
         String playerQueue = player.getPlayerQueue();
-        if ( playerQueue == null ) throw new PlayerApplicationException( "playerQueue == null" );
+        if ( playerQueue == null ) throw new PlayerException( "playerQueue == null" );
         AbstractMessageListenerContainer listenerContainer = (AbstractMessageListenerContainer)
                 rabbitListenerEndpointRegistry.getListenerContainer( "player-queue" );
         String[] queueNames = listenerContainer.getQueueNames();
@@ -170,16 +171,14 @@ public class PlayerApplicationService {
      * @param numOfNewRobots
      */
     public void buyRobots( int numOfNewRobots ) {
-        if ( numOfNewRobots < 0 ) throw new PlayerApplicationException( "numOfNewRobots < 0" );
+        if ( numOfNewRobots < 0 ) throw new PlayerException( "numOfNewRobots < 0" );
         Player player = queryAndIfNeededCreatePlayer();
-        Game currentGame = gameApplicationService.queryActiveGame().orElseThrow( ()-> {
-            return new PlayerApplicationException( "Can't buy robots without running game!" );
-        });
-        if ( currentGame.getGameStatus().isRunning() ) {
+        Optional<Game> currentGameOptional = gameApplicationService.queryActiveGame();
+        if ( currentGameOptional.isPresent() && currentGameOptional.get().getGameStatus().isRunning() ) {
             CommandObject commandObject = new CommandObject(
                     CommandType.BUYING, null, null, "ROBOT", numOfNewRobots);
             Command command = new Command(
-                    currentGame.getGameId(), player.getPlayerId(), null, CommandType.BUYING, commandObject);
+                    currentGameOptional.get().getGameId(), player.getPlayerId(), null, CommandType.BUYING, commandObject);
             gameServiceRESTAdapter.sendPostRequestForCommand(command);
         }
     }

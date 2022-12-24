@@ -9,21 +9,20 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.match.MockRestRequestMatchers;
+import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.DungeonPlayerConfiguration;
 
 import java.net.URI;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.springframework.http.HttpMethod.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
@@ -55,9 +54,9 @@ public class GameServiceRESTAdapterConnectionFailureTest {
         URI uri = new URI( gameServiceURIString + "/games" );
         mockServer = MockRestServiceServer.createServer(restTemplate);
         mockServer.expect( ExpectedCount.manyTimes(),
-                        requestTo( uri ))
-                .andExpect( method( GET ))
-                .andRespond( withStatus( HttpStatus.NOT_FOUND ) );
+                        MockRestRequestMatchers.requestTo( uri ))
+                .andExpect( MockRestRequestMatchers.method( HttpMethod.GET ))
+                .andRespond( MockRestResponseCreators.withStatus( HttpStatus.NOT_FOUND ) );
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
@@ -72,9 +71,9 @@ public class GameServiceRESTAdapterConnectionFailureTest {
         // given: mock with no body ...
         URI uri = new URI( gameServiceURIString + "/games" );
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
-                .andExpect( method( GET ))
-                .andRespond( withStatus( HttpStatus.OK ) );
+        mockServer.expect( ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo( uri ))
+                .andExpect( MockRestRequestMatchers.method( HttpMethod.GET ))
+                .andRespond( MockRestResponseCreators.withStatus( HttpStatus.OK ) );
 
         // when/then
         GameDto[] gameDtos = gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
@@ -87,10 +86,10 @@ public class GameServiceRESTAdapterConnectionFailureTest {
         // given
         URI uri = new URI( gameServiceURIString + "/players" );
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
-                .andExpect( method( POST ))
-                .andExpect( content().json(mapper.writeValueAsString( playerRegistryDto )) )
-                .andRespond( withStatus( HttpStatus.NOT_FOUND ) );
+        mockServer.expect( ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo( uri ))
+                .andExpect( MockRestRequestMatchers.method( HttpMethod.POST ))
+                .andExpect( MockRestRequestMatchers.content().json(mapper.writeValueAsString( playerRegistryDto )) )
+                .andRespond( MockRestResponseCreators.withStatus( HttpStatus.NOT_FOUND ) );
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
@@ -107,9 +106,9 @@ public class GameServiceRESTAdapterConnectionFailureTest {
         UUID playerToken = UUID.randomUUID();
         URI uri = new URI( gameServiceURIString + "/games/" + gameId + "/players/" + playerToken );
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
-                .andExpect( method( PUT ))
-                .andRespond( withStatus( HttpStatus.NOT_FOUND ) );
+        mockServer.expect( ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo( uri ))
+                .andExpect( MockRestRequestMatchers.method( HttpMethod.PUT ))
+                .andRespond( MockRestResponseCreators.withStatus( HttpStatus.NOT_FOUND ) );
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
@@ -127,9 +126,9 @@ public class GameServiceRESTAdapterConnectionFailureTest {
         UUID playerToken = UUID.randomUUID();
         URI uri = new URI( gameServiceURIString + "/games/" + gameId + "/players/" + playerToken );
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
-                .andExpect( method( PUT ))
-                .andRespond( withStatus( HttpStatus.BAD_REQUEST ) );
+        mockServer.expect( ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo( uri ))
+                .andExpect( MockRestRequestMatchers.method( HttpMethod.PUT ))
+                .andRespond( MockRestResponseCreators.withStatus( HttpStatus.BAD_REQUEST ) );
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {
@@ -145,9 +144,9 @@ public class GameServiceRESTAdapterConnectionFailureTest {
         UUID playerToken = UUID.randomUUID();
         URI uri = new URI( gameServiceURIString + "/games/" + gameId + "/players/" + playerToken );
         mockServer = MockRestServiceServer.createServer(restTemplate);
-        mockServer.expect( ExpectedCount.manyTimes(), requestTo( uri ))
-                .andExpect( method( PUT ))
-                .andRespond( withStatus( HttpStatus.BAD_REQUEST ) );
+        mockServer.expect( ExpectedCount.manyTimes(), MockRestRequestMatchers.requestTo( uri ))
+                .andExpect( MockRestRequestMatchers.method( HttpMethod.PUT ))
+                .andRespond( MockRestResponseCreators.withStatus( HttpStatus.BAD_REQUEST ) );
 
         // when/then
         assertThrows( RESTAdapterException.class, () -> {

@@ -3,9 +3,9 @@ package thkoeln.dungeon.planet.domain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import thkoeln.dungeon.domainprimitives.CompassDirection;
-import thkoeln.dungeon.domainprimitives.Coordinate;
+import thkoeln.dungeon.planet.domain.Planet;
+import thkoeln.dungeon.planet.domain.PlanetRepository;
 
 import javax.transaction.Transactional;
 import java.lang.reflect.Method;
@@ -13,7 +13,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
 public class PlanetTest {
     private Planet[][] planetArray= new Planet[3][3];
     private Integer[][] numberOfNeighbours = new Integer[][] {{2, 3, 2}, {3, 4, 3}, {2, 3, 2}};

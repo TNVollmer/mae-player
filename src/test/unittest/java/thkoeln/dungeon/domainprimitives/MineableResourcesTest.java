@@ -1,7 +1,12 @@
 package thkoeln.dungeon.domainprimitives;
 
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import thkoeln.dungeon.domainprimitives.DomainPrimitiveException;
+import thkoeln.dungeon.domainprimitives.MineableResource;
+import thkoeln.dungeon.domainprimitives.MineableResourceType;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
@@ -19,19 +24,19 @@ public class MineableResourcesTest {
 
     @Test
     public void testTwoMoneyEqualAndUnequal() {
-        assertEquals( gold12_1, gold12_2 );
-        assertNotEquals( gold12_2, platin12 );
+        Assertions.assertEquals( gold12_1, gold12_2 );
+        Assert.assertNotEquals( gold12_2, platin12 );
     }
 
     @Test
     public void testValidation() {
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assert.assertThrows( DomainPrimitiveException.class, () -> {
             MineableResource.fromTypeAndAmount( null, 12 );
         });
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assert.assertThrows( DomainPrimitiveException.class, () -> {
             MineableResource.fromTypeAndAmount( MineableResourceType.GOLD, 0 );
         });
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assert.assertThrows( DomainPrimitiveException.class, () -> {
             MineableResource.fromTypeAndAmount( MineableResourceType.GOLD, -1 );
         });
     }

@@ -47,6 +47,9 @@ public class TradeablePricesEvent extends AbstractEvent {
 
     @Override
     public String toString() {
+        // todo temp
+        if ( 1 == 1 ) return toStringDetailed();
+        // todo temp
         String retVal = "TradeablePricesEvent: " + eventHeader;
         if ( tradeableItems.size() == 0 ) {
             retVal += "\n\tNo tradablePriceDtos!";

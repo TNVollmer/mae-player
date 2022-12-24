@@ -3,9 +3,7 @@ package thkoeln.dungeon.domainprimitives;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MovementDifficultyTest {
     private MovementDifficulty m2_1, m2_2, m2, m3;
@@ -18,7 +16,7 @@ public class MovementDifficultyTest {
     }
 
     @Test
-    public void testTwogit straMoneyEqualAndUnequal() {
+    public void testTwoMoneyEqualAndUnequal() {
         assertEquals( m2_1, m2_2 );
         assertNotEquals( m2_1, m3 );
     }
