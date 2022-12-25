@@ -17,9 +17,6 @@ public class PlanetTest {
     private Planet[][] planetArray= new Planet[3][3];
     private Integer[][] numberOfNeighbours = new Integer[][] {{2, 3, 2}, {3, 4, 3}, {2, 3, 2}};
 
-    @Autowired
-    private PlanetRepository planetRepository;
-
     @BeforeEach
     public void setup() {
         for( int i = 0; i<=2; i++ ) {
@@ -55,53 +52,6 @@ public class PlanetTest {
         assertEquals( planetArray[0][1], planetArray[1][1].getWestNeighbour() );
         assertEquals( planetArray[0][2], planetArray[0][1].getNorthNeighbour() );
         assertEquals( planetArray[0][1], planetArray[0][2].getSouthNeighbour() );
-    }
-
-
-    @Test
-    public void testPersistMixOfPersistentAndTransient() {
-        // given
-        planetRepository.save( planetArray[1][1] );
-
-        // when
-        planetArray[1][2].defineNeighbour( planetArray[1][1], CompassDirection.WEST);
-        planetRepository.save( planetArray[1][1] );
-        planetRepository.save( planetArray[1][2] );
-        Planet p11 = planetArray[1][1];
-        Planet p12 = planetArray[1][2];
-
-        // then
-        List<Planet> persistentPlanets = planetRepository.findAll();
-        assertEquals( 2, persistentPlanets.size() );
-        assertEquals( p11, p12.getWestNeighbour() );
-        assertEquals( p12, p11.getEastNeighbour() );
-    }
-
-    @Test
-    @Transactional
-    public void testSaveAllNeighboursAtOnce() {
-        // given
-        for( int i = 0; i<=2; i++ ) {
-            for (int j = 0; j <= 2; j++) {
-                if ( i < 2 ) planetArray[i][j].defineNeighbour( planetArray[i+1][j], CompassDirection.EAST);
-                if ( j < 2 ) planetArray[i][j].defineNeighbour( planetArray[i][j+1], CompassDirection.SOUTH);
-            }
-        }
-
-        // when
-        for( int i = 0; i<=2; i++ ) {
-            for (int j = 0; j <= 2; j++) {
-                planetRepository.save( planetArray[i][j] );
-            }
-        }
-
-        // then
-        for( int i = 0; i<=2; i++ ) {
-            for (int j = 0; j <= 2; j++) {
-                Planet planet = planetRepository.findById( planetArray[i][j].getId() ).get();
-                assertEquals( numberOfNeighbours[i][j], planet.allNeighbours().size() );
-            }
-        }
     }
 
 

@@ -16,15 +16,16 @@ import thkoeln.dungeon.domainprimitives.TwoDimDynamicArray;
 import thkoeln.dungeon.planet.domain.Planet;
 import thkoeln.dungeon.planet.domain.PlanetRepository;
 
+import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Map;
 
-import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
-public class PlanetApplicationServiceTest {
-    private Logger logger = LoggerFactory.getLogger( PlanetApplicationServiceTest.class );
+public class PlanetNeighbourRelationTest {
+    private Logger logger = LoggerFactory.getLogger( PlanetNeighbourRelationTest.class );
     private Planet n, s, ne, se, nee, see;
     Coordinate c01, c11, c21, c00, c10, c20;
 
@@ -127,7 +128,5 @@ public class PlanetApplicationServiceTest {
         assertEquals( 1, planetMap.get( see ).sizeX() );
         assertEquals( "see", planetMap.get( see ).get( c00 ).getName() );
     }
-
-
 
 }

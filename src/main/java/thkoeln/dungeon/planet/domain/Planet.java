@@ -22,7 +22,7 @@ import static thkoeln.dungeon.domainprimitives.CompassDirection.*;
 
 @Entity
 @Getter
-@NoArgsConstructor( access = AccessLevel.PROTECTED )
+@NoArgsConstructor
 public class Planet {
     @Id
     private final UUID id = UUID.randomUUID();
