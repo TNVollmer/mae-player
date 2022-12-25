@@ -17,5 +17,5 @@ public class GameDto {
     private GameStatus gameStatus;
     private Integer currentRoundNumber;
     private Integer roundLengthInMillis;
-    private String[] participatingPlayers;
+    private String[] participatingPlayers = new String[0];
 }
