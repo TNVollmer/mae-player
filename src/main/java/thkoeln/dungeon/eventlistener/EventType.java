@@ -7,6 +7,7 @@ public enum EventType {
     BANK_INITIALIZED( "BankAccountInitialized" ),
     ROUND_STATUS( "round-status" ),
     TRADABLE_PRICES( "TradablePrices" ),
+    ROBOT_SPAWNED( "RobotSpawned" ),
     UNKNOWN( "UNKNOWN" );
 
     private final String stringValue;

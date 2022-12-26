@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.eventlistener.concreteevents.*;
+import thkoeln.dungeon.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 
 @Service
 public class EventFactory {
@@ -25,6 +26,9 @@ public class EventFactory {
                 break;
             case TRADABLE_PRICES:
                 newEvent = new TradeablePricesEvent();
+                break;
+            case ROBOT_SPAWNED:
+                newEvent = new RobotSpawnedEvent();
                 break;
             // todo add other event types here
             default:

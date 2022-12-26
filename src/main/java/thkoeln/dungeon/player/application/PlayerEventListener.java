@@ -17,6 +17,7 @@ import thkoeln.dungeon.eventlistener.concreteevents.RoundStatusEvent;
 import thkoeln.dungeon.eventlistener.concreteevents.TradeablePricesEvent;
 import thkoeln.dungeon.game.application.GameApplicationService;
 import thkoeln.dungeon.player.domain.Player;
+import thkoeln.dungeon.robot.application.RobotEventHandler;
 
 import static thkoeln.dungeon.eventlistener.EventHeader.*;
 import static thkoeln.dungeon.game.domain.GameStatus.*;
@@ -28,16 +29,19 @@ public class PlayerEventListener {
     private EventFactory eventFactory;
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
+    private RobotEventHandler robotEventHandler;
 
     @Autowired
     public PlayerEventListener( Environment environment,
                                 EventFactory eventFactory,
                                 GameApplicationService gameApplicationService,
-                                PlayerApplicationService playerApplicationService ) {
+                                PlayerApplicationService playerApplicationService,
+                                RobotEventHandler robotEventHandler ) {
         this.eventFactory = eventFactory;
         this.gameApplicationService = gameApplicationService;
         this.playerApplicationService = playerApplicationService;
         this.environment = environment;
+        this.robotEventHandler = robotEventHandler;
     }
 
 
@@ -75,9 +79,11 @@ public class PlayerEventListener {
             return;
         }
         if ( eventHeader.getEventType().isRobotRelated() ) {
-            // todo that will come later - will be a call to RobotApplicationService probably
+            robotEventHandler.handleRobotRelatedEvent( newEvent );
         }
-        handlePlayerRelatedEvent( newEvent );
+        else {
+            handlePlayerRelatedEvent(newEvent);
+        }
     }
 
 
@@ -97,6 +103,9 @@ public class PlayerEventListener {
                 handleRoundStatusEvent( (RoundStatusEvent) event );
                 break;
             case TRADABLE_PRICES:
+                handleTradablePricesEvent( (TradeablePricesEvent) event );
+                break;
+            case ROBOT_SPAWNED:
                 handleTradablePricesEvent( (TradeablePricesEvent) event );
                 break;
             default:
@@ -139,9 +148,7 @@ public class PlayerEventListener {
 
 
     private void handleTradablePricesEvent( TradeablePricesEvent event ) {
-        // todo add business logic
-        logger.info( environment.getProperty( "ANSI_RED" ) +
-                "------> TRADABLE_PRICES event to be handled" + environment.getProperty( "ANSI_RESET" ) );
+        logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
     }
 
 }
