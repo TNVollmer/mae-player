@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.Assert.*;
 
 public class CapabilityTest {
-    private Capability d1, d2, dmax, h2;
+    private Capability d0, d1, dmax, h1;
 
     @BeforeEach
     public void setUp() {
-        d1 = Capability.baseForType( CapabilityType.HEALTH );
-        d2 = Capability.forTypeAndLevel( CapabilityType.HEALTH, 2 );
+        d0 = Capability.baseForType( CapabilityType.HEALTH );
+        d1 = Capability.forTypeAndLevel( CapabilityType.HEALTH, 1 );
         dmax = Capability.forTypeAndLevel( CapabilityType.HEALTH, Capability.MAX_LEVEL );
-        h2 = Capability.forTypeAndLevel( CapabilityType.DAMAGE, 2 );
+        h1 = Capability.forTypeAndLevel( CapabilityType.DAMAGE, 1 );
     }
 
     @Test
@@ -25,7 +25,7 @@ public class CapabilityTest {
             Capability.forTypeAndLevel( CapabilityType.DAMAGE, null );
         });
         assertThrows( DomainPrimitiveException.class, () -> {
-            Capability.forTypeAndLevel( CapabilityType.DAMAGE, 0 );
+            Capability.forTypeAndLevel( CapabilityType.DAMAGE, Capability.MIN_LEVEL-1 );
         });
         assertThrows( DomainPrimitiveException.class, () -> {
             Capability.forTypeAndLevel( CapabilityType.DAMAGE, Capability.MAX_LEVEL+1 );
@@ -36,11 +36,11 @@ public class CapabilityTest {
     public void testNextLevel() {
         // given
         // when
-        Capability newD2 = d1.nextLevel();
+        Capability newD2 = d0.nextLevel();
         Capability newDmaxPlus = dmax.nextLevel();
 
         // then
-        assertEquals( d2, newD2 );
+        assertEquals(d1, newD2 );
         assertNull( newDmaxPlus );
     }
 
@@ -48,12 +48,12 @@ public class CapabilityTest {
     public void testEquals() {
         // given
         // when
-        Capability newD2 = Capability.forTypeAndLevel( CapabilityType.HEALTH, 2 );
+        Capability newD1 = Capability.forTypeAndLevel( CapabilityType.HEALTH, 1 );
 
         // then
-        assertEquals( d2, newD2 );
-        assertNotEquals( d2, h2 );
-        assertNotEquals( d1, d2 );
+        assertEquals(d1, newD1 );
+        assertNotEquals(d1, h1);
+        assertNotEquals(d0, d1);
     }
 
 }

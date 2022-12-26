@@ -15,7 +15,7 @@ import java.util.Objects;
 public class Capability {
     private CapabilityType type;
     private Integer level;
-    public static final Integer MIN_LEVEL = 1;
+    public static final Integer MIN_LEVEL = 0;
     public static final Integer MAX_LEVEL = 5;
 
 
@@ -34,7 +34,7 @@ public class Capability {
      */
     public static Capability forTypeAndLevel( CapabilityType type, Integer level ) {
         if ( type == null || level == null ) throw new DomainPrimitiveException( "type == null || level == null" );
-        if ( level < 1 || level > 5 ) throw new DomainPrimitiveException( "level < 1 || level > 5" );
+        if ( level < MIN_LEVEL || level > MAX_LEVEL ) throw new DomainPrimitiveException( "level < MIN_LEVEL || level > MAX_LEVEL" );
         Capability capability = new Capability();
         capability.setLevel( level );
         capability.setType( type );
@@ -64,12 +64,12 @@ public class Capability {
 
 
     public boolean isMinimumLevel() {
-        return level == 1;
+        return level == MIN_LEVEL;
     }
 
 
     public boolean isMaximumLevel() {
-        return level == 5;
+        return level == MAX_LEVEL;
     }
 
 
