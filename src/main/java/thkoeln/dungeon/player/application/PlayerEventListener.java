@@ -63,17 +63,11 @@ public class PlayerEventListener {
                               @Header( VERSION_KEY ) String version,
                               @Header( TIMESTAMP_KEY ) String timestampStr,
                               String payload ) {
-        logger.info( environment.getProperty( "ANSI_BLUE" ) + "====> received event ... \n\t" +
-                " {type=" + type +
-                ", eventId=" + eventIdStr +
-                ", transactionId=" + transactionIdStr +
-                ", playerId=" + playerIdStr +
-                ", version=" + version +
-                ", timestamp=" + timestampStr +
-                "\n\t" + payload + environment.getProperty( "ANSI_RESET" ) );
         EventHeader eventHeader =
                 new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
         AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
+        logger.info( environment.getProperty( "ANSI_BLUE" ) + "======== EVENT =====>\n" +
+                newEvent + environment.getProperty( "ANSI_RESET" ) );
         if ( !newEvent.isValid() ) {
             logger.error( "Event invalid: " + newEvent );
             return;

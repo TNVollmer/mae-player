@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 
 import javax.persistence.*;
 import java.util.UUID;
@@ -13,7 +15,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
-@ToString
 public abstract class AbstractEvent {
     @Id
     @Setter( AccessLevel.NONE )
@@ -45,5 +46,16 @@ public abstract class AbstractEvent {
         catch( JsonProcessingException conversionFailed ) {
             logger.error( "Error converting payload for event with jsonString " + jsonString );
         }
+        messageBodyAsJson = jsonString;
+    }
+
+    @Override
+    public String toString() {
+        String payloadString = "PAYLOAD: " + String.valueOf( messageBodyAsJson );
+        // wrap lines after 150 chars
+        payloadString = payloadString.replaceAll("(.{150})", "$1\n\t" );
+
+        return this.getClass().getSimpleName() + " - " +
+            String.valueOf( eventHeader ) + "\n" + payloadString;
     }
 }

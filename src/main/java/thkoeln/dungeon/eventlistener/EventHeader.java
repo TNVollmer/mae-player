@@ -69,17 +69,18 @@ public class EventHeader {
 
     @Override
     public String toString() {
-        return "Header:" +
-                ", {eventType=" + eventType +
-                ", eventTypeString=" + eventTypeString + "\n\t" +
+        String printString =
+                "HEADER: <eventType=" + eventType +
+                ", eventTypeString=" + eventTypeString +
                 ", transactionId=" + transactionId +
                 ", eventId=" + eventId +
                 ", playerId=" + playerId +
                 ", isBroadcast=" + isBroadcast() +
-                ", eventType=" + eventType +
-                ", eventTypeString=" + eventTypeString +
-                ", version='" + version + '\'' +
-                ", timestampString='" + timestampString + '\'' + "}";
+                ", version=" + version +
+                ", timestampString=" + timestampString + ">";
+        // wrap lines after 150 chars
+        printString = printString.replaceAll("(.{150})", "$1\n\t" );
+        return printString;
     }
 
 
