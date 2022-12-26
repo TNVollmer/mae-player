@@ -20,12 +20,10 @@ public class PlanetApplicationService {
     private Logger logger = LoggerFactory.getLogger( PlanetApplicationService.class );
     private PlanetRepository planetRepository;
 
-
     @Autowired
     public PlanetApplicationService( PlanetRepository planetRepository ) {
         this.planetRepository = planetRepository;
     }
-
 
     public List<Planet> findAll() {
         return planetRepository.findAll();

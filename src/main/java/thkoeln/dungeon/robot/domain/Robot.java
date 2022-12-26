@@ -6,12 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.domainprimitives.Capability;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -22,11 +20,36 @@ public class Robot {
     @Id
     private final UUID id = UUID.randomUUID();
 
+    @Embedded
+    private RobotType type;
+
     @ElementCollection( fetch = FetchType.EAGER )
+    @Getter ( AccessLevel.PROTECTED )
     private final List<Capability> capabilities = Capability.allBaseCapabilities();
 
-    private static Robot withBaseCapabilities() {
-        return new Robot();
+    public void determineNextCommand() {
+
+    }
+
+    public void regenerateIfLowAndNotAttacked() {
+    }
+
+    public void fleeIfAttacked() {
+    }
+
+    public void mineIfNotMinedLastRound() {
+    }
+
+    public void move() {
+    }
+
+    public void mine() {
+    }
+
+    public void upgrade() {
+    }
+
+    public void attack() {
     }
 
 }
