@@ -9,7 +9,6 @@ import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class UnknownEvent extends AbstractEvent {
     public boolean isValid() {
         return true;

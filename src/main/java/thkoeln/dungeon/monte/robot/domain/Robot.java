@@ -18,12 +18,30 @@ public class Robot {
     @Id
     private final UUID id = UUID.randomUUID();
 
-    @Embedded
+    // The ID assigned by the Robot service!
+    private UUID robotId;
+
+    @Enumerated( EnumType.STRING )
     private RobotType type;
+
+    boolean alive = true;
 
     @ElementCollection( fetch = FetchType.EAGER )
     @Getter ( AccessLevel.PROTECTED )
     private final List<Capability> capabilities = Capability.allBaseCapabilities();
+
+    public static Robot of( UUID robotId, RobotType type ) {
+        if ( robotId == null ) throw new RobotException( "robotId == null" );
+        Robot robot = new Robot();
+        robot.robotId = robotId;
+        robot.type = type;
+        return robot;
+    }
+
+    public static Robot of( UUID robotId ) {
+        return of( robotId, null );
+    }
+
 
     public void determineNextCommand() {
 
@@ -50,4 +68,8 @@ public class Robot {
     public void attack() {
     }
 
+    @Override
+    public String toString() {
+        return "Robot " + String.valueOf( robotId ).substring( 0, 3 );
+    }
 }

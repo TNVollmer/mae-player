@@ -38,15 +38,6 @@ public class Player {
 
     private UUID registrationTransactionId;
 
-    /**
-     * Choose a random and unique name and email for the player
-     */
-    public void assignRandomName() {
-        String randomNickname = NameGenerator.generateName();
-        setName( randomNickname );
-        setEmail( randomNickname + "@microservicedungeon.com" );
-    }
-
     public void assignPlayerId( UUID playerId ) {
         if ( playerId == null ) throw new PlayerException( "playerId == null" );
         this.playerId = playerId;

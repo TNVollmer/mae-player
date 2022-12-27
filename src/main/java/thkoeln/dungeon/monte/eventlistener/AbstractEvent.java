@@ -29,7 +29,6 @@ public abstract class AbstractEvent {
     protected Boolean processed = Boolean.FALSE;
     public Boolean hasBeenProcessed() { return processed; }
 
-
     /**
      * @return true if the event was complete and consistent (enough) in order to be processed, false otherwise.
      * This is for the implementing concrete subclass to decide.
@@ -37,6 +36,7 @@ public abstract class AbstractEvent {
     public abstract boolean isValid();
 
     public void fillWithPayload( String jsonString ) {
+        messageBodyAsJson = jsonString;
         try {
             ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
             objectMapper.readerForUpdating( this ).readValue( jsonString );
@@ -44,7 +44,6 @@ public abstract class AbstractEvent {
         catch( JsonProcessingException conversionFailed ) {
             logger.error( "Error converting payload for event with jsonString " + jsonString );
         }
-        messageBodyAsJson = jsonString;
     }
 
     @Override
