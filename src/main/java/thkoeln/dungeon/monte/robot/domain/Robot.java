@@ -70,6 +70,7 @@ public class Robot {
 
     @Override
     public String toString() {
-        return "Robot " + String.valueOf( robotId ).substring( 0, 3 );
+        String whoAmI = ( type != null ) ? type.toString() : "Robot";
+        return whoAmI + " " + String.valueOf( robotId ).substring( 0, 3 );
     }
 }

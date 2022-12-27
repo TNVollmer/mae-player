@@ -76,4 +76,9 @@ public enum RobotType {
         return QUOTA.get( this );
     }
 
+
+    @Override
+    public String toString() {
+        return this.stringValue;
+    }
 }

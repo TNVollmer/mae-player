@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.domainprimitives.Money;
 import thkoeln.dungeon.monte.domainprimitives.Command;
@@ -18,6 +19,7 @@ import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,11 +38,12 @@ import java.util.UUID;
 public class PlayerApplicationService {
     private Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
     private ModelMapper modelMapper = new ModelMapper();
-
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
+    private RobotApplicationService robotApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
+    private Environment environment;
 
 
     @Value("${dungeon.playerName}")
@@ -54,10 +57,14 @@ public class PlayerApplicationService {
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
+            RobotApplicationService robotApplicationService,
+            Environment environment,
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
+        this.robotApplicationService = robotApplicationService;
+        this.environment = environment;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
     }
 
@@ -137,6 +144,10 @@ public class PlayerApplicationService {
     }
 
 
+    /**
+     * Try to open the queue using the given name
+     * @param player
+     */
     protected void openRabbitQueue( Player player ) {
         String playerQueue = player.getPlayerQueue();
         if ( playerQueue == null ) throw new PlayerException( "playerQueue == null" );
@@ -166,6 +177,8 @@ public class PlayerApplicationService {
     }
 
 
+
+
     /**
      * Buys new robots via REST command to Game service
      * @param numOfNewRobots
@@ -181,6 +194,14 @@ public class PlayerApplicationService {
                     currentGameOptional.get().getGameId(), player.getPlayerId(), null, CommandType.BUYING, commandObject);
             gameServiceRESTAdapter.sendPostRequestForCommand(command);
         }
+    }
+
+
+    public String printStatus() {
+        String printString =  environment.getProperty( "ANSI_RED" );
+        printString += gameApplicationService.printStatus() + robotApplicationService.printStatus();
+        printString += environment.getProperty( "ANSI_RESET" );
+        return printString;
     }
 
 }

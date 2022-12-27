@@ -12,6 +12,7 @@ import thkoeln.dungeon.monte.game.domain.GameRepository;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.restadapter.GameDto;
 import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.monte.robot.domain.Robot;
 
 import java.util.List;
 import java.util.Optional;
@@ -106,5 +107,25 @@ public class GameApplicationService {
         Game game = perhapsGame.get();
         game.setGameStatus( gameStatus );
         gameRepository.save( game );
+    }
+
+
+    public void roundStarted( Integer roundNumber ) {
+        Game game = queryActiveGame().orElseThrow( () -> new GameException("No active game!") );
+        game.setCurrentRoundNumber( roundNumber );
+        gameRepository.save( game );
+    }
+
+
+    public String printStatus() {
+        String printString = "\n";
+        Optional<Game> perhapsGame = queryActiveGame();
+        if ( !perhapsGame.isPresent() ) {
+            printString += "No active game found!\n";
+        }
+        else {
+            printString += String.valueOf( perhapsGame.get() );
+        }
+        return printString;
     }
 }

@@ -54,10 +54,10 @@ public class RobotApplicationService {
     protected RobotType nextRobotTypeAccordingToQuota() {
         long numOfRobots = robotRepository.countAllByAliveIs( true );
         long numOfWarriors = robotRepository.countAllByTypeIs( WARRIOR );
-        if ( (numOfWarriors * 100 / numOfRobots) < WARRIOR.quota() ) return WARRIOR;
+        if ( numOfRobots == 0 || (numOfWarriors * 100 / numOfRobots) < WARRIOR.quota() ) return WARRIOR;
 
         Long numOfMiners = robotRepository.countAllByTypeIs( MINER );
-        if ( (numOfMiners * 100 / numOfRobots) < MINER.quota() ) return MINER;
+        if ( numOfRobots == 0 || (numOfMiners * 100 / numOfRobots) < MINER.quota() ) return MINER;
 
         return SCOUT;
     }
@@ -69,4 +69,13 @@ public class RobotApplicationService {
         return robotRepository.findAllByAliveEquals( true );
     }
 
+    public String printStatus() {
+        String printString = "\n" + "====== All my robots ... =======\n";
+        List<Robot> robots = allLivingRobots();
+        for ( Robot robot : robots ) {
+            printString += robot.toString() + "\n";
+        }
+        printString += "================================";
+        return printString;
+    }
 }

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.TradeablePricesEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 import thkoeln.dungeon.monte.trading.domain.TradingAccountRepository;
 import thkoeln.dungeon.monte.trading.domain.TradingException;

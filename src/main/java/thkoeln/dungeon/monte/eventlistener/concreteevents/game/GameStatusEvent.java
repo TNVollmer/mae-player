@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.eventlistener.concreteevents;
+package thkoeln.dungeon.monte.eventlistener.concreteevents.game;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

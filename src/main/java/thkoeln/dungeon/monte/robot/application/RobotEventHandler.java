@@ -31,6 +31,6 @@ public class RobotEventHandler {
     }
 
     public void handleRobotSpawnedEvent( RobotSpawnedEvent event ) {
-        logger.info( "xxxxxxxxxxxxxx RobotSpawnedEvent ");
+        robotApplicationService.addNewRobotFromEvent( event );
     }
 }

@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.eventlistener.concreteevents;
+package thkoeln.dungeon.monte.eventlistener.concreteevents.trading;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,7 @@ import thkoeln.dungeon.monte.domainprimitives.Money;
 import thkoeln.dungeon.monte.domainprimitives.TradeableItem;
 import thkoeln.dungeon.monte.domainprimitives.TradeableType;
 import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeableItemDto;
 
 import java.util.ArrayList;
 import java.util.List;

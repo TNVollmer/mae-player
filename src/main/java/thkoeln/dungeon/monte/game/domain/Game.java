@@ -31,7 +31,7 @@ public class Game {
     // we better keep these two apart.
     private UUID gameId;
     private GameStatus gameStatus;
-    private Integer currentRoundCount;
+    private Integer currentRoundNumber;
 
     @Setter( AccessLevel.PROTECTED )
     private Boolean ourPlayerHasJoined;
@@ -41,7 +41,7 @@ public class Game {
 
     public void resetToNewlyCreated() {
         setGameStatus( GameStatus.CREATED );
-        setCurrentRoundCount( 0 );
+        setCurrentRoundNumber( 0 );
         setOurPlayerHasJoined( FALSE );
         logger.warn( "Reset game " + this + " to CREATED!" );
     }
@@ -80,6 +80,6 @@ public class Game {
 
     @Override
     public String toString() {
-        return "Game (" + getGameStatus() + ", " + getGameId() + ")";
+        return "Game round no. " + currentRoundNumber + " (" + getGameStatus() + ")";
     }
 }

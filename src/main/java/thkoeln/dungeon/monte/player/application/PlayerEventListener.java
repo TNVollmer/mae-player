@@ -11,10 +11,11 @@ import thkoeln.dungeon.monte.domainprimitives.Money;
 import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
 import thkoeln.dungeon.monte.eventlistener.EventFactory;
 import thkoeln.dungeon.monte.eventlistener.EventHeader;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.BankInitializedEvent;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.GameStatusEvent;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.RoundStatusEvent;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.TradeablePricesEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusType;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.BankInitializedEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.game.GameStatusEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.player.domain.Player;
@@ -127,6 +128,11 @@ public class PlayerEventListener {
 
 
     private void handleRoundStatusEvent( RoundStatusEvent event ) {
+        if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
+            gameApplicationService.roundStarted( event.getRoundNumber() );
+            logger.info( playerApplicationService.printStatus() );
+        }
+
         // todo this logic should be moved elsewhere - the handler just just delegate
         logger.info( "Round started: Buy robots!" );
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();

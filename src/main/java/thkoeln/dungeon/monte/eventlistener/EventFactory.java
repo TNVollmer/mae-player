@@ -3,8 +3,12 @@ package thkoeln.dungeon.monte.eventlistener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.game.GameStatusEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.*;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.BankInitializedEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
 
 @Service
 public class EventFactory {
