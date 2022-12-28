@@ -83,19 +83,19 @@ public class PlanetNeighbourRelationTest {
         //    S--SE--SEE
 
         // when
-        Map<Planet, TwoDimDynamicArray<Planet>> planetMap = planetApplicationService.allPlanetsAs2DArrays();
+        Map<Planet, TwoDimDynamicArray<Planet>> planetMap = planetApplicationService.allPlanetsAsClusterMap();
 
         // then
         logger.info( "\n\n---------\n" + planetMap.get( n ).toString() );
         assertEquals( 1, planetMap.size() );
         assertEquals( 2, planetMap.get( n ).sizeY() );
         assertEquals( 3, planetMap.get( n ).sizeX() );
-        assertEquals( "s", planetMap.get( n ).get( c01 ).getName() );
-        assertEquals( "se", planetMap.get( n ).get( c11 ).getName() );
-        assertEquals( "see", planetMap.get( n ).get( c21 ).getName() );
-        assertEquals( "n", planetMap.get( n ).get( c00 ).getName() );
-        assertEquals( "ne", planetMap.get( n ).get( c10 ).getName() );
-        assertEquals( "nee", planetMap.get( n ).get( c20 ).getName() );
+        assertEquals( "s", planetMap.get( n ).at( c01 ).getName() );
+        assertEquals( "se", planetMap.get( n ).at( c11 ).getName() );
+        assertEquals( "see", planetMap.get( n ).at( c21 ).getName() );
+        assertEquals( "n", planetMap.get( n ).at( c00 ).getName() );
+        assertEquals( "ne", planetMap.get( n ).at( c10 ).getName() );
+        assertEquals( "nee", planetMap.get( n ).at( c20 ).getName() );
     }
 
 
@@ -110,7 +110,7 @@ public class PlanetNeighbourRelationTest {
         saveAll();
 
         // when
-        Map<Planet, TwoDimDynamicArray<Planet>> planetMap = planetApplicationService.allPlanetsAs2DArrays();
+        Map<Planet, TwoDimDynamicArray<Planet>> planetMap = planetApplicationService.allPlanetsAsClusterMap();
         logger.info( "\n\n---------\n" + planetMap.get( n ).toString() );
         logger.info( "\n\n---------\n" + planetMap.get( see ).toString() );
 
@@ -118,13 +118,13 @@ public class PlanetNeighbourRelationTest {
         assertEquals( 2, planetMap.size() );
         assertEquals( 2, planetMap.get( n ).sizeY() );
         assertEquals( 2, planetMap.get( n ).sizeX() );
-        assertEquals( "n", planetMap.get( n ).get( c00 ).getName() );
-        assertEquals( "s", planetMap.get( n ).get( c01 ).getName() );
-        assertEquals( "ne", planetMap.get( n ).get( c10 ).getName() );
+        assertEquals( "n", planetMap.get( n ).at( c00 ).getName() );
+        assertEquals( "s", planetMap.get( n ).at( c01 ).getName() );
+        assertEquals( "ne", planetMap.get( n ).at( c10 ).getName() );
 
         assertEquals( 1, planetMap.get( see ).sizeY() );
         assertEquals( 1, planetMap.get( see ).sizeX() );
-        assertEquals( "see", planetMap.get( see ).get( c00 ).getName() );
+        assertEquals( "see", planetMap.get( see ).at( c00 ).getName() );
     }
 
 }

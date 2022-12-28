@@ -52,18 +52,29 @@ public class TwoDimDynamicArray<T> {
         return Coordinate.fromInteger( sizeX()-1, sizeY()-1 );
     }
 
-    public T get( Coordinate coordinate ) {
+    public T at( Coordinate coordinate ) {
         if ( coordinate == null ) throw new DomainPrimitiveException( "coordinate must not be null" );
         if ( coordinate.isLargerThan( getMaxCoordinate() ) )
             throw new DomainPrimitiveException( "coordinate out of bounds: " + coordinate );
         return array.get( coordinate.getY() ).get( coordinate.getX() );
     }
 
+    public T at( int x, int y ) {
+        Coordinate coordinate = Coordinate.fromInteger( x, y );
+        return at( coordinate );
+    }
+
+
     public void put( Coordinate coordinate, T value ) {
         if ( coordinate == null ) throw new DomainPrimitiveException( "coordinate must not be null" );
         if ( coordinate.isLargerThan( getMaxCoordinate() ) )
             throw new DomainPrimitiveException( "coordinate out of bounds: " + coordinate );
         array.get(coordinate.getY()).set(coordinate.getX(), value);
+    }
+
+    public void put( int x, int y, T value ) {
+        Coordinate coordinate = Coordinate.fromInteger( x, y );
+        put( coordinate, value );
     }
 
     /**
@@ -135,7 +146,7 @@ public class TwoDimDynamicArray<T> {
         String retVal = "";
         for ( int y = 0; y < sizeY(); y++ ) {
             for ( int x = 0; x < sizeX(); x++ ) {
-                retVal += String.valueOf( get( Coordinate.fromInteger( x, y ) ) );
+                retVal += String.valueOf( at( Coordinate.fromInteger( x, y ) ) );
                 retVal += "  ||  ";
             }
             retVal += "\n";

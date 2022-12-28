@@ -69,20 +69,20 @@ public class TwoDimDynamicArrayTest {
 
         // then
         assertThrows( DomainPrimitiveException.class, () -> {
-            arr.get( null );
+            arr.at( null );
         });
         assertThrows( DomainPrimitiveException.class, () -> {
-            arr.get( Coordinate.fromInteger( 2, 6 ) );
+            arr.at( Coordinate.fromInteger( 2, 6 ) );
         });
         assertThrows( DomainPrimitiveException.class, () -> {
-            arr.get( Coordinate.fromInteger( 3, 5 ) );
+            arr.at( Coordinate.fromInteger( 3, 5 ) );
         });
         assertThrows( DomainPrimitiveException.class, () -> {
-            arr.get( Coordinate.fromInteger( 3, 4 ) );
+            arr.at( Coordinate.fromInteger( 3, 4 ) );
         });
-        assertEquals( "yeah", arr.get( Coordinate.fromInteger( 1, 2 ) ) );
-        assertNull( arr.get( Coordinate.fromInteger( 1, 1 ) ) );
-        assertNull( arr.get( Coordinate.fromInteger( 0, 2 ) ) );
+        assertEquals( "yeah", arr.at( Coordinate.fromInteger( 1, 2 ) ) );
+        assertNull( arr.at( Coordinate.fromInteger( 1, 1 ) ) );
+        assertNull( arr.at( Coordinate.fromInteger( 0, 2 ) ) );
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TwoDimDynamicArrayTest {
         arr.put( Coordinate.fromInteger( 1, 2 ), "Leonard");
         for (int y = 0; y < arr.sizeY(); y++) {
             for (int x = 0; x < arr.sizeX(); x++) {
-                System.out.print( arr.get( Coordinate.fromInteger( x, y ) ) + " | ");
+                System.out.print( arr.at( Coordinate.fromInteger( x, y ) ) + " | ");
             }
             System.out.println( "" );
         }
@@ -129,17 +129,17 @@ public class TwoDimDynamicArrayTest {
         // then
         for (int y = 0; y < arr.sizeY(); y++) {
             for (int x = 0; x < arr.sizeX(); x++) {
-                System.out.print( arr.get( Coordinate.fromInteger( x, y ) ) + " | " );
+                System.out.print( arr.at( Coordinate.fromInteger( x, y ) ) + " | " );
             }
             System.out.println( "" );
         }
-        assertEquals( "Penny", arr.get( Coordinate.fromInteger(0, 1 ) ) );
-        assertNull( arr.get( Coordinate.fromInteger(1, 1) ) );
-        assertNull( arr.get( Coordinate.fromInteger(1, 2) ) );
-        assertEquals( "Sheldon", arr.get( Coordinate.fromInteger(2, 1 ) ) );
-        assertEquals( "Cooper", arr.get( Coordinate.fromInteger(3, 1 ) ) );
-        assertEquals( "Leonard", arr.get( Coordinate.fromInteger(2, 3 ) ) );
-        assertNull( arr.get( Coordinate.fromInteger(2, 4) ) );
+        assertEquals( "Penny", arr.at( Coordinate.fromInteger(0, 1 ) ) );
+        assertNull( arr.at( Coordinate.fromInteger(1, 1) ) );
+        assertNull( arr.at( Coordinate.fromInteger(1, 2) ) );
+        assertEquals( "Sheldon", arr.at( Coordinate.fromInteger(2, 1 ) ) );
+        assertEquals( "Cooper", arr.at( Coordinate.fromInteger(3, 1 ) ) );
+        assertEquals( "Leonard", arr.at( Coordinate.fromInteger(2, 3 ) ) );
+        assertNull( arr.at( Coordinate.fromInteger(2, 4) ) );
     }
 
 

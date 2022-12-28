@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
+import thkoeln.dungeon.monte.planet.application.PlanetConsolePrintDto;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.robot.domain.Robot;
 import thkoeln.dungeon.monte.robot.domain.RobotException;
@@ -69,7 +70,10 @@ public class RobotApplicationService {
         return robotRepository.findAllByAliveEquals( true );
     }
 
-    public String printStatus() {
+    /**
+     * @return Print all currently alive robots, in a compact format suitable for the console.
+     */
+    public String consolePrintStatus() {
         String printString = "\n" + "====== All my robots ... =======\n";
         List<Robot> robots = allLivingRobots();
         for ( Robot robot : robots ) {
@@ -77,5 +81,18 @@ public class RobotApplicationService {
         }
         printString += "================================";
         return printString;
+    }
+
+
+    /**
+     * @return Print the robots on a specific planet, suitable for a map display (4 chars)
+     */
+    public String consolePrintRobotsForPlanetOnMap( Planet planet ) {
+        if ( planet == null ) return null; // black hole
+        List<Robot> robotsOnPlanet = robotRepository.findAllByPlanetIs( planet );
+        if ( robotsOnPlanet.size() == 0 ) return PlanetConsolePrintDto.empty();
+        if ( robotsOnPlanet.size() == 1 )
+            return PlanetConsolePrintDto.cell( robotsOnPlanet.get( 0 ).toString() );
+        return PlanetConsolePrintDto.multiple( robotsOnPlanet.size() );
     }
 }

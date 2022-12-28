@@ -12,7 +12,6 @@ import thkoeln.dungeon.monte.game.domain.GameRepository;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.restadapter.GameDto;
 import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.monte.robot.domain.Robot;
 
 import java.util.List;
 import java.util.Optional;
@@ -117,7 +116,7 @@ public class GameApplicationService {
     }
 
 
-    public String printStatus() {
+    public String consolePrintStatus() {
         String printString = "\n";
         Optional<Game> perhapsGame = queryActiveGame();
         if ( !perhapsGame.isPresent() ) {

@@ -9,22 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.domainprimitives.Money;
-import thkoeln.dungeon.monte.domainprimitives.Command;
-import thkoeln.dungeon.monte.domainprimitives.CommandObject;
-import thkoeln.dungeon.monte.domainprimitives.CommandType;
+import thkoeln.dungeon.monte.domainprimitives.*;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.Game;
+import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
+import thkoeln.dungeon.monte.planet.application.PlanetConsolePrintDto;
+import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * This game class encapsulates the game tactics for a simple autonomous controlling of a robot
@@ -41,6 +38,7 @@ public class PlayerApplicationService {
     private PlayerRepository playerRepository;
     private GameApplicationService gameApplicationService;
     private RobotApplicationService robotApplicationService;
+    private PlanetApplicationService planetApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
     private Environment environment;
@@ -58,6 +56,7 @@ public class PlayerApplicationService {
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
             RobotApplicationService robotApplicationService,
+            PlanetApplicationService planetApplicationService,
             Environment environment,
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry ) {
         this.playerRepository = playerRepository;
@@ -66,6 +65,7 @@ public class PlayerApplicationService {
         this.robotApplicationService = robotApplicationService;
         this.environment = environment;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
+        this.planetApplicationService = planetApplicationService;
     }
 
 
@@ -181,6 +181,7 @@ public class PlayerApplicationService {
 
     /**
      * Buys new robots via REST command to Game service
+     * todo move to strategy class
      * @param numOfNewRobots
      */
     public void buyRobots( int numOfNewRobots ) {
@@ -197,10 +198,60 @@ public class PlayerApplicationService {
     }
 
 
-    public String printStatus() {
+    /**
+     * @return Print the complete player status formatted for the console.
+     */
+    public String consolePrintStatus() {
         String printString =  environment.getProperty( "ANSI_RED" );
-        printString += gameApplicationService.printStatus() + robotApplicationService.printStatus();
+        printString += gameApplicationService.consolePrintStatus() + robotApplicationService.consolePrintStatus();
         printString += environment.getProperty( "ANSI_RESET" );
+        printString += consolePrintMapWithPlanetsAndRobots();
+        return printString;
+    }
+
+
+    /**
+     * @return The map (or several cluster maps) of all known planets formatted for the console.
+     *      This involves planets, but also robots located on planets. "planet" package doesn't know
+     *      "robot" (but the other way around), so the best way to orchestrate this is from here.
+     */
+    public String consolePrintMapWithPlanetsAndRobots() {
+        String printString = "";
+        int currentClusterNumber = 0;
+        Map<Planet, TwoDimDynamicArray<Planet>> allClusterMap = planetApplicationService.allPlanetsAsClusterMap();
+        for ( TwoDimDynamicArray<Planet> planetCluster : allClusterMap.values() ) {
+            currentClusterNumber += 1;
+            printString += "\nPlanet cluster no. " + currentClusterNumber + ":\n";
+            printString += consolePrintOneMapCluster( planetCluster );
+        }
+        return printString;
+    }
+
+    /**
+     * todo this looks wrong here ... maybe move to a console printer class
+     */
+    private String consolePrintOneMapCluster(TwoDimDynamicArray<Planet> planetCluster ) {
+        Coordinate bottomRightCorner = planetCluster.getMaxCoordinate();
+        String printString = PlanetConsolePrintDto.printTopRow( bottomRightCorner );
+        TwoDimDynamicArray<PlanetConsolePrintDto> printArray = new TwoDimDynamicArray<>( bottomRightCorner );
+        for ( int y = 0; y < bottomRightCorner.getY(); y++ ) {
+            for ( int x = 0; x < bottomRightCorner.getX(); x++) {
+                Planet planet = planetCluster.at( x, y );
+                PlanetConsolePrintDto planetNeighboursDto = new PlanetConsolePrintDto ( planet );
+                planetNeighboursDto.setRobotString(
+                        robotApplicationService.consolePrintRobotsForPlanetOnMap( planet ) );
+                printArray.put( x, y, planetNeighboursDto );
+            }
+        }
+        for ( int y = 0; y < bottomRightCorner.getY(); y++ ) {
+            for ( int cellLineNumber = 0; cellLineNumber <= 3; cellLineNumber++ ) {
+                if ( cellLineNumber == 2 ) printString += PlanetConsolePrintDto.printRowNumber( y );
+                else printString += "\n" + PlanetConsolePrintDto.empty();
+                for (int x = 0; x < bottomRightCorner.getX(); x++) {
+                    printString += printArray.at( x, y ).printLine( cellLineNumber );
+                }
+            }
+        }
         return printString;
     }
 

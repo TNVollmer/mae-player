@@ -109,7 +109,7 @@ public class Planet {
             }
         }
         catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
-            throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
+            throw new PlanetException( "Something went wrong that should not have happened ..." + e );
         }
         logger.info( "Established neighbouring relationship between planet '" + this + "' and '" + otherPlanet + "'." );
         closeNeighbouringCycleForAllDirectionsBut( direction );
@@ -186,7 +186,7 @@ public class Planet {
      * @param localCoordinate - position where this planet is in the array
      * @return
      */
-    public TwoDimDynamicArray<Planet> constructLocalIsland(
+    public TwoDimDynamicArray<Planet> constructLocalCluster(
             TwoDimDynamicArray<Planet> existingLocalIsland, Coordinate localCoordinate ) {
         if ( getTemporaryProcessingFlag() ) return existingLocalIsland;
 
@@ -198,7 +198,7 @@ public class Planet {
             Planet neighbour = entry.getValue();
             if ( !neighbour.getTemporaryProcessingFlag() ) {
                 Coordinate newCoordinate = localIsland.putAndEnhance( localCoordinate, direction, neighbour );
-                localIsland = neighbour.constructLocalIsland( localIsland, newCoordinate );
+                localIsland = neighbour.constructLocalCluster( localIsland, newCoordinate );
             }
         }
         return localIsland;

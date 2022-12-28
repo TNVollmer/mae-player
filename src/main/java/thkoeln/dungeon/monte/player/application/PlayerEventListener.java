@@ -18,7 +18,6 @@ import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
@@ -132,7 +131,7 @@ public class PlayerEventListener {
     private void handleRoundStatusEvent( RoundStatusEvent event ) {
         if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
             gameApplicationService.roundStarted( event.getRoundNumber() );
-            logger.info( playerApplicationService.printStatus() );
+            logger.info( playerApplicationService.consolePrintStatus() );
         }
 
         // todo this logic should be moved elsewhere - the handler just just delegate
