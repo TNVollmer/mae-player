@@ -6,11 +6,10 @@ import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
 
 import java.lang.reflect.Method;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PlanetTest {
     private Planet[][] planetArray= new Planet[3][3];
-    private Integer[][] numberOfNeighbours = new Integer[][] {{2, 3, 2}, {3, 4, 3}, {2, 3, 2}};
 
     @BeforeEach
     public void setup() {
@@ -20,6 +19,7 @@ public class PlanetTest {
             }
         }
     }
+
 
     @Test
     public void testNeighbouringSetterGetterViaReflection() throws Exception {
@@ -35,12 +35,13 @@ public class PlanetTest {
         assertEquals( "setWestNeighbour", setter.getName() );
     }
 
+
     @Test
     public void testEstablishNeighbouringRelationship() {
         // given
         // when
-        planetArray[0][1].defineNeighbour( planetArray[1][1], CompassDirection.EAST);
-        planetArray[0][1].defineNeighbour( planetArray[0][2], CompassDirection.NORTH);
+        planetArray[0][1].defineNeighbour( planetArray[1][1], CompassDirection.EAST );
+        planetArray[0][1].defineNeighbour( planetArray[0][2], CompassDirection.NORTH );
 
         // then
         assertEquals( planetArray[1][1], planetArray[0][1].getEastNeighbour() );
@@ -93,5 +94,22 @@ public class PlanetTest {
                         getSouthNeighbour().
                             getEastNeighbour().
                                 getNorthNeighbour() );
+    }
+
+
+    @Test
+    public void testHasNeighbours() {
+        // given
+        Planet p1 = new Planet();
+        Planet p2 = new Planet();
+        Planet p3 = new Planet();
+
+        // when
+        p2.defineNeighbour( p3, CompassDirection.SOUTH );
+
+        // then
+        assertTrue( p2.hasNeighbours() );
+        assertTrue( p3.hasNeighbours() );
+        assertFalse( p1.hasNeighbours() );
     }
 }

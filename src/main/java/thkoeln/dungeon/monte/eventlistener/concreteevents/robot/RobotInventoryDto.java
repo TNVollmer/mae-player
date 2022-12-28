@@ -15,4 +15,11 @@ public class RobotInventoryDto {
     private RobotInventoryResourcesDto resources;
     private Boolean full = Boolean.FALSE;
     private Integer maxStorage;
+
+
+    public boolean isValid() {
+        if ( maxStorage == null ) return false;
+        if ( maxStorage <= 0 ) return false;
+        return true;
+    }
 }

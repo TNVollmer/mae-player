@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
-import thkoeln.dungeon.monte.player.application.PlayerEventListener;
+import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.robot.domain.Robot;
+import thkoeln.dungeon.monte.robot.domain.RobotException;
 import thkoeln.dungeon.monte.robot.domain.RobotRepository;
 import thkoeln.dungeon.monte.robot.domain.RobotType;
 
@@ -35,14 +36,13 @@ public class RobotApplicationService {
      * @param robotSpawnedEvent
      * @return the new robot
      */
-    public Robot addNewRobotFromEvent( RobotSpawnedEvent robotSpawnedEvent ) {
+    public Robot addNewRobotFromEvent( RobotSpawnedEvent robotSpawnedEvent, Planet planet ) {
+        if ( robotSpawnedEvent == null || !robotSpawnedEvent.isValid() || planet == null )
+            throw new RobotException( "robotSpawnedEvent == null || !robotSpawnedEvent.isValid() || planet == null" );
         logger.info( "About to add new robot for RobotSpawnedEvent ...");
-        if ( !robotSpawnedEvent.isValid() ) {
-            logger.error( "Invalid RobotSpawnedEvent - will not process." + robotSpawnedEvent );
-            return null;
-        }
-        Robot robot = Robot.of( robotSpawnedEvent.getRobot().getId() );
+        Robot robot = Robot.of( robotSpawnedEvent.getRobotDto().getId() );
         robot.setType( nextRobotTypeAccordingToQuota() );
+        robot.setPlanet( planet );
         robotRepository.save( robot );
         logger.info( "Added robot " + robot );
         return robot;

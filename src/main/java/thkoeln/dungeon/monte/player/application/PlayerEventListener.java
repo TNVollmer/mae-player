@@ -18,6 +18,8 @@ import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
+import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
+import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
 
@@ -28,6 +30,7 @@ public class PlayerEventListener {
     private EventFactory eventFactory;
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
+    private PlanetEventHandler planetEventHandler;
     private RobotEventHandler robotEventHandler;
 
     @Autowired
@@ -35,12 +38,14 @@ public class PlayerEventListener {
                                 EventFactory eventFactory,
                                 GameApplicationService gameApplicationService,
                                 PlayerApplicationService playerApplicationService,
+                                PlanetEventHandler planetEventHandler,
                                 RobotEventHandler robotEventHandler ) {
         this.eventFactory = eventFactory;
         this.gameApplicationService = gameApplicationService;
         this.playerApplicationService = playerApplicationService;
         this.environment = environment;
         this.robotEventHandler = robotEventHandler;
+        this.planetEventHandler = planetEventHandler;
     }
 
 
@@ -71,12 +76,9 @@ public class PlayerEventListener {
             logger.error( "Event invalid: " + newEvent );
             return;
         }
-        if ( eventHeader.getEventType().isRobotRelated() ) {
-            robotEventHandler.handleRobotRelatedEvent( newEvent );
-        }
-        else {
-            handlePlayerRelatedEvent(newEvent);
-        }
+        if ( eventHeader.getEventType().isRobotRelated() ) robotEventHandler.handleRobotRelatedEvent( newEvent );
+        else if ( eventHeader.getEventType().isPlanetRelated() ) planetEventHandler.handlePlanetRelatedEvent( newEvent);
+        else handlePlayerRelatedEvent( newEvent );
     }
 
 
@@ -139,9 +141,6 @@ public class PlayerEventListener {
         Money priceForRobot = Money.fromInteger( 100 );
         int numOfNewRobots = player.getMoney().canBuyThatManyFor( priceForRobot );
         playerApplicationService.buyRobots( numOfNewRobots );
-
-        logger.info( environment.getProperty( "ANSI_RED" ) +
-                "------> more business logic to be added!" + environment.getProperty( "ANSI_RESET" ) );
     }
 
 

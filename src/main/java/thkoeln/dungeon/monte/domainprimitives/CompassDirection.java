@@ -1,10 +1,19 @@
 package thkoeln.dungeon.monte.domainprimitives;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public enum CompassDirection {
-    NORTH, EAST, SOUTH, WEST;
+    @JsonProperty("north")
+    NORTH,
+    @JsonProperty("east")
+    EAST,
+    @JsonProperty("south")
+    SOUTH,
+    @JsonProperty("west")
+    WEST;
 
     public CompassDirection getOppositeDirection() {
         switch( this ) {

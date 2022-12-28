@@ -174,6 +174,12 @@ public class Planet {
         return allNeighboursMap;
     }
 
+
+    public boolean hasNeighbours() {
+        return allNeighbours().size() > 0;
+    }
+
+
     /**
      * Add the neighbours to an existing 2d array of planets - grow the array if needed.
      * @param existingLocalIsland
@@ -211,9 +217,10 @@ public class Planet {
         return Objects.hash(id);
     }
 
+
     @Override
     public String toString() {
-        if ( name != null ) return name;
-        return ( "S: " + isSpaceStation() + ", " + getPlanetId() );
+        String whoAmI = isSpaceStation() ? "#" : "_";
+        return whoAmI + String.valueOf( planetId ).substring( 0, 3 );
     }
 }

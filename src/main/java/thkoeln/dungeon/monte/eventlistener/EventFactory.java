@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.*;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.BankInitializedEvent;
@@ -33,6 +34,9 @@ public class EventFactory {
                 break;
             case ROBOT_SPAWNED:
                 newEvent = new RobotSpawnedEvent();
+                break;
+            case PLANET_DISCOVERED:
+                newEvent = new PlanetDiscoveredEvent();
                 break;
             // todo add other event types here
             default:

@@ -36,7 +36,7 @@ public class PlanetPersistenceTest {
         planetApplicationService.save( planetArray[1][1] );
 
         // when
-        planetArray[1][2].defineNeighbour( planetArray[1][1], CompassDirection.WEST);
+        planetArray[1][2].defineNeighbour( planetArray[1][1], CompassDirection.WEST );
         planetApplicationService.save( planetArray[1][1] );
         planetApplicationService.save( planetArray[1][2] );
         Planet p11 = planetArray[1][1];
@@ -55,8 +55,8 @@ public class PlanetPersistenceTest {
         // given
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
-                if ( i < 2 ) planetArray[i][j].defineNeighbour( planetArray[i+1][j], CompassDirection.EAST);
-                if ( j < 2 ) planetArray[i][j].defineNeighbour( planetArray[i][j+1], CompassDirection.SOUTH);
+                if ( i < 2 ) planetArray[i][j].defineNeighbour( planetArray[i+1][j], CompassDirection.EAST );
+                if ( j < 2 ) planetArray[i][j].defineNeighbour( planetArray[i][j+1], CompassDirection.SOUTH );
             }
         }
 

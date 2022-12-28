@@ -1,9 +1,7 @@
 package thkoeln.dungeon.monte.eventlistener.concreteevents.robot;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import thkoeln.dungeon.monte.eventlistener.AbstractConcreteEventTest;
-import thkoeln.dungeon.monte.eventlistener.EventHeader;
 import thkoeln.dungeon.monte.eventlistener.EventType;
 
 import java.util.UUID;
@@ -11,7 +9,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RobotEventsTest extends AbstractConcreteEventTest {
+public class RobotSpawnedEventTest extends AbstractConcreteEventTest {
 
     protected RobotSpawnedEvent validRobotSpawnedEvent() {
         RobotSpawnedEvent validRobotSpawnedEvent = new RobotSpawnedEvent();
@@ -30,7 +28,7 @@ public class RobotEventsTest extends AbstractConcreteEventTest {
         robotDto.setEnergyRegen( 4 );
         robotDto.setAttackDamage( 1 );
 
-        validRobotSpawnedEvent.setRobot( robotDto );
+        validRobotSpawnedEvent.setRobotDto( robotDto );
         return validRobotSpawnedEvent;
     }
 
@@ -52,26 +50,26 @@ public class RobotEventsTest extends AbstractConcreteEventTest {
         }
 
         // when
-        events[0].setRobot( null );
+        events[0].setRobotDto( null );
         events[1].setEventHeader( null );
-        events[2].getRobot().setInventory( null );
-        events[3].getRobot().getInventory().setMaxStorage( null );
-        events[4].getRobot().getInventory().setMaxStorage( 0 );
-        events[5].getRobot().getInventory().setMaxStorage( -1 );
-        events[6].getRobot().setHealth( null );
-        events[7].getRobot().setHealth( 0 );
-        events[8].getRobot().setEnergy( null );
-        events[9].getRobot().setEnergy( 0 );
-        events[10].getRobot().setMiningSpeed( null );
-        events[11].getRobot().setMiningSpeed( 0 );
-        events[12].getRobot().setMaxHealth( null );
-        events[13].getRobot().setMaxHealth( 0 );
-        events[14].getRobot().setMaxEnergy( null );
-        events[15].getRobot().setMaxEnergy( 0 );
-        events[16].getRobot().setEnergyRegen( null );
-        events[17].getRobot().setEnergyRegen( 0 );
-        events[18].getRobot().setAttackDamage( null );
-        events[19].getRobot().setAttackDamage( 0 );
+        events[2].getRobotDto().setInventory( null );
+        events[3].getRobotDto().getInventory().setMaxStorage( null );
+        events[4].getRobotDto().getInventory().setMaxStorage( 0 );
+        events[5].getRobotDto().getInventory().setMaxStorage( -1 );
+        events[6].getRobotDto().setHealth( null );
+        events[7].getRobotDto().setHealth( 0 );
+        events[8].getRobotDto().setEnergy( null );
+        events[9].getRobotDto().setEnergy( 0 );
+        events[10].getRobotDto().setMiningSpeed( null );
+        events[11].getRobotDto().setMiningSpeed( 0 );
+        events[12].getRobotDto().setMaxHealth( null );
+        events[13].getRobotDto().setMaxHealth( 0 );
+        events[14].getRobotDto().setMaxEnergy( null );
+        events[15].getRobotDto().setMaxEnergy( 0 );
+        events[16].getRobotDto().setEnergyRegen( null );
+        events[17].getRobotDto().setEnergyRegen( 0 );
+        events[18].getRobotDto().setAttackDamage( null );
+        events[19].getRobotDto().setAttackDamage( 0 );
 
         // then
         for ( int i = 0; i < events.length; i++ ) {

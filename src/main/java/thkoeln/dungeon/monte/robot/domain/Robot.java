@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.monte.domainprimitives.Capability;
+import thkoeln.dungeon.monte.planet.domain.Planet;
 
 import javax.persistence.*;
 import java.util.List;
@@ -29,6 +30,9 @@ public class Robot {
     @ElementCollection( fetch = FetchType.EAGER )
     @Getter ( AccessLevel.PROTECTED )
     private final List<Capability> capabilities = Capability.allBaseCapabilities();
+
+    @ManyToOne
+    private Planet planet;
 
     public static Robot of( UUID robotId, RobotType type ) {
         if ( robotId == null ) throw new RobotException( "robotId == null" );
@@ -70,7 +74,10 @@ public class Robot {
 
     @Override
     public String toString() {
-        String whoAmI = ( type != null ) ? type.toString() : "Robot";
-        return whoAmI + " " + String.valueOf( robotId ).substring( 0, 3 );
+        String printString = ( type != null ) ? type.toString() : "Robot";
+        printString = printString.substring( 0, 1 );
+        printString += String.valueOf( robotId ).substring( 0, 3 );
+        if ( planet != null ) printString += " on " + planet;
+        return printString;
     }
 }

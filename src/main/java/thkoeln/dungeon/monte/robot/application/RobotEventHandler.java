@@ -6,15 +6,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
+import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
+import thkoeln.dungeon.monte.planet.domain.Planet;
+
+import static java.lang.Boolean.TRUE;
 
 @Service
 public class RobotEventHandler {
     private Logger logger = LoggerFactory.getLogger(RobotEventHandler.class);
     private RobotApplicationService robotApplicationService;
+    private PlanetApplicationService planetApplicationService;
 
     @Autowired
-    public RobotEventHandler( RobotApplicationService robotApplicationService ) {
+    public RobotEventHandler( RobotApplicationService robotApplicationService,
+                              PlanetApplicationService planetApplicationService ) {
         this.robotApplicationService = robotApplicationService;
+        this.planetApplicationService = planetApplicationService;
     }
 
     /**
@@ -31,6 +38,7 @@ public class RobotEventHandler {
     }
 
     public void handleRobotSpawnedEvent( RobotSpawnedEvent event ) {
-        robotApplicationService.addNewRobotFromEvent( event );
+        Planet planet = planetApplicationService.addOrUpdatePlanetFromEvent( event.getRobotDto().getPlanet(), TRUE );
+        robotApplicationService.addNewRobotFromEvent( event, planet );
     }
 }

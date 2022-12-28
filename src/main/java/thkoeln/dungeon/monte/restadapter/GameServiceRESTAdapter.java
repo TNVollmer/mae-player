@@ -139,7 +139,7 @@ public class GameServiceRESTAdapter {
             throw new RESTAdapterException( "Unexpected error converting requestDto to JSON: " + command );
         }
         catch ( RestClientException e ) {
-            logger.error( "Problem with connection to server, cannot register player! Exception: " + e.getMessage() );
+            logger.error( "Problem sending command! Exception: " + e.getMessage() );
             throw new RESTAdapterException( urlString, e );
         }
         UUID transactionId = commandAnswerDto.getTransactionId();

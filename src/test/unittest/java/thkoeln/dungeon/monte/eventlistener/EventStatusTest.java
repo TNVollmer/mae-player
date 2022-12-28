@@ -1,21 +1,41 @@
 package thkoeln.dungeon.monte.eventlistener;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static thkoeln.dungeon.monte.eventlistener.EventType.*;
 
 public class EventStatusTest {
 
     @Test
-    public void testGameStatus() {
+    public void testUnknownEvent() {
         // given
         // when
-        EventType eventType1 = EventType.findByStringValue( "game-status" );
-        EventType eventType2 = EventType.findByStringValue( "xxx-status" );
+        EventType eventType = EventType.findByStringValue( "xxx-status" );
 
         // then
-        assertEquals( GAME_STATUS, eventType1 );
-        assertEquals( UNKNOWN, eventType2 );
+        assertEquals( UNKNOWN, eventType );
+    }
+
+    @Test
+    public void testEventTypeClassification() {
+        assertFalse( GAME_STATUS.isRobotRelated() );
+        assertFalse( GAME_STATUS.isPlanetRelated() );
+
+        assertFalse( BANK_INITIALIZED.isRobotRelated() );
+        assertFalse( BANK_INITIALIZED.isPlanetRelated() );
+
+        assertFalse( ROUND_STATUS.isRobotRelated() );
+        assertFalse( ROUND_STATUS.isPlanetRelated() );
+
+        assertFalse( TRADABLE_PRICES.isRobotRelated() );
+        assertFalse( TRADABLE_PRICES.isPlanetRelated() );
+
+        assertTrue( ROBOT_SPAWNED.isRobotRelated() );
+        assertFalse( ROBOT_SPAWNED.isPlanetRelated() );
+
+        assertFalse( PLANET_DISCOVERED.isRobotRelated() );
+        assertTrue( PLANET_DISCOVERED.isPlanetRelated() );
     }
 }

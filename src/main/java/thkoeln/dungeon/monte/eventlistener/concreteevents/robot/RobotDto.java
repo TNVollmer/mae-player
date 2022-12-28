@@ -1,6 +1,7 @@
 package thkoeln.dungeon.monte.eventlistener.concreteevents.robot;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -19,7 +20,10 @@ public class RobotDto {
     private RobotPlanetDto planet;
     private UUID id;
     private Boolean alive = TRUE;
+
+    @JsonProperty("inventory")
     private RobotInventoryDto inventory;
+
     private Integer health;
     private Integer energy;
     private Integer healthLevel = MIN_LEVEL;
@@ -33,4 +37,24 @@ public class RobotDto {
     private Integer maxEnergy;
     private Integer energyRegen;
     private Integer attackDamage;
+
+    public boolean isValid() {
+        if ( getId() == null ) return false;
+        if ( getHealth() == null ) return false;
+        if ( getHealth() <= 0 ) return false;
+        if ( getMaxHealth() == null ) return false;
+        if ( getMaxHealth() <= 0 ) return false;
+        if ( getEnergy() == null ) return false;
+        if ( getEnergy() <= 0 ) return false;
+        if ( getMiningSpeed() == null ) return false;
+        if ( getMiningSpeed() <= 0 ) return false;
+        if ( getMaxEnergy() == null ) return false;
+        if ( getMaxEnergy() <= 0 ) return false;
+        if ( getEnergyRegen() == null ) return false;
+        if ( getEnergyRegen() <= 0 ) return false;
+        if ( getAttackDamage() == null ) return false;
+        if ( getAttackDamage() <= 0 ) return false;
+        if ( inventory == null ) return false;
+        return inventory.isValid();
+    }    
 }
