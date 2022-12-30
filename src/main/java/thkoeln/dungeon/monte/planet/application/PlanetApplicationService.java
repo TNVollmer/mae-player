@@ -29,8 +29,12 @@ public class PlanetApplicationService {
         this.planetRepository = planetRepository;
     }
 
-    public List<Planet> findAll() {
+    public List<Planet> allPlanets() {
         return planetRepository.findAll();
+    }
+
+    public List<Planet> allSpaceStations() {
+        return planetRepository.findBySpacestationEquals( TRUE );
     }
 
     public Optional<Planet> findById( UUID id ) {
@@ -117,30 +121,4 @@ public class PlanetApplicationService {
     }
 
 
-    /**
-     * Method to create arrays for display of the planet map
-     */
-    public Map<Planet, TwoDimDynamicArray<Planet>> allPlanetsAsClusterMap() {
-        Map<Planet, TwoDimDynamicArray<Planet>> planetMap = new HashMap<>();
-        List<Planet> allPlanets = planetRepository.findAll();
-        for ( Planet planet: allPlanets ) {
-            planet.setTemporaryProcessingFlag( FALSE );
-            planetRepository.save( planet );
-        }
-        // create this as a Map of space stations (which are the first planets known to the player) pointing
-        // to a local 2d array containing all planets connected to that space station.
-        // When two such "planet clusters" are discovered to be connected, one of it is taken out of the map
-        // (to avoid printing planets twice)
-        List<Planet> spacestations = planetRepository.findBySpacestationEquals( TRUE );
-        for ( Planet spacestation: spacestations ) {
-            if ( !spacestation.getTemporaryProcessingFlag() ) {
-                TwoDimDynamicArray<Planet> planetCluster = new TwoDimDynamicArray<>( spacestation );
-                // not already visited, i.e. this is really a planet cluster (= partial graph)
-                spacestation.constructLocalCluster( planetCluster, Coordinate.initialCoordinate() );
-                planetMap.put( spacestation, planetCluster );
-            }
-        }
-        for ( Planet planet : allPlanets ) planetRepository.save( planet );
-        return planetMap;
-    }
 }

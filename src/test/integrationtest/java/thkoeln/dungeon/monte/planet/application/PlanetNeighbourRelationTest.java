@@ -16,7 +16,9 @@ import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,6 +35,9 @@ public class PlanetNeighbourRelationTest {
     @Autowired
     PlanetApplicationService planetApplicationService;
 
+    @Autowired
+    PlanetPrinter planetPrinter;
+
     @Before
     public void setUp() {
         c00 = Coordinate.fromInteger( 0, 0 );
@@ -43,13 +48,13 @@ public class PlanetNeighbourRelationTest {
         c21 = Coordinate.fromInteger( 2, 1 );
 
         planetRepository.deleteAll();
-        n = new Planet( "n" );
+        n = new Planet( UUID.randomUUID() );
         n.setSpacestation( Boolean.TRUE );
-        s = new Planet( "s" );
-        ne = new Planet( "ne" );
-        nee = new Planet( "nee" );
-        se = new Planet( "se" );
-        see = new Planet( "see" );
+        s = new Planet( UUID.randomUUID() );
+        ne = new Planet( UUID.randomUUID() );
+        nee = new Planet( UUID.randomUUID() );
+        se = new Planet( UUID.randomUUID() );
+        see = new Planet( UUID.randomUUID() );
         see.setSpacestation( Boolean.TRUE );
         planetRepository.save( n );
         planetRepository.save( s );
@@ -83,19 +88,19 @@ public class PlanetNeighbourRelationTest {
         //    S--SE--SEE
 
         // when
-        Map<Planet, TwoDimDynamicArray<Planet>> planetMap = planetApplicationService.allPlanetsAsClusterMap();
+        List<TwoDimDynamicArray<Planet>> planetClusters = planetPrinter.allPlanetClusters();
+        assertEquals( 1, planetClusters.size() );
+        TwoDimDynamicArray<Planet> planetCluster = planetClusters.get( 0 );
 
         // then
-        logger.info( "\n\n---------\n" + planetMap.get( n ).toString() );
-        assertEquals( 1, planetMap.size() );
-        assertEquals( 2, planetMap.get( n ).sizeY() );
-        assertEquals( 3, planetMap.get( n ).sizeX() );
-        assertEquals( "s", planetMap.get( n ).at( c01 ).getName() );
-        assertEquals( "se", planetMap.get( n ).at( c11 ).getName() );
-        assertEquals( "see", planetMap.get( n ).at( c21 ).getName() );
-        assertEquals( "n", planetMap.get( n ).at( c00 ).getName() );
-        assertEquals( "ne", planetMap.get( n ).at( c10 ).getName() );
-        assertEquals( "nee", planetMap.get( n ).at( c20 ).getName() );
+        assertEquals( 2, planetCluster.sizeY() );
+        assertEquals( 3, planetCluster.sizeX() );
+        assertEquals( s, planetCluster.at( c01 ) );
+        assertEquals( se, planetCluster.at( c11 ) );
+        assertEquals( see, planetCluster.at( c21 ) );
+        assertEquals( n, planetCluster.at( c00 ) );
+        assertEquals( ne, planetCluster.at( c10 ) );
+        assertEquals( nee, planetCluster.at( c20 ) );
     }
 
 
@@ -108,23 +113,31 @@ public class PlanetNeighbourRelationTest {
         //    |
         //    S        SEE
         saveAll();
+        TwoDimDynamicArray<Planet> nCluster;
+        TwoDimDynamicArray<Planet> seeCluster;
 
         // when
-        Map<Planet, TwoDimDynamicArray<Planet>> planetMap = planetApplicationService.allPlanetsAsClusterMap();
-        logger.info( "\n\n---------\n" + planetMap.get( n ).toString() );
-        logger.info( "\n\n---------\n" + planetMap.get( see ).toString() );
+        List<TwoDimDynamicArray<Planet>> planetClusters = planetPrinter.allPlanetClusters();
+        assertEquals( 2, planetClusters.size() );
+        if ( planetClusters.get( 0 ).contains( n ) ) {
+            nCluster = planetClusters.get( 0 );
+            seeCluster = planetClusters.get( 1 );
+        }
+        else {
+            nCluster = planetClusters.get( 1 );
+            seeCluster = planetClusters.get( 0 );
+        }
 
         // then
-        assertEquals( 2, planetMap.size() );
-        assertEquals( 2, planetMap.get( n ).sizeY() );
-        assertEquals( 2, planetMap.get( n ).sizeX() );
-        assertEquals( "n", planetMap.get( n ).at( c00 ).getName() );
-        assertEquals( "s", planetMap.get( n ).at( c01 ).getName() );
-        assertEquals( "ne", planetMap.get( n ).at( c10 ).getName() );
+        assertEquals( 2, nCluster.sizeY() );
+        assertEquals( 2, nCluster.sizeX() );
+        assertEquals( n, nCluster.at( c00 ) );
+        assertEquals( s, nCluster.at( c01 ) );
+        assertEquals( ne, nCluster.at( c10 ) );
 
-        assertEquals( 1, planetMap.get( see ).sizeY() );
-        assertEquals( 1, planetMap.get( see ).sizeX() );
-        assertEquals( "see", planetMap.get( see ).at( c00 ).getName() );
+        assertEquals( 1, seeCluster.sizeY() );
+        assertEquals( 1, seeCluster.sizeX() );
+        assertEquals( see, seeCluster.at( c00 ) );
     }
 
 }

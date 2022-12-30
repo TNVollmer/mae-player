@@ -137,6 +137,35 @@ public class TwoDimDynamicArray<T> {
     }
 
 
+    /**
+     * Finds the coordinate for a specific element.
+     * @param element
+     * @return The coordinate, or null if not contained.
+     */
+    public Coordinate find( T element ) {
+        if ( element == null ) throw new DomainPrimitiveException( "element == null" );
+        int y = 0;
+        for ( ArrayList<T> innerList : array ) {
+            int x = 0;
+            for ( T containedElement : innerList ) {
+                if ( element.equals( containedElement ) ) {
+                    return Coordinate.fromInteger( x, y );
+                }
+                x++;
+            }
+            y++;
+        }
+        return null;
+    }
+
+
+    /**
+     * @param element
+     * @return True if element is in the 2d array, false otherwise
+     */
+    public boolean contains( T element ) {
+        return ( find( element ) != null );
+    }
 
 
 

@@ -37,12 +37,6 @@ public class Planet {
     private Boolean visited = Boolean.FALSE;
 
 
-    // Flag needed for recursive output of all planets ... I know, this is not ideal, but couldn't yet
-    // think of a better solution.
-    @Setter
-    private Boolean temporaryProcessingFlag;
-
-
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
     private Planet northNeighbour = null;
@@ -71,6 +65,11 @@ public class Planet {
         this.planetId = planetId;
     }
 
+    public static Planet spacestation( UUID planetId ) {
+        Planet spacestation = new Planet( planetId );
+        spacestation.setSpacestation( TRUE );
+        return spacestation;
+    }
 
 
     /**
@@ -174,28 +173,38 @@ public class Planet {
 
 
     /**
+     * Create a "local map" with all the planets in reach around this planet. Includes a recursive call to the
+     * neighbours.
+     */
+    public TwoDimDynamicArray<Planet> constructLocalClusterMap() {
+        TwoDimDynamicArray<Planet> localCluster = new TwoDimDynamicArray<>( this );
+        localCluster = addNeighboursToLocalClusterMap( localCluster );
+        return localCluster;
+    }
+
+
+    /**
      * Add the neighbours to an existing 2d array of planets - grow the array if needed.
-     * @param existingLocalIsland
-     * @param localCoordinate - position where this planet is in the array
+     * @param existingLocalCluster
      * @return
      */
-    public TwoDimDynamicArray<Planet> constructLocalCluster(
-            TwoDimDynamicArray<Planet> existingLocalIsland, Coordinate localCoordinate ) {
-        if ( getTemporaryProcessingFlag() ) return existingLocalIsland;
-
-        setTemporaryProcessingFlag( TRUE );
-        TwoDimDynamicArray<Planet> localIsland = existingLocalIsland;
+    protected TwoDimDynamicArray<Planet> addNeighboursToLocalClusterMap(
+            TwoDimDynamicArray<Planet> existingLocalCluster ) {
+        TwoDimDynamicArray<Planet> localCluster = existingLocalCluster;
         Map<CompassDirection, Planet> allNeighbours = allNeighbours();
-        for (Map.Entry<CompassDirection, Planet> entry : allNeighbours.entrySet()) {
+        for ( Map.Entry<CompassDirection, Planet> entry : allNeighbours.entrySet() ) {
             CompassDirection direction = entry.getKey();
             Planet neighbour = entry.getValue();
-            if ( !neighbour.getTemporaryProcessingFlag() ) {
-                Coordinate newCoordinate = localIsland.putAndEnhance( localCoordinate, direction, neighbour );
-                localIsland = neighbour.constructLocalCluster( localIsland, newCoordinate );
+            if ( neighbour != null && !localCluster.contains( neighbour ) ) {
+                Coordinate myPosition = localCluster.find( this );
+                localCluster.putAndEnhance( myPosition, direction, neighbour );
+                localCluster = neighbour.addNeighboursToLocalClusterMap( localCluster );
             }
         }
-        return localIsland;
+        return localCluster;
     }
+
+
 
     @Override
     public boolean equals(Object o) {

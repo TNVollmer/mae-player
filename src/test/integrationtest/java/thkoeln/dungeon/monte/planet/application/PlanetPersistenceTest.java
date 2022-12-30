@@ -43,7 +43,7 @@ public class PlanetPersistenceTest {
         Planet p12 = planetArray[1][2];
 
         // then
-        List<Planet> persistentPlanets = planetApplicationService.findAll();
+        List<Planet> persistentPlanets = planetApplicationService.allPlanets();
         assertEquals( 2, persistentPlanets.size() );
         assertEquals( p11, p12.getWestNeighbour() );
         assertEquals( p12, p11.getEastNeighbour() );
