@@ -72,15 +72,16 @@ public class Robot {
     public void attack() {
     }
 
-    @Override
-    public String toString() {
-        String printString = toStringShort();
+
+    public String toStringDetailed() {
+        String printString = toString();
         if ( planet != null ) printString += " on " + planet;
         return printString;
     }
 
 
-    public String toStringShort() {
+    @Override
+    public String toString() {
         String printString = ( type != null ) ? type.toString() : "Robot";
         printString = printString.substring( 0, 1 );
         printString += String.valueOf( robotId ).substring( 0, 3 );

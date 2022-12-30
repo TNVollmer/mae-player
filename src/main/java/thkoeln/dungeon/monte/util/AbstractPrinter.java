@@ -100,11 +100,11 @@ public abstract class AbstractPrinter {
     }
 
     protected void writeLine(String string ) {
-        stringBuffer.append(string).append("\n");
+        stringBuffer.append(string).append( "\n" );
     }
 
-    protected void writeLineIndentation( String string ) {
-        stringBuffer.append(string).append("\n\t");
+    protected void writeLineIndent( String string ) {
+        stringBuffer.append( "\t" ).append( string ).append( "\n" );
     }
 
     protected void flush() {

@@ -1,7 +1,5 @@
 package thkoeln.dungeon.monte.robot.application;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.robot.domain.Robot;
@@ -14,7 +12,6 @@ import java.util.List;
  */
 @Service
 public class RobotPrinter extends AbstractPrinter {
-    private Logger logger = LoggerFactory.getLogger( RobotPrinter.class );
     private RobotApplicationService robotApplicationService;
 
     @Autowired
@@ -29,12 +26,11 @@ public class RobotPrinter extends AbstractPrinter {
      */
 
     public void printRobotList() {
-        writeLine( "====== All my robots ... =======" );
+        writeLine( "All my robots:" );
         List<Robot> robots = robotApplicationService.allLivingRobots();
         for ( Robot robot : robots ) {
-            writeLine( robot.toString() );
+            writeLineIndent( robot.toStringDetailed() );
         }
-        writeLine( "================================" );
     }
 
 

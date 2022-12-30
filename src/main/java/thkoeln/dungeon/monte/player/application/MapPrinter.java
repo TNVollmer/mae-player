@@ -176,7 +176,7 @@ public class MapPrinter extends AbstractPrinter {
             write( EMPTY_COMPARTMENT );
         }
         else if ( robotsOnPlanet.size() == 1 ) {
-            write( robotsOnPlanet.get( 0 ).toStringShort() + SEPERATOR_CHAR );
+            write( robotsOnPlanet.get( 0 ).toString() + SEPERATOR_CHAR );
         }
         else {
             write( " (" + robotsOnPlanet.size() + ")" + SEPERATOR_CHAR );

@@ -6,6 +6,7 @@ import thkoeln.dungeon.monte.domainprimitives.Coordinate;
 import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.game.application.GamePrinter;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
+import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.robot.application.RobotPrinter;
 import thkoeln.dungeon.monte.util.AbstractPrinter;
@@ -19,15 +20,18 @@ import java.util.Map;
 public class PlayerPrinter extends AbstractPrinter {
     private GamePrinter gamePrinter;
     private RobotPrinter robotPrinter;
+    private PlanetPrinter planetPrinter;
     private MapPrinter mapPrinter;
 
     @Autowired
     public PlayerPrinter( GamePrinter gamePrinter,
                           RobotPrinter robotPrinter,
+                          PlanetPrinter planetPrinter,
                           MapPrinter mapPrinter ) {
         this.gamePrinter = gamePrinter;
         this.robotPrinter = robotPrinter;
         this.mapPrinter = mapPrinter;
+        this.planetPrinter = planetPrinter;
     }
 
 
@@ -40,6 +44,7 @@ public class PlayerPrinter extends AbstractPrinter {
         write( RED );
         gamePrinter.printStatus();
         robotPrinter.printRobotList();
+        planetPrinter.printPlanetList();
         mapPrinter.printMap();
         write( RESET );
         flush();

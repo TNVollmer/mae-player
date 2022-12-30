@@ -12,10 +12,7 @@ import thkoeln.dungeon.monte.domainprimitives.*;
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static java.lang.Boolean.TRUE;
 import static thkoeln.dungeon.monte.domainprimitives.CompassDirection.*;
@@ -31,18 +28,14 @@ public class Planet {
     // we'll run into problems in case MapService messes up their ids. So, better we better keep these two apart.
     private UUID planetId;
 
-    @Setter
     @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getSpacestation()
     private Boolean spacestation = Boolean.FALSE;
-    public Boolean isSpaceStation() { return spacestation; }
+
 
     @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getVisited()
     @Setter
     private Boolean visited = Boolean.FALSE;
-    public Boolean hasBeenVisited() { return visited; }
 
-    @Setter
-    private String name;
 
     // Flag needed for recursive output of all planets ... I know, this is not ideal, but couldn't yet
     // think of a better solution.
@@ -78,17 +71,6 @@ public class Planet {
         this.planetId = planetId;
     }
 
-    /**
-     * Just for testing ...
-     */
-    public Planet( String name ) {
-        this.name = name;
-        this.planetId = UUID.randomUUID();
-    }
-
-    public static Planet createFirstSpacestation( UUID planetId ) {
-        return null;
-    }
 
 
     /**
@@ -179,6 +161,17 @@ public class Planet {
         return allNeighbours().size() > 0;
     }
 
+    public Boolean isSpaceStation() { return spacestation; }
+
+    public void setSpacestation( Boolean isSpaceStation ) {
+        if ( isSpaceStation != null && isSpaceStation ) {
+            spacestation = TRUE;
+            visited = TRUE;
+        }
+    }
+
+    public Boolean hasBeenVisited() { return visited; }
+
 
     /**
      * Add the neighbours to an existing 2d array of planets - grow the array if needed.
@@ -222,5 +215,21 @@ public class Planet {
     public String toString() {
         String whoAmI = isSpaceStation() ? "#" : "_";
         return whoAmI + String.valueOf( planetId ).substring( 0, 3 );
+    }
+
+    public String toStringDetailed() {
+        String printString =  toString() + " (";
+        List<String> attributeStrings = new ArrayList<>();
+        if ( !hasBeenVisited() ) attributeStrings.add( "??" );
+        if ( mineableResource != null ) attributeStrings.add( mineableResource.toString() );
+
+        Map<CompassDirection, Planet> allNeighbours = allNeighbours();
+        for ( CompassDirection direction : CompassDirection.values() ) {
+            if ( allNeighbours.containsKey( direction) ) {
+                attributeStrings.add( direction.toStringShort() + ": " + allNeighbours.get( direction ) );
+            }
+        }
+        printString += String.join( ", ", attributeStrings.toArray( new String[attributeStrings.size()] ) ) + ")";
+        return printString;
     }
 }
