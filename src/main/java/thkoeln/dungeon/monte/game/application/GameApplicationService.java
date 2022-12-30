@@ -114,17 +114,4 @@ public class GameApplicationService {
         game.setCurrentRoundNumber( roundNumber );
         gameRepository.save( game );
     }
-
-
-    public String consolePrintStatus() {
-        String printString = "\n";
-        Optional<Game> perhapsGame = queryActiveGame();
-        if ( !perhapsGame.isPresent() ) {
-            printString += "No active game found!\n";
-        }
-        else {
-            printString += String.valueOf( perhapsGame.get() );
-        }
-        return printString;
-    }
 }

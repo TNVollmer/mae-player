@@ -3,6 +3,8 @@ package thkoeln.dungeon.monte;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -13,7 +15,6 @@ import thkoeln.dungeon.monte.player.domain.Player;
 
 @Service
 public class DungeonPlayerStartupService implements ApplicationListener<ContextRefreshedEvent> {
-
     private Logger logger = LoggerFactory.getLogger( DungeonPlayerStartupService.class );
     private PlayerApplicationService playerApplicationService;
     private GameApplicationService gameApplicationService;

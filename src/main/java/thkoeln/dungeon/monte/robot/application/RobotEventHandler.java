@@ -38,7 +38,7 @@ public class RobotEventHandler {
     }
 
     public void handleRobotSpawnedEvent( RobotSpawnedEvent event ) {
-        Planet planet = planetApplicationService.addOrUpdatePlanetFromEvent( event.getRobotDto().getPlanet(), TRUE );
+        Planet planet = planetApplicationService.addOrUpdatePlanet( event.getRobotDto().getPlanet(), TRUE );
         robotApplicationService.addNewRobotFromEvent( event, planet );
     }
 }

@@ -74,10 +74,16 @@ public class Robot {
 
     @Override
     public String toString() {
+        String printString = toStringShort();
+        if ( planet != null ) printString += " on " + planet;
+        return printString;
+    }
+
+
+    public String toStringShort() {
         String printString = ( type != null ) ? type.toString() : "Robot";
         printString = printString.substring( 0, 1 );
         printString += String.valueOf( robotId ).substring( 0, 3 );
-        if ( planet != null ) printString += " on " + planet;
         return printString;
     }
 }

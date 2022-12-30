@@ -4,47 +4,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.domainprimitives.Money;
 import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
 import thkoeln.dungeon.monte.eventlistener.EventFactory;
 import thkoeln.dungeon.monte.eventlistener.EventHeader;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusType;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusType;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
+import thkoeln.dungeon.monte.util.AbstractPrinter;
 
 @Service
 public class PlayerEventListener {
     private Logger logger = LoggerFactory.getLogger(PlayerEventListener.class);
-    private Environment environment;
     private EventFactory eventFactory;
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
     private PlanetEventHandler planetEventHandler;
     private RobotEventHandler robotEventHandler;
+    private PlayerPrinter playerPrinter;
 
     @Autowired
-    public PlayerEventListener( Environment environment,
-                                EventFactory eventFactory,
+    public PlayerEventListener( EventFactory eventFactory,
                                 GameApplicationService gameApplicationService,
                                 PlayerApplicationService playerApplicationService,
                                 PlanetEventHandler planetEventHandler,
-                                RobotEventHandler robotEventHandler ) {
+                                RobotEventHandler robotEventHandler,
+                                PlayerPrinter playerPrinter ) {
         this.eventFactory = eventFactory;
         this.gameApplicationService = gameApplicationService;
         this.playerApplicationService = playerApplicationService;
-        this.environment = environment;
         this.robotEventHandler = robotEventHandler;
         this.planetEventHandler = planetEventHandler;
+        this.playerPrinter = playerPrinter;
     }
 
 
@@ -69,8 +69,7 @@ public class PlayerEventListener {
         EventHeader eventHeader =
                 new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
         AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
-        logger.info( environment.getProperty( "ANSI_BLUE" ) + "======== EVENT =====>\n" +
-                newEvent + environment.getProperty( "ANSI_RESET" ) );
+        logger.info( AbstractPrinter.BLUE + "======== EVENT =====>\n" + newEvent + AbstractPrinter.RESET );
         if ( !newEvent.isValid() ) {
             logger.error( "Event invalid: " + newEvent );
             return;
@@ -131,7 +130,7 @@ public class PlayerEventListener {
     private void handleRoundStatusEvent( RoundStatusEvent event ) {
         if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
             gameApplicationService.roundStarted( event.getRoundNumber() );
-            logger.info( playerApplicationService.consolePrintStatus() );
+            playerPrinter.printStatus();
         }
 
         // todo this logic should be moved elsewhere - the handler just just delegate

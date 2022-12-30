@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
 import thkoeln.dungeon.monte.domainprimitives.MovementDifficulty;
 import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.domainprimitives.Coordinate;
@@ -51,7 +50,7 @@ public class PlanetApplicationService {
      * @param isSpaceStation (null if unknown)
      * @return the found planet
      */
-    public Planet addOrUpdatePlanetFromEvent( RobotPlanetDto robotPlanetDto, Boolean isSpaceStation ) {
+    public Planet addOrUpdatePlanet( RobotPlanetDto robotPlanetDto, Boolean isSpaceStation ) {
         if ( robotPlanetDto == null ) throw new PlanetException( "robotPlanetDto == null" );
         UUID planetId = robotPlanetDto.getPlanetId();
         MovementDifficulty movementDifficulty = MovementDifficulty.fromInteger( robotPlanetDto.getMovementDifficulty() );
@@ -103,24 +102,6 @@ public class PlanetApplicationService {
             planetRepository.save( neighbour );
         }
         planetRepository.save( planet );
-    }
-
-
-    /**
-     * Add neighbour as this comes in from an event
-     * @param planetId
-     * @param neighbourId
-     * @param direction
-     */
-    public void ____addNeighbourToPlanet_OLD( UUID planetId, UUID neighbourId, CompassDirection direction ) {
-        logger.info( "Add neighbour " + neighbourId + " in " + direction + " to planet " + planetId );
-        Planet planet = planetRepository.findByPlanetId( planetId )
-                .orElseThrow( () -> new PlanetException( "Planet with UUID " + planetId + " not found!" ) );
-        Optional<Planet> neighbourOpt = planetRepository.findByPlanetId( neighbourId );
-        Planet neighbour = neighbourOpt.isPresent() ? neighbourOpt.get() : new Planet( neighbourId );
-        planet.defineNeighbour( neighbour, direction );
-        planetRepository.save( planet );
-        planetRepository.save( neighbour );
     }
 
 
