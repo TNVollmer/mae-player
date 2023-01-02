@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.game.domain.Game;
-import thkoeln.dungeon.monte.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.AbstractPrinter;
 
 import java.util.Optional;
 

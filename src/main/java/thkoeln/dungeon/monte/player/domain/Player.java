@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thkoeln.dungeon.monte.domainprimitives.Money;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 
 import javax.persistence.*;
 import java.util.Objects;

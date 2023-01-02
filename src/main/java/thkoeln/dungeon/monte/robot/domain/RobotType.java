@@ -1,13 +1,10 @@
 package thkoeln.dungeon.monte.robot.domain;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import thkoeln.dungeon.monte.domainprimitives.CapabilityType;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.CapabilityType;
 
-import javax.persistence.Embeddable;
 import java.util.Map;
 
-import static thkoeln.dungeon.monte.domainprimitives.CapabilityType.*;
+import static thkoeln.dungeon.monte.core.domainprimitives.purchasing.CapabilityType.*;
 
 /**
  * This class is for modelling different robot types. I decided not to use inheritence from an abstract Robot

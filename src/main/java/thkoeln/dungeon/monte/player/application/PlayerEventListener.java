@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.domainprimitives.Money;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
 import thkoeln.dungeon.monte.eventlistener.EventFactory;
 import thkoeln.dungeon.monte.eventlistener.EventHeader;
@@ -20,7 +20,7 @@ import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
-import thkoeln.dungeon.monte.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.AbstractPrinter;
 
 @Service
 public class PlayerEventListener {

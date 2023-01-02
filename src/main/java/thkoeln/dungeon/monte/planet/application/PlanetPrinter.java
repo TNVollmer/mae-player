@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
+import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
-import thkoeln.dungeon.monte.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.AbstractPrinter;
 
 import java.util.ArrayList;
 import java.util.List;

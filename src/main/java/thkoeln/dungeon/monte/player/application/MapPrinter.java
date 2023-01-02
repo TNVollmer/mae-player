@@ -2,18 +2,16 @@ package thkoeln.dungeon.monte.player.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.domainprimitives.Coordinate;
-import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
+import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
+import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.domain.Robot;
-import thkoeln.dungeon.monte.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.AbstractPrinter;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Printer class to output the map of all planets and robots to console. The map usually contains of several

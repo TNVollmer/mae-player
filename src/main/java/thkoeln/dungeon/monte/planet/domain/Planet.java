@@ -7,7 +7,11 @@ import lombok.Setter;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thkoeln.dungeon.monte.domainprimitives.*;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
+import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MovementDifficulty;
+import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
@@ -15,7 +19,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static java.lang.Boolean.TRUE;
-import static thkoeln.dungeon.monte.domainprimitives.CompassDirection.*;
+import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
 @Entity
 @Getter

@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import thkoeln.dungeon.monte.DungeonPlayerConfiguration;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
-import thkoeln.dungeon.monte.domainprimitives.Coordinate;
-import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
+import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
+import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;

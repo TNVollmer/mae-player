@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.domainprimitives.MovementDifficulty;
-import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
-import thkoeln.dungeon.monte.domainprimitives.Coordinate;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MovementDifficulty;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotPlanetDto;
@@ -16,7 +14,6 @@ import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 
 import java.util.*;
 
-import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Service

@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import thkoeln.dungeon.monte.domainprimitives.Money;
-import thkoeln.dungeon.monte.domainprimitives.TradeableItem;
-import thkoeln.dungeon.monte.domainprimitives.TradeableType;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableItem;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableType;
 import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeableItemDto;
 
 import java.util.ArrayList;
 import java.util.List;

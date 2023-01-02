@@ -1,13 +1,12 @@
 package thkoeln.dungeon.monte.planet.application;
 
-import org.h2.table.Plan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
-import thkoeln.dungeon.monte.domainprimitives.Coordinate;
-import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
+import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
+import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 import thkoeln.dungeon.monte.player.application.MapPrinter;
@@ -18,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static thkoeln.dungeon.monte.domainprimitives.CompassDirection.*;
+import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
 @SpringBootTest
 public class PlanetPrinterTest {

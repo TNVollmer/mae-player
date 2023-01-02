@@ -3,7 +3,7 @@ package thkoeln.dungeon.monte.robot.application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.robot.domain.Robot;
-import thkoeln.dungeon.monte.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.AbstractPrinter;
 
 import java.util.List;
 

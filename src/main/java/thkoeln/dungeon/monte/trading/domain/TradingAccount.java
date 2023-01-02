@@ -5,16 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thkoeln.dungeon.monte.domainprimitives.Money;
-import thkoeln.dungeon.monte.domainprimitives.TradeableItem;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableItem;
 import thkoeln.dungeon.monte.player.domain.Player;
+import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Getter
-public class TradingAccount {
+public class TradingAccount implements AccountInformation {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Player.class );
 

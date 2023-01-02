@@ -3,7 +3,7 @@ package thkoeln.dungeon.monte.core;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 
 import java.util.List;
 import java.util.Map;

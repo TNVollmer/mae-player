@@ -1,13 +1,10 @@
 package thkoeln.dungeon.monte.eventlistener.concreteevents.planet;
 
 import org.junit.jupiter.api.Test;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
-import thkoeln.dungeon.monte.domainprimitives.MineableResourceType;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.monte.eventlistener.AbstractConcreteEventTest;
 import thkoeln.dungeon.monte.eventlistener.EventType;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotDto;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotInventoryDto;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 
 import java.util.UUID;
 

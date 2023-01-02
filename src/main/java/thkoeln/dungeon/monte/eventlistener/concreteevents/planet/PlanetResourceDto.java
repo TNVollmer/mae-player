@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
-import thkoeln.dungeon.monte.domainprimitives.MineableResourceType;
-
-import java.util.UUID;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResourceType;
 
 @Getter
 @Setter

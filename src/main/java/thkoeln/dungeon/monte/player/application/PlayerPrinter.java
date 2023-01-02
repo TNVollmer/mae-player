@@ -2,16 +2,10 @@ package thkoeln.dungeon.monte.player.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.domainprimitives.Coordinate;
-import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.game.application.GamePrinter;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
-import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.robot.application.RobotPrinter;
-import thkoeln.dungeon.monte.util.AbstractPrinter;
-
-import java.util.Map;
+import thkoeln.dungeon.monte.core.util.AbstractPrinter;
 
 /**
  * Printer class to output the current player status to console.

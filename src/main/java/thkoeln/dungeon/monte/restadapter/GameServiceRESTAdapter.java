@@ -12,7 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
-import thkoeln.dungeon.monte.domainprimitives.Command;
+import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 
 import java.util.Arrays;
 import java.util.UUID;

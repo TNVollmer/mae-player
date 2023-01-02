@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import thkoeln.dungeon.monte.domainprimitives.Capability;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 
 import javax.persistence.*;
@@ -47,30 +47,6 @@ public class Robot {
     }
 
 
-    public void determineNextCommand() {
-
-    }
-
-    public void regenerateIfLowAndNotAttacked() {
-    }
-
-    public void fleeIfAttacked() {
-    }
-
-    public void mineIfNotMinedLastRound() {
-    }
-
-    public void move() {
-    }
-
-    public void mine() {
-    }
-
-    public void upgrade() {
-    }
-
-    public void attack() {
-    }
 
 
     public String toStringDetailed() {

@@ -2,15 +2,15 @@ package thkoeln.dungeon.monte.planet.domain;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
-import thkoeln.dungeon.monte.domainprimitives.Coordinate;
-import thkoeln.dungeon.monte.domainprimitives.TwoDimDynamicArray;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
+import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
+import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static thkoeln.dungeon.monte.domainprimitives.CompassDirection.*;
+import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
 public class PlanetTest {
     private Planet[][] planetArray= new Planet[3][3];

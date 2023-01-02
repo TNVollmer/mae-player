@@ -9,7 +9,7 @@ import lombok.ToString;
 import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
-import static thkoeln.dungeon.monte.domainprimitives.Capability.MIN_LEVEL;
+import static thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability.MIN_LEVEL;
 
 @Getter
 @Setter

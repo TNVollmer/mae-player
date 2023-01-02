@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import thkoeln.dungeon.monte.domainprimitives.CompassDirection;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 
 import java.util.UUID;
 
