@@ -41,9 +41,9 @@ public class Command {
 
 
     public static Command createItemPurchase( ItemType item, int number, UUID robotId, UUID gameId, UUID playerId ) {
-        if ( robotId == null || item == null  )
-            throw new DomainPrimitiveException( "Item purchase: robotId == null || item == null" );
-        if ( number < 1 ) return null;
+        if ( robotId == null || item == null || number < 0 )
+            throw new DomainPrimitiveException( "Item purchase: robotId == null || item == null || number < 0" );
+        if ( number == 0 ) return null;
         Command command = new Command( CommandType.BUYING, gameId, playerId );
         command.setRobotId( robotId );
         command.getCommandObject().setItemQuantity( number );
@@ -53,6 +53,7 @@ public class Command {
 
 
     public static Command createRobotPurchase( int number, UUID gameId, UUID playerId ) {
+        if ( number < 0 ) throw new DomainPrimitiveException( "Robot purchase: number < 0" );
         if ( number < 1 ) return null;
         Command command = new Command( CommandType.BUYING, gameId, playerId );
         command.getCommandObject().setItemQuantity( number );
