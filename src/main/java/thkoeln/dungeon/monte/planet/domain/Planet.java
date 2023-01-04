@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.monte.core.domainprimitives.location.MovementDifficulty;
+import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 
 import javax.persistence.*;
@@ -35,11 +35,9 @@ public class Planet {
     @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getSpacestation()
     private Boolean spacestation = Boolean.FALSE;
 
-
     @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getVisited()
     @Setter
     private Boolean visited = Boolean.FALSE;
-
 
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
@@ -60,7 +58,7 @@ public class Planet {
 
     @Embedded
     @Setter
-    private MovementDifficulty movementDifficulty;
+    private Energy movementDifficulty;
 
     @Transient
     private Logger logger = LoggerFactory.getLogger( Planet.class );
@@ -174,6 +172,22 @@ public class Planet {
     }
 
     public Boolean hasBeenVisited() { return visited; }
+
+
+    /**
+     * @return a random neighbour that hasn't been visited yet. If all neighbours have been visited,
+     * return a random visited neighbour. If there is no neighbour, return null.
+     */
+    public Planet findUnvisitedNeighbour() {
+        Collection<Planet> neighbours = allNeighbours().values();
+        Planet lastCheckedNeighbour = null;
+        for ( Planet neighbour : allNeighbours().values() ) {
+            lastCheckedNeighbour = neighbour;
+            if ( !neighbour.hasBeenVisited() ) return neighbour;
+        }
+        // no unvisited neighbour found
+        return lastCheckedNeighbour;
+    }
 
 
     /**

@@ -1,20 +1,21 @@
 package thkoeln.dungeon.monte.robot.domain;
 
-import thkoeln.dungeon.monte.trading.domain.TradingAccount;
+import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
+import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 
 public interface RobotBehavior {
 
-    public void regenerateIfLowAndNotAttacked();
+    public Command regenerateIfLowAndNotAttacked();
 
-    public void fleeIfAttacked();
+    public Command fleeIfAttacked();
 
-    public void mineIfNotMinedLastRound();
+    public Command mineIfNotMinedLastRound();
 
-    public void mine();
+    public Command mine();
 
-    public void move();
+    public Command move();
 
-    public void upgrade( TradingAccount tradingAccount );
+    public Command upgrade( AccountInformation accountInformation );
 
-    public void attack();
+    public Command attack();
 }

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.domainprimitives.location.MovementDifficulty;
+import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotPlanetDto;
@@ -12,7 +12,9 @@ import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetException;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static java.lang.Boolean.TRUE;
 
@@ -54,7 +56,7 @@ public class PlanetApplicationService {
     public Planet addOrUpdatePlanet( RobotPlanetDto robotPlanetDto, Boolean isSpaceStation ) {
         if ( robotPlanetDto == null ) throw new PlanetException( "robotPlanetDto == null" );
         UUID planetId = robotPlanetDto.getPlanetId();
-        MovementDifficulty movementDifficulty = MovementDifficulty.fromInteger( robotPlanetDto.getMovementDifficulty() );
+        Energy movementDifficulty = Energy.from( robotPlanetDto.getMovementDifficulty() );
         return addOrUpdatePlanet( planetId, movementDifficulty, isSpaceStation );
     }
 
@@ -66,7 +68,7 @@ public class PlanetApplicationService {
      * @param isSpaceStation
      * @return the found planet
      */
-    public Planet addOrUpdatePlanet( UUID planetId, MovementDifficulty movementDifficulty, Boolean isSpaceStation ) {
+    public Planet addOrUpdatePlanet( UUID planetId, Energy movementDifficulty, Boolean isSpaceStation ) {
         if ( planetId == null ) throw new PlanetException( "planetId == null" );
         logger.info("Add planet " + planetId + " with movement difficulty " + movementDifficulty  +
                 " (space station: " + isSpaceStation + ")");
@@ -94,8 +96,7 @@ public class PlanetApplicationService {
             logger.error( "Neighbours for planet " + planet + " have already been set - not safe to do it twice." );
             return;
         }
-        MovementDifficulty movementDifficulty =
-                MovementDifficulty.fromInteger( planetDiscoveredEvent.getMovementDifficulty() );
+        Energy movementDifficulty = Energy.from( planetDiscoveredEvent.getMovementDifficulty() );
         planet.setMovementDifficulty( movementDifficulty );
         for ( PlanetNeighboursDto planetNeighboursDto : planetDiscoveredEvent.getNeighbours() ) {
             Planet neighbour = addOrUpdatePlanet( planetNeighboursDto.getId(), null, null );
@@ -113,7 +114,7 @@ public class PlanetApplicationService {
         Planet planet = planetRepository.findByPlanetId( planetId )
                 .orElseThrow( () -> new PlanetException( "Planet with UUID " + planetId + " not found!" ) );
         planet.setVisited( true );
-        planet.setMovementDifficulty( MovementDifficulty.fromInteger( movementDifficulty ) );
+        planet.setMovementDifficulty( Energy.from( movementDifficulty ) );
         planetRepository.save( planet );
     }
 

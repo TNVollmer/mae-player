@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
-import thkoeln.dungeon.monte.core.domainprimitives.location.MovementDifficulty;
+import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +60,7 @@ public class PlanetDomainService {
         Planet planet = planetRepository.findByPlanetId( planetId )
                 .orElseThrow( () -> new PlanetException( "Planet with UUID " + planetId + " not found!" ) );
         planet.setVisited( true );
-        planet.setMovementDifficulty( MovementDifficulty.fromInteger( movementDifficulty ) );
+        planet.setMovementDifficulty( Energy.from( movementDifficulty ) );
         planetRepository.save( planet );
     }
 
@@ -72,7 +72,7 @@ public class PlanetDomainService {
                 .orElseThrow( () -> new PlanetException( "Planet with UUID " + planetId + " not found!" ) );
         Optional<Planet> neighbourOpt = planetRepository.findByPlanetId( neighbourId );
         Planet neighbour = neighbourOpt.isPresent() ? neighbourOpt.get() : new Planet( neighbourId );
-        neighbour.setMovementDifficulty( MovementDifficulty.fromInteger( movementDifficulty ) );
+        neighbour.setMovementDifficulty( Energy.from( movementDifficulty ) );
         planet.defineNeighbour( neighbour, direction );
         planetRepository.save( planet );
         planetRepository.save( neighbour );

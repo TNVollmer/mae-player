@@ -32,6 +32,21 @@ public class Command {
         return command;
     }
 
+
+
+    public static Command move( UUID gameId, UUID playerId, UUID robotId, UUID planetId ) {
+        Command command = new Command();
+        command.setCommandType( CommandType.MOVEMENT );
+        command.setRobotId( robotId );
+        command.setPlayerId( playerId );
+        command.setGameId( gameId );
+        return command;
+    }
+
+
+
+
+
     @Override
     public String toString() {
         return "Command{" +

@@ -15,7 +15,9 @@ import static thkoeln.dungeon.monte.robot.domain.RobotType.*;
 
 @SpringBootTest
 public class RobotApplicationServiceTest {
-    Robot w1, m1, m2, s1, s2, s3, s4;
+    private Robot w1, m1, m2, s1, s2, s3, s4;
+    private UUID gameId, playerId;
+
     @Autowired
     private RobotRepository robotRepository;
     @Autowired
@@ -23,15 +25,17 @@ public class RobotApplicationServiceTest {
 
     @BeforeEach
     public void setUp() {
+        gameId = UUID.randomUUID();
+        playerId = UUID.randomUUID();
         robotRepository.deleteAll();
-        w1 = Robot.of( UUID.randomUUID(), WARRIOR );
-        m1 = Robot.of( UUID.randomUUID(), MINER );
-        m2 = Robot.of( UUID.randomUUID(), MINER );
-        s1 = Robot.of( UUID.randomUUID(), SCOUT );
-        s2 = Robot.of( UUID.randomUUID(), SCOUT );
-        s3 = Robot.of( UUID.randomUUID(), SCOUT );
+        w1 = Robot.of( UUID.randomUUID(), WARRIOR, gameId, playerId );
+        m1 = Robot.of( UUID.randomUUID(), MINER, gameId, playerId );
+        m2 = Robot.of( UUID.randomUUID(), MINER, gameId, playerId );
+        s1 = Robot.of( UUID.randomUUID(), SCOUT, gameId, playerId );
+        s2 = Robot.of( UUID.randomUUID(), SCOUT, gameId, playerId );
+        s3 = Robot.of( UUID.randomUUID(), SCOUT, gameId, playerId );
         s3.setAlive( false );
-        s4 = Robot.of( UUID.randomUUID(), SCOUT );
+        s4 = Robot.of( UUID.randomUUID(), SCOUT, gameId, playerId );
         robotRepository.save( w1 );
         robotRepository.save( m1 );
         robotRepository.save( m2 );
@@ -59,37 +63,37 @@ public class RobotApplicationServiceTest {
         // when
         // Should buy miner.
         RobotType warrior1 = robotApplicationService.nextRobotTypeAccordingToQuota();
-        Robot newR = Robot.of( UUID.randomUUID(), warrior1 );
+        Robot newR = Robot.of( UUID.randomUUID(), warrior1, gameId, playerId );
         robotRepository.save( newR );
         // Afterwards: Total = 7; warrior-%  28, miner-% 28
 
         // Should buy miner.
         RobotType miner2 = robotApplicationService.nextRobotTypeAccordingToQuota();
-        newR = Robot.of( UUID.randomUUID(), miner2 );
+        newR = Robot.of( UUID.randomUUID(), miner2, gameId, playerId );
         robotRepository.save( newR );
         // Afterwards: Total = 8; Warrior-% 25, miner-% 37
 
         // Should buy scout.
         RobotType scout3 = robotApplicationService.nextRobotTypeAccordingToQuota();
-        newR = Robot.of( UUID.randomUUID(), scout3 );
+        newR = Robot.of( UUID.randomUUID(), scout3, gameId, playerId );
         robotRepository.save( newR );
         // Afterwards: Total = 9; Warrior-% 22, miner-% 33
 
         // Should buy scout.
         RobotType scout4 = robotApplicationService.nextRobotTypeAccordingToQuota();
-        newR = Robot.of( UUID.randomUUID(), scout4 );
+        newR = Robot.of( UUID.randomUUID(), scout4, gameId, playerId );
         robotRepository.save( newR );
         // Afterwards: Total = 10; Warrior-% 20, miner-% 30
 
         // Should buy scout.
         RobotType scout5 = robotApplicationService.nextRobotTypeAccordingToQuota();
-        newR = Robot.of( UUID.randomUUID(), scout5 );
+        newR = Robot.of( UUID.randomUUID(), scout5, gameId, playerId );
         robotRepository.save( newR );
         // Afterwards: Total = 11; Warrior-% 18, miner-% 27
 
         // Should buy warrior.
         RobotType warrior6 = robotApplicationService.nextRobotTypeAccordingToQuota();
-        newR = Robot.of( UUID.randomUUID(), warrior6 );
+        newR = Robot.of( UUID.randomUUID(), warrior6, gameId, playerId );
         robotRepository.save( newR );
 
         // then

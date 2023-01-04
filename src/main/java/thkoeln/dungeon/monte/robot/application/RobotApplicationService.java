@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.robot.domain.Robot;
@@ -19,10 +20,13 @@ import static thkoeln.dungeon.monte.robot.domain.RobotType.*;
 public class RobotApplicationService {
     private Logger logger = LoggerFactory.getLogger( RobotApplicationService.class );
     private RobotRepository robotRepository;
+    private PlayerInformation playerInformation;
 
     @Autowired
-    public RobotApplicationService( RobotRepository robotRepository ) {
+    public RobotApplicationService( RobotRepository robotRepository,
+                                    PlayerInformation playerInformation ) {
         this.robotRepository = robotRepository;
+        this.playerInformation = playerInformation;
     }
 
     /**
@@ -34,8 +38,10 @@ public class RobotApplicationService {
         if ( robotSpawnedEvent == null || !robotSpawnedEvent.isValid() || planet == null )
             throw new RobotException( "robotSpawnedEvent == null || !robotSpawnedEvent.isValid() || planet == null" );
         logger.info( "About to add new robot for RobotSpawnedEvent ...");
-        Robot robot = Robot.of( robotSpawnedEvent.getRobotDto().getId() );
-        robot.setType( nextRobotTypeAccordingToQuota() );
+        Robot robot = Robot.of( robotSpawnedEvent.getRobotDto().getId(),
+                                nextRobotTypeAccordingToQuota(),
+                                playerInformation.currentGameId(),
+                                playerInformation.currentPlayerId() );
         robot.setPlanet( planet );
         robotRepository.save( robot );
         logger.info( "Added robot " + robot );
