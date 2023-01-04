@@ -2,15 +2,17 @@ package thkoeln.dungeon.monte.robot.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-public class WarriorDefaultStrategy extends AbstractRobotStrategy {
-    private Logger logger = LoggerFactory.getLogger( WarriorDefaultStrategy.class );
+@Component("scoutStrategy")
+public class ScoutStrategy extends AbstractRobotStrategy {
+    private Logger logger = LoggerFactory.getLogger( ScoutStrategy.class );
 
     protected String[] commandCreatorMethodNames = new String[] {
         "regenerateIfLowAndNotAttacked",
-        "attack",
-        "upgrade",
-        "move",
+        "fleeIfAttacked",
+        "mineIfNotMinedLastRound",
+        "createMove",
         "regenerate"
     };
 

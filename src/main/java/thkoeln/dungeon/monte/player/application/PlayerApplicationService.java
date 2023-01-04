@@ -17,6 +17,7 @@ import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ public class PlayerApplicationService {
     private GameApplicationService gameApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
+    private TradingAccountApplicationService tradingAccountApplicationService;
 
 
     @Value("${dungeon.playerName}")
@@ -51,11 +53,13 @@ public class PlayerApplicationService {
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
-            RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry ) {
+            RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
+            TradingAccountApplicationService tradingAccountApplicationService ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
+        this.tradingAccountApplicationService = tradingAccountApplicationService;
     }
 
 
@@ -67,7 +71,7 @@ public class PlayerApplicationService {
         Player player = null;
         List<Player> players = playerRepository.findAll();
         if ( players.size() >= 1 ) {
-            return players.get( 0 );
+            player = players.get( 0 );
         }
         else {
             player = new Player();
@@ -98,6 +102,8 @@ public class PlayerApplicationService {
             return;
         }
         player.assignPlayerId( playerId );
+        player.setGameId( gameApplicationService.queryActiveGame().get().getGameId() );
+
         // We need the queue now, not at joining the game ... so we "guess" the queue name.
         openRabbitQueue( player );
         playerRepository.save( player );
@@ -156,13 +162,13 @@ public class PlayerApplicationService {
 
     /**
      * @param playerId
-     * @param moneyAsInt
+     * @param creditBalanceAsInt
      */
-    public void adjustBankAccount( UUID playerId, Integer moneyAsInt ) {
-        logger.info( "Adjust bank account to " + moneyAsInt );
-        Money newMoney = Money.fromInteger( moneyAsInt );
+    public void adjustBankAccount( UUID playerId, Integer creditBalanceAsInt ) {
+        logger.info( "Adjust bank account to " + creditBalanceAsInt );
+        Money newCreditBalance = Money.fromInteger( creditBalanceAsInt );
         Player player = queryAndIfNeededCreatePlayer();
-        player.setMoney( newMoney );
+        tradingAccountApplicationService.updateCreditBalance( newCreditBalance );
         playerRepository.save( player );
     }
 
@@ -171,7 +177,7 @@ public class PlayerApplicationService {
 
     /**
      * Buys new robots via REST command to Game service
-     * todo move to strategy class
+     * todo createMove to strategy class
      * @param numOfNewRobots
      */
     public void buyRobots( int numOfNewRobots ) {

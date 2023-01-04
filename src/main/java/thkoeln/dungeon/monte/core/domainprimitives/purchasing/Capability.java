@@ -75,6 +75,15 @@ public class Capability {
 
 
     @Override
+    public String toString() {
+        return type.toString() + "-" + level;
+    }
+
+    public String toStringForCommand() {
+        return type.name() + "_" + level;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Capability)) return false;

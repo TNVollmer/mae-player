@@ -25,7 +25,7 @@ public class TradingAccount implements AccountInformation {
 
     @Embedded
     @Setter
-    private Money money = Money.fromInteger( 0 );
+    private Money creditBalance = Money.fromInteger( 0 );
 
     @ElementCollection( fetch = FetchType.EAGER )
     @Getter( AccessLevel.PROTECTED )
@@ -35,11 +35,17 @@ public class TradingAccount implements AccountInformation {
     private final Map<String, TradeableItem> tradeableItemsMap = new HashMap<>();
 
     protected void TradingAccount() {
-
     }
 
     public void updatePrices( List<TradeableItem> tradeableItems ) {
+        // currently not really needed - all hard coded
+    }
 
+    @Override
+    public int canBuyThatManyRobotsWith( float shareOfCreditBalance  ) {
+        if ( shareOfCreditBalance < 0f || shareOfCreditBalance > 1f )
+            throw new TradingException( "shareOfCreditBalance < 0f || shareOfCreditBalance > 1f" );
+        return ((int) (creditBalance.getAmount() * shareOfCreditBalance)) / 100;
     }
 
 }

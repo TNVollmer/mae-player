@@ -132,13 +132,6 @@ public class PlayerEventListener {
             gameApplicationService.roundStarted( event.getRoundNumber() );
             playerPrinter.printStatus();
         }
-
-        // todo this logic should be moved elsewhere - the handler just just delegate
-        logger.info( "Round started: Buy robots!" );
-        Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
-        Money priceForRobot = Money.fromInteger( 100 );
-        int numOfNewRobots = player.getMoney().canBuyThatManyFor( priceForRobot );
-        playerApplicationService.buyRobots( numOfNewRobots );
     }
 
 

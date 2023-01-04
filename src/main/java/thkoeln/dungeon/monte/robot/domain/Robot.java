@@ -11,7 +11,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 import thkoeln.dungeon.monte.planet.domain.Planet;
-import thkoeln.dungeon.monte.player.application.PlayerApplicationService;
 
 import javax.persistence.*;
 import java.util.List;
@@ -95,14 +94,15 @@ public class Robot implements RobotBehavior {
     @Override
     public Command move() {
         if ( planet == null ) {
-            logger.error( "Robot wants to move, but planet is null ???" );
+            logger.error( "Robot wants to createMove, but planet is null ???" );
             return null;
         }
         if ( energy.greaterEqualThan( planet.getMovementDifficulty() ) ) {
-            Command command = Command.move( gameId, playerId, robotId, planet.findUnvisitedNeighbour().getPlanetId() );
+            Command command = Command.createMove(
+                    robotId, planet.findUnvisitedNeighbour().getPlanetId(), gameId, playerId );
             return command;
         }
-        // not sufficient energy to move => no command
+        // not sufficient energy to createMove => no command
         return null;
     }
 

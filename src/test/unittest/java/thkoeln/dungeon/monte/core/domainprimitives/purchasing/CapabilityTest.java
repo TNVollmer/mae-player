@@ -59,4 +59,17 @@ public class CapabilityTest {
         assertNotEquals(d0, d1);
     }
 
+
+    @Test
+    public void testToStringForCommand() {
+        // given
+        Capability cer3 = Capability.forTypeAndLevel( CapabilityType.ENERGY_REGEN, 3 );
+        Capability ch5 = Capability.forTypeAndLevel( CapabilityType.HEALTH, 5 );
+
+        // when
+        // then
+        assertEquals( "ENERGY_REGEN_3", cer3.toStringForCommand() );
+        assertEquals( "HEALTH_5", ch5.toStringForCommand() );
+    }
+
 }

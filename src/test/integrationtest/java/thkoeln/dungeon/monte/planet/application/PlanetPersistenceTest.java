@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.monte.planet.domain.Planet;
+import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -20,8 +21,12 @@ public class PlanetPersistenceTest {
     @Autowired
     private PlanetApplicationService planetApplicationService;
 
+    @Autowired
+    private PlanetRepository planetRepository;
+
     @BeforeEach
     public void setup() {
+        planetRepository.deleteAll();
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
                 planetArray[i][j] = new Planet();

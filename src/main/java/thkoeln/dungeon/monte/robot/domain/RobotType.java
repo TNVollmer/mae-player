@@ -33,33 +33,6 @@ public enum RobotType {
         return TARGET_LEVELS.get( this );
     }
 
-    /**
-     * Tactical instructions for the robots, in priority order
-     */
-    protected static final Map<RobotType, String[]> INSTRUCTIONS = Map.of(
-        SCOUT, new String[] {
-            "regenerateIfLowAndNotAttacked",
-            "fleeIfAttacked",
-            "mineIfNotMinedLastRound",
-            "move"
-        },
-        MINER, new String[] {
-            "regenerateIfLowAndNotAttacked",
-            "fleeIfAttacked",
-            "mine",
-            "upgrade",
-            "move"
-        },
-        WARRIOR, new String[] {
-            "regenerateIfLowAndNotAttacked",
-            "attack",
-            "upgrade",
-            "move"
-        });
-
-    public String[] instructions() {
-        return INSTRUCTIONS.get( this );
-    }
 
     /**
      * The quotas (as % values) for the different robot types

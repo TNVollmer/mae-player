@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 import thkoeln.dungeon.monte.trading.domain.TradingAccountRepository;
@@ -38,5 +39,12 @@ public class TradingAccountApplicationService {
     public void updatePrices( TradeablePricesEvent tradeablePricesEvent ) {
         TradingAccount tradingAccount = queryAndIfNeededCreateTradingAccount();
 
+    }
+
+    public void updateCreditBalance( Money newCreditBalance ) {
+        if ( newCreditBalance == null ) throw new TradingException( "newCreditBalance == null" );
+        TradingAccount tradingAccount = queryAndIfNeededCreateTradingAccount();
+        tradingAccount.setCreditBalance( newCreditBalance );
+        tradingAccountRepository.save( tradingAccount );
     }
 }

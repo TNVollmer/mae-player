@@ -3,14 +3,12 @@ package thkoeln.dungeon.monte.robot.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.domain.Planet;
-import thkoeln.dungeon.monte.robot.domain.Robot;
-import thkoeln.dungeon.monte.robot.domain.RobotException;
-import thkoeln.dungeon.monte.robot.domain.RobotRepository;
-import thkoeln.dungeon.monte.robot.domain.RobotType;
+import thkoeln.dungeon.monte.robot.domain.*;
 
 import java.util.List;
 
@@ -28,6 +26,23 @@ public class RobotApplicationService {
         this.robotRepository = robotRepository;
         this.playerInformation = playerInformation;
     }
+    private AbstractRobotStrategy warriorStrategy, scoutStrategy, minerStrategy;
+
+    @Autowired @Qualifier( "warriorStrategy" )
+    public void setWarriorStrategy( AbstractRobotStrategy warriorStrategy ) {
+        this.warriorStrategy = warriorStrategy;
+    }
+
+    @Autowired @Qualifier( "scoutStrategy" )
+    public void setScoutStrategy( AbstractRobotStrategy scoutStrategy ) {
+        this.scoutStrategy = scoutStrategy;
+    }
+
+    @Autowired @Qualifier( "minerStrategy" )
+    public void setMinerStrategy(AbstractRobotStrategy minerStrategy) {
+        this.minerStrategy = minerStrategy;
+    }
+
 
     /**
      * Add new robot as result of an RobotSpawnedEvent. The robot type is decided according to current quotas.
@@ -38,10 +53,12 @@ public class RobotApplicationService {
         if ( robotSpawnedEvent == null || !robotSpawnedEvent.isValid() || planet == null )
             throw new RobotException( "robotSpawnedEvent == null || !robotSpawnedEvent.isValid() || planet == null" );
         logger.info( "About to add new robot for RobotSpawnedEvent ...");
-        Robot robot = Robot.of( robotSpawnedEvent.getRobotDto().getId(),
-                                nextRobotTypeAccordingToQuota(),
-                                playerInformation.currentGameId(),
-                                playerInformation.currentPlayerId() );
+        RobotType robotType = nextRobotTypeAccordingToQuota();
+        Robot robot = Robot.of( robotSpawnedEvent.getRobotDto().getId(), robotType,
+                                playerInformation.currentGameId(), playerInformation.currentPlayerId() );
+        AbstractRobotStrategy strategy = (robotType == SCOUT) ?
+                scoutStrategy : ( (robotType == MINER) ? minerStrategy : warriorStrategy );
+        robot.setStrategy( strategy );
         robot.setPlanet( planet );
         robotRepository.save( robot );
         logger.info( "Added robot " + robot );
