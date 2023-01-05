@@ -3,12 +3,9 @@ package thkoeln.dungeon.monte.trading.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableItem;
-import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 
 import javax.persistence.*;
@@ -55,4 +52,5 @@ public class TradingAccount implements AccountInformation {
 
         }
     }
+
 }

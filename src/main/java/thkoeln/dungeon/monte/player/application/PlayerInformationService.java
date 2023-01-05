@@ -5,8 +5,13 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.Game;
+import thkoeln.dungeon.monte.game.domain.GameRepository;
+import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
+import thkoeln.dungeon.monte.player.domain.Player;
+import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,27 +23,27 @@ import java.util.UUID;
  */
 @Service
 public class PlayerInformationService implements PlayerInformation {
-    private PlayerApplicationService playerApplicationService;
-    private GameApplicationService gameApplicationService;
+    private PlayerRepository playerRepository;
+    private GameRepository gameRepository;
 
 
     @Autowired
-    public PlayerInformationService( PlayerApplicationService playerApplicationService,
-                                     GameApplicationService gameApplicationService ) {
-        this.playerApplicationService = playerApplicationService;
-        this.gameApplicationService = gameApplicationService;
+    public PlayerInformationService( PlayerRepository playerRepository,
+                                     GameRepository gameRepository ) {
+        this.playerRepository = playerRepository;
+        this.gameRepository = gameRepository;
     }
 
 
     @Override
     public UUID currentGameId() {
-        Optional<Game> perhapsGame = gameApplicationService.queryActiveGame();
-        if ( perhapsGame.isPresent() ) return perhapsGame.get().getGameId();
-        return null;
+        Optional<Game> perhapsGame = gameRepository.findFirstByGameStatusEquals( GameStatus.RUNNING );
+        return perhapsGame.isPresent() ? perhapsGame.get().getGameId() : null;
     }
 
     @Override
     public UUID currentPlayerId() {
-        return playerApplicationService.queryAndIfNeededCreatePlayer().getPlayerId();
+        List<Player> players = playerRepository.findAll();
+        return players.size() >= 1 ? players.get( 0 ).getPlayerId() : null;
     }
 }

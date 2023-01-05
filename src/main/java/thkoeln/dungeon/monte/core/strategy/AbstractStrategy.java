@@ -13,7 +13,8 @@ public abstract class AbstractStrategy {
     public abstract String[] commandCreatorMethodNames();
 
 
-    public static AccountInformation findNextCommandsForGroup( List<Actionable> actionables, AccountInformation accountInformation ) {
+    public static AccountInformation findNextCommandsForGroup(
+            List<? extends Actionable> actionables, AccountInformation accountInformation ) {
         for ( Actionable actionable : actionables ) {
             Command command = actionable.decideNextCommand( accountInformation );
             accountInformation.payForCommand( command );

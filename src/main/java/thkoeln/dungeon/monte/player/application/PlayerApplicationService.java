@@ -17,7 +17,9 @@ import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
+import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +42,7 @@ public class PlayerApplicationService {
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
     private TradingAccountApplicationService tradingAccountApplicationService;
+    private RobotApplicationService robotApplicationService;
 
 
     @Value("${dungeon.playerName}")
@@ -54,12 +57,14 @@ public class PlayerApplicationService {
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
-            TradingAccountApplicationService tradingAccountApplicationService ) {
+            TradingAccountApplicationService tradingAccountApplicationService,
+            RobotApplicationService robotApplicationService ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
         this.tradingAccountApplicationService = tradingAccountApplicationService;
+        this.robotApplicationService = robotApplicationService;
     }
 
 
@@ -175,22 +180,21 @@ public class PlayerApplicationService {
 
 
 
-    /**
-     * Buys new robots via REST command to Game service
-     * todo createMove to strategy class
-     * @param numOfNewRobots
-     */
-    public void buyRobots( int numOfNewRobots ) {
-        if ( numOfNewRobots < 0 ) throw new PlayerException( "numOfNewRobots < 0" );
+    public void submitRoundCommands() {
+        logger.info( "Define and then submit commands ..." );
         Player player = queryAndIfNeededCreatePlayer();
+        TradingAccount tradingAccount = tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
+        Command playerCommand = player.decideNextCommand( tradingAccount );
+        tradingAccountApplicationService.save( tradingAccount );
+        robotApplicationService.decideAllRobotCommands();
+        List<Command> allCommands = robotApplicationService.currentRobotCommands();
+        if ( playerCommand != null ) allCommands.add( playerCommand );
+
         Optional<Game> currentGameOptional = gameApplicationService.queryActiveGame();
         if ( currentGameOptional.isPresent() && currentGameOptional.get().getGameStatus().isRunning() ) {
-            CommandObject commandObject = new CommandObject(
-                    CommandType.BUYING, null, null, "ROBOT", numOfNewRobots);
-            Command command = new Command(
-                    currentGameOptional.get().getGameId(), player.getPlayerId(), null, CommandType.BUYING, commandObject);
-            gameServiceRESTAdapter.sendPostRequestForCommand(command);
+            for ( Command command : allCommands ) gameServiceRESTAdapter.sendPostRequestForCommand( command );
         }
+        logger.info( "Sent " + allCommands.size() + " commands!" );
     }
 
 }

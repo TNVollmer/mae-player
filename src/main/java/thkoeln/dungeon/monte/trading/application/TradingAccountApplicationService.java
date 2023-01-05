@@ -47,4 +47,9 @@ public class TradingAccountApplicationService {
         tradingAccount.setCreditBalance( newCreditBalance );
         tradingAccountRepository.save( tradingAccount );
     }
+
+    public void save( TradingAccount tradingAccount ) {
+        if ( tradingAccount == null ) throw new TradingException( "tradingAccount == null" );
+        tradingAccountRepository.save( tradingAccount );
+    }
 }

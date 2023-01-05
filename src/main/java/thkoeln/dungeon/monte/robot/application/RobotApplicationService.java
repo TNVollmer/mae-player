@@ -5,11 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
+import thkoeln.dungeon.monte.core.strategy.AbstractStrategy;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.robot.domain.*;
+import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
+import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static thkoeln.dungeon.monte.robot.domain.RobotType.*;
@@ -19,12 +24,15 @@ public class RobotApplicationService {
     private Logger logger = LoggerFactory.getLogger( RobotApplicationService.class );
     private RobotRepository robotRepository;
     private PlayerInformation playerInformation;
+    private TradingAccountApplicationService tradingAccountApplicationService;
 
     @Autowired
     public RobotApplicationService( RobotRepository robotRepository,
-                                    PlayerInformation playerInformation ) {
+                                    PlayerInformation playerInformation,
+                                    TradingAccountApplicationService tradingAccountApplicationService ) {
         this.robotRepository = robotRepository;
         this.playerInformation = playerInformation;
+        this.tradingAccountApplicationService = tradingAccountApplicationService;
     }
     private AbstractRobotStrategy warriorStrategy, scoutStrategy, minerStrategy;
 
@@ -94,5 +102,24 @@ public class RobotApplicationService {
         if ( planet == null ) return null; // black hole
         List<Robot> robotsOnPlanet = robotRepository.findAllByLocatedOnIsAndAliveIsTrue( planet );
         return robotsOnPlanet;
+    }
+
+
+    public void decideAllRobotCommands() {
+        List<Robot> robots = allLivingRobots();
+        TradingAccount tradingAccount = tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
+        AbstractStrategy.findNextCommandsForGroup( robots, tradingAccount );
+        for ( Robot robot : robots ) robotRepository.save( robot );
+        tradingAccountApplicationService.save( tradingAccount );
+    }
+
+
+    public List<Command> currentRobotCommands() {
+        List<Robot> robots = allLivingRobots();
+        List<Command> commands = new ArrayList<>();
+        for ( Robot robot : robots ) {
+            if ( robot.getRecentCommand() != null ) commands.add( robot.getRecentCommand() );
+        }
+        return commands;
     }
 }
