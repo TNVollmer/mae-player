@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AbstractStrategyTest {
     private ExampleStrategy strategy;
-    private ExampleBehavior behavior;
+    private ActionableExample actionable;
     TradingAccount tradingAccount;
 
     @BeforeEach
     public void setUp() {
         strategy = new ExampleStrategy();
-        behavior = new ExampleBehavior();
+        actionable = new ActionableExample();
         tradingAccount = new TradingAccount();
     }
 
@@ -25,10 +25,10 @@ public class AbstractStrategyTest {
     @Test
     public void testMove() {
         // given
-        behavior.setTodoFlag( ExampleBehavior.WhatToDo.move );
+        actionable.setTodoFlag( ActionableExample.WhatToDo.move );
 
         // when
-        Command command = strategy.decideNextCommand( behavior, tradingAccount );
+        Command command = strategy.findNextCommand( actionable, tradingAccount );
 
         // then
         assertEquals( CommandType.MOVEMENT, command.getCommandType() );
@@ -38,10 +38,10 @@ public class AbstractStrategyTest {
     @Test
     public void testBuy() {
         // given
-        behavior.setTodoFlag( ExampleBehavior.WhatToDo.buySomething );
+        actionable.setTodoFlag( ActionableExample.WhatToDo.buySomething );
 
         // when
-        Command command = strategy.decideNextCommand( behavior, tradingAccount );
+        Command command = strategy.findNextCommand( actionable, tradingAccount );
 
         // then
         assertEquals( CommandType.BUYING, command.getCommandType() );
@@ -51,10 +51,10 @@ public class AbstractStrategyTest {
     @Test
     public void testNoCommand() {
         // given
-        behavior.setTodoFlag( ExampleBehavior.WhatToDo.getWellSoon );
+        actionable.setTodoFlag( ActionableExample.WhatToDo.getWellSoon );
 
         // when
-        Command command = strategy.decideNextCommand( behavior, tradingAccount );
+        Command command = strategy.findNextCommand( actionable, tradingAccount );
 
         // then
         assertEquals( CommandType.REGENERATE, command.getCommandType() );
@@ -69,7 +69,7 @@ public class AbstractStrategyTest {
         // then
         // when
         assertThrows( StrategyException.class, () -> {
-            strategy.decideNextCommand( behavior, tradingAccount );
+            strategy.findNextCommand( actionable, tradingAccount );
         });
     }
 

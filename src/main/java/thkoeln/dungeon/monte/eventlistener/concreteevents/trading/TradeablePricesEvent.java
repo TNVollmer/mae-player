@@ -35,7 +35,7 @@ public class TradeablePricesEvent extends AbstractEvent {
             for ( TradeableItemDto tradableItemDto : tradeableItemDtos ) {
                 TradeableItem tradeableItem =  new TradeableItem(
                         tradableItemDto.getName(),
-                        Money.fromInteger( tradableItemDto.getPrice() ),
+                        Money.from( tradableItemDto.getPrice() ),
                         TradeableType.valueOf( tradableItemDto.getType() ) );
                 tradeableItems.add(tradeableItem);
             }

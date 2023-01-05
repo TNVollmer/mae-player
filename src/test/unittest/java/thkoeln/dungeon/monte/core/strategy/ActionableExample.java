@@ -4,18 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.ItemType;
-import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 
 import java.util.UUID;
 
-import static thkoeln.dungeon.monte.core.domainprimitives.command.CommandType.MOVEMENT;
-import static thkoeln.dungeon.monte.core.domainprimitives.command.CommandType.BUYING;
-import static thkoeln.dungeon.monte.core.domainprimitives.command.CommandType.REGENERATE;
-import static thkoeln.dungeon.monte.core.strategy.ExampleBehavior.WhatToDo.*;
+import static thkoeln.dungeon.monte.core.strategy.ActionableExample.WhatToDo.*;
 
 @Getter
 @Setter
-public class ExampleBehavior implements Behavior {
+public class ActionableExample implements Actionable {
     protected enum WhatToDo { move, buySomething, getWellSoon };
     private WhatToDo todoFlag;
     private final static UUID DUMMY_ID = UUID.randomUUID();
@@ -33,6 +29,11 @@ public class ExampleBehavior implements Behavior {
 
     public Command getWellSoon() {
         if ( todoFlag == getWellSoon ) return Command.createRegeneration( DUMMY_ID, DUMMY_ID, DUMMY_ID );
+        return null;
+    }
+
+    @Override
+    public Command decideNextCommand(AccountInformation accountInformation) {
         return null;
     }
 }

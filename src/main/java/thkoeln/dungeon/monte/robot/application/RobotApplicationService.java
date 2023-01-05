@@ -59,7 +59,7 @@ public class RobotApplicationService {
         AbstractRobotStrategy strategy = (robotType == SCOUT) ?
                 scoutStrategy : ( (robotType == MINER) ? minerStrategy : warriorStrategy );
         robot.setStrategy( strategy );
-        robot.setPlanet( planet );
+        robot.setLocatedOn( planet );
         robotRepository.save( robot );
         logger.info( "Added robot " + robot );
         return robot;
@@ -92,7 +92,7 @@ public class RobotApplicationService {
      */
     public List<Robot> livingRobotsOnPlanet( Planet planet ) {
         if ( planet == null ) return null; // black hole
-        List<Robot> robotsOnPlanet = robotRepository.findAllByPlanetIsAndAliveIsTrue( planet );
+        List<Robot> robotsOnPlanet = robotRepository.findAllByLocatedOnIsAndAliveIsTrue( planet );
         return robotsOnPlanet;
     }
 }

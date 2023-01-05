@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
+import thkoeln.dungeon.monte.core.strategy.Actionable;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
+import thkoeln.dungeon.monte.robot.domain.AbstractRobotStrategy;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -19,7 +21,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Player implements PlayerBehavior {
+public class Player implements ActionablePlayer, Actionable {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Player.class );
 
@@ -38,6 +40,11 @@ public class Player implements PlayerBehavior {
     private String email;
     @Setter( AccessLevel.PROTECTED )
     private UUID playerId;
+    private Command recentCommand;
+
+    @Transient
+    PlayerStrategy strategy;
+
     private String playerQueue;
 
     public void assignPlayerId( UUID playerId ) {
@@ -59,6 +66,22 @@ public class Player implements PlayerBehavior {
     public boolean hasJoinedGame() {
         return getPlayerQueue() != null;
     }
+
+
+    @Override
+    public Command decideNextCommand( AccountInformation accountInformation ) {
+        Command nextCommand = null;
+        if ( strategy == null ) {
+            logger.error( "No strategy set for Player! Can't decide on a command." );
+        }
+        else {
+            nextCommand = strategy.findNextCommand( this, accountInformation );
+            logger.info( "Decided on command " + nextCommand + " for player." );
+        }
+        setRecentCommand( nextCommand );
+        return nextCommand;
+    }
+
 
     @Override
     public Command buyRobots( AccountInformation accountInformation ) {

@@ -166,7 +166,7 @@ public class PlayerApplicationService {
      */
     public void adjustBankAccount( UUID playerId, Integer creditBalanceAsInt ) {
         logger.info( "Adjust bank account to " + creditBalanceAsInt );
-        Money newCreditBalance = Money.fromInteger( creditBalanceAsInt );
+        Money newCreditBalance = Money.from( creditBalanceAsInt );
         Player player = queryAndIfNeededCreatePlayer();
         tradingAccountApplicationService.updateCreditBalance( newCreditBalance );
         playerRepository.save( player );

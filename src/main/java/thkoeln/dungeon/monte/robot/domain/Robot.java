@@ -20,7 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
-public class Robot implements RobotBehavior {
+public class Robot implements ActionableRobot {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Robot.class );
 
@@ -31,13 +31,17 @@ public class Robot implements RobotBehavior {
     private UUID robotId;
 
     // Game- and playerId is stored for convenience - you need this for creating commands.
+    @Column( name = "convenience_game_id" )
     private UUID gameId;
+    @Column( name = "convenience_player_id" )
     private UUID playerId;
 
     private Energy energy;
 
     @Enumerated( EnumType.STRING )
     private RobotType type;
+    @Embedded
+    private Command recentCommand;
 
     boolean alive = true;
 
@@ -49,7 +53,7 @@ public class Robot implements RobotBehavior {
     private final List<Capability> capabilities = Capability.allBaseCapabilities();
 
     @ManyToOne
-    private Planet planet;
+    private Planet locatedOn;
 
     public static Robot of( UUID robotId, RobotType type, UUID gameId, UUID playerId ) {
         if ( robotId == null ) throw new RobotException( "robotId == null" );
@@ -64,6 +68,21 @@ public class Robot implements RobotBehavior {
 
     public static Robot of( UUID robotId ) {
         return of( robotId, null, null, null );
+    }
+
+
+    @Override
+    public Command decideNextCommand( AccountInformation accountInformation ) {
+        Command nextCommand = null;
+        if ( strategy == null ) {
+            logger.error( "No strategy set for robot " + this + ", can't decide on a command." );
+        }
+        else {
+            nextCommand = strategy.findNextCommand( this, accountInformation );
+            logger.info( "Decided on command " + nextCommand + " for robot " + this );
+        }
+        setRecentCommand( nextCommand );
+        return nextCommand;
     }
 
 
@@ -93,13 +112,13 @@ public class Robot implements RobotBehavior {
 
     @Override
     public Command move() {
-        if ( planet == null ) {
+        if ( locatedOn == null ) {
             logger.error( "Robot wants to createMove, but planet is null ???" );
             return null;
         }
-        if ( energy.greaterEqualThan( planet.getMovementDifficulty() ) ) {
+        if ( energy.greaterEqualThan( locatedOn.getMovementDifficulty() ) ) {
             Command command = Command.createMove(
-                    robotId, planet.findUnvisitedNeighbour().getPlanetId(), gameId, playerId );
+                    robotId, locatedOn.findUnvisitedNeighbour().getPlanetId(), gameId, playerId );
             return command;
         }
         // not sufficient energy to createMove => no command
@@ -121,7 +140,7 @@ public class Robot implements RobotBehavior {
 
     public String toStringDetailed() {
         String printString = toString();
-        if ( planet != null ) printString += " on " + planet;
+        if ( locatedOn != null ) printString += " on " + locatedOn;
         return printString;
     }
 

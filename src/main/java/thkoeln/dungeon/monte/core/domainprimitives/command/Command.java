@@ -7,6 +7,7 @@ import thkoeln.dungeon.monte.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableType;
 import thkoeln.dungeon.monte.robot.domain.RobotType;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import java.util.UUID;
@@ -21,9 +22,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Command {
+    @Column(name = "cmd_game_id")
     private UUID gameId;
+    @Column(name = "cmd_player_id")
     private UUID playerId;
+    @Column(name = "cmd_robot_id")
     private UUID robotId;
+    @Column(name = "cmd_type")
     private CommandType commandType;
 
     @Embedded
@@ -57,7 +62,7 @@ public class Command {
         if ( number < 1 ) return null;
         Command command = new Command( CommandType.BUYING, gameId, playerId );
         command.getCommandObject().setItemQuantity( number );
-        command.getCommandObject().setItemName( TradeableType.ROBOT.name() );
+        command.getCommandObject().setItemName( TradeableType.ROBOT.toString() );
         return command;
     }
 
@@ -90,12 +95,21 @@ public class Command {
     }
 
 
+    public boolean isRobotPurchase() {
+        if ( commandObject == null || commandObject.getItemName() == null ) return false;
+        return ( commandType.equals( CommandType.BUYING ) &&
+                 commandObject.getItemName().equals( TradeableType.ROBOT.toString() ) );
+    }
+
+
     @Override
     public String toString() {
-        return "Command{" +
-                "robotId=" + robotId +
-                ", commandType=" + commandType + "\n\t" +
-                ", commandObject=" + commandObject +
-                '}';
+        String printString = commandType.name();
+        if ( robotId != null ) printString += " R:" + robotId.toString().substring( 0, 3 );
+        if ( commandObject != null && commandObject.getPlanetId() != null )
+            printString += " P:" + commandObject.getPlanetId().toString().substring( 0, 3 );
+        if ( commandObject != null && commandObject.getItemName() != null )
+            printString += " I:" + commandObject.getItemName();
+        return printString;
     }
 }

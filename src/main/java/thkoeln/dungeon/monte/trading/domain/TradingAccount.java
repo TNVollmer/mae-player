@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableItem;
 import thkoeln.dungeon.monte.player.domain.Player;
@@ -16,16 +17,13 @@ import java.util.*;
 @Entity
 @Getter
 public class TradingAccount implements AccountInformation {
-    @Transient
-    private Logger logger = LoggerFactory.getLogger( Player.class );
-
     @Id
     @Setter( AccessLevel.PROTECTED )
     private final UUID id = UUID.randomUUID();
 
     @Embedded
     @Setter
-    private Money creditBalance = Money.fromInteger( 0 );
+    private Money creditBalance = Money.from( 0 );
 
     @ElementCollection( fetch = FetchType.EAGER )
     @Getter( AccessLevel.PROTECTED )
@@ -48,4 +46,13 @@ public class TradingAccount implements AccountInformation {
         return ((int) (creditBalance.getAmount() * shareOfCreditBalance)) / 100;
     }
 
+
+    @Override
+    public void payForCommand( Command command ) {
+        // todo - currently only robots, therefore still hardcoded, but this is of course temporary
+        if ( command.isRobotPurchase() ) {
+            Money amountDue = Money.from( command.getCommandObject().getItemQuantity() * 100 );
+
+        }
+    }
 }
