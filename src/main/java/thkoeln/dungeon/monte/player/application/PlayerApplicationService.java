@@ -8,14 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
-import thkoeln.dungeon.monte.core.domainprimitives.command.CommandObject;
-import thkoeln.dungeon.monte.core.domainprimitives.command.CommandType;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.Game;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
+import thkoeln.dungeon.monte.player.domain.PlayerStrategy;
 import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
@@ -43,6 +42,7 @@ public class PlayerApplicationService {
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
     private TradingAccountApplicationService tradingAccountApplicationService;
     private RobotApplicationService robotApplicationService;
+    private PlayerStrategy playerStrategy;
 
 
     @Value("${dungeon.playerName}")
@@ -58,13 +58,15 @@ public class PlayerApplicationService {
             GameServiceRESTAdapter gameServiceRESTAdapter,
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
             TradingAccountApplicationService tradingAccountApplicationService,
-            RobotApplicationService robotApplicationService ) {
+            RobotApplicationService robotApplicationService,
+            PlayerStrategy playerStrategy ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
         this.tradingAccountApplicationService = tradingAccountApplicationService;
         this.robotApplicationService = robotApplicationService;
+        this.playerStrategy = playerStrategy;
     }
 
 
@@ -82,9 +84,10 @@ public class PlayerApplicationService {
             player = new Player();
             player.setName( playerName );
             player.setEmail( playerEmail );
-            playerRepository.save(player);
+            playerRepository.save( player );
             logger.info( "Created new player (not yet registered): " + player );
         }
+        player.setStrategy( playerStrategy );
         return player;
     }
 

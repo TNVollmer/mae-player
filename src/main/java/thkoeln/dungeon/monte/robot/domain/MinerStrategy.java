@@ -13,7 +13,7 @@ public class MinerStrategy extends AbstractRobotStrategy {
         "fleeIfAttacked",
         "mine",
         "upgrade",
-        "createMove",
+        "move",
         "regenerate"
     };
 

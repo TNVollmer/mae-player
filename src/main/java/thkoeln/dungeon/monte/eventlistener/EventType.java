@@ -9,6 +9,7 @@ public enum EventType {
     TRADABLE_PRICES( "TradablePrices" ),
     ROBOT_SPAWNED( "RobotSpawned" ),
     PLANET_DISCOVERED( "planet-discovered" ),
+    ERROR( "error" ),
     UNKNOWN( "UNKNOWN" );
 
     private final String stringValue;
@@ -28,7 +29,8 @@ public enum EventType {
 
     public boolean isRobotRelated() {
         if ( this.equals( GAME_STATUS ) || this.equals( BANK_INITIALIZED ) || this.equals( UNKNOWN ) ||
-             this.equals( ROUND_STATUS ) || this.equals( TRADABLE_PRICES ) ) return false;
+             this.equals( ROUND_STATUS ) || this.equals( TRADABLE_PRICES ) || this.equals( ERROR ) )
+            return false;
         if ( isPlanetRelated() ) return false;
         return true;
     }

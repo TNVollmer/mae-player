@@ -1,6 +1,9 @@
 package thkoeln.dungeon.monte.core.strategy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
+import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 
 import javax.swing.*;
 import java.lang.reflect.Method;
@@ -10,6 +13,7 @@ import java.util.List;
  * Generic abstract helper class that allows to select a strategy out of a list of actions.
  */
 public abstract class AbstractStrategy {
+    private Logger logger = LoggerFactory.getLogger( AbstractStrategy.class );
     public abstract String[] commandCreatorMethodNames();
 
 
@@ -31,6 +35,7 @@ public abstract class AbstractStrategy {
      * @return
      */
     public Command findNextCommand( Actionable actionable, AccountInformation accountInformation ) {
+        logger.debug( "Find command for ... " + actionable );
         // first try to find the method without a parameter, then (if that fails) assume that the
         // action requires a TradingAccount.
         Method method = null;
@@ -44,6 +49,8 @@ public abstract class AbstractStrategy {
                 methodWithTradingAccount =
                         findCommandCreatorMethodWithTradingAccount( actionable, methodName );
             }
+            if ( method != null ) logger.debug( "Found method: " + method.getName() );
+            if ( methodWithTradingAccount != null ) logger.debug( "Found method: " + methodWithTradingAccount.getName() );
             try {
                 if ( method != null ) command = (Command) method.invoke( actionable );
                 if ( command == null && methodWithTradingAccount != null )
@@ -51,6 +58,7 @@ public abstract class AbstractStrategy {
                 if ( command != null ) return command;
             }
             catch ( Exception whateverWentWrongShouldntHaveHappenedAnyway ) {
+                logger.error( "Something went wrong ...: " + whateverWentWrongShouldntHaveHappenedAnyway );
                 throw new StrategyException( whateverWentWrongShouldntHaveHappenedAnyway );
             }
         }

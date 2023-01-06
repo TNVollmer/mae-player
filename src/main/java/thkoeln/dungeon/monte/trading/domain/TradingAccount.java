@@ -47,7 +47,7 @@ public class TradingAccount implements AccountInformation {
     @Override
     public void payForCommand( Command command ) {
         // todo - currently only robots, therefore still hardcoded, but this is of course temporary
-        if ( command.isRobotPurchase() ) {
+        if ( command != null && command.isRobotPurchase() ) {
             Money amountDue = Money.from( command.getCommandObject().getItemQuantity() * 100 );
 
         }

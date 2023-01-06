@@ -38,7 +38,10 @@ public class EventFactory {
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();
                 break;
-            // todo add other event types here
+            case ERROR:
+                newEvent = new ErrorEvent();
+                break;
+// todo add other event types here
             default:
                 newEvent = new UnknownEvent();
         }

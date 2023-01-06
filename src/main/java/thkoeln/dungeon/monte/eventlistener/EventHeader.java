@@ -60,7 +60,12 @@ public class EventHeader {
         }
         setTimestampString( timestampStr );
         setVersion( version );
-        setEventType( EventType.findByStringValue( type ) );
+        if( type != null ) {
+            setEventType( EventType.findByStringValue( type ) );
+        }
+        else {
+            setEventType( EventType.UNKNOWN );
+        }
         setEventTypeString( type );
         logger.info( "Created event " + this );
     }

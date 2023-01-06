@@ -12,7 +12,7 @@ public class WarriorStrategy extends AbstractRobotStrategy {
         "regenerateIfLowAndNotAttacked",
         "attack",
         "upgrade",
-        "createMove",
+        "move",
         "regenerate"
     };
 

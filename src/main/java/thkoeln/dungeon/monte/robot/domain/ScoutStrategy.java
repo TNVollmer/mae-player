@@ -12,7 +12,7 @@ public class ScoutStrategy extends AbstractRobotStrategy {
         "regenerateIfLowAndNotAttacked",
         "fleeIfAttacked",
         "mineIfNotMinedLastRound",
-        "createMove",
+        "move",
         "regenerate"
     };
 

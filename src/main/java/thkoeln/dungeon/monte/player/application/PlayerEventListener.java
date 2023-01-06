@@ -59,12 +59,12 @@ public class PlayerEventListener {
      * @param payload
      */
     @RabbitListener( id = "player-queue" )
-    public void receiveEvent( @Header( EventHeader.EVENT_ID_KEY ) String eventIdStr,
+    public void receiveEvent( @Header( required = false, value = EventHeader.EVENT_ID_KEY ) String eventIdStr,
                               @Header( required = false, value = EventHeader.TRANSACTION_ID_KEY ) String transactionIdStr,
                               @Header( required = false, value = EventHeader.PLAYER_ID_KEY ) String playerIdStr,
-                              @Header( EventHeader.TYPE_KEY ) String type,
-                              @Header( EventHeader.VERSION_KEY ) String version,
-                              @Header( EventHeader.TIMESTAMP_KEY ) String timestampStr,
+                              @Header( required = false, value = EventHeader.TYPE_KEY ) String type,
+                              @Header( required = false, value = EventHeader.VERSION_KEY ) String version,
+                              @Header( required = false, value = EventHeader.TIMESTAMP_KEY ) String timestampStr,
                               String payload ) {
         EventHeader eventHeader =
                 new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );

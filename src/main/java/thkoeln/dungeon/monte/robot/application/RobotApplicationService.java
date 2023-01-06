@@ -64,9 +64,7 @@ public class RobotApplicationService {
         RobotType robotType = nextRobotTypeAccordingToQuota();
         Robot robot = Robot.of( robotSpawnedEvent.getRobotDto().getId(), robotType,
                                 playerInformation.currentGameId(), playerInformation.currentPlayerId() );
-        AbstractRobotStrategy strategy = (robotType == SCOUT) ?
-                scoutStrategy : ( (robotType == MINER) ? minerStrategy : warriorStrategy );
-        robot.setStrategy( strategy );
+        robot.setStrategy( getStrategyFor( robot ) );
         robot.setLocatedOn( planet );
         robotRepository.save( robot );
         logger.info( "Added robot " + robot );
@@ -91,7 +89,9 @@ public class RobotApplicationService {
      * @return all robots currently alive
      */
     public List<Robot> allLivingRobots() {
-        return robotRepository.findAllByAliveEquals( true );
+        List<Robot> robots = robotRepository.findAllByAliveEquals( true );
+        robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
+        return robots;
     }
 
 
@@ -101,6 +101,7 @@ public class RobotApplicationService {
     public List<Robot> livingRobotsOnPlanet( Planet planet ) {
         if ( planet == null ) return null; // black hole
         List<Robot> robotsOnPlanet = robotRepository.findAllByLocatedOnIsAndAliveIsTrue( planet );
+        robotsOnPlanet.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robotsOnPlanet;
     }
 
@@ -121,5 +122,13 @@ public class RobotApplicationService {
             if ( robot.getRecentCommand() != null ) commands.add( robot.getRecentCommand() );
         }
         return commands;
+    }
+
+
+    private AbstractRobotStrategy getStrategyFor( Robot robot ) {
+        RobotType robotType = robot.getType();
+        AbstractRobotStrategy strategy = SCOUT.equals( robotType ) ? scoutStrategy :
+                MINER.equals( robotType ) ? minerStrategy : warriorStrategy;
+        return strategy;
     }
 }
