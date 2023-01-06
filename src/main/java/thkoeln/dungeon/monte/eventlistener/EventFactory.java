@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.*;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.ErrorEvent;
+import thkoeln.dungeon.monte.eventlistener.concreteevents.UnknownEvent;
 
 @Service
 public class EventFactory {
@@ -34,6 +36,9 @@ public class EventFactory {
                 break;
             case ROBOT_SPAWNED:
                 newEvent = new RobotSpawnedEvent();
+                break;
+            case ROBOT_MOVED:
+                newEvent = new RobotMovedIntegrationEvent();
                 break;
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();

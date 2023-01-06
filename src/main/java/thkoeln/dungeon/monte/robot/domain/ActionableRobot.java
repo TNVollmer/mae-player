@@ -8,6 +8,8 @@ public interface ActionableRobot extends Actionable {
 
     public Command regenerateIfLowAndNotAttacked();
 
+    public Command regenerate();
+
     public Command fleeIfAttacked();
 
     public Command mineIfNotMinedLastRound();

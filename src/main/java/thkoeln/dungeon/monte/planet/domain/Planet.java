@@ -65,6 +65,7 @@ public class Planet {
 
     public Planet( UUID planetId ) {
         this.planetId = planetId;
+        this.movementDifficulty = Energy.zero();
     }
 
     public static Planet spacestation( UUID planetId ) {
@@ -182,13 +183,12 @@ public class Planet {
     public Planet findUnvisitedNeighbourOrAnyIfAllVisited() {
         Collection<Planet> neighbours = allNeighbours().values();
         Planet lastCheckedNeighbour = null;
-        for ( Planet neighbour : allNeighbours().values() ) {
+        for ( Planet neighbour : neighbours ) {
             lastCheckedNeighbour = neighbour;
             if ( !neighbour.hasBeenVisited() ) return neighbour;
         }
         // no unvisited neighbour found - take any
-        if ( lastCheckedNeighbour == null && neighbours.size() > 0 ) return neighbours.stream().findFirst().get();
-        return null;
+        return lastCheckedNeighbour;
     }
 
 

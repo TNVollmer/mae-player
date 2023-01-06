@@ -2,6 +2,7 @@ package thkoeln.dungeon.monte.core.domainprimitives.status;
 
 import lombok.*;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
+import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 
 import javax.persistence.Embeddable;
 
@@ -17,6 +18,10 @@ public class Energy {
         if ( amount == null ) throw new DomainPrimitiveException( "Amount cannot be null!" );
         if ( amount < 0 ) throw new DomainPrimitiveException( "Amount must be >= 0!" );
         return new Energy( amount );
+    }
+
+    public static Energy zero() {
+        return from( 0 );
     }
 
     public static Energy defaultMovementDifficulty() {

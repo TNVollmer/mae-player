@@ -11,5 +11,5 @@ public interface RobotRepository extends CrudRepository<Robot, UUID> {
     public long count();
     public long countAllByAliveIs( boolean alive );
     public long countAllByTypeIs( RobotType type );
-    public List<Robot> findAllByLocatedOnIsAndAliveIsTrue(Planet planetRobotIsLocatedOn );
+    public List<Robot> findAllByLocationIsAndAliveIsTrue( Planet planetRobotIsLocatedOn );
 }

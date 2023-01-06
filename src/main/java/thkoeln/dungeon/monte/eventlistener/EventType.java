@@ -8,6 +8,7 @@ public enum EventType {
     ROUND_STATUS( "round-status" ),
     TRADABLE_PRICES( "TradablePrices" ),
     ROBOT_SPAWNED( "RobotSpawned" ),
+    ROBOT_MOVED( "RobotMovedIntegrationEvent" ),
     PLANET_DISCOVERED( "planet-discovered" ),
     ERROR( "error" ),
     UNKNOWN( "UNKNOWN" );

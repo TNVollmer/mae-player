@@ -24,6 +24,7 @@ public class EnergyTest {
     public void testEqualAndUnequal() {
         assertEquals( e3, e3b );
         assertNotEquals( e3, e20 );
+        assertEquals( Energy.zero(), e0 );
     }
 
 

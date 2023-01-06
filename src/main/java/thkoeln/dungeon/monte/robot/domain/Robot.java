@@ -53,7 +53,7 @@ public class Robot implements ActionableRobot {
     private final List<Capability> capabilities = Capability.allBaseCapabilities();
 
     @ManyToOne
-    private Planet locatedOn;
+    private Planet location;
 
     public static Robot of( UUID robotId, RobotType type, UUID gameId, UUID playerId ) {
         if ( robotId == null ) throw new RobotException( "robotId == null" );
@@ -68,6 +68,21 @@ public class Robot implements ActionableRobot {
 
     public static Robot of( UUID robotId ) {
         return of( robotId, null, null, null );
+    }
+
+
+    public void verifyAndIfNeededUpdate( Planet updatedLocation, Energy updatedEnergy ) {
+        logger.debug( "Verify that robot " + this + " is really on planet " + updatedLocation +
+                ", with energy level " + updatedEnergy + "..." );
+        if ( updatedLocation == null || !updatedLocation.equals( location ) ) {
+            logger.error( "Robot " + this + " should be on planet " + updatedLocation +
+                    ", but actually is on planet " + location + "!" );
+            setLocation( updatedLocation );
+        }
+        if ( updatedEnergy == null || !updatedEnergy.equals( updatedEnergy ) ) {
+            logger.error( "Robot " + this + " should have " + updatedEnergy + ", but actually has " + energy + "!" );
+            setEnergy( updatedEnergy );
+        }
     }
 
 
@@ -112,14 +127,16 @@ public class Robot implements ActionableRobot {
 
     @Override
     public Command move() {
-        if ( locatedOn == null ) {
+        if ( location == null ) {
             logger.error( "Robot wants to createMove, but planet is null ???" );
             return null;
         }
-        if ( energy.greaterEqualThan( locatedOn.getMovementDifficulty() ) ) {
-            Planet target = locatedOn.findUnvisitedNeighbourOrAnyIfAllVisited();
+        if ( energy.greaterEqualThan( location.getMovementDifficulty() ) ) {
+            Planet target = location.findUnvisitedNeighbourOrAnyIfAllVisited();
             if ( target == null ) return null;
             Command command = Command.createMove( robotId, target.getPlanetId(), gameId, playerId );
+            setEnergy( energy.decreaseBy( location.getMovementDifficulty() ) );
+            setLocation( target );
             return command;
         }
         // not sufficient energy to createMove => no command
@@ -139,9 +156,15 @@ public class Robot implements ActionableRobot {
     }
 
 
+    @Override
+    public Command regenerate() {
+        return null;
+    }
+
+
     public String toStringDetailed() {
         String printString = toString();
-        if ( locatedOn != null ) printString += " on " + locatedOn;
+        if ( location != null ) printString += " on " + location;
         return printString;
     }
 
