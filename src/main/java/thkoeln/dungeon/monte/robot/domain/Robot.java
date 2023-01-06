@@ -117,8 +117,9 @@ public class Robot implements ActionableRobot {
             return null;
         }
         if ( energy.greaterEqualThan( locatedOn.getMovementDifficulty() ) ) {
-            Command command = Command.createMove(
-                    robotId, locatedOn.findUnvisitedNeighbour().getPlanetId(), gameId, playerId );
+            Planet target = locatedOn.findUnvisitedNeighbourOrAnyIfAllVisited();
+            if ( target == null ) return null;
+            Command command = Command.createMove( robotId, target.getPlanetId(), gameId, playerId );
             return command;
         }
         // not sufficient energy to createMove => no command

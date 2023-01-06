@@ -176,18 +176,21 @@ public class Planet {
 
     /**
      * @return a random neighbour that hasn't been visited yet. If all neighbours have been visited,
-     * return a random visited neighbour. If there is no neighbour, return null.
+     * return a random visited neighbour. If there is no neighbour, return an arbitrary neighbour.
+     * If there is no neighbour, return null.
      */
-    public Planet findUnvisitedNeighbour() {
+    public Planet findUnvisitedNeighbourOrAnyIfAllVisited() {
         Collection<Planet> neighbours = allNeighbours().values();
         Planet lastCheckedNeighbour = null;
         for ( Planet neighbour : allNeighbours().values() ) {
             lastCheckedNeighbour = neighbour;
             if ( !neighbour.hasBeenVisited() ) return neighbour;
         }
-        // no unvisited neighbour found
-        return lastCheckedNeighbour;
+        // no unvisited neighbour found - take any
+        if ( lastCheckedNeighbour == null && neighbours.size() > 0 ) return neighbours.stream().findFirst().get();
+        return null;
     }
+
 
 
     /**
