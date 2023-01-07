@@ -36,7 +36,12 @@ public class Robot implements ActionableRobot {
     @Column( name = "convenience_player_id" )
     private UUID playerId;
 
+    @Embedded
+    @AttributeOverride(name = "energyAmount", column = @Column(name = "energy_amount"))
     private Energy energy;
+    @Embedded
+    @AttributeOverride(name = "energyAmount", column = @Column(name = "max_energy_amount"))
+    private Energy maxEnergy;
 
     @Enumerated( EnumType.STRING )
     private RobotType type;
@@ -63,6 +68,7 @@ public class Robot implements ActionableRobot {
         robot.setGameId( gameId );
         robot.setPlayerId( playerId );
         robot.setEnergy( Energy.initialRobotEnergy() );
+        robot.setMaxEnergy( Energy.initialRobotEnergy() );
         return robot;
     }
 
@@ -75,12 +81,12 @@ public class Robot implements ActionableRobot {
         logger.debug( "Verify that robot " + this + " is really on planet " + updatedLocation +
                 ", with energy level " + updatedEnergy + "..." );
         if ( updatedLocation == null || !updatedLocation.equals( location ) ) {
-            logger.error( "Robot " + this + " should be on planet " + updatedLocation +
+            logger.warn( "Robot " + this + " should be on planet " + updatedLocation +
                     ", but actually is on planet " + location + "!" );
             setLocation( updatedLocation );
         }
         if ( updatedEnergy == null || !updatedEnergy.equals( updatedEnergy ) ) {
-            logger.error( "Robot " + this + " should have " + updatedEnergy + ", but actually has " + energy + "!" );
+            logger.warn( "Robot " + this + " should have " + updatedEnergy + ", but actually has " + energy + "!" );
             setEnergy( updatedEnergy );
         }
     }
@@ -103,6 +109,10 @@ public class Robot implements ActionableRobot {
 
     @Override
     public Command regenerateIfLowAndNotAttacked() {
+        if ( energy.lowerThanPercentage( 20, maxEnergy ) ) {
+            Command command = Command.createRegeneration( robotId, gameId, playerId );
+            return command;
+        }
         return null;
     }
 
@@ -158,7 +168,8 @@ public class Robot implements ActionableRobot {
 
     @Override
     public Command regenerate() {
-        return null;
+        Command command = Command.createRegeneration( robotId, gameId, playerId );
+        return command;
     }
 
 

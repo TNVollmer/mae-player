@@ -24,13 +24,10 @@ public class PlanetEventHandler {
     public void handlePlanetRelatedEvent( AbstractEvent event ) {
         switch ( event.getEventHeader().getEventType() ) {
             case PLANET_DISCOVERED:
-                handlePlanetDiscoveredEvent( (PlanetDiscoveredEvent) event );
+                planetApplicationService.addPlanetNeighbours( (PlanetDiscoveredEvent)event );
                 break;
             default:
         }
     }
 
-    public void handlePlanetDiscoveredEvent( PlanetDiscoveredEvent event ) {
-        planetApplicationService.addPlanetNeighbours( event );
-    }
 }

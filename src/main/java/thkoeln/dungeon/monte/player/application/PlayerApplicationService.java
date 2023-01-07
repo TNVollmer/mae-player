@@ -106,7 +106,7 @@ public class PlayerApplicationService {
             playerId = gameServiceRESTAdapter.sendPostRequestForPlayerId( player.getName(), player.getEmail() );
         }
         if ( playerId == null ) {
-            logger.error( "Registration for player " + player + " failed." );
+            logger.warn( "Registration for player " + player + " failed." );
             return;
         }
         player.assignPlayerId( playerId );

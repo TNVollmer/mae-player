@@ -46,7 +46,7 @@ public class GameServiceRESTAdapter {
         try {
             allGames = restTemplate.getForObject( urlString, GameDto[].class );
             if ( allGames == null || allGames.length == 0 ) {
-                logger.error( "Received a null GameDto array from " + urlString );
+                logger.warn( "Received a null GameDto array from " + urlString );
                 return new GameDto[0];
             }
             logger.info( "Got " + allGames.length + " game(s) via REST ...");

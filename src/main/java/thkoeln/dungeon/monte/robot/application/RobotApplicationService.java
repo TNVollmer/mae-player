@@ -91,7 +91,7 @@ public class RobotApplicationService {
         Energy updatedEnergy = Energy.from(event.getRemainingEnergy() );
         Optional<Robot> perhapsRobot = findRobotById( event.getRobotId() );
         if ( !perhapsRobot.isPresent() ) {
-            logger.error( "Robot with ID " + event.getRobotId() + " is unknown!" );
+            logger.warn( "Robot with ID " + event.getRobotId() + " is unknown!" );
             return;
         }
         Robot robot = perhapsRobot.get();

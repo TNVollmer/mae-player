@@ -41,7 +41,7 @@ public class TradeablePricesEvent extends AbstractEvent {
             }
         }
         catch( JsonProcessingException conversionFailed ) {
-            logger.error( "Error converting payload for TradeablePricesEvent with jsonString " + jsonString );
+            logger.warn( "Cannot convert payload for TradeablePricesEvent with jsonString " + jsonString );
         }
     }
 

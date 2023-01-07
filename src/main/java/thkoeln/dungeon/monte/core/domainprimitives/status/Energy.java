@@ -2,7 +2,6 @@ package thkoeln.dungeon.monte.core.domainprimitives.status;
 
 import lombok.*;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
-import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 
 import javax.persistence.Embeddable;
 
@@ -56,6 +55,12 @@ public class Energy {
     }
 
 
+    public boolean lowerThanPercentage(int percentage, Energy comparisonEnergy ) {
+        if ( percentage < 0 || percentage > 100 || comparisonEnergy == null )
+            throw new DomainPrimitiveException( "percentage < 0 || percentage > 100 || comparisonEnergy == null" );
+        float fraction = (float)comparisonEnergy.energyAmount * (float)percentage / 100f;
+        return ( (float)energyAmount < fraction );
+    }
 
     @Override
     public String toString() {

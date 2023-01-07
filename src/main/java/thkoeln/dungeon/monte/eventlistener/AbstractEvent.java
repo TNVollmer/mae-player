@@ -42,7 +42,7 @@ public abstract class AbstractEvent {
             objectMapper.readerForUpdating( this ).readValue( jsonString );
         }
         catch( JsonProcessingException conversionFailed ) {
-            logger.error( "Error converting payload for event with jsonString " + jsonString );
+            logger.warn( "Cannot convert payload for event with jsonString " + jsonString );
         }
     }
 

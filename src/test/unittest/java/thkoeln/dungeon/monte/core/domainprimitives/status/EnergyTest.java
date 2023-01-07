@@ -76,4 +76,21 @@ public class EnergyTest {
         });
     }
 
+
+
+
+    @Test
+    public void testLowerThanPercentage() {
+        assertTrue( e3.lowerThanPercentage( 16, e20 ) );
+        assertFalse( e3.lowerThanPercentage( 15, e20 ) );
+        Assert.assertThrows( DomainPrimitiveException.class, () -> {
+            e3.lowerThanPercentage( -1, e20 );
+        });
+        Assert.assertThrows( DomainPrimitiveException.class, () -> {
+            e3.lowerThanPercentage( 101, e20 );
+        });
+        Assert.assertThrows( DomainPrimitiveException.class, () -> {
+            e3.lowerThanPercentage( 50, null );
+        });
+    }
 }

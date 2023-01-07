@@ -55,7 +55,7 @@ public class EventHeader {
             }
         }
         catch ( IllegalArgumentException e ) {
-            logger.error( "Unexpected error at converting UUIDs in event header: " +
+            logger.warn( "Unexpected problem with converting UUIDs in event header: " +
                     eventIdStr + ", " + transactionIdStr, ", " + playerIdStr );
         }
         setTimestampString( timestampStr );

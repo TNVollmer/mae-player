@@ -92,10 +92,6 @@ public class PlanetApplicationService {
             return;
         }
         Planet planet = perhapsPlanet.get();
-        if ( planet.hasNeighbours() ) {
-            logger.error( "Neighbours for planet " + planet + " have already been set - not safe to do it twice." );
-            return;
-        }
         Energy movementDifficulty = Energy.from( planetDiscoveredEvent.getMovementDifficulty() );
         planet.setMovementDifficulty( movementDifficulty );
         for ( PlanetNeighboursDto planetNeighboursDto : planetDiscoveredEvent.getNeighbours() ) {

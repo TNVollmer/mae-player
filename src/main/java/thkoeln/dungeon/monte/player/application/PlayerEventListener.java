@@ -71,7 +71,7 @@ public class PlayerEventListener {
         AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
         logger.info( AbstractPrinter.BLUE + "======== EVENT =====>\n" + newEvent + AbstractPrinter.RESET );
         if ( !newEvent.isValid() ) {
-            logger.error( "Event invalid: " + newEvent );
+            logger.warn( "Event invalid: " + newEvent );
             return;
         }
         if ( eventHeader.getEventType().isRobotRelated() ) robotEventHandler.handleRobotRelatedEvent( newEvent );
