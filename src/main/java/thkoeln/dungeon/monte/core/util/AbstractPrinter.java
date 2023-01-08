@@ -111,4 +111,5 @@ public abstract class AbstractPrinter {
         logger.info( "\n" + stringBuffer );
         stringBuffer = new StringBuffer();
     }
+
 }

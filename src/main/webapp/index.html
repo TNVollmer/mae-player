@@ -1,0 +1,38 @@
+<html>
+<!-- This code has been adapted from Baeldung, see https://www.baeldung.com/websockets-spring and
+     https://www.baeldung.com/spring-boot-scheduled-websocket. The Baeldung code is at
+     https://github.com/eugenp/tutorials/tree/master/spring-websockets. -->
+
+    <head>
+	    <title>Status Player M.O.N.T.E.</title>
+		<script src="resources/js/sockjs-0.3.4.js"></script>
+		<script src="resources/js/stomp.js"></script>
+		<script type="text/javascript">
+			var stompClient = null;
+
+			function connect() {
+				var socket = new SockJS('/playerstatus');
+				stompClient = Stomp.over(socket);
+				stompClient.connect({}, function(frame) {
+					console.log('Connected: ' + frame);
+					stompClient.subscribe('/topic/pushstatus', function(messageOutput) {
+						showMessageOutput(JSON.parse(messageOutput.body));
+					});
+				});
+			}
+
+			function showMessageOutput(messageOutput) {
+				var response = document.getElementById('statusInfoBlock');
+				var p = document.createElement('p');
+				p.innerText = messageOutput.text;
+				response.appendChild( p );
+			}
+
+		</script>
+
+	</head>
+	<h1>Status Player M.O.N.T.E.</h1>
+	<body onload="connect()">
+		<div id="statusInfoBlock" />
+	</body>
+</html>
