@@ -231,11 +231,4 @@ public class PlanetPrinterTest {
     }
 
 
-    @Test
-    public void testsNothingJustPrints() {
-        mapPrinter.initializeOutput();
-        mapPrinter.printMap();
-        mapPrinter.flush();
-        assertEquals( 1, 1 );
-    }
 }

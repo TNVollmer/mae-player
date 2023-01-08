@@ -9,7 +9,7 @@ import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.domain.Robot;
-import thkoeln.dungeon.monte.core.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.ConsolePrinter;
 
 import java.util.List;
 
@@ -41,7 +41,8 @@ import java.util.List;
  * - 3rd compartment is the robot (S/M/W for the type, followed by firstthree letters of the UUID)
  */
 @Service
-public class MapPrinter extends AbstractPrinter {
+public class MapPrinter  {
+
     protected static final String EMPTY_COMPARTMENT = "    |";
     protected static final String SEPERATOR_COMPARTMENT = "----|";
     protected static final String SEPERATOR_CHAR = "|";
@@ -62,6 +63,8 @@ public class MapPrinter extends AbstractPrinter {
      *      This involves planets, but also robots located on planets. "planet" package doesn't know
      *      "robot" (but the other way around), so the best way to orchestrate this is from here.
      */
+
+/*
     public void printMap() {
         writeLine();
         int currentClusterNumber = 0;
@@ -73,13 +76,15 @@ public class MapPrinter extends AbstractPrinter {
             writeLine();
         }
     }
-
+*/
 
     /**
      * Print one cluster of the known map.
      * @param planetCluster
      * @return
      */
+
+/*
     private void printMapCluster( TwoDimDynamicArray<Planet> planetCluster ) {
         Coordinate maxCoordinate = planetCluster.getMaxCoordinate();
         printTopRow( maxCoordinate );
@@ -95,7 +100,7 @@ public class MapPrinter extends AbstractPrinter {
             }
         }
     }
-
+*/
 
 
     /**
@@ -103,6 +108,7 @@ public class MapPrinter extends AbstractPrinter {
      * @param maxClusterPoint
      * @return
      */
+/*
     public void printTopRow( Coordinate maxClusterPoint ) {
         write( EMPTY_COMPARTMENT );
         for ( int columnNumber = 0; columnNumber <= maxClusterPoint.getX(); columnNumber++ ) {
@@ -115,7 +121,7 @@ public class MapPrinter extends AbstractPrinter {
         }
         writeLine();
     }
-
+*/
 
     /**
      * Print one cluster of the known map.
@@ -136,7 +142,7 @@ public class MapPrinter extends AbstractPrinter {
         return printCellDtos;
     }
 
-
+/*
     private void printRowNumberOrBlanks( int rowNumber, int compartmentNumber ) {
         if ( compartmentNumber == 2 ) {
             write( String.format( "%1$3s", rowNumber ) + " " + SEPERATOR_CHAR );
@@ -181,5 +187,5 @@ public class MapPrinter extends AbstractPrinter {
             write( " (" + robotsOnPlanet.size() + ")" + SEPERATOR_CHAR );
         }
     }
-
+*/
 }

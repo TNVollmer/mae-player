@@ -3,7 +3,7 @@ package thkoeln.dungeon.monte.robot.application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.robot.domain.Robot;
-import thkoeln.dungeon.monte.core.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.ConsolePrinter;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * Printer class to output the current player status to console.
  */
 @Service
-public class RobotPrinter extends AbstractPrinter {
+public class RobotPrinter {
     private RobotApplicationService robotApplicationService;
 
     @Autowired
@@ -24,7 +24,7 @@ public class RobotPrinter extends AbstractPrinter {
     /**
      * @return Print all currently alive robots, in a compact format suitable for the console.
      */
-
+/*
     public void printRobotList() {
         writeLine( "All my robots:" );
         List<Robot> robots = robotApplicationService.allLivingRobots();
@@ -32,7 +32,7 @@ public class RobotPrinter extends AbstractPrinter {
             writeLineIndent( robot.toStringDetailed() );
         }
     }
-
+*/
 
 
 }

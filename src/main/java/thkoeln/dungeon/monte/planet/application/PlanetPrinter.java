@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
-import thkoeln.dungeon.monte.core.util.AbstractPrinter;
+import thkoeln.dungeon.monte.core.util.ConsolePrinter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.function.Predicate;
  * Printer class to output the current player status to console.
  */
 @Service
-public class PlanetPrinter extends AbstractPrinter {
+public class PlanetPrinter {
     private Logger logger = LoggerFactory.getLogger( PlanetPrinter.class );
     private PlanetApplicationService planetApplicationService;
 
@@ -31,6 +31,7 @@ public class PlanetPrinter extends AbstractPrinter {
      * @return Print all currently alive robots, in a compact format suitable for the console.
      */
 
+/*
     public void printPlanetList() {
         writeLine( "Known planets:" );
         List<Planet> planets = planetApplicationService.allPlanets();
@@ -38,12 +39,14 @@ public class PlanetPrinter extends AbstractPrinter {
             writeLineIndent( planet.toStringDetailed() );
         }
     }
-
+*/
 
     /**
      * Create a list of "local maps" around the space stations, as long as there are several partial maps
      * (i.e. the whole universe has not yet been explored).
      */
+
+
     public List<TwoDimDynamicArray<Planet>> allPlanetClusters() {
         List<TwoDimDynamicArray<Planet>> allPlanetClusters = new ArrayList<>();
 
