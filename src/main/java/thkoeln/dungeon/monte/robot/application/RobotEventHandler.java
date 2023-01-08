@@ -4,14 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
-import thkoeln.dungeon.monte.eventlistener.AbstractEvent;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.robot.RobotSpawnedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
-import thkoeln.dungeon.monte.planet.domain.Planet;
-
-import static java.lang.Boolean.TRUE;
 
 @Service
 public class RobotEventHandler {

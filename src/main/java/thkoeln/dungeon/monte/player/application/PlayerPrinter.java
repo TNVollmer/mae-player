@@ -7,7 +7,7 @@ import thkoeln.dungeon.monte.game.application.GamePrinter;
 import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
 import thkoeln.dungeon.monte.robot.application.RobotPrinter;
 import thkoeln.dungeon.monte.core.util.AbstractPrinter;
-import thkoeln.dungeon.monte.statusclient.OutputMessage;
+import thkoeln.dungeon.monte.core.statusclient.OutputMessage;
 
 /**
  * Printer class to output the current player status to console.

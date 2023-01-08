@@ -10,8 +10,8 @@ import thkoeln.dungeon.monte.game.domain.Game;
 import thkoeln.dungeon.monte.game.domain.GameException;
 import thkoeln.dungeon.monte.game.domain.GameRepository;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
-import thkoeln.dungeon.monte.restadapter.GameDto;
-import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.monte.core.restadapter.GameDto;
+import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
 
 import java.util.List;
 import java.util.Optional;

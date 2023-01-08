@@ -15,7 +15,7 @@ import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 import thkoeln.dungeon.monte.player.domain.PlayerStrategy;
-import thkoeln.dungeon.monte.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 import thkoeln.dungeon.monte.trading.domain.TradingAccount;

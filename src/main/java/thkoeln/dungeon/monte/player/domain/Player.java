@@ -10,8 +10,7 @@ import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 import thkoeln.dungeon.monte.core.strategy.Actionable;
-import thkoeln.dungeon.monte.eventlistener.concreteevents.trading.TradeablePricesEvent;
-import thkoeln.dungeon.monte.robot.domain.AbstractRobotStrategy;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
 
 import javax.persistence.*;
 import java.util.Objects;

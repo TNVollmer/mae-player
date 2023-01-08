@@ -15,9 +15,9 @@ import org.springframework.test.web.client.response.MockRestResponseCreators;
 import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.monte.game.domain.Game;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
-import thkoeln.dungeon.monte.restadapter.GameDto;
-import thkoeln.dungeon.monte.restadapter.PlayerJoinDto;
-import thkoeln.dungeon.monte.restadapter.PlayerRegistryDto;
+import thkoeln.dungeon.monte.core.restadapter.GameDto;
+import thkoeln.dungeon.monte.core.restadapter.PlayerJoinDto;
+import thkoeln.dungeon.monte.core.restadapter.PlayerRegistryDto;
 
 import java.net.URI;
 import java.util.UUID;
