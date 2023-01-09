@@ -118,7 +118,6 @@ public class ConsolePrinter implements Printer {
 
     @Override
     public void endBulletList() {
-        stringBuffer.append( "\n" );
     }
 
     @Override
@@ -188,24 +187,19 @@ public class ConsolePrinter implements Printer {
     @Override
     public void startTable( int numOfColumns ) {
         currentNumberOfColumns = numOfColumns;
-    }
-
-    @Override
-    public void endTable() {
-    }
-
-    @Override
-    public void tableHeaderRow() {
-        stringBuffer.append( EMPTY_COMPARTMENT );
+        stringBuffer.append( EMPTY_COMPARTMENT ).append( SEPERATOR_CHAR );
         for ( int columnNumber = 0; columnNumber < currentNumberOfColumns; columnNumber++ ) {
             stringBuffer.append( String.format( "%1$3s", columnNumber ) + " " + SEPERATOR_CHAR );
         }
         stringBuffer.append( "\n" );
-        stringBuffer.append( EMPTY_COMPARTMENT );
-        for ( int columnNumber = 0; columnNumber < currentNumberOfColumns; columnNumber++ ) {
-            stringBuffer.append(SEPERATOR_SEGMENT);
+        for ( int columnNumber = 0; columnNumber <= currentNumberOfColumns; columnNumber++ ) {
+            stringBuffer.append( SEPERATOR_SEGMENT );
         }
         stringBuffer.append( "\n" );
+    }
+
+    @Override
+    public void endTable() {
     }
 
     @Override
@@ -229,13 +223,15 @@ public class ConsolePrinter implements Printer {
     public void endRow() {
         for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
             for ( String[] cell : currentRowCells ) {
-                stringBuffer.append( cell[compartmentNumber] ).append( SEPERATOR_CHAR );
+                String compartmentString = String.format( "%-4s", cell[compartmentNumber] );
+                stringBuffer.append( compartmentString ).append( SEPERATOR_CHAR );
             }
             stringBuffer.append( "\n" );
         }
-        for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
+        for ( int compartmentNumber = 0; compartmentNumber <= currentNumberOfColumns; compartmentNumber++ ) {
             stringBuffer.append( SEPERATOR_SEGMENT );
         }
+        stringBuffer.append( "\n" );
     }
 
     @Override

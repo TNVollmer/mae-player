@@ -23,7 +23,6 @@ public interface Printer {
 
     public void startTable( int numOfColumns );
     public void endTable();
-    public void tableHeaderRow();
     public void startRow( int rowNumber, int numOfCompartments );
     public void writeCell ( String ... compartmentStrings );
     public void endRow();

@@ -200,14 +200,6 @@ public class WebsocketPrinter implements Printer {
     @Override
     public void startTable( int numOfColumns ) {
         currentNumberOfColumns = numOfColumns;
-    }
-
-    @Override
-    public void endTable() {
-    }
-
-    @Override
-    public void tableHeaderRow() {
         stringBuffer.append( EMPTY_COMPARTMENT );
         for ( int columnNumber = 0; columnNumber < currentNumberOfColumns; columnNumber++ ) {
             stringBuffer.append( String.format( "%1$3s", columnNumber ) + " " + SEPERATOR_CHAR );
@@ -219,6 +211,11 @@ public class WebsocketPrinter implements Printer {
         }
         stringBuffer.append( "\n" );
     }
+
+    @Override
+    public void endTable() {
+    }
+
 
     @Override
     public void startRow( int rowNumber, int numOfCompartments ) {

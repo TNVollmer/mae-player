@@ -4,9 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.util.Printer;
 import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.core.util.ConsolePrinter;
+import thkoeln.dungeon.monte.robot.domain.Robot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +21,14 @@ import java.util.function.Predicate;
 public class PlanetPrinter {
     private Logger logger = LoggerFactory.getLogger( PlanetPrinter.class );
     private PlanetApplicationService planetApplicationService;
+    private List<Printer> printers;
+
 
     @Autowired
-    public PlanetPrinter( PlanetApplicationService planetApplicationService ) {
+    public PlanetPrinter( PlanetApplicationService planetApplicationService,
+                          List<Printer> printers ) {
         this.planetApplicationService = planetApplicationService;
+        this.printers = printers;
     }
 
 
@@ -30,23 +36,21 @@ public class PlanetPrinter {
     /**
      * @return Print all currently alive robots, in a compact format suitable for the console.
      */
-
-/*
     public void printPlanetList() {
-        writeLine( "Known planets:" );
+        printers.forEach( p -> p.header( "Known planets" ) );
         List<Planet> planets = planetApplicationService.allPlanets();
+        printers.forEach( p -> p.startBulletList() );
         for ( Planet planet : planets) {
-            writeLineIndent( planet.toStringDetailed() );
+            printers.forEach( p -> p.writeBulletItem( planet.toStringDetailed() ) );
         }
+        printers.forEach( p -> p.endBulletList() );
     }
-*/
+
 
     /**
      * Create a list of "local maps" around the space stations, as long as there are several partial maps
      * (i.e. the whole universe has not yet been explored).
      */
-
-
     public List<TwoDimDynamicArray<Planet>> allPlanetClusters() {
         List<TwoDimDynamicArray<Planet>> allPlanetClusters = new ArrayList<>();
 

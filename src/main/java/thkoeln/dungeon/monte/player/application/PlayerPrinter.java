@@ -45,14 +45,9 @@ public class PlayerPrinter {
     public void printStatus() {
         printers.forEach( p -> p.initializeOutput() );
         gamePrinter.printStatus();
-        /*
-        write( RED );
-        gamePrinter.printStatus();
+        mapPrinter.printMap();
         robotPrinter.printRobotList();
         planetPrinter.printPlanetList();
-        mapPrinter.printMap();
-        write( RESET );
-         */
         printers.forEach( p -> p.flush() );
     }
 

@@ -3,6 +3,7 @@ package thkoeln.dungeon.monte.player.application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
+import thkoeln.dungeon.monte.core.util.Printer;
 import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
 import thkoeln.dungeon.monte.planet.domain.Planet;
@@ -49,12 +50,16 @@ public class MapPrinter  {
 
     private RobotApplicationService robotApplicationService;
     private PlanetPrinter planetPrinter;
+    private List<Printer> printers;
+
 
     @Autowired
     public MapPrinter( RobotApplicationService robotApplicationService,
-                       PlanetPrinter planetPrinter ) {
+                       PlanetPrinter planetPrinter,
+                       List<Printer> printers ) {
         this.robotApplicationService = robotApplicationService;
         this.planetPrinter = planetPrinter;
+        this.printers = printers;
     }
 
 
@@ -63,65 +68,41 @@ public class MapPrinter  {
      *      This involves planets, but also robots located on planets. "planet" package doesn't know
      *      "robot" (but the other way around), so the best way to orchestrate this is from here.
      */
-
-/*
     public void printMap() {
-        writeLine();
         int currentClusterNumber = 0;
         List<TwoDimDynamicArray<Planet>> allClusters = planetPrinter.allPlanetClusters();
         for ( TwoDimDynamicArray<Planet> planetCluster : allClusters ) {
             currentClusterNumber += 1;
-            writeLine( "Planet cluster no. " + currentClusterNumber + ":" );
+            final String headerString = "Planet cluster no. " + currentClusterNumber;
+            printers.forEach( p -> p.header( headerString ) );
             printMapCluster( planetCluster );
-            writeLine();
         }
     }
-*/
+
 
     /**
      * Print one cluster of the known map.
      * @param planetCluster
      * @return
      */
-
-/*
     private void printMapCluster( TwoDimDynamicArray<Planet> planetCluster ) {
         Coordinate maxCoordinate = planetCluster.getMaxCoordinate();
-        printTopRow( maxCoordinate );
+        int maxColumns = maxCoordinate.getX() + 1;
+        printers.forEach( p -> p.startTable( maxColumns ) );
 
         TwoDimDynamicArray<MapCellPrintDto> printCellDtos = getPrintCellDtos( planetCluster );
         for ( int y = 0; y <= maxCoordinate.getY(); y++ ) {
-            for ( int compartmentNumber = 1; compartmentNumber <= 4; compartmentNumber++ ) {
-                printRowNumberOrBlanks( y, compartmentNumber );
-                for ( int x = 0; x <= maxCoordinate.getX(); x++ ) {
-                    printCell( printCellDtos.at( x, y ), compartmentNumber );
-                }
-                writeLine();
+            final int rowNum = y;
+            printers.forEach( p -> p.startRow( rowNum, 3 ) );
+            for ( int x = 0; x < maxColumns; x++ ) {
+                String[] cellCompartments =  printCellDtos.at( x, y ).toCompartmentStrings();
+                printers.forEach( p -> p.writeCell( cellCompartments ) );
             }
+            printers.forEach( p -> p.endRow() );
         }
+        printers.forEach( p -> p.endTable() );
     }
-*/
 
-
-    /**
-     * Print the top row of the map cluster with coordinate numbers.
-     * @param maxClusterPoint
-     * @return
-     */
-/*
-    public void printTopRow( Coordinate maxClusterPoint ) {
-        write( EMPTY_COMPARTMENT );
-        for ( int columnNumber = 0; columnNumber <= maxClusterPoint.getX(); columnNumber++ ) {
-            write( String.format( "%1$3s", columnNumber ) + " " + SEPERATOR_CHAR );
-        }
-        writeLine();
-        write( EMPTY_COMPARTMENT );
-        for ( int columnNumber = 0; columnNumber <= maxClusterPoint.getX(); columnNumber++ ) {
-            write( SEPERATOR_COMPARTMENT );
-        }
-        writeLine();
-    }
-*/
 
     /**
      * Print one cluster of the known map.
@@ -142,50 +123,4 @@ public class MapPrinter  {
         return printCellDtos;
     }
 
-/*
-    private void printRowNumberOrBlanks( int rowNumber, int compartmentNumber ) {
-        if ( compartmentNumber == 2 ) {
-            write( String.format( "%1$3s", rowNumber ) + " " + SEPERATOR_CHAR );
-        }
-        else {
-            write( EMPTY_COMPARTMENT );
-        }
-    }
-
-
-
-    private void printCell( MapCellPrintDto printCellDto, int compartmentNumber ) {
-        if ( compartmentNumber < 1 || compartmentNumber > 4 )
-            throw new PlayerException( "compartmentNumber < 1 || compartmentNumber > 4" );
-        Planet planet = printCellDto.getPlanet();
-        switch ( compartmentNumber ) {
-            case 1:
-                if ( planet == null ) write( EMPTY_COMPARTMENT );
-                else write( planet.toString() + SEPERATOR_CHAR );
-                break;
-            case 2:
-                if ( planet == null || planet.getMineableResource() == null ) write( EMPTY_COMPARTMENT );
-                else write( planet.getMineableResource().toString() + SEPERATOR_CHAR );
-                break;
-            case 3:
-                printRobotCompartment( printCellDto );
-                break;
-            default: write( SEPERATOR_COMPARTMENT );
-        }
-    }
-
-
-    private void printRobotCompartment( MapCellPrintDto printCellDto ) {
-        List<Robot> robotsOnPlanet = printCellDto.getRobots();
-        if ( robotsOnPlanet == null || robotsOnPlanet.size() == 0 ) {
-            write( EMPTY_COMPARTMENT );
-        }
-        else if ( robotsOnPlanet.size() == 1 ) {
-            write( robotsOnPlanet.get( 0 ).toString() + SEPERATOR_CHAR );
-        }
-        else {
-            write( " (" + robotsOnPlanet.size() + ")" + SEPERATOR_CHAR );
-        }
-    }
-*/
 }
