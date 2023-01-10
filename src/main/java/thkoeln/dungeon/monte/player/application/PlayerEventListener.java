@@ -17,8 +17,8 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.Tradeable
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
+import thkoeln.dungeon.monte.printer.ConsoleOutput;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
-import thkoeln.dungeon.monte.core.util.ConsolePrinter;
 
 @Service
 public class PlayerEventListener {
@@ -67,7 +67,7 @@ public class PlayerEventListener {
         EventHeader eventHeader =
                 new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
         AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
-        logger.info( ConsolePrinter.BLUE + "======== EVENT =====>\n" + newEvent + ConsolePrinter.RESET );
+        logger.info( ConsoleOutput.BLUE + "======== EVENT =====>\n" + newEvent + ConsoleOutput.RESET );
         if ( !newEvent.isValid() ) {
             logger.warn( "Event invalid: " + newEvent );
             return;

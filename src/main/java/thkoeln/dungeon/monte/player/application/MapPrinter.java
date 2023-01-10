@@ -3,19 +3,16 @@ package thkoeln.dungeon.monte.player.application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
-import thkoeln.dungeon.monte.core.util.Printer;
+import thkoeln.dungeon.monte.printer.OutputDevice;
 import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
 import thkoeln.dungeon.monte.planet.domain.Planet;
-import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
-import thkoeln.dungeon.monte.robot.domain.Robot;
-import thkoeln.dungeon.monte.core.util.ConsolePrinter;
 
 import java.util.List;
 
 /**
- * Printer class to output the map of all planets and robots to console. The map usually contains of several
+ * OutputDevice class to output the map of all planets and robots to console. The map usually contains of several
  * clusters, as we learn about planets bit by bit, and at first there are unconnected clustes, just like "islands".
  * Later, (hopefully), those clusters grow into one big continous map.
  *
@@ -50,16 +47,16 @@ public class MapPrinter  {
 
     private RobotApplicationService robotApplicationService;
     private PlanetPrinter planetPrinter;
-    private List<Printer> printers;
+    private List<OutputDevice> outputDevices;
 
 
     @Autowired
     public MapPrinter( RobotApplicationService robotApplicationService,
                        PlanetPrinter planetPrinter,
-                       List<Printer> printers ) {
+                       List<OutputDevice> outputDevices) {
         this.robotApplicationService = robotApplicationService;
         this.planetPrinter = planetPrinter;
-        this.printers = printers;
+        this.outputDevices = outputDevices;
     }
 
 
@@ -74,7 +71,7 @@ public class MapPrinter  {
         for ( TwoDimDynamicArray<Planet> planetCluster : allClusters ) {
             currentClusterNumber += 1;
             final String headerString = "Planet cluster no. " + currentClusterNumber;
-            printers.forEach( p -> p.header( headerString ) );
+            outputDevices.forEach(p -> p.header( headerString ) );
             printMapCluster( planetCluster );
         }
     }
@@ -88,19 +85,19 @@ public class MapPrinter  {
     private void printMapCluster( TwoDimDynamicArray<Planet> planetCluster ) {
         Coordinate maxCoordinate = planetCluster.getMaxCoordinate();
         int maxColumns = maxCoordinate.getX() + 1;
-        printers.forEach( p -> p.startTable( maxColumns ) );
+        outputDevices.forEach(p -> p.startMap( maxColumns ) );
 
         TwoDimDynamicArray<MapCellPrintDto> printCellDtos = getPrintCellDtos( planetCluster );
         for ( int y = 0; y <= maxCoordinate.getY(); y++ ) {
             final int rowNum = y;
-            printers.forEach( p -> p.startRow( rowNum, 3 ) );
+            outputDevices.forEach(p -> p.startMapRow( rowNum, 3 ) );
             for ( int x = 0; x < maxColumns; x++ ) {
                 String[] cellCompartments =  printCellDtos.at( x, y ).toCompartmentStrings();
-                printers.forEach( p -> p.writeCell( cellCompartments ) );
+                outputDevices.forEach(p -> p.writeCell( cellCompartments ) );
             }
-            printers.forEach( p -> p.endRow() );
+            outputDevices.forEach(p -> p.endMapRow() );
         }
-        printers.forEach( p -> p.endTable() );
+        outputDevices.forEach(p -> p.endMap() );
     }
 
 

@@ -4,31 +4,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.util.Printer;
+import thkoeln.dungeon.monte.printer.OutputDevice;
 import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
-import thkoeln.dungeon.monte.core.util.ConsolePrinter;
-import thkoeln.dungeon.monte.robot.domain.Robot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Printer class to output the current player status to console.
+ * OutputDevice class to output the current player status to console.
  */
 @Service
 public class PlanetPrinter {
     private Logger logger = LoggerFactory.getLogger( PlanetPrinter.class );
     private PlanetApplicationService planetApplicationService;
-    private List<Printer> printers;
+    private List<OutputDevice> outputDevices;
 
 
     @Autowired
     public PlanetPrinter( PlanetApplicationService planetApplicationService,
-                          List<Printer> printers ) {
+                          List<OutputDevice> outputDevices) {
         this.planetApplicationService = planetApplicationService;
-        this.printers = printers;
+        this.outputDevices = outputDevices;
     }
 
 
@@ -37,13 +35,13 @@ public class PlanetPrinter {
      * @return Print all currently alive robots, in a compact format suitable for the console.
      */
     public void printPlanetList() {
-        printers.forEach( p -> p.header( "Known planets" ) );
+        outputDevices.forEach(p -> p.header( "Known planets" ) );
         List<Planet> planets = planetApplicationService.allPlanets();
-        printers.forEach( p -> p.startBulletList() );
+        outputDevices.forEach(p -> p.startBulletList() );
         for ( Planet planet : planets) {
-            printers.forEach( p -> p.writeBulletItem( planet.toStringDetailed() ) );
+            outputDevices.forEach(p -> p.writeBulletItem( planet.toStringDetailed() ) );
         }
-        printers.forEach( p -> p.endBulletList() );
+        outputDevices.forEach(p -> p.endBulletList() );
     }
 
 

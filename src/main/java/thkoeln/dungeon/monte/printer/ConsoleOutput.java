@@ -1,19 +1,15 @@
-package thkoeln.dungeon.monte.core.util;
+package thkoeln.dungeon.monte.printer;
 
-import org.apache.tomcat.websocket.WsWebSocketContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import thkoeln.dungeon.monte.core.statusclient.OutputMessage;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class WebsocketPrinter implements Printer {
-    private Logger logger = LoggerFactory.getLogger( WebsocketPrinter.class );
+public class ConsoleOutput implements OutputDevice {
+    private Logger logger = LoggerFactory.getLogger( ConsoleOutput.class );
 
     // Singleton!
     public static StringBuffer stringBuffer = new StringBuffer();
@@ -105,14 +101,6 @@ public class WebsocketPrinter implements Printer {
     protected int currentNumberOfCompartments = 0;
     protected List<String[]> currentRowCells = new ArrayList<>();
 
-    private SimpMessagingTemplate simpMessagingTemplate;
-
-    @Autowired
-    public WebsocketPrinter( SimpMessagingTemplate simpMessagingTemplate ) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
-    }
-
-
 
     @Override
     public void initializeOutput() {
@@ -130,7 +118,6 @@ public class WebsocketPrinter implements Printer {
 
     @Override
     public void endBulletList() {
-        stringBuffer.append( "\n" );
     }
 
     @Override
@@ -198,27 +185,25 @@ public class WebsocketPrinter implements Printer {
     }
 
     @Override
-    public void startTable( int numOfColumns ) {
+    public void startMap(int numOfColumns ) {
         currentNumberOfColumns = numOfColumns;
-        stringBuffer.append( EMPTY_COMPARTMENT );
+        stringBuffer.append( EMPTY_COMPARTMENT ).append( SEPERATOR_CHAR );
         for ( int columnNumber = 0; columnNumber < currentNumberOfColumns; columnNumber++ ) {
             stringBuffer.append( String.format( "%1$3s", columnNumber ) + " " + SEPERATOR_CHAR );
         }
         stringBuffer.append( "\n" );
-        stringBuffer.append( EMPTY_COMPARTMENT );
-        for ( int columnNumber = 0; columnNumber < currentNumberOfColumns; columnNumber++ ) {
-            stringBuffer.append(SEPERATOR_SEGMENT);
+        for ( int columnNumber = 0; columnNumber <= currentNumberOfColumns; columnNumber++ ) {
+            stringBuffer.append( SEPERATOR_SEGMENT );
         }
         stringBuffer.append( "\n" );
     }
 
     @Override
-    public void endTable() {
+    public void endMap() {
     }
 
-
     @Override
-    public void startRow( int rowNumber, int numOfCompartments ) {
+    public void startMapRow(int rowNumber, int numOfCompartments ) {
         currentNumberOfCompartments = numOfCompartments;
         currentRowCells = new ArrayList<>();
         String[] cell = new String[numOfCompartments];
@@ -235,22 +220,23 @@ public class WebsocketPrinter implements Printer {
     }
 
     @Override
-    public void endRow() {
+    public void endMapRow() {
         for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
             for ( String[] cell : currentRowCells ) {
-                stringBuffer.append( cell[compartmentNumber] ).append( SEPERATOR_CHAR );
+                String compartmentString = String.format( "%-4s", cell[compartmentNumber] );
+                stringBuffer.append( compartmentString ).append( SEPERATOR_CHAR );
             }
             stringBuffer.append( "\n" );
         }
-        for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
+        for ( int compartmentNumber = 0; compartmentNumber <= currentNumberOfColumns; compartmentNumber++ ) {
             stringBuffer.append( SEPERATOR_SEGMENT );
         }
+        stringBuffer.append( "\n" );
     }
 
     @Override
     public void flush() {
-        OutputMessage outputMessage = new OutputMessage( stringBuffer.toString() );
-        simpMessagingTemplate.convertAndSend("/topic/pushstatus", outputMessage );
+        logger.info( "\n" + stringBuffer );
         stringBuffer = new StringBuffer();
     }
 

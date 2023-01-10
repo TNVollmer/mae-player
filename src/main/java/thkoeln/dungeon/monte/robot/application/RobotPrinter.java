@@ -2,25 +2,24 @@ package thkoeln.dungeon.monte.robot.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.util.Printer;
+import thkoeln.dungeon.monte.printer.OutputDevice;
 import thkoeln.dungeon.monte.robot.domain.Robot;
-import thkoeln.dungeon.monte.core.util.ConsolePrinter;
 
 import java.util.List;
 
 /**
- * Printer class to output the current player status to console.
+ * OutputDevice class to output the current player status to console.
  */
 @Service
 public class RobotPrinter {
     private RobotApplicationService robotApplicationService;
-    private List<Printer> printers;
+    private List<OutputDevice> outputDevices;
 
     @Autowired
     public RobotPrinter( RobotApplicationService robotApplicationService,
-                         List<Printer> printers ) {
+                         List<OutputDevice> outputDevices) {
         this.robotApplicationService = robotApplicationService;
-        this.printers = printers;
+        this.outputDevices = outputDevices;
     }
 
 
@@ -30,13 +29,13 @@ public class RobotPrinter {
      */
 
     public void printRobotList() {
-        printers.forEach( p -> p.header( "All my robots" ) );
+        outputDevices.forEach(p -> p.header( "All my robots" ) );
         List<Robot> robots = robotApplicationService.allLivingRobots();
-        printers.forEach( p -> p.startBulletList() );
+        outputDevices.forEach(p -> p.startBulletList() );
         for ( Robot robot : robots ) {
-            printers.forEach( p -> p.writeBulletItem( robot.toStringDetailed() ) );
+            outputDevices.forEach(p -> p.writeBulletItem( robot.toStringDetailed() ) );
         }
-        printers.forEach( p -> p.endBulletList() );
+        outputDevices.forEach(p -> p.endBulletList() );
     }
 
 

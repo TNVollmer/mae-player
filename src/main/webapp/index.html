@@ -5,6 +5,7 @@
 
     <head>
 	    <title>Status Player M.O.N.T.E.</title>
+		<link rel="stylesheet" href="./style.scss">
 		<script src="resources/js/sockjs-0.3.4.js"></script>
 		<script src="resources/js/stomp.js"></script>
 		<script type="text/javascript">
@@ -22,11 +23,8 @@
 			}
 
 			function showMessageOutput(messageOutput) {
-				var response = document.getElementById('statusInfoBlock');
-				var p = document.createElement('p');
-				p.innerText = messageOutput.text;
-				response.innerHTML = "";
-				response.appendChild( p );
+				var statusBlock = document.getElementById('statusInfoBlock');
+				statusBlock.innerHTML = messageOutput.text;
 			}
 
 		</script>
@@ -34,6 +32,7 @@
 	</head>
 	<h1>Status Player M.O.N.T.E.</h1>
 	<body onload="connect()">
-		<div id="statusInfoBlock" />
+		<div id="statusInfoBlock"/>
+		</div>
 	</body>
 </html>

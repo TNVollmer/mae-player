@@ -1,6 +1,6 @@
-package thkoeln.dungeon.monte.core.util;
+package thkoeln.dungeon.monte.printer;
 
-public interface Printer {
+public interface OutputDevice {
     public enum Color { YELLOW, RED, BLUE, GREEN, YELLOW_BRIGHT, RED_BRIGHT, BLUE_BRIGHT, GREEN_BRIGHT };
 
     public void initializeOutput();
@@ -21,11 +21,11 @@ public interface Printer {
     public void startColorBackground( Color color );
     public void endColorBackground();
 
-    public void startTable( int numOfColumns );
-    public void endTable();
-    public void startRow( int rowNumber, int numOfCompartments );
+    public void startMap( int numOfColumns );
+    public void endMap();
+    public void startMapRow(int rowNumber, int numOfCompartments );
     public void writeCell ( String ... compartmentStrings );
-    public void endRow();
+    public void endMapRow();
 
     public void flush();
 }

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
 @SpringBootTest
-public class PlanetPrinterTest {
+public class PlanetOutputDeviceTest {
     private Planet[] spacestations;
     private Map<Planet, Map<CompassDirection, Planet>> neighbours;
     private Coordinate c00, c11, c22;
