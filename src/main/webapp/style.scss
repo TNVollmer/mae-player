@@ -8,17 +8,16 @@ html{
 
 body {
   font-family: Roboto;
+  width: 90%;
 }
 
 h1 {
-  font-size: 200% !important;
   line-height: 1.3em !important;
   margin-top: 1em !important;
   font-weight: bold !important;
 }
 
 h2 {
-  font-size: 160% !important;
   line-height: 1.3em !important;
   margin-top: 2em !important;
   font-weight: bold !important;
@@ -40,7 +39,7 @@ thead tr, tbody tr, thead td, tbody td, thead tr th {
   padding: 10px;
 }
 
-table.inner, tbody.inner, tr.inner {
+table.inner, tbody.inner, tr.inner, td.inner {
   background-color: inherit;
   border-collapse: collapse;
   border-style : hidden!important;
