@@ -1,0 +1,81 @@
+a:link {
+  text-decoration: none;
+}
+
+html{
+  background-color: rgb(250, 250, 250);
+}
+
+body {
+  font-family: Roboto;
+  margin: 100px;
+}
+
+h1 {
+  line-height: 1.3em !important;
+  margin-top: 1em !important;
+  font-weight: bold !important;
+}
+
+h2 {
+  line-height: 1.3em !important;
+  margin-top: 2em !important;
+  font-weight: bold !important;
+}
+
+.map {
+  margin-top: 50px;
+  display: grid;
+  grid-gap: 1px;
+  grid-template-columns: repeat(100, [col] 80px ) ;
+  grid-template-rows: repeat(100, [row] 80px );
+}
+
+.colnum {
+  text-align: center;
+  font-weight: bold;
+  font-size: 200%;
+  border: 1px solid lightgray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rownum {
+  grid-column-start: 1;
+  text-align: center;
+  font-weight: bold;
+  font-size: 200%;
+  border: 1px solid lightgray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell {
+  border: 1px solid lightgray;
+  text-align: center;
+  border-collapse: collapse;
+  padding: 10px;
+}
+
+.innercell {
+  grid-column-start: 1;
+  text-align: center;
+  padding: 0px;
+  height: 20px;
+}
+
+.robot {
+  background-color: #5a8dfa;
+  color: white;
+  font-weight: bold;
+}
+
+.robotMinus1 {
+  background-color: #bdd2ff;
+}
+
+.robotMinus2 {
+  background-color: #e6eeff;
+}
