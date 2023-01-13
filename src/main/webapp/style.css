@@ -8,12 +8,11 @@ html{
 
 body {
   font-family: Roboto;
-  margin: 100px;
+  margin: 50px;
 }
 
 h1 {
-  line-height: 1.3em !important;
-  margin-top: 1em !important;
+  margin-top: 50px !important;
   font-weight: bold !important;
 }
 
@@ -28,7 +27,7 @@ h2 {
   display: grid;
   grid-gap: 1px;
   grid-template-columns: repeat(100, [col] 80px ) ;
-  grid-template-rows: repeat(100, [row] 80px );
+  grid-template-rows: 80px;
 }
 
 .colnum {

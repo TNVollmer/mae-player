@@ -118,17 +118,15 @@ public class WebsocketOutput implements OutputDevice {
     @Override
     public void startMap( int numOfColumns ) {
         currentNumberOfColumns = numOfColumns;
-        stringBuffer.append( "<table>" ).append( "<thead>" ).
-                append( "<tr>" ).append( "<th width='50'>&nbsp;</th>" );
+        stringBuffer.append( "<div class='map'><div class='rownum'>&nbsp;</div>" );
         for ( int columnNumber = 0; columnNumber < currentNumberOfColumns; columnNumber++ ) {
-            stringBuffer.append( "<th width='50'>" ).append( columnNumber ).append( "</th>" );
+            stringBuffer.append( "<div class='colnum'>" ).append( columnNumber ).append( "</div>" );
         }
-        stringBuffer.append( "</tr>" ).append( "</thead>" ).append( "<tbody>" );
     }
 
     @Override
     public void endMap() {
-        stringBuffer.append( "</tbody>" ).append( "</table>" );
+        stringBuffer.append( "</div>" );
     }
 
 
@@ -136,11 +134,8 @@ public class WebsocketOutput implements OutputDevice {
     public void startMapRow( int rowNumber, int numOfCompartments ) {
         currentNumberOfCompartments = numOfCompartments;
         currentRowCells = new ArrayList<>();
-        String[] cell = new String[numOfCompartments];
-        for ( int compartmentNumber = 0; compartmentNumber < numOfCompartments; compartmentNumber++ ) {
-            cell[compartmentNumber] = ( compartmentNumber == numOfCompartments / 2 ) ?
-                    String.valueOf( rowNumber ) : "";
-        }
+        String[] cell = new String[1];
+        cell[0] = String.valueOf( rowNumber );
         currentRowCells.add( cell );
     }
 
@@ -151,16 +146,16 @@ public class WebsocketOutput implements OutputDevice {
 
     @Override
     public void endMapRow() {
-        stringBuffer.append( "<tr>" );
+        String[] firstCell = currentRowCells.get( 0 );
+        currentRowCells.remove( 0 );
+        stringBuffer.append( "<div class='rownum'>" ).append( firstCell[0] ).append( "</div>");
         for ( String[] cell : currentRowCells ) {
-            stringBuffer.append( "<td width='50'><table class='inner'><tbody class='inner'>" );
+            stringBuffer.append( "<div class='cell'>" );
             for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
-                stringBuffer.append( "<tr class='inner'><td class='inner'>" ).
-                        append( cell[compartmentNumber] ).append( "</tr></td>" );
+                stringBuffer.append( "<div class='innercell'>" ).append( cell[compartmentNumber] ).append( "</div>" );
             }
-            stringBuffer.append( "</tbody></table></td>" );
+            stringBuffer.append( "</div>" );
         }
-        stringBuffer.append( "</tr>" );
     }
 
     @Override
