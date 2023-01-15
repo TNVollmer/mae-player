@@ -2,10 +2,9 @@ package thkoeln.dungeon.monte.printer.util;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
-import thkoeln.dungeon.monte.core.util.UtilException;
-import static thkoeln.dungeon.monte.printer.util.MapDirection.*;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static thkoeln.dungeon.monte.printer.util.MapDirection.*;
 
 public class TwoDimDynamicArrayTest {
     private TwoDimDynamicArray<String> bigBangCharacters;
@@ -48,16 +47,16 @@ public class TwoDimDynamicArrayTest {
 
     @Test
     public void testCreationValidation() {
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( -1, 5 );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, -12 );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 0, 5 );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, 0 );
         });
     }
@@ -66,13 +65,13 @@ public class TwoDimDynamicArrayTest {
     public void testCreation() {
         // given
         // when
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( -1, 5 );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, -1 );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 0, 0 );
         });
         TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, 5 );
@@ -93,31 +92,31 @@ public class TwoDimDynamicArrayTest {
         TwoDimDynamicArray<String> arr = new TwoDimDynamicArray( 3, 5 );
 
         // when
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.put( null, "hallo" );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.put( c26, "hallo" );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.put( c35, "hallo" );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.put( c34, "hallo" );
         });
         arr.put( c12, "yeah" );
 
         // then
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.at( null );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.at( c26 );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.at( c35 );
         });
-        assertThrows( UtilException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             arr.at( c34 );
         });
         assertEquals( "yeah", arr.at( c12 ) );
@@ -129,16 +128,16 @@ public class TwoDimDynamicArrayTest {
     public void testAddColOrRow() {
         // given
         // when
-        assertThrows(UtilException.class, () -> {
+        assertThrows(PrinterException.class, () -> {
             bigBangCharacters.addRowAt(-1);
         });
-        assertThrows(UtilException.class, () -> {
+        assertThrows(PrinterException.class, () -> {
             bigBangCharacters.addRowAt(5);
         });
-        assertThrows(UtilException.class, () -> {
+        assertThrows(PrinterException.class, () -> {
             bigBangCharacters.addColumnAt(-1);
         });
-        assertThrows(UtilException.class, () -> {
+        assertThrows(PrinterException.class, () -> {
             bigBangCharacters.addColumnAt(4);
         });
         bigBangCharacters.addRowAt(2 );

@@ -131,7 +131,7 @@ public class MapPrinterTest {
     }
 
 
-    @org.junit.Test
+    @Test
     public void testTwoIslands() {
         // given
         n.defineNeighbour( s, CompassDirection.SOUTH );

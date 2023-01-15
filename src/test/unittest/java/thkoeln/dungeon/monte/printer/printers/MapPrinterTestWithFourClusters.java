@@ -168,8 +168,8 @@ public class MapPrinterTestWithFourClusters {
         // then
         assertEquals( c11, myCluster.getMaxCoordinate() );
         assertEquals( spawnPoints[1], myCluster.at( 1, 0 ) );
-        assertEquals( neighbours.get( spawnPoints[1] ).get( WEST ), myCluster.at( 0, 0 ) );
-        assertEquals( neighbours.get( spawnPoints[1] ).get( SOUTH ), myCluster.at( 1, 1 ) );
+        assertEquals( neighbours.get( spawnPoints[1] ).get( we ), myCluster.at( 0, 0 ) );
+        assertEquals( neighbours.get( spawnPoints[1] ).get( so ), myCluster.at( 1, 1 ) );
         assertNull( myCluster.at( 0, 1 ) );
     }
 
@@ -185,16 +185,16 @@ public class MapPrinterTestWithFourClusters {
 
         // then
         assertEquals( c22, myCluster.getMaxCoordinate() );
-        assertEquals( neighbours.get( spawnPoints[2] ).get( NORTH ), myCluster.at( 0, 0 ) );
+        assertEquals( neighbours.get( spawnPoints[2] ).get( no ), myCluster.at( 0, 0 ) );
         assertNull( myCluster.at( 1, 0 ) );
         assertNull( myCluster.at( 2, 0 ) );
 
         assertEquals( spawnPoints[2], myCluster.at( 0, 1 ) );
         assertEquals( spawnPoints[3], myCluster.at( 1, 1 ) );
-        assertEquals( neighbours.get( spawnPoints[3] ).get( EAST ), myCluster.at( 2, 1 ) );
+        assertEquals( neighbours.get( spawnPoints[3] ).get( ea ), myCluster.at( 2, 1 ) );
 
         assertNull( myCluster.at( 0, 2 ) );
-        assertEquals( neighbours.get( spawnPoints[3] ).get( SOUTH ), myCluster.at( 1, 2 ) );
+        assertEquals( neighbours.get( spawnPoints[3] ).get( so ), myCluster.at( 1, 2 ) );
         assertNull( myCluster.at( 2, 2 ) );
     }
 
@@ -209,13 +209,13 @@ public class MapPrinterTestWithFourClusters {
         // then
         assertEquals( c22, myCluster.getMaxCoordinate() );
         assertNull( myCluster.at( 0, 0 ) );
-        assertEquals( neighbours.get( spawnPoints[4] ).get( NORTH ), myCluster.at( 1, 0 ) );
+        assertEquals( neighbours.get( spawnPoints[4] ).get( no ), myCluster.at( 1, 0 ) );
         assertNull( myCluster.at( 2, 0 ) );
-        assertEquals( neighbours.get( spawnPoints[4] ).get( WEST ), myCluster.at( 0, 1 ) );
+        assertEquals( neighbours.get( spawnPoints[4] ).get( we ), myCluster.at( 0, 1 ) );
         assertEquals( spawnPoints[4], myCluster.at( 1, 1 ) );
-        assertEquals( neighbours.get( spawnPoints[4] ).get( EAST ), myCluster.at( 2, 1 ) );
+        assertEquals( neighbours.get( spawnPoints[4] ).get( ea ), myCluster.at( 2, 1 ) );
         assertNull( myCluster.at( 0, 2 ) );
-        assertEquals( neighbours.get( spawnPoints[4] ).get( SOUTH ), myCluster.at( 1, 2 ) );
+        assertEquals( neighbours.get( spawnPoints[4] ).get( so ), myCluster.at( 1, 2 ) );
         assertNull( myCluster.at( 2, 2 ) );
     }
 
