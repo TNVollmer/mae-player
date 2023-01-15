@@ -1,8 +1,9 @@
-package thkoeln.dungeon.monte.robot.application;
+package thkoeln.dungeon.monte.printer.printers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.printer.OutputDevice;
+import thkoeln.dungeon.monte.printer.devices.OutputDevice;
+import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.domain.Robot;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class RobotPrinter {
         List<Robot> robots = robotApplicationService.allLivingRobots();
         outputDevices.forEach(p -> p.startBulletList() );
         for ( Robot robot : robots ) {
-            outputDevices.forEach(p -> p.writeBulletItem( robot.toStringDetailed() ) );
+            outputDevices.forEach(p -> p.writeBulletItem( robot.detailedDescription() ) );
         }
         outputDevices.forEach(p -> p.endBulletList() );
     }

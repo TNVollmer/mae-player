@@ -12,13 +12,13 @@ import thkoeln.dungeon.monte.game.domain.GameRepository;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.core.restadapter.GameDto;
 import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.monte.printer.finderservices.GameFinderService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class GameApplicationService {
+public class GameApplicationService implements GameFinderService {
     private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private Environment environment;
@@ -54,16 +54,17 @@ public class GameApplicationService {
     }
 
     /**
-     * @return The currently available open game
+     * @return The currently available active (CREATED or RUNNING) game, or null if there is no such game
      */
-    public Optional<Game> queryActiveGame() {
+    @Override
+    public Game queryActiveGame() {
         List<Game> foundGames = gameRepository.findAllByGameStatusBetween( GameStatus.CREATED, GameStatus.RUNNING );
         if ( foundGames.size() > 1 ) throw new GameException( "More than one active game!" );
         if ( foundGames.size() == 1 ) {
-            return Optional.of( foundGames.get( 0 ) );
+            return foundGames.get( 0 );
         }
         else {
-            return Optional.empty();
+            return null;
         }
     }
 
@@ -98,19 +99,19 @@ public class GameApplicationService {
         logger.info( "Change status for game with gameId " + gameId + " to " + gameStatus );
         if ( gameId == null ) throw new GameException( "gameId == null" );
 
-        Optional<Game> perhapsGame = queryActiveGame();
-        if ( !perhapsGame.isPresent() ) {
+        Game game = queryActiveGame();
+        if ( game == null ) {
             logger.error( "No game with id " + gameId + " found!" );
             return;
         }
-        Game game = perhapsGame.get();
         game.setGameStatus( gameStatus );
         gameRepository.save( game );
     }
 
 
     public void roundStarted( Integer roundNumber ) {
-        Game game = queryActiveGame().orElseThrow( () -> new GameException("No active game!") );
+        Game game = queryActiveGame();
+        if ( game == null ) throw new GameException( "No active game!" );
         game.setCurrentRoundNumber( roundNumber );
         gameRepository.save( game );
     }

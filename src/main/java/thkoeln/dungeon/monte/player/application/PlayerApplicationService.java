@@ -110,7 +110,7 @@ public class PlayerApplicationService {
             return;
         }
         player.assignPlayerId( playerId );
-        player.setGameId( gameApplicationService.queryActiveGame().get().getGameId() );
+        player.setGameId( gameApplicationService.queryActiveGame().getGameId() );
 
         // We need the queue now, not at joining the game ... so we "guess" the queue name.
         openRabbitQueue( player );
@@ -126,15 +126,14 @@ public class PlayerApplicationService {
     public void letPlayerJoinOpenGame() {
         logger.info( "Trying to join game ..." );
         Player player = queryAndIfNeededCreatePlayer();
-        Optional<Game> perhapsOpenGame = gameApplicationService.queryActiveGame();
-        if ( !perhapsOpenGame.isPresent() ) {
+        Game activeGame = gameApplicationService.queryActiveGame();
+        if ( activeGame == null ) {
             logger.info( "No open game at the moment - cannot join a game." );
             return;
         }
-        Game game = perhapsOpenGame.get();
-        if ( !game.getOurPlayerHasJoined() ) {
+        if ( !activeGame.getOurPlayerHasJoined() ) {
             String playerQueue =
-                    gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( game.getGameId(), player.getPlayerId() );
+                    gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( activeGame.getGameId(), player.getPlayerId() );
             if ( playerQueue == null ) {
                 logger.warn( "letPlayerJoinOpenGame: no join happened!" );
                 return;
@@ -144,7 +143,8 @@ public class PlayerApplicationService {
         }
         openRabbitQueue( player );
         playerRepository.save( player );
-        logger.info( "Player successfully joined game " + game + ", listening via player queue " + player.getPlayerQueue() );
+        logger.info( "Player successfully joined game " + activeGame + ", listening via player queue " +
+                player.getPlayerQueue() );
     }
 
 
@@ -193,8 +193,8 @@ public class PlayerApplicationService {
         List<Command> allCommands = robotApplicationService.currentRobotCommands();
         if ( playerCommand != null ) allCommands.add( playerCommand );
 
-        Optional<Game> currentGameOptional = gameApplicationService.queryActiveGame();
-        if ( currentGameOptional.isPresent() && currentGameOptional.get().getGameStatus().isRunning() ) {
+        Game currentGame = gameApplicationService.queryActiveGame();
+        if ( currentGame != null && currentGame.getGameStatus().isRunning() ) {
             for ( Command command : allCommands ) gameServiceRESTAdapter.sendPostRequestForCommand( command );
         }
         logger.info( "Sent " + allCommands.size() + " commands!" );

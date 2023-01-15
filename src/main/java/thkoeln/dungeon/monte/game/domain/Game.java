@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.monte.printer.printables.GamePrintable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -22,7 +23,7 @@ import static java.lang.Boolean.FALSE;
 @Setter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Game {
+public class Game implements GamePrintable {
     @Id
     private final UUID id = UUID.randomUUID();
 
@@ -81,5 +82,10 @@ public class Game {
     @Override
     public String toString() {
         return "Game round no. " + currentRoundNumber + " (" + getGameStatus() + ")";
+    }
+
+    @Override
+    public String detailedDescription() {
+        return toString();
     }
 }

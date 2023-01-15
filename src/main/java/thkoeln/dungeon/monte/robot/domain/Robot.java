@@ -11,6 +11,7 @@ import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 import thkoeln.dungeon.monte.planet.domain.Planet;
+import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
 
 import javax.persistence.*;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
-public class Robot implements ActionableRobot {
+public class Robot implements ActionableRobot, RobotPrintable {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Robot.class );
 
@@ -173,7 +174,8 @@ public class Robot implements ActionableRobot {
     }
 
 
-    public String toStringDetailed() {
+    @Override
+    public String detailedDescription() {
         String printString = toString();
         if ( location != null ) printString += " on " + location;
         return printString;
@@ -181,10 +183,15 @@ public class Robot implements ActionableRobot {
 
 
     @Override
-    public String toString() {
+    public String mapName() {
         String printString = ( type != null ) ? type.toString() : "Robot";
         printString = printString.substring( 0, 1 );
         printString += String.valueOf( robotId ).substring( 0, 3 );
         return printString;
+    }
+
+    @Override
+    public String toString() {
+        return mapName();
     }
 }

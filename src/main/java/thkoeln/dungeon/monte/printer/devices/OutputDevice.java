@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.printer;
+package thkoeln.dungeon.monte.printer.devices;
 
 public interface OutputDevice {
     public enum Color { YELLOW, RED, BLUE, GREEN, YELLOW_BRIGHT, RED_BRIGHT, BLUE_BRIGHT, GREEN_BRIGHT };

@@ -1,14 +1,14 @@
-package thkoeln.dungeon.monte.game.application;
+package thkoeln.dungeon.monte.printer.printers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.printer.OutputDevice;
-import thkoeln.dungeon.monte.game.domain.Game;
+import thkoeln.dungeon.monte.printer.devices.OutputDevice;
+import thkoeln.dungeon.monte.printer.printables.GamePrintable;
+import thkoeln.dungeon.monte.printer.finderservices.GameFinderService;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * OutputDevice class to output the current player status to console.
@@ -16,27 +16,27 @@ import java.util.Optional;
 @Service
 public class GamePrinter {
     private Logger logger = LoggerFactory.getLogger( GamePrinter.class );
-    private GameApplicationService gameApplicationService;
+    private GameFinderService gameFinderService;
     private List<OutputDevice> outputDevices;
 
 
     @Autowired
-    public GamePrinter( GameApplicationService gameApplicationService,
-                        List<OutputDevice> outputDevices) {
-        this.gameApplicationService = gameApplicationService;
+    public GamePrinter( GameFinderService gameFinderService,
+                        List<OutputDevice> outputDevices ) {
+        this.gameFinderService = gameFinderService;
         this.outputDevices = outputDevices;
     }
 
 
     public void printStatus() {
         outputDevices.forEach(p -> p.header( "Game" ) );
-        Optional<Game> perhapsGame = gameApplicationService.queryActiveGame();
+        GamePrintable gamePrintable = gameFinderService.queryActiveGame();
         outputDevices.forEach(p -> p.startLine() );
-        if ( !perhapsGame.isPresent() ) {
+        if ( gamePrintable != null ) {
             outputDevices.forEach(p -> p.write( "No active game found!" ) );
         }
         else {
-            outputDevices.forEach(p -> p.write( perhapsGame.get().toString() ) );
+            outputDevices.forEach(p -> p.write( gamePrintable.toString() ) );
         }
         outputDevices.forEach(p -> p.endLine() );
     }

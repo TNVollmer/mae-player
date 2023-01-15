@@ -1,11 +1,13 @@
-package thkoeln.dungeon.monte.planet.application;
+package thkoeln.dungeon.monte.printer.printers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.printer.OutputDevice;
-import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
+import thkoeln.dungeon.monte.printer.devices.OutputDevice;
+import thkoeln.dungeon.monte.printer.finderservices.PlanetFinderService;
+import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
+import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 
 import java.util.ArrayList;
@@ -18,14 +20,14 @@ import java.util.function.Predicate;
 @Service
 public class PlanetPrinter {
     private Logger logger = LoggerFactory.getLogger( PlanetPrinter.class );
-    private PlanetApplicationService planetApplicationService;
+    private PlanetFinderService planetFinderService;
     private List<OutputDevice> outputDevices;
 
 
     @Autowired
-    public PlanetPrinter( PlanetApplicationService planetApplicationService,
-                          List<OutputDevice> outputDevices) {
-        this.planetApplicationService = planetApplicationService;
+    public PlanetPrinter( PlanetFinderService planetFinderService,
+                          List<OutputDevice> outputDevices ) {
+        this.planetFinderService = planetFinderService;
         this.outputDevices = outputDevices;
     }
 
@@ -36,10 +38,10 @@ public class PlanetPrinter {
      */
     public void printPlanetList() {
         outputDevices.forEach(p -> p.header( "Known planets" ) );
-        List<Planet> planets = planetApplicationService.allPlanets();
+        List<? extends PlanetPrintable> planetPrintables = planetFinderService.allPlanets();
         outputDevices.forEach(p -> p.startBulletList() );
-        for ( Planet planet : planets) {
-            outputDevices.forEach(p -> p.writeBulletItem( planet.toStringDetailed() ) );
+        for ( PlanetPrintable planetPrintable : planetPrintables) {
+            outputDevices.forEach(p -> p.writeBulletItem( planetPrintable.detailedDescription() ) );
         }
         outputDevices.forEach(p -> p.endBulletList() );
     }
@@ -49,17 +51,18 @@ public class PlanetPrinter {
      * Create a list of "local maps" around the space stations, as long as there are several partial maps
      * (i.e. the whole universe has not yet been explored).
      */
-    public List<TwoDimDynamicArray<Planet>> allPlanetClusters() {
-        List<TwoDimDynamicArray<Planet>> allPlanetClusters = new ArrayList<>();
+    public List<TwoDimDynamicArray<PlanetPrintable>> allPlanetClusters() {
+        List<TwoDimDynamicArray<PlanetPrintable>> allPlanetClusters = new ArrayList<>();
 
-        List<Planet> spacestations = planetApplicationService.allSpaceStations();
-        for ( Planet spacestation: spacestations ) {
-            Predicate<TwoDimDynamicArray<Planet>> containsSpacestation =
-                    planetCluster -> planetCluster.contains( spacestation );
+        List<? extends PlanetPrintable> spawnPoints = planetFinderService.allSpawnPoints();
+        for ( PlanetPrintable spawnPoint: spawnPoints ) {
+            Predicate<TwoDimDynamicArray<PlanetPrintable>> containsSpacestation =
+                    planetCluster -> planetCluster.contains( spawnPoint );
             boolean alreadyThere = allPlanetClusters.stream().anyMatch( containsSpacestation );
             if ( ! alreadyThere ) {
                 // this spacestation is not yet part of any previous cluster. Therefore, we start a new one.
-                TwoDimDynamicArray<Planet> newPlanetCluster = spacestation.constructLocalClusterMap();
+                PlanetMapConstructor planetMapConstructor = new PlanetMapConstructor( spawnPoint );
+                TwoDimDynamicArray<PlanetPrintable> newPlanetCluster = planetMapConstructor.constructLocalClusterMap();
                 allPlanetClusters.add( newPlanetCluster );
             }
         }

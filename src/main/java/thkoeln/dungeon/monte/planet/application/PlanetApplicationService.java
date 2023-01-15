@@ -11,6 +11,7 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotPlanet
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetException;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
+import thkoeln.dungeon.monte.printer.finderservices.PlanetFinderService;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ import java.util.UUID;
 import static java.lang.Boolean.TRUE;
 
 @Service
-public class PlanetApplicationService {
+public class PlanetApplicationService implements PlanetFinderService {
     private Logger logger = LoggerFactory.getLogger( PlanetApplicationService.class );
     private PlanetRepository planetRepository;
 
@@ -28,12 +29,14 @@ public class PlanetApplicationService {
         this.planetRepository = planetRepository;
     }
 
+    @Override
     public List<Planet> allPlanets() {
         return planetRepository.findAll();
     }
 
-    public List<Planet> allSpaceStations() {
-        return planetRepository.findBySpacestationEquals( TRUE );
+    @Override
+    public List<Planet> allSpawnPoints() {
+        return planetRepository.findBySpawnPointEquals( true );
     }
 
     public Optional<Planet> findById( UUID id ) {
@@ -74,7 +77,7 @@ public class PlanetApplicationService {
                 " (space station: " + isSpaceStation + ")");
         Optional<Planet> foundOptional = planetRepository.findByPlanetId(planetId);
         Planet newPlanet = foundOptional.isPresent() ? foundOptional.get() : new Planet(planetId);
-        if ( isSpaceStation != null ) newPlanet.setSpacestation( isSpaceStation );
+        if ( isSpaceStation != null ) newPlanet.setSpawnPoint( isSpaceStation );
         if ( movementDifficulty != null ) newPlanet.setMovementDifficulty( movementDifficulty );
         planetRepository.save(newPlanet);
         return newPlanet;

@@ -1,12 +1,9 @@
-package thkoeln.dungeon.monte.player.application;
+package thkoeln.dungeon.monte.printer.printers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.printer.OutputDevice;
-import thkoeln.dungeon.monte.game.application.GamePrinter;
-import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
-import thkoeln.dungeon.monte.robot.application.RobotPrinter;
+import thkoeln.dungeon.monte.printer.devices.OutputDevice;
 
 import java.util.List;
 

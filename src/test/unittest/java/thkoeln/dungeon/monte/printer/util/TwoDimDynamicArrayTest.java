@@ -1,32 +1,30 @@
-package thkoeln.dungeon.monte.core.util;
+package thkoeln.dungeon.monte.printer.util;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
-import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
-import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.core.util.UtilException;
-
+import static thkoeln.dungeon.monte.printer.util.MapDirection.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TwoDimDynamicArrayTest {
     private TwoDimDynamicArray<String> bigBangCharacters;
-    private Coordinate c00, c01, c02, c11, c12, c21, c23, c24, c26, c31, c34, c35;
+    private MapCoordinate c00, c01, c02, c11, c12, c21, c23, c24, c26, c31, c34, c35;
 
     @BeforeEach
     public void setUp() {
-        c01 = Coordinate.fromInteger( 0, 1 );
-        c02 = Coordinate.fromInteger( 0, 2 );
-        c11 = Coordinate.fromInteger( 1, 1 );
-        c12 = Coordinate.fromInteger( 1, 2 );
-        c00 = Coordinate.fromInteger( 0, 0 );
-        c21 = Coordinate.fromInteger( 2, 1 );
-        c23 = Coordinate.fromInteger( 2, 3 );
-        c24 = Coordinate.fromInteger( 2, 4 );
-        c26 = Coordinate.fromInteger( 2, 6 );
-        c31 = Coordinate.fromInteger( 3, 1 );
-        c34 = Coordinate.fromInteger( 3, 4 );
-        c35 = Coordinate.fromInteger( 3, 5 );
+        c01 = MapCoordinate.fromInteger( 0, 1 );
+        c02 = MapCoordinate.fromInteger( 0, 2 );
+        c11 = MapCoordinate.fromInteger( 1, 1 );
+        c12 = MapCoordinate.fromInteger( 1, 2 );
+        c00 = MapCoordinate.fromInteger( 0, 0 );
+        c21 = MapCoordinate.fromInteger( 2, 1 );
+        c23 = MapCoordinate.fromInteger( 2, 3 );
+        c24 = MapCoordinate.fromInteger( 2, 4 );
+        c26 = MapCoordinate.fromInteger( 2, 6 );
+        c31 = MapCoordinate.fromInteger( 3, 1 );
+        c34 = MapCoordinate.fromInteger( 3, 4 );
+        c35 = MapCoordinate.fromInteger( 3, 5 );
 
         bigBangCharacters = new TwoDimDynamicArray(3, 3);
         bigBangCharacters.put( c01, "Penny");
@@ -35,7 +33,7 @@ public class TwoDimDynamicArrayTest {
         bigBangCharacters.put( c12, "Leonard");
         for (int y = 0; y < bigBangCharacters.sizeY(); y++) {
             for (int x = 0; x < bigBangCharacters.sizeX(); x++) {
-                System.out.print( bigBangCharacters.at( Coordinate.fromInteger( x, y ) ) + " | ");
+                System.out.print( bigBangCharacters.at( MapCoordinate.fromInteger( x, y ) ) + " | ");
             }
             System.out.println( "" );
         }
@@ -155,7 +153,7 @@ public class TwoDimDynamicArrayTest {
         // then
         for (int y = 0; y < bigBangCharacters.sizeY(); y++) {
             for (int x = 0; x < bigBangCharacters.sizeX(); x++) {
-                System.out.print( bigBangCharacters.at( Coordinate.fromInteger( x, y ) ) + " | " );
+                System.out.print( bigBangCharacters.at( MapCoordinate.fromInteger( x, y ) ) + " | " );
             }
             System.out.println( "" );
         }
@@ -178,10 +176,10 @@ public class TwoDimDynamicArrayTest {
         TwoDimDynamicArray<String> arrWest = new TwoDimDynamicArray(2, 3);
 
         // when
-        arrNorth.enhanceIfNeededAt( c12, CompassDirection.NORTH );
-        arrEast.enhanceIfNeededAt( c12, CompassDirection.EAST );
-        arrSouth.enhanceIfNeededAt( c12, CompassDirection.SOUTH );
-        arrWest.enhanceIfNeededAt( c12, CompassDirection.WEST );
+        arrNorth.enhanceIfNeededAt( c12, no );
+        arrEast.enhanceIfNeededAt( c12, ea );
+        arrSouth.enhanceIfNeededAt( c12, so );
+        arrWest.enhanceIfNeededAt( c12, we );
 
         // then
         assertEquals(2, arrNorth.sizeX());
@@ -203,10 +201,10 @@ public class TwoDimDynamicArrayTest {
         TwoDimDynamicArray<String> arrWest = new TwoDimDynamicArray(2, 3);
 
         // when
-        arrNorth.enhanceIfNeededAt( c00, CompassDirection.NORTH );
-        arrEast.enhanceIfNeededAt( c00, CompassDirection.EAST );
-        arrSouth.enhanceIfNeededAt( c00, CompassDirection.SOUTH );
-        arrWest.enhanceIfNeededAt( c00, CompassDirection.WEST );
+        arrNorth.enhanceIfNeededAt( c00, no );
+        arrEast.enhanceIfNeededAt( c00, ea );
+        arrSouth.enhanceIfNeededAt( c00, so );
+        arrWest.enhanceIfNeededAt( c00, we );
 
         // then
         assertEquals( 2, arrNorth.sizeX() );

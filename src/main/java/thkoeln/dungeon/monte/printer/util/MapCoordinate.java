@@ -1,10 +1,11 @@
-package thkoeln.dungeon.monte.core.domainprimitives.location;
+package thkoeln.dungeon.monte.printer.util;
 
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 
 import javax.persistence.Embeddable;
 
@@ -24,66 +25,66 @@ import javax.persistence.Embeddable;
 @Setter( AccessLevel.PROTECTED )
 @Embeddable
 @EqualsAndHashCode
-public class Coordinate {
+public class MapCoordinate {
 
     private Integer x;
     private Integer y;
 
-    public static Coordinate fromInteger( Integer x, Integer y ) {
+    public static MapCoordinate fromInteger( Integer x, Integer y ) {
         if ( x == null ) throw new DomainPrimitiveException( "x must not be null!" );
         if ( y == null ) throw new DomainPrimitiveException( "y must not be null!" );
         if ( x < 0 ) throw new DomainPrimitiveException( "x must be >= 0: " + x );
         if ( y < 0 ) throw new DomainPrimitiveException( "y must be >= 0: " + y );
-        return new Coordinate( x, y );
+        return new MapCoordinate( x, y );
     }
 
     /**
      * @param coordinateString the coordinate in form of a string e.g. (1,2)
      */
-    public static Coordinate fromString( String coordinateString ) {
+    public static MapCoordinate fromString( String coordinateString ) {
         String[] coords = coordinateString.replaceAll("\\(","").replaceAll("\\)","").split(",");
         if ( coords.length != 2 ) throw new DomainPrimitiveException( "Not a valid string" );
 
         Integer x = Integer.valueOf(coords[0]);
         Integer y = Integer.valueOf(coords[1]);
-        return new Coordinate( x, y );
+        return new MapCoordinate( x, y );
     }
 
     /**
      * The first coordinate ever assigned is (0,0) - the map is built starting from here. This
      * allows negative coordinates as well.
      */
-    public static Coordinate initialCoordinate() {
-        return new Coordinate( 0, 0 );
+    public static MapCoordinate initialCoordinate() {
+        return new MapCoordinate( 0, 0 );
     }
 
-    protected Coordinate ( Integer x, Integer y ) {
+    protected MapCoordinate(Integer x, Integer y ) {
         this.x = x;
         this.y = y;
     }
 
-    protected Coordinate() {}
+    protected MapCoordinate() {}
 
-    public boolean isSmallerEqualsThan( Coordinate anotherCoordinate ) {
-        if ( anotherCoordinate == null ) return false;
-        return ( this.x <= anotherCoordinate.getX() && this.y <= anotherCoordinate.getY() );
+    public boolean isSmallerEqualsThan( MapCoordinate anotherMapCoordinate) {
+        if ( anotherMapCoordinate == null ) return false;
+        return ( this.x <= anotherMapCoordinate.getX() && this.y <= anotherMapCoordinate.getY() );
     }
 
-    public boolean isLargerThan( Coordinate anotherCoordinate ) {
-        if ( anotherCoordinate == null ) return false;
-        return ( this.x > anotherCoordinate.getX() || this.y > anotherCoordinate.getY() );
+    public boolean isLargerThan( MapCoordinate anotherMapCoordinate) {
+        if ( anotherMapCoordinate == null ) return false;
+        return ( this.x > anotherMapCoordinate.getX() || this.y > anotherMapCoordinate.getY() );
     }
 
-    public Coordinate neighbourCoordinate( CompassDirection compassDirection ) {
-        if ( compassDirection == null ) throw new DomainPrimitiveException( "compassDirection must not be null." );
+    public MapCoordinate neighbourCoordinate( MapDirection mapDirection ) {
+        if ( mapDirection == null ) throw new DomainPrimitiveException( "compassDirection must not be null." );
         Integer newX = this.x;
         Integer newY = this.y;
-        if ( compassDirection == CompassDirection.NORTH ) newY = Math.max( newY-1, 0 );
-        if ( compassDirection == CompassDirection.EAST ) newX++;
-        if ( compassDirection == CompassDirection.SOUTH ) newY++;
-        if ( compassDirection == CompassDirection.WEST ) newX = Math.max( newX-1, 0 );
+        if ( mapDirection == MapDirection.no ) newY = Math.max( newY-1, 0 );
+        if ( mapDirection == MapDirection.ea ) newX++;
+        if ( mapDirection == MapDirection.so ) newY++;
+        if ( mapDirection == MapDirection.we ) newX = Math.max( newX-1, 0 );
 
-        return Coordinate.fromInteger( newX, newY );
+        return MapCoordinate.fromInteger( newX, newY );
     }
 
 

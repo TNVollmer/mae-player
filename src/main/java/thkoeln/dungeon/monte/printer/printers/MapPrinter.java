@@ -1,12 +1,12 @@
-package thkoeln.dungeon.monte.player.application;
+package thkoeln.dungeon.monte.printer.printers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
-import thkoeln.dungeon.monte.printer.OutputDevice;
-import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
-import thkoeln.dungeon.monte.planet.application.PlanetPrinter;
-import thkoeln.dungeon.monte.planet.domain.Planet;
+import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
+import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
+import thkoeln.dungeon.monte.printer.util.MapCoordinate;
+import thkoeln.dungeon.monte.printer.devices.OutputDevice;
+import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 
 import java.util.List;
@@ -45,16 +45,16 @@ public class MapPrinter  {
     protected static final String SEPERATOR_COMPARTMENT = "----|";
     protected static final String SEPERATOR_CHAR = "|";
 
-    private RobotApplicationService robotApplicationService;
+    private RobotFinderService robotFinderService;
     private PlanetPrinter planetPrinter;
     private List<OutputDevice> outputDevices;
 
 
     @Autowired
-    public MapPrinter( RobotApplicationService robotApplicationService,
+    public MapPrinter( RobotFinderService robotFinderService,
                        PlanetPrinter planetPrinter,
                        List<OutputDevice> outputDevices) {
-        this.robotApplicationService = robotApplicationService;
+        this.robotFinderService = robotFinderService;
         this.planetPrinter = planetPrinter;
         this.outputDevices = outputDevices;
     }
@@ -67,8 +67,8 @@ public class MapPrinter  {
      */
     public void printMap() {
         int currentClusterNumber = 0;
-        List<TwoDimDynamicArray<Planet>> allClusters = planetPrinter.allPlanetClusters();
-        for ( TwoDimDynamicArray<Planet> planetCluster : allClusters ) {
+        List<TwoDimDynamicArray<PlanetPrintable>> allClusters = planetPrinter.allPlanetClusters();
+        for ( TwoDimDynamicArray<PlanetPrintable> planetCluster : allClusters ) {
             currentClusterNumber += 1;
             final String headerString = "Planet cluster no. " + currentClusterNumber;
             outputDevices.forEach(p -> p.header( headerString ) );
@@ -82,13 +82,13 @@ public class MapPrinter  {
      * @param planetCluster
      * @return
      */
-    private void printMapCluster( TwoDimDynamicArray<Planet> planetCluster ) {
-        Coordinate maxCoordinate = planetCluster.getMaxCoordinate();
-        int maxColumns = maxCoordinate.getX() + 1;
+    private void printMapCluster( TwoDimDynamicArray<PlanetPrintable> planetCluster ) {
+        MapCoordinate maxMapCoordinate = planetCluster.getMaxCoordinate();
+        int maxColumns = maxMapCoordinate.getX() + 1;
         outputDevices.forEach(p -> p.startMap( maxColumns ) );
 
         TwoDimDynamicArray<MapCellPrintDto> printCellDtos = getPrintCellDtos( planetCluster );
-        for ( int y = 0; y <= maxCoordinate.getY(); y++ ) {
+        for (int y = 0; y <= maxMapCoordinate.getY(); y++ ) {
             final int rowNum = y;
             outputDevices.forEach(p -> p.startMapRow( rowNum, 3 ) );
             for ( int x = 0; x < maxColumns; x++ ) {
@@ -106,14 +106,14 @@ public class MapPrinter  {
      * @param planetCluster
      * @return
      */
-    private TwoDimDynamicArray<MapCellPrintDto> getPrintCellDtos(TwoDimDynamicArray<Planet> planetCluster ) {
-        Coordinate maxCoordinate = planetCluster.getMaxCoordinate();
-        TwoDimDynamicArray<MapCellPrintDto> printCellDtos = new TwoDimDynamicArray<>( maxCoordinate );
-        for ( int y = 0; y <= maxCoordinate.getY(); y++ ) {
-            for ( int x = 0; x <= maxCoordinate.getX(); x++ ) {
-                Planet planet = planetCluster.at( x, y );
-                MapCellPrintDto mapPrintDto = new MapCellPrintDto( planet );
-                mapPrintDto.setRobots( robotApplicationService.livingRobotsOnPlanet( planet ) );
+    private TwoDimDynamicArray<MapCellPrintDto> getPrintCellDtos(TwoDimDynamicArray<PlanetPrintable> planetCluster ) {
+        MapCoordinate maxMapCoordinate = planetCluster.getMaxCoordinate();
+        TwoDimDynamicArray<MapCellPrintDto> printCellDtos = new TwoDimDynamicArray<>(maxMapCoordinate);
+        for (int y = 0; y <= maxMapCoordinate.getY(); y++ ) {
+            for (int x = 0; x <= maxMapCoordinate.getX(); x++ ) {
+                PlanetPrintable planetPrintable = planetCluster.at( x, y );
+                MapCellPrintDto mapPrintDto = new MapCellPrintDto( planetPrintable );
+                mapPrintDto.setRobotPrintables( robotFinderService.livingRobotsOnPlanet( planetPrintable ) );
                 printCellDtos.put(x, y, mapPrintDto);
             }
         }

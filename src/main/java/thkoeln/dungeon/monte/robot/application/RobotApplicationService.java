@@ -13,6 +13,9 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedI
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
+import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
+import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
+import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
 import thkoeln.dungeon.monte.robot.domain.*;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 import thkoeln.dungeon.monte.trading.domain.TradingAccount;
@@ -26,7 +29,7 @@ import static java.lang.Boolean.TRUE;
 import static thkoeln.dungeon.monte.robot.domain.RobotType.*;
 
 @Service
-public class RobotApplicationService {
+public class RobotApplicationService implements RobotFinderService {
     private Logger logger = LoggerFactory.getLogger( RobotApplicationService.class );
     private RobotRepository robotRepository;
     private PlayerInformation playerInformation;
@@ -133,8 +136,10 @@ public class RobotApplicationService {
     /**
      * @return Find the robots on a specific planet
      */
-    public List<Robot> livingRobotsOnPlanet( Planet planet ) {
-        if ( planet == null ) return null; // black hole
+    @Override
+    public List<Robot> livingRobotsOnPlanet( PlanetPrintable planetPrintable ) {
+        if ( planetPrintable == null ) return new ArrayList<>();
+        Planet planet = (Planet) planetPrintable;
         List<Robot> robotsOnPlanet = robotRepository.findAllByLocationIsAndAliveIsTrue( planet );
         robotsOnPlanet.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robotsOnPlanet;

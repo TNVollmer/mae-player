@@ -50,7 +50,7 @@ public class PlanetDomainService {
                 newPlanet = new Planet( newPlanetId );
             }
         }
-        newPlanet.setSpacestation( isSpaceStation );
+        newPlanet.setSpawnPoint( isSpaceStation );
         planetRepository.save( newPlanet );
     }
 

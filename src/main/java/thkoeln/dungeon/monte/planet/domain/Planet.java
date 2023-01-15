@@ -8,10 +8,13 @@ import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
-import thkoeln.dungeon.monte.core.domainprimitives.location.Coordinate;
+import thkoeln.dungeon.monte.printer.printables.MineableResourcePrintable;
+import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
+import thkoeln.dungeon.monte.printer.util.MapCoordinate;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
-import thkoeln.dungeon.monte.core.util.TwoDimDynamicArray;
+import thkoeln.dungeon.monte.printer.util.MapDirection;
+import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,8 +26,9 @@ import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirect
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
-public class Planet {
+public class Planet implements PlanetPrintable {
     @Id
     private final UUID id = UUID.randomUUID();
 
@@ -32,12 +36,10 @@ public class Planet {
     // we'll run into problems in case MapService messes up their ids. So, better we better keep these two apart.
     private UUID planetId;
 
-    @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getSpacestation()
-    private Boolean spacestation = Boolean.FALSE;
+    @Setter ( AccessLevel.PROTECTED )
+    private boolean spawnPoint = false;
 
-    @Getter ( AccessLevel.NONE ) // just because Lombok generates the ugly getVisited()
-    @Setter
-    private Boolean visited = Boolean.FALSE;
+    private boolean visited = false;
 
     @OneToOne ( cascade = CascadeType.MERGE)
     @Setter ( AccessLevel.PROTECTED )
@@ -53,15 +55,14 @@ public class Planet {
     private Planet westNeighbour = null;
 
     @Embedded
-    @Setter
     private MineableResource mineableResource;
 
     @Embedded
-    @Setter
     private Energy movementDifficulty;
 
     @Transient
     private Logger logger = LoggerFactory.getLogger( Planet.class );
+
 
     public Planet( UUID planetId ) {
         this.planetId = planetId;
@@ -70,7 +71,7 @@ public class Planet {
 
     public static Planet spacestation( UUID planetId ) {
         Planet spacestation = new Planet( planetId );
-        spacestation.setSpacestation( TRUE );
+        spacestation.setSpawnPoint( TRUE );
         return spacestation;
     }
 
@@ -158,16 +159,28 @@ public class Planet {
         return allNeighboursMap;
     }
 
+    /**
+     * @return A map with all neighbouring PlanetPrintables, in each direction.
+     */
+    @Override
+    public Map<MapDirection, PlanetPrintable> neighbourMap() {
+        Map<MapDirection, PlanetPrintable> neighbourMap = new HashMap<>();
+        if ( getNorthNeighbour() != null ) neighbourMap.put( MapDirection.no, getNorthNeighbour() );
+        if ( getWestNeighbour() != null ) neighbourMap.put( MapDirection.we, getWestNeighbour() );
+        if ( getEastNeighbour() != null ) neighbourMap.put( MapDirection.ea, getEastNeighbour() );
+        if ( getSouthNeighbour() != null ) neighbourMap.put( MapDirection.so, getSouthNeighbour() );
+        return neighbourMap;
+    }
 
     public boolean hasNeighbours() {
         return allNeighbours().size() > 0;
     }
 
-    public Boolean isSpaceStation() { return spacestation; }
+    public Boolean isSpaceStation() { return spawnPoint; }
 
-    public void setSpacestation( Boolean isSpaceStation ) {
+    public void setSpawnPoint(Boolean isSpaceStation ) {
         if ( isSpaceStation != null && isSpaceStation ) {
-            spacestation = TRUE;
+            spawnPoint = TRUE;
             visited = TRUE;
         }
     }
@@ -192,41 +205,6 @@ public class Planet {
     }
 
 
-
-    /**
-     * Create a "local map" with all the planets in reach around this planet. Includes a recursive call to the
-     * neighbours.
-     */
-    public TwoDimDynamicArray<Planet> constructLocalClusterMap() {
-        TwoDimDynamicArray<Planet> localCluster = new TwoDimDynamicArray<>( this );
-        localCluster = addNeighboursToLocalClusterMap( localCluster );
-        return localCluster;
-    }
-
-
-    /**
-     * Add the neighbours to an existing 2d array of planets - grow the array if needed.
-     * @param existingLocalCluster
-     * @return
-     */
-    protected TwoDimDynamicArray<Planet> addNeighboursToLocalClusterMap(
-            TwoDimDynamicArray<Planet> existingLocalCluster ) {
-        TwoDimDynamicArray<Planet> localCluster = existingLocalCluster;
-        Map<CompassDirection, Planet> allNeighbours = allNeighbours();
-        for ( Map.Entry<CompassDirection, Planet> entry : allNeighbours.entrySet() ) {
-            CompassDirection direction = entry.getKey();
-            Planet neighbour = entry.getValue();
-            if ( neighbour != null && !localCluster.contains( neighbour ) ) {
-                Coordinate myPosition = localCluster.find( this );
-                localCluster.putAndEnhance( myPosition, direction, neighbour );
-                localCluster = neighbour.addNeighboursToLocalClusterMap( localCluster );
-            }
-        }
-        return localCluster;
-    }
-
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -241,13 +219,18 @@ public class Planet {
     }
 
 
+    /**
+     * @return The short name of a planet when printed on a map.
+     * IMPORTANT: Name must be <= 4 chars, otherwise the layout breaks.
+     */
     @Override
-    public String toString() {
+    public String mapName() {
         String whoAmI = isSpaceStation() ? "#" : "_";
         return whoAmI + String.valueOf( planetId ).substring( 0, 3 );
     }
 
-    public String toStringDetailed() {
+    @Override
+    public String detailedDescription() {
         String printString =  toString() + " (";
         List<String> attributeStrings = new ArrayList<>();
         if ( !hasBeenVisited() ) attributeStrings.add( "??" );
@@ -261,5 +244,20 @@ public class Planet {
         }
         printString += String.join( ", ", attributeStrings.toArray( new String[attributeStrings.size()] ) ) + ")";
         return printString;
+    }
+
+
+    /**
+     * @return The mineable resource printable, if this planet _has_ a resource. Otherwise, just return null.
+     */
+    @Override
+    public MineableResourcePrintable mineableResourcePrintable() {
+        return mineableResource;
+    }
+
+
+    @Override
+    public String toString() {
+        return mapName();
     }
 }

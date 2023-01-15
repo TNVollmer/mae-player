@@ -16,8 +16,7 @@ import thkoeln.dungeon.monte.game.domain.GameStatus;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @DirtiesContext
@@ -44,9 +43,9 @@ public class GameApplicationServiceTest extends AbstractDungeonMockingTest {
         gameApplicationService.fetchRemoteGame();
 
         // then
-        Optional<Game> perhapsGame = gameApplicationService.queryActiveGame();
-        assertTrue( perhapsGame.isPresent() );
-        assertEquals( GameStatus.RUNNING, perhapsGame.get().getGameStatus() );
+        Game game = gameApplicationService.queryActiveGame();
+        assertNotNull( game );
+        assertEquals( GameStatus.RUNNING, game.getGameStatus() );
     }
 
     @Test
@@ -58,8 +57,8 @@ public class GameApplicationServiceTest extends AbstractDungeonMockingTest {
         gameApplicationService.fetchRemoteGame();
 
         // then
-        Optional<Game> perhapsGame = gameApplicationService.queryActiveGame();
-        assertTrue( perhapsGame.isPresent() );
-        assertEquals( GameStatus.CREATED, perhapsGame.get().getGameStatus() );
+        Game game = gameApplicationService.queryActiveGame();
+        assertNotNull( game );
+        assertEquals( GameStatus.CREATED, game.getGameStatus() );
     }
 }

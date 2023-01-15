@@ -17,7 +17,8 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.Tradeable
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
-import thkoeln.dungeon.monte.printer.ConsoleOutput;
+import thkoeln.dungeon.monte.printer.devices.ConsoleOutput;
+import thkoeln.dungeon.monte.printer.printers.PlayerPrinter;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
 
 @Service
