@@ -11,6 +11,12 @@ import java.util.List;
  */
 public interface RobotFinderService {
     /**
+     * @return The list of all robots currently alive
+     */
+    public List<? extends RobotPrintable> allLivingRobots();
+
+
+    /**
      * @return the list of all currently known planets that were spawn points (on which a new robot has been
      * spawned). This is important for the map cluster construction algorithm.
      */

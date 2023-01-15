@@ -46,7 +46,7 @@ public class MapPrinterTestWithFourClusters {
         spawnPoints = new Planet[5];
         neighbours = new HashMap<>();
         for ( int i = 0; i<5; i++ ) {
-            spawnPoints[i] = Planet.spacestation( sids[i] );
+            spawnPoints[i] = Planet.spawnPoint( sids[i] );
         }
         // We make this 4 clusters.
         // s0 is on its own (no neighbours).
@@ -127,7 +127,7 @@ public class MapPrinterTestWithFourClusters {
 
 
 
-    private TwoDimDynamicArray<PlanetPrintable> findCluster( Planet spacestation ) {
+    private TwoDimDynamicArray<PlanetPrintable> findCluster( Planet spawnPoint ) {
         // given
         List<TwoDimDynamicArray<PlanetPrintable>> allClusters = planetPrinter.allPlanetClusters();
 
@@ -135,7 +135,7 @@ public class MapPrinterTestWithFourClusters {
         assertEquals( 4, allClusters.size() );
         TwoDimDynamicArray<PlanetPrintable> myCluster = null;
         for ( TwoDimDynamicArray<PlanetPrintable> cluster : allClusters ) {
-            if ( cluster.contains( spacestation ) ) {
+            if ( cluster.contains( spawnPoint ) ) {
                 myCluster = cluster;
                 break;
             }

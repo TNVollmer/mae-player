@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.core.statusclient;
+package thkoeln.dungeon.monte.printer.devices;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

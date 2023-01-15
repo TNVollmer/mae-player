@@ -69,10 +69,10 @@ public class Planet implements PlanetPrintable {
         this.movementDifficulty = Energy.zero();
     }
 
-    public static Planet spacestation( UUID planetId ) {
-        Planet spacestation = new Planet( planetId );
-        spacestation.setSpawnPoint( TRUE );
-        return spacestation;
+    public static Planet spawnPoint( UUID planetId ) {
+        Planet spawnPoint = new Planet( planetId );
+        spawnPoint.setSpawnPoint( TRUE );
+        return spawnPoint;
     }
 
 

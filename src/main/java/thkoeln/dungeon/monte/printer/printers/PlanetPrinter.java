@@ -8,7 +8,6 @@ import thkoeln.dungeon.monte.printer.devices.OutputDevice;
 import thkoeln.dungeon.monte.printer.finderservices.PlanetFinderService;
 import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
 import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
-import thkoeln.dungeon.monte.planet.domain.Planet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ public class PlanetPrinter {
                     planetCluster -> planetCluster.contains( spawnPoint );
             boolean alreadyThere = allPlanetClusters.stream().anyMatch( containsSpacestation );
             if ( ! alreadyThere ) {
-                // this spacestation is not yet part of any previous cluster. Therefore, we start a new one.
+                // this spawnPoint is not yet part of any previous cluster. Therefore, we start a new one.
                 PlanetMapConstructor planetMapConstructor = new PlanetMapConstructor( spawnPoint );
                 TwoDimDynamicArray<PlanetPrintable> newPlanetCluster = planetMapConstructor.constructLocalClusterMap();
                 allPlanetClusters.add( newPlanetCluster );

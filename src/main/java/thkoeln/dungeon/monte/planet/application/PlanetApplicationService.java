@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetNeighboursDto;
@@ -97,6 +98,9 @@ public class PlanetApplicationService implements PlanetFinderService {
         Planet planet = perhapsPlanet.get();
         Energy movementDifficulty = Energy.from( planetDiscoveredEvent.getMovementDifficulty() );
         planet.setMovementDifficulty( movementDifficulty );
+        MineableResource mineableResource = MineableResource.fromTypeAndAmount(
+                planetDiscoveredEvent.getResource().getResourceType(), planetDiscoveredEvent.getResource().getCurrentAmount() );
+        planet.setMineableResource( mineableResource );
         for ( PlanetNeighboursDto planetNeighboursDto : planetDiscoveredEvent.getNeighbours() ) {
             Planet neighbour = addOrUpdatePlanet( planetNeighboursDto.getId(), null, null );
             planet.defineNeighbour( neighbour, planetNeighboursDto.getDirection() );

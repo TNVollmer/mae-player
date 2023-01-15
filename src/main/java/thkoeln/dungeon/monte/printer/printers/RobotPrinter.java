@@ -3,8 +3,8 @@ package thkoeln.dungeon.monte.printer.printers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.printer.devices.OutputDevice;
-import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
-import thkoeln.dungeon.monte.robot.domain.Robot;
+import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
+import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
 
 import java.util.List;
 
@@ -13,13 +13,13 @@ import java.util.List;
  */
 @Service
 public class RobotPrinter {
-    private RobotApplicationService robotApplicationService;
+    private RobotFinderService robotFinderService;
     private List<OutputDevice> outputDevices;
 
     @Autowired
-    public RobotPrinter( RobotApplicationService robotApplicationService,
+    public RobotPrinter( RobotFinderService robotFinderService,
                          List<OutputDevice> outputDevices) {
-        this.robotApplicationService = robotApplicationService;
+        this.robotFinderService = robotFinderService;
         this.outputDevices = outputDevices;
     }
 
@@ -31,10 +31,10 @@ public class RobotPrinter {
 
     public void printRobotList() {
         outputDevices.forEach(p -> p.header( "All my robots" ) );
-        List<Robot> robots = robotApplicationService.allLivingRobots();
+        List<? extends RobotPrintable> robotPrintables = robotFinderService.allLivingRobots();
         outputDevices.forEach(p -> p.startBulletList() );
-        for ( Robot robot : robots ) {
-            outputDevices.forEach(p -> p.writeBulletItem( robot.detailedDescription() ) );
+        for ( RobotPrintable robotPrintable : robotPrintables ) {
+            outputDevices.forEach(p -> p.writeBulletItem( robotPrintable.detailedDescription() ) );
         }
         outputDevices.forEach(p -> p.endBulletList() );
     }

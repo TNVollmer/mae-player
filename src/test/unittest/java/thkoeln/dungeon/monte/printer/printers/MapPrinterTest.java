@@ -23,7 +23,7 @@ public class MapPrinterTest {
     protected MapCoordinate c01, c11, c21, c00, c10, c20;
     protected PlanetPrinter planetPrinter_OneIsland, planetPrinter_TwoIslands;
 
-    private Planet[] spacestations;
+    private Planet[] spawnPoints;
     private Map<Planet, Map<CompassDirection, Planet>> neighbours;
     private UUID[] sids = new UUID[] {
             UUID.fromString( "5e1ecd4e-467e-40bc-b703-c9e295f8188b" ),

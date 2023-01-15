@@ -4,8 +4,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
-import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 
 import javax.persistence.Embeddable;
 
@@ -31,10 +29,10 @@ public class MapCoordinate {
     private Integer y;
 
     public static MapCoordinate fromInteger( Integer x, Integer y ) {
-        if ( x == null ) throw new DomainPrimitiveException( "x must not be null!" );
-        if ( y == null ) throw new DomainPrimitiveException( "y must not be null!" );
-        if ( x < 0 ) throw new DomainPrimitiveException( "x must be >= 0: " + x );
-        if ( y < 0 ) throw new DomainPrimitiveException( "y must be >= 0: " + y );
+        if ( x == null ) throw new PrinterException( "x must not be null!" );
+        if ( y == null ) throw new PrinterException( "y must not be null!" );
+        if ( x < 0 ) throw new PrinterException( "x must be >= 0: " + x );
+        if ( y < 0 ) throw new PrinterException( "y must be >= 0: " + y );
         return new MapCoordinate( x, y );
     }
 
@@ -43,7 +41,7 @@ public class MapCoordinate {
      */
     public static MapCoordinate fromString( String coordinateString ) {
         String[] coords = coordinateString.replaceAll("\\(","").replaceAll("\\)","").split(",");
-        if ( coords.length != 2 ) throw new DomainPrimitiveException( "Not a valid string" );
+        if ( coords.length != 2 ) throw new PrinterException( "Not a valid string" );
 
         Integer x = Integer.valueOf(coords[0]);
         Integer y = Integer.valueOf(coords[1]);
@@ -76,7 +74,7 @@ public class MapCoordinate {
     }
 
     public MapCoordinate neighbourCoordinate( MapDirection mapDirection ) {
-        if ( mapDirection == null ) throw new DomainPrimitiveException( "compassDirection must not be null." );
+        if ( mapDirection == null ) throw new PrinterException( "compassDirection must not be null." );
         Integer newX = this.x;
         Integer newY = this.y;
         if ( mapDirection == MapDirection.no ) newY = Math.max( newY-1, 0 );

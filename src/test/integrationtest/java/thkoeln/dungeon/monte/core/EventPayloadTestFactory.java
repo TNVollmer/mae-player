@@ -25,11 +25,11 @@ public class EventPayloadTestFactory {
     public static String gameworldCreatedPayload( List<UUID> planetIds ) throws Exception {
         JSONObject payload = new JSONObject();
         payload.put( "id", UUID.randomUUID().toString() );
-        JSONArray spacestation_ids = new JSONArray();
+        JSONArray spawnPoint_ids = new JSONArray();
         for ( UUID planetId: planetIds ) {
-            spacestation_ids.put( planetId.toString() );
+            spawnPoint_ids.put( planetId.toString() );
         }
-        payload.put( "spacestation_ids", spacestation_ids );
+        payload.put( "spawnPoint_ids", spawnPoint_ids );
         payload.put( "status", "active" );
 
         return payload.toString();

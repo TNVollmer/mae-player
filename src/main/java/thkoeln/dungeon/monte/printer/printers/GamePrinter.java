@@ -32,7 +32,7 @@ public class GamePrinter {
         outputDevices.forEach(p -> p.header( "Game" ) );
         GamePrintable gamePrintable = gameFinderService.queryActiveGame();
         outputDevices.forEach(p -> p.startLine() );
-        if ( gamePrintable != null ) {
+        if ( gamePrintable == null ) {
             outputDevices.forEach(p -> p.write( "No active game found!" ) );
         }
         else {

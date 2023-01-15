@@ -1,9 +1,5 @@
 package thkoeln.dungeon.monte.printer.printables;
 
-import thkoeln.dungeon.monte.printer.util.MapDirection;
-
-import java.util.Map;
-
 /**
  * Defines the methods that a mineable resource implementation needs to provide, so that it can be printed on the
  * supported output devices

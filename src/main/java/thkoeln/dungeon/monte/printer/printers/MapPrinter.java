@@ -2,12 +2,11 @@ package thkoeln.dungeon.monte.printer.printers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.printer.devices.OutputDevice;
 import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
 import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
 import thkoeln.dungeon.monte.printer.util.MapCoordinate;
-import thkoeln.dungeon.monte.printer.devices.OutputDevice;
 import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
-import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 
 import java.util.List;
 
@@ -33,7 +32,7 @@ import java.util.List;
  *     |----|----|----|----|
  *
  * Each cell of the map has three compartments.
- * - 1st (top) compartment is the planet name (_ for regular planet and # for spacestation, followed by the first
+ * - 1st (top) compartment is the planet name (_ for regular planet and # for spawnPoint, followed by the first
  *   three letters of the UUID)
  * - 2nd compartment is the resource (C 15 means 15000 units of coal)
  * - 3rd compartment is the robot (S/M/W for the type, followed by firstthree letters of the UUID)

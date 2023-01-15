@@ -2,7 +2,6 @@ package thkoeln.dungeon.monte.printer.util;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static thkoeln.dungeon.monte.printer.util.MapDirection.*;
@@ -30,13 +29,13 @@ public class MapCoordinateTest {
 
     @Test
     public void testValidation() {
-        assertThrows( DomainPrimitiveException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             c23.neighbourCoordinate( null );
         });
-        assertThrows( DomainPrimitiveException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             MapCoordinate.fromInteger( -1, 2 );
         });
-        assertThrows( DomainPrimitiveException.class, () -> {
+        assertThrows( PrinterException.class, () -> {
             MapCoordinate.fromInteger( 1, -2 );
         });
     }

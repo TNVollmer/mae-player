@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.core.statusclient;
+package thkoeln.dungeon.monte.printer.devices;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
