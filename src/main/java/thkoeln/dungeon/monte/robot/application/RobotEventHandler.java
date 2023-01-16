@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 
@@ -13,13 +14,10 @@ import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 public class RobotEventHandler {
     private Logger logger = LoggerFactory.getLogger(RobotEventHandler.class);
     private RobotApplicationService robotApplicationService;
-    private PlanetApplicationService planetApplicationService;
 
     @Autowired
-    public RobotEventHandler( RobotApplicationService robotApplicationService,
-                              PlanetApplicationService planetApplicationService ) {
+    public RobotEventHandler( RobotApplicationService robotApplicationService ) {
         this.robotApplicationService = robotApplicationService;
-        this.planetApplicationService = planetApplicationService;
     }
 
     /**
@@ -33,6 +31,9 @@ public class RobotEventHandler {
                 break;
             case ROBOT_MOVED:
                 robotApplicationService.moveRobotFromEvent( (RobotMovedIntegrationEvent) event );
+                break;
+            case ROBOT_REGENERATED:
+                robotApplicationService.regenerateRobotFromEvent( (RobotRegeneratedIntegrationEvent) event );
                 break;
             default:
         }

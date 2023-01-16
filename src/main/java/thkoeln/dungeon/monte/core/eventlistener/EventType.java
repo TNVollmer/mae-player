@@ -9,7 +9,9 @@ public enum EventType {
     TRADABLE_PRICES( "TradablePrices" ),
     ROBOT_SPAWNED( "RobotSpawned" ),
     ROBOT_MOVED( "RobotMovedIntegrationEvent" ),
+    ROBOT_REGENERATED( "RobotRegeneratedIntegrationEvent" ),
     PLANET_DISCOVERED( "planet-discovered" ),
+
     ERROR( "error" ),
     UNKNOWN( "UNKNOWN" );
 

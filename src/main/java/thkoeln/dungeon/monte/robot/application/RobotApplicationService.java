@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.strategy.AbstractStrategy;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
@@ -102,6 +103,23 @@ public class RobotApplicationService implements RobotFinderService {
         robot.verifyAndIfNeededUpdate( updatedLocation, updatedEnergy );
         robotRepository.save( robot );
         planetApplicationService.save( robot.getLocation() );
+    }
+
+
+    /**
+     * Move a robot to a new planet as a result of a movement event
+     * @param event
+     */
+    public void regenerateRobotFromEvent( RobotRegeneratedIntegrationEvent event ) {
+        logger.info( "Regenerate robot as reaction to event ..." );
+        Optional<Robot> perhapsRobot = findRobotById( event.getRobotId() );
+        if ( !perhapsRobot.isPresent() ) {
+            logger.warn( "Robot with ID " + event.getRobotId() + " is unknown!" );
+            return;
+        }
+        Robot robot = perhapsRobot.get();
+        robot.updateEnergy( Energy.from( event.getAvailableEnergy() ) );
+        robotRepository.save( robot );
     }
 
 

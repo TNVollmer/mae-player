@@ -7,6 +7,7 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEv
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
@@ -40,13 +41,15 @@ public class EventFactory {
             case ROBOT_MOVED:
                 newEvent = new RobotMovedIntegrationEvent();
                 break;
+            case ROBOT_REGENERATED:
+                newEvent = new RobotRegeneratedIntegrationEvent();
+                break;
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();
                 break;
             case ERROR:
                 newEvent = new ErrorEvent();
                 break;
-// todo add other event types here
             default:
                 newEvent = new UnknownEvent();
         }

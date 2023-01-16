@@ -135,6 +135,8 @@ public class PlayerEventListener {
         if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
             gameApplicationService.roundStarted( event.getRoundNumber() );
             playerApplicationService.submitRoundCommands();
+        }
+        if ( event.getRoundStatus() == RoundStatusType.ENDED ) {
             playerPrinter.printStatus();
         }
     }

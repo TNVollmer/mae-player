@@ -100,6 +100,15 @@ public class Robot implements ActionableRobot, RobotPrintable {
     }
 
 
+    public void updateEnergy( Energy newEnergy ) {
+        // since this comes from an event, warn if inconsistent
+        if ( !energy.equals( newEnergy ) )
+            logger.warn( this + ": I thought I had " + energy + ", but actually event tells me " + newEnergy );
+        setEnergy( newEnergy );
+        logger.info( this + ": Set energy to " + newEnergy );
+    }
+
+
     @Override
     public Command decideNextCommand( AccountInformation accountInformation ) {
         Command nextCommand = null;
@@ -183,9 +192,10 @@ public class Robot implements ActionableRobot, RobotPrintable {
 
     @Override
     public String detailedDescription() {
-        String printString = toString();
-        if ( location != null ) printString += " on " + location;
-        return printString;
+        StringBuffer stringBuffer = new StringBuffer( mapName() );
+        stringBuffer.append( " on " ).append( location );
+        stringBuffer.append( " (" ).append( energy ).append( ")" );
+        return stringBuffer.toString();
     }
 
 
