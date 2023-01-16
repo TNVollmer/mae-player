@@ -8,26 +8,23 @@ import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
-import thkoeln.dungeon.monte.printer.printables.MineableResourcePrintable;
-import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
-import thkoeln.dungeon.monte.printer.util.MapCoordinate;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
+import thkoeln.dungeon.monte.printer.printables.MineableResourcePrintable;
+import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
 import thkoeln.dungeon.monte.printer.util.MapDirection;
-import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
 
 import javax.persistence.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static java.lang.Boolean.TRUE;
 import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor( access = AccessLevel.PROTECTED )
 public class Planet implements PlanetPrintable {
     @Id
     private final UUID id = UUID.randomUUID();
@@ -73,6 +70,16 @@ public class Planet implements PlanetPrintable {
         Planet spawnPoint = new Planet( planetId );
         spawnPoint.setSpawnPoint( true );
         return spawnPoint;
+    }
+
+
+
+    public static Planet blackHole() {
+        Planet blackHole = new Planet();
+        blackHole.setPlanetId( null );
+        blackHole.setSpawnPoint( false );
+        blackHole.setVisited( false );
+        return blackHole;
     }
 
 
@@ -159,6 +166,17 @@ public class Planet implements PlanetPrintable {
         return allNeighboursMap;
     }
 
+
+
+    public void fillEmptyNeighbourSlotsWithBlackHoles() {
+        if ( getNorthNeighbour() == null ) setNorthNeighbour( Planet.blackHole() );
+        if ( getWestNeighbour() == null ) setWestNeighbour( Planet.blackHole() );
+        if ( getEastNeighbour() == null ) setEastNeighbour( Planet.blackHole() );
+        if ( getSouthNeighbour() == null ) setSouthNeighbour( Planet.blackHole() );
+    }
+
+
+
     /**
      * @return A map with all neighbouring PlanetPrintables, in each direction.
      */
@@ -185,8 +203,15 @@ public class Planet implements PlanetPrintable {
         }
     }
 
+
     @Override
     public boolean hasBeenVisited() { return visited; }
+
+
+    @Override
+    public boolean isBlackHole() {
+        return planetId == null;
+    }
 
 
     /**
@@ -198,10 +223,9 @@ public class Planet implements PlanetPrintable {
         Collection<Planet> neighbours = allNeighbours().values();
         Planet lastCheckedNeighbour = null;
         for ( Planet neighbour : neighbours ) {
-            lastCheckedNeighbour = neighbour;
-            if ( !neighbour.hasBeenVisited() ) return neighbour;
+            if ( !neighbour.isBlackHole() ) lastCheckedNeighbour = neighbour;
+            if ( lastCheckedNeighbour != null && !lastCheckedNeighbour.hasBeenVisited() ) break;
         }
-        // no unvisited neighbour found - take any
         return lastCheckedNeighbour;
     }
 

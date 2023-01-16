@@ -10,6 +10,7 @@ import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,7 +30,7 @@ public class PlanetPersistenceTest {
         planetRepository.deleteAll();
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
-                planetArray[i][j] = new Planet();
+                planetArray[i][j] = new Planet( UUID.randomUUID() );
             }
         }
     }

@@ -39,7 +39,7 @@ public class MapPrinterTest {
     public void setup() {
         for( int i = 0; i<=2; i++ ) {
             for (int j = 0; j <= 2; j++) {
-                planetArray[i][j] = new Planet();
+                planetArray[i][j] = new Planet( UUID.randomUUID() );
             }
         }
 

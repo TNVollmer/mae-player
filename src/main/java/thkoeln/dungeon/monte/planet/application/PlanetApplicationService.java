@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
@@ -15,6 +16,7 @@ import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 import thkoeln.dungeon.monte.printer.finderservices.PlanetFinderService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,9 +46,19 @@ public class PlanetApplicationService implements PlanetFinderService {
         return planetRepository.findById( id );
     }
 
+
     public void save( Planet planet ) {
         planetRepository.save( planet );
     }
+
+
+    public void savePlanetAndNeighbours( Planet planet ) {
+        planetRepository.save( planet );
+        for ( Planet neighbour : planet.allNeighbours().values() ) {
+            planetRepository.save( neighbour );
+        }
+    }
+
 
 
     /**
@@ -104,22 +116,11 @@ public class PlanetApplicationService implements PlanetFinderService {
         for ( PlanetNeighboursDto planetNeighboursDto : planetDiscoveredEvent.getNeighbours() ) {
             Planet neighbour = addOrUpdatePlanet( planetNeighboursDto.getId(), null, null );
             planet.defineNeighbour( neighbour, planetNeighboursDto.getDirection() );
-            planetRepository.save( neighbour );
         }
-        planetRepository.save( planet );
+        planet.fillEmptyNeighbourSlotsWithBlackHoles();
+        savePlanetAndNeighbours( planet );
     }
 
-
-
-    // todo this doesn't belong here
-    public void visitPlanet( UUID planetId, Integer movementDifficulty ) {
-        logger.info( "Visit planet " + planetId + " with movement difficulty " + movementDifficulty );
-        Planet planet = planetRepository.findByPlanetId( planetId )
-                .orElseThrow( () -> new PlanetException( "Planet with UUID " + planetId + " not found!" ) );
-        planet.setVisited( true );
-        planet.setMovementDifficulty( Energy.from( movementDifficulty ) );
-        planetRepository.save( planet );
-    }
 
 
 }

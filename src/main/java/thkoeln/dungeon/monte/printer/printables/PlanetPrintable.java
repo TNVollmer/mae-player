@@ -24,4 +24,10 @@ public interface PlanetPrintable extends MapPrintable {
      */
     public boolean hasBeenVisited();
 
+
+    /**
+     * @return true if this planet is a black hole, false otherwise
+     */
+    public boolean isBlackHole();
+
 }

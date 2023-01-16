@@ -36,6 +36,7 @@ public class MapCellDto {
 
 
     public String cellCSSClass() {
+        if ( planetPrintable != null && planetPrintable.isBlackHole() ) return "cell blackhole";
         if ( planetPrintable != null && !planetPrintable.hasBeenVisited() ) return "cell unvisited";
         return "cell";
     }

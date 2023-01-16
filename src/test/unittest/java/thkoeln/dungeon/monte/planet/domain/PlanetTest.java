@@ -104,9 +104,9 @@ public class PlanetTest {
     @Test
     public void testHasNeighbours() {
         // given
-        Planet p1 = new Planet();
-        Planet p2 = new Planet();
-        Planet p3 = new Planet();
+        Planet p1 = new Planet( UUID.randomUUID() );
+        Planet p2 = new Planet( UUID.randomUUID() );
+        Planet p3 = new Planet( UUID.randomUUID() );
 
         // when
         p2.defineNeighbour( p3, CompassDirection.SOUTH );
@@ -118,5 +118,35 @@ public class PlanetTest {
     }
 
 
+    @Test
+    public void testEmptyNeighbourSlots() {
+        // given
+        Planet p1 = new Planet( UUID.randomUUID() );
+        Planet p2 = new Planet( UUID.randomUUID() );
+        Planet p3 = new Planet( UUID.randomUUID() );
+
+        // when
+        p2.defineNeighbour( p3, SOUTH );
+        p1.defineNeighbour( p2, EAST );
+        p1.fillEmptyNeighbourSlotsWithBlackHoles();
+        p2.fillEmptyNeighbourSlotsWithBlackHoles();
+        p3.fillEmptyNeighbourSlotsWithBlackHoles();
+
+        // then
+        assertTrue( p1.getNorthNeighbour().isBlackHole() );
+        assertFalse( p1.getEastNeighbour().isBlackHole() );
+        assertTrue( p1.getSouthNeighbour().isBlackHole() );
+        assertTrue( p1.getWestNeighbour().isBlackHole() );
+
+        assertTrue( p2.getNorthNeighbour().isBlackHole() );
+        assertTrue( p2.getEastNeighbour().isBlackHole() );
+        assertFalse( p2.getSouthNeighbour().isBlackHole() );
+        assertFalse( p2.getWestNeighbour().isBlackHole() );
+
+        assertFalse( p3.getNorthNeighbour().isBlackHole() );
+        assertTrue( p3.getEastNeighbour().isBlackHole() );
+        assertTrue( p3.getSouthNeighbour().isBlackHole() );
+        assertTrue( p3.getWestNeighbour().isBlackHole() );
+    }
 
 }
