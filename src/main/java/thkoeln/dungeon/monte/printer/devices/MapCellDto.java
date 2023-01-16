@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.printer.printers;
+package thkoeln.dungeon.monte.printer.devices;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,11 +14,11 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MapCellPrintDto {
+public class MapCellDto {
     private PlanetPrintable planetPrintable;
     private List<? extends RobotPrintable> robotPrintables;
 
-    public MapCellPrintDto( PlanetPrintable planetPrintable) {
+    public MapCellDto(PlanetPrintable planetPrintable) {
         this.planetPrintable = planetPrintable;
     }
 
@@ -33,4 +33,18 @@ public class MapCellPrintDto {
 
         return cellCompartments;
     }
+
+
+    public String innerCellCSSClass( int compartmentNumber ) {
+        // mineable resource
+        if ( compartmentNumber == 1 && planetPrintable.mineableResourcePrintable() != null ) {
+            return "innercell ressource" + planetPrintable.mineableResourcePrintable().relativeValue();
+        }
+        // robot
+        if ( compartmentNumber == 2 && robotPrintables.size() > 0) {
+            return "innercell robot";
+        }
+        return "innercell"; // no resource or robot => no markup
+    }
+
 }

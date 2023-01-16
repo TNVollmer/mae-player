@@ -24,7 +24,7 @@ public interface OutputDevice {
     public void startMap( int numOfColumns );
     public void endMap();
     public void startMapRow( int rowNumber, int numOfCompartments );
-    public void writeCell ( String ... compartmentStrings );
+    public void writeCell ( MapCellDto cell );
     public void endMapRow();
 
     public void flush();

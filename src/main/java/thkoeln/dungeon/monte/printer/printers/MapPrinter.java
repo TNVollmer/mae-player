@@ -2,6 +2,7 @@ package thkoeln.dungeon.monte.printer.printers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.printer.devices.MapCellDto;
 import thkoeln.dungeon.monte.printer.devices.OutputDevice;
 import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
 import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
@@ -86,13 +87,13 @@ public class MapPrinter  {
         int maxColumns = maxMapCoordinate.getX() + 1;
         outputDevices.forEach(p -> p.startMap( maxColumns ) );
 
-        TwoDimDynamicArray<MapCellPrintDto> printCellDtos = getPrintCellDtos( planetCluster );
+        TwoDimDynamicArray<MapCellDto> printCellDtos = getPrintCellDtos( planetCluster );
         for (int y = 0; y <= maxMapCoordinate.getY(); y++ ) {
             final int rowNum = y;
             outputDevices.forEach(p -> p.startMapRow( rowNum, 3 ) );
             for ( int x = 0; x < maxColumns; x++ ) {
-                String[] cellCompartments =  printCellDtos.at( x, y ).toCompartmentStrings();
-                outputDevices.forEach(p -> p.writeCell( cellCompartments ) );
+                final MapCellDto mapCellDto = printCellDtos.at( x, y );
+                outputDevices.forEach(p -> p.writeCell( mapCellDto ) );
             }
             outputDevices.forEach(p -> p.endMapRow() );
         }
@@ -105,13 +106,13 @@ public class MapPrinter  {
      * @param planetCluster
      * @return
      */
-    private TwoDimDynamicArray<MapCellPrintDto> getPrintCellDtos(TwoDimDynamicArray<PlanetPrintable> planetCluster ) {
+    private TwoDimDynamicArray<MapCellDto> getPrintCellDtos(TwoDimDynamicArray<PlanetPrintable> planetCluster ) {
         MapCoordinate maxMapCoordinate = planetCluster.getMaxCoordinate();
-        TwoDimDynamicArray<MapCellPrintDto> printCellDtos = new TwoDimDynamicArray<>(maxMapCoordinate);
+        TwoDimDynamicArray<MapCellDto> printCellDtos = new TwoDimDynamicArray<>(maxMapCoordinate);
         for (int y = 0; y <= maxMapCoordinate.getY(); y++ ) {
             for (int x = 0; x <= maxMapCoordinate.getX(); x++ ) {
                 PlanetPrintable planetPrintable = planetCluster.at( x, y );
-                MapCellPrintDto mapPrintDto = new MapCellPrintDto( planetPrintable );
+                MapCellDto mapPrintDto = new MapCellDto( planetPrintable );
                 mapPrintDto.setRobotPrintables( robotFinderService.livingRobotsOnPlanet( planetPrintable ) );
                 printCellDtos.put(x, y, mapPrintDto);
             }

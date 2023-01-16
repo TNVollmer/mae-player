@@ -78,3 +78,31 @@ h2 {
 .robotMinus2 {
   background-color: #e6eeff;
 }
+
+.ressource1 {
+  background-color: #FFFFCC;
+}
+
+.ressource2 {
+  background-color: #FFD999;
+}
+
+.ressource3 {
+  background-color: #FFB366;
+}
+
+.ressource4 {
+  background-color: #FF8C33;
+}
+
+.ressource5 {
+  background-color: #FF6600;
+}
+
+.unvisited {
+  background-color: #B8B8B8;
+}
+
+.blackhole {
+  background-color: black;
+}

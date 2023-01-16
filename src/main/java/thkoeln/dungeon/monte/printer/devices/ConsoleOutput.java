@@ -99,7 +99,8 @@ public class ConsoleOutput implements OutputDevice {
 
     protected int currentNumberOfColumns = 0;
     protected int currentNumberOfCompartments = 0;
-    protected List<String[]> currentRowCells = new ArrayList<>();
+    protected int currentRowNumber = 0;
+    protected List<MapCellDto> currentRowCells = new ArrayList<>();
 
 
     @Override
@@ -185,7 +186,7 @@ public class ConsoleOutput implements OutputDevice {
     }
 
     @Override
-    public void startMap(int numOfColumns ) {
+    public void startMap( int numOfColumns ) {
         currentNumberOfColumns = numOfColumns;
         stringBuffer.append( EMPTY_COMPARTMENT ).append( SEPERATOR_CHAR );
         for ( int columnNumber = 0; columnNumber < currentNumberOfColumns; columnNumber++ ) {
@@ -203,27 +204,26 @@ public class ConsoleOutput implements OutputDevice {
     }
 
     @Override
-    public void startMapRow(int rowNumber, int numOfCompartments ) {
+    public void startMapRow( int rowNumber, int numOfCompartments ) {
+        currentRowNumber = rowNumber;
         currentNumberOfCompartments = numOfCompartments;
         currentRowCells = new ArrayList<>();
-        String[] cell = new String[numOfCompartments];
-        for ( int compartmentNumber = 0; compartmentNumber < numOfCompartments; compartmentNumber++ ) {
-            cell[compartmentNumber] = ( compartmentNumber == numOfCompartments / 2 ) ?
-                    ( String.format( "%1$3s", rowNumber ) + " " ) : EMPTY_COMPARTMENT;
-        }
-        currentRowCells.add( cell );
     }
 
     @Override
-    public void writeCell( String... compartmentStrings ) {
-        currentRowCells.add( compartmentStrings );
+    public void writeCell( MapCellDto mapCellDto ) {
+        currentRowCells.add( mapCellDto );
     }
 
     @Override
     public void endMapRow() {
         for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
-            for ( String[] cell : currentRowCells ) {
-                String compartmentString = String.format( "%-4s", cell[compartmentNumber] );
+            String rowNumberString = ( compartmentNumber == currentNumberOfCompartments / 2 ) ?
+                    ( String.format( "%1$3s", currentRowNumber ) + " " ) : EMPTY_COMPARTMENT;
+            stringBuffer.append( rowNumberString ).append( SEPERATOR_CHAR );
+            for ( MapCellDto mapCellDto : currentRowCells ) {
+                String[] compartmentContent = mapCellDto.toCompartmentStrings();
+                String compartmentString = String.format( "%-4s", compartmentContent[compartmentNumber] );
                 stringBuffer.append( compartmentString ).append( SEPERATOR_CHAR );
             }
             stringBuffer.append( "\n" );

@@ -10,20 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class WebsocketOutput implements OutputDevice {
-    private Logger logger = LoggerFactory.getLogger( WebsocketOutput.class );
+public class WebSocketOutput implements OutputDevice {
+    private Logger logger = LoggerFactory.getLogger( WebSocketOutput.class );
 
     // Singleton!
     public static StringBuffer stringBuffer = new StringBuffer();
 
     protected int currentNumberOfColumns = 0;
     protected int currentNumberOfCompartments = 0;
-    protected List<String[]> currentRowCells = new ArrayList<>();
+    protected List<MapCellDto> currentRowCells = new ArrayList<>();
 
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
-    public WebsocketOutput(SimpMessagingTemplate simpMessagingTemplate ) {
+    public WebSocketOutput(SimpMessagingTemplate simpMessagingTemplate ) {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
@@ -132,30 +132,30 @@ public class WebsocketOutput implements OutputDevice {
     @Override
     public void startMapRow( int rowNumber, int numOfCompartments ) {
         currentNumberOfCompartments = numOfCompartments;
+        stringBuffer.append( "<div class='rownum'>" ).append( rowNumber ).append( "</div>");
         currentRowCells = new ArrayList<>();
-        String[] cell = new String[1];
-        cell[0] = String.valueOf( rowNumber );
-        currentRowCells.add( cell );
     }
 
     @Override
-    public void writeCell( String... compartmentStrings ) {
-        currentRowCells.add( compartmentStrings );
+    public void writeCell( MapCellDto mapCellDto ) {
+        currentRowCells.add( mapCellDto );
     }
 
     @Override
     public void endMapRow() {
-        String[] firstCell = currentRowCells.get( 0 );
-        currentRowCells.remove( 0 );
-        stringBuffer.append( "<div class='rownum'>" ).append( firstCell[0] ).append( "</div>");
-        for ( String[] cell : currentRowCells ) {
+        for ( MapCellDto mapCellDto : currentRowCells ) {
             stringBuffer.append( "<div class='cell'>" );
+            String[] compartmentStrings = mapCellDto.toCompartmentStrings();
             for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
-                stringBuffer.append( "<div class='innercell'>" ).append( cell[compartmentNumber] ).append( "</div>" );
+                String innerCellCSSClass = mapCellDto.innerCellCSSClass( compartmentNumber );
+                stringBuffer.append( "<div class='" ).append( innerCellCSSClass ).append( "'>" ).
+                             append( compartmentStrings[compartmentNumber] ).append( "</div>" );
             }
             stringBuffer.append( "</div>" );
         }
     }
+
+
 
     @Override
     public void flush() {
