@@ -144,7 +144,8 @@ public class WebSocketOutput implements OutputDevice {
     @Override
     public void endMapRow() {
         for ( MapCellDto mapCellDto : currentRowCells ) {
-            stringBuffer.append( "<div class='cell'>" );
+            String cellCSSClass = mapCellDto.cellCSSClass();
+            stringBuffer.append( "<div class='" ).append( cellCSSClass ).append( "'>" );
             String[] compartmentStrings = mapCellDto.toCompartmentStrings();
             for ( int compartmentNumber = 0; compartmentNumber < currentNumberOfCompartments; compartmentNumber++ ) {
                 String innerCellCSSClass = mapCellDto.innerCellCSSClass( compartmentNumber );

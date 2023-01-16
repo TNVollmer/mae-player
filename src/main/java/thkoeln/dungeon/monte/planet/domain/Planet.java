@@ -71,7 +71,7 @@ public class Planet implements PlanetPrintable {
 
     public static Planet spawnPoint( UUID planetId ) {
         Planet spawnPoint = new Planet( planetId );
-        spawnPoint.setSpawnPoint( TRUE );
+        spawnPoint.setSpawnPoint( true );
         return spawnPoint;
     }
 
@@ -178,14 +178,15 @@ public class Planet implements PlanetPrintable {
 
     public Boolean isSpaceStation() { return spawnPoint; }
 
-    public void setSpawnPoint(Boolean isSpaceStation ) {
+    public void setSpawnPoint( Boolean isSpaceStation ) {
         if ( isSpaceStation != null && isSpaceStation ) {
-            spawnPoint = TRUE;
-            visited = TRUE;
+            spawnPoint = true;
+            visited = true;
         }
     }
 
-    public Boolean hasBeenVisited() { return visited; }
+    @Override
+    public boolean hasBeenVisited() { return visited; }
 
 
     /**

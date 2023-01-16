@@ -19,4 +19,9 @@ public interface PlanetPrintable extends MapPrintable {
      */
     public MineableResourcePrintable mineableResourcePrintable();
 
+    /**
+     * @return true if the planet has already been visited, false otherwise
+     */
+    public boolean hasBeenVisited();
+
 }

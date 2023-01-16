@@ -65,17 +65,22 @@ public class PlayerEventListener {
                               @Header( required = false, value = EventHeader.VERSION_KEY ) String version,
                               @Header( required = false, value = EventHeader.TIMESTAMP_KEY ) String timestampStr,
                               String payload ) {
-        EventHeader eventHeader =
-                new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
-        AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
-        logger.info( ConsoleOutput.BLUE + "======== EVENT =====>\n" + newEvent + ConsoleOutput.RESET );
-        if ( !newEvent.isValid() ) {
-            logger.warn( "Event invalid: " + newEvent );
-            return;
+        try {
+            EventHeader eventHeader =
+                    new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
+            AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
+            logger.info( ConsoleOutput.BLUE + "======== EVENT =====>\n" + newEvent + ConsoleOutput.RESET );
+            if ( !newEvent.isValid() ) {
+                logger.warn( "Event invalid: " + newEvent );
+                return;
+            }
+            if ( eventHeader.getEventType().isRobotRelated() ) robotEventHandler.handleRobotRelatedEvent( newEvent );
+            else if ( eventHeader.getEventType().isPlanetRelated() ) planetEventHandler.handlePlanetRelatedEvent( newEvent);
+            else handlePlayerRelatedEvent( newEvent );
         }
-        if ( eventHeader.getEventType().isRobotRelated() ) robotEventHandler.handleRobotRelatedEvent( newEvent );
-        else if ( eventHeader.getEventType().isPlanetRelated() ) planetEventHandler.handlePlanetRelatedEvent( newEvent);
-        else handlePlayerRelatedEvent( newEvent );
+        catch ( Exception e ) {
+            logger.error ( "!!!!!!!!!!!!!! EVENT ERROR !!!!!!!!!!!!!\n" + e );
+        }
     }
 
 

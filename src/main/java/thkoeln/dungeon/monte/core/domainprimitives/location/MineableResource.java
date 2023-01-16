@@ -56,7 +56,7 @@ public class MineableResource implements MineableResourcePrintable {
      */
     @Override
     public int relativeValue() {
-        return type.ordinal();
+        return type.ordinal() + 1;
     }
 
 

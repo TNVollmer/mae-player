@@ -76,8 +76,9 @@ public class RobotApplicationService implements RobotFinderService {
         Robot robot = Robot.of( robotSpawnedEvent.getRobotDto().getId(), robotType,
                                 playerInformation.currentGameId(), playerInformation.currentPlayerId() );
         robot.setStrategy( getStrategyFor( robot ) );
-        robot.setLocation( planet );
+        robot.moveToPlanet( planet );
         robotRepository.save( robot );
+        planetApplicationService.save( planet );
         logger.info( "Added robot " + robot );
         return robot;
     }
@@ -100,6 +101,7 @@ public class RobotApplicationService implements RobotFinderService {
         Robot robot = perhapsRobot.get();
         robot.verifyAndIfNeededUpdate( updatedLocation, updatedEnergy );
         robotRepository.save( robot );
+        planetApplicationService.save( robot.getLocation() );
     }
 
 
@@ -150,7 +152,10 @@ public class RobotApplicationService implements RobotFinderService {
         List<Robot> robots = allLivingRobots();
         TradingAccount tradingAccount = tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
         AbstractStrategy.findNextCommandsForGroup( robots, tradingAccount );
-        for ( Robot robot : robots ) robotRepository.save( robot );
+        for ( Robot robot : robots ) {
+            robotRepository.save( robot );
+            planetApplicationService.save( robot.getLocation() );
+        }
         tradingAccountApplicationService.save( tradingAccount );
     }
 

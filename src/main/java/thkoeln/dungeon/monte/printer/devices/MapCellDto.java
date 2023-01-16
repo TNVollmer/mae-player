@@ -35,9 +35,14 @@ public class MapCellDto {
     }
 
 
+    public String cellCSSClass() {
+        if ( planetPrintable != null && !planetPrintable.hasBeenVisited() ) return "cell unvisited";
+        return "cell";
+    }
+
     public String innerCellCSSClass( int compartmentNumber ) {
         // mineable resource
-        if ( compartmentNumber == 1 && planetPrintable.mineableResourcePrintable() != null ) {
+        if ( compartmentNumber == 1 && planetPrintable != null && planetPrintable.mineableResourcePrintable() != null ) {
             return "innercell ressource" + planetPrintable.mineableResourcePrintable().relativeValue();
         }
         // robot

@@ -59,6 +59,7 @@ public class Robot implements ActionableRobot, RobotPrintable {
     private final List<Capability> capabilities = Capability.allBaseCapabilities();
 
     @ManyToOne
+    @Setter ( AccessLevel.PROTECTED )
     private Planet location;
 
     public static Robot of( UUID robotId, RobotType type, UUID gameId, UUID playerId ) {
@@ -84,12 +85,18 @@ public class Robot implements ActionableRobot, RobotPrintable {
         if ( updatedLocation == null || !updatedLocation.equals( location ) ) {
             logger.warn( "Robot " + this + " should be on planet " + updatedLocation +
                     ", but actually is on planet " + location + "!" );
-            setLocation( updatedLocation );
+            moveToPlanet( updatedLocation );
         }
         if ( updatedEnergy == null || !updatedEnergy.equals( updatedEnergy ) ) {
             logger.warn( "Robot " + this + " should have " + updatedEnergy + ", but actually has " + energy + "!" );
             setEnergy( updatedEnergy );
         }
+    }
+
+    public void moveToPlanet( Planet newPlanet ) {
+        if ( newPlanet == null ) throw new RobotException( "newPlanet == null" );
+        setLocation( newPlanet );
+        newPlanet.setVisited( true );
     }
 
 
@@ -147,7 +154,7 @@ public class Robot implements ActionableRobot, RobotPrintable {
             if ( target == null ) return null;
             Command command = Command.createMove( robotId, target.getPlanetId(), gameId, playerId );
             setEnergy( energy.decreaseBy( location.getMovementDifficulty() ) );
-            setLocation( target );
+            moveToPlanet( target );
             return command;
         }
         // not sufficient energy to createMove => no command
