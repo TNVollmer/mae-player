@@ -119,7 +119,7 @@ public class RobotApplicationService implements RobotFinderService {
         }
         Robot robot = perhapsRobot.get();
         robot.updateEnergy( Energy.from( event.getAvailableEnergy() ) );
-        robotRepository.save( robot );
+        robotRepository.save( robot ); 
     }
 
 
