@@ -67,7 +67,7 @@ public class EventHeader {
             setEventType( EventType.UNKNOWN );
         }
         setEventTypeString( type );
-        logger.info( "Created event " + this );
+        logger.debug( "Created event " + this );
     }
 
 

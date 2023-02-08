@@ -21,7 +21,6 @@ public class RobotDto {
     private UUID id;
     private Boolean alive = TRUE;
 
-    @JsonProperty("inventory")
     private RobotInventoryDto inventory;
 
     private Integer health;

@@ -19,6 +19,7 @@ import java.util.List;
 public class TradeablePricesEvent extends AbstractEvent {
     private List<TradeableItem> tradeableItems = new ArrayList<>();
 
+    @Override
     public boolean isValid() {
         return ( tradeableItems.size() > 0 );
     }

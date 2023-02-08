@@ -8,7 +8,6 @@ import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 
 @Service
 public class RobotEventHandler {
@@ -32,7 +31,7 @@ public class RobotEventHandler {
             case ROBOT_MOVED:
                 robotApplicationService.moveRobotFromEvent( (RobotMovedIntegrationEvent) event );
                 break;
-            case ROBOT_REGENERATED:
+            case ROBOT_REGENERATED_INTEGRATION:
                 robotApplicationService.regenerateRobotFromEvent( (RobotRegeneratedIntegrationEvent) event );
                 break;
             default:

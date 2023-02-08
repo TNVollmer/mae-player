@@ -69,7 +69,8 @@ public class PlayerEventListener {
             EventHeader eventHeader =
                     new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
             AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
-            logger.info( ConsoleOutput.BLUE + "======== EVENT =====>\n" + newEvent + ConsoleOutput.RESET );
+            logger.info( ConsoleOutput.BLUE + "======== EVENT =====> " + newEvent.toStringShort() + ConsoleOutput.RESET );
+            logger.debug( ConsoleOutput.BLUE + "======== EVENT (detailed) =====>\n" + newEvent + ConsoleOutput.RESET );
             if ( !newEvent.isValid() ) {
                 logger.warn( "Event invalid: " + newEvent );
                 return;

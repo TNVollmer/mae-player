@@ -46,6 +46,11 @@ public abstract class AbstractEvent {
         }
     }
 
+
+    public boolean isUnknown() {
+        return ( eventHeader == null || (eventHeader.getEventType() == EventType.UNKNOWN) );
+    }
+
     @Override
     public String toString() {
         String payloadString = "PAYLOAD: " + String.valueOf( messageBodyAsJson );
@@ -54,5 +59,10 @@ public abstract class AbstractEvent {
 
         return this.getClass().getSimpleName() + " - " +
             String.valueOf( eventHeader ) + "\n" + payloadString;
+    }
+
+    public String toStringShort() {
+        if ( isUnknown() ) return toString();
+        return eventHeader.getEventType().toString();
     }
 }

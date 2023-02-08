@@ -6,13 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum CompassDirection {
-    @JsonProperty("north")
     NORTH,
-    @JsonProperty("east")
     EAST,
-    @JsonProperty("south")
     SOUTH,
-    @JsonProperty("west")
     WEST;
 
     public CompassDirection getOppositeDirection() {

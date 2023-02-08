@@ -12,13 +12,8 @@ import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResourceType
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanetResourceDto {
-    @JsonProperty("resource_type")
     private MineableResourceType resourceType;
-
-    @JsonProperty("max_amount")
     private Integer maxAmount;
-
-    @JsonProperty("current_amount")
     private Integer currentAmount;
 
     boolean isValid() {

@@ -15,7 +15,6 @@ public class PlanetDiscoveredEvent extends AbstractEvent {
     @JsonProperty("planet")
     private UUID planetId;
 
-    @JsonProperty("movement_difficulty")
     private Integer movementDifficulty;
 
     private PlanetNeighboursDto[] neighbours = new PlanetNeighboursDto[0];

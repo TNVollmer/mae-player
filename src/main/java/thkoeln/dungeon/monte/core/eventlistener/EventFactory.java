@@ -41,7 +41,7 @@ public class EventFactory {
             case ROBOT_MOVED:
                 newEvent = new RobotMovedIntegrationEvent();
                 break;
-            case ROBOT_REGENERATED:
+            case ROBOT_REGENERATED_INTEGRATION:
                 newEvent = new RobotRegeneratedIntegrationEvent();
                 break;
             case PLANET_DISCOVERED:
@@ -55,7 +55,7 @@ public class EventFactory {
         }
         newEvent.setEventHeader( eventHeader );
         newEvent.fillWithPayload( payload );
-        logger.info( "Created event: " + newEvent );
+        logger.debug( "Created event: " + newEvent );
         return newEvent;
     }
 

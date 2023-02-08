@@ -15,9 +15,16 @@ import java.util.UUID;
 @ToString
 public class GameStatusEvent extends AbstractEvent {
     private UUID gameId;
+    private UUID gameworldId;
     private GameStatus status;
 
+    @Override
     public boolean isValid() {
         return ( gameId != null && status != null );
+    }
+
+    @Override
+    public String toStringShort() {
+        return super.toStringShort() + " (" + String.valueOf( status ) + ")";
     }
 }

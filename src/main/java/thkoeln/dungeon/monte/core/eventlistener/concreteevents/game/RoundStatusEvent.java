@@ -18,7 +18,13 @@ public class RoundStatusEvent extends AbstractEvent {
     private Integer roundNumber;
     private RoundStatusType roundStatus;
 
+    @Override
     public boolean isValid() {
         return ( roundStatus != null && roundNumber != null && gameId != null );
+    }
+
+    @Override
+    public String toStringShort() {
+        return super.toStringShort() + " (" + String.valueOf( roundNumber ) + " " + String.valueOf( roundStatus ) + ")";
     }
 }

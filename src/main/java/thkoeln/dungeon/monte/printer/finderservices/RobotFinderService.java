@@ -17,8 +17,7 @@ public interface RobotFinderService {
 
 
     /**
-     * @return the list of all currently known planets that were spawn points (on which a new robot has been
-     * spawned). This is important for the map cluster construction algorithm.
+     * @return the list of all living robots on a given planet.
      */
     public List<? extends RobotPrintable> livingRobotsOnPlanet( PlanetPrintable planetPrintable );
 

@@ -14,6 +14,7 @@ public class BankInitializedEvent extends AbstractEvent {
     private UUID playerId;
     private Integer balance;
 
+    @Override
     public boolean isValid() {
         return ( playerId != null && balance != null );
     }
