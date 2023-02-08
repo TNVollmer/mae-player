@@ -1,5 +1,6 @@
 package thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanetDiscoveredEvent extends AbstractEvent {
     @JsonProperty("planet")
     private UUID planetId;
@@ -33,4 +35,5 @@ public class PlanetDiscoveredEvent extends AbstractEvent {
         if ( resource != null && !resource.isValid() ) return false;
         return true;
     }
+
 }

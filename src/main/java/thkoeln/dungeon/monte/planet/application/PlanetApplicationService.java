@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
@@ -16,11 +15,8 @@ import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 import thkoeln.dungeon.monte.printer.finderservices.PlanetFinderService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import static java.lang.Boolean.TRUE;
 
 @Service
 public class PlanetApplicationService implements PlanetFinderService {
@@ -110,7 +106,8 @@ public class PlanetApplicationService implements PlanetFinderService {
         Planet planet = perhapsPlanet.get();
         Energy movementDifficulty = Energy.from( planetDiscoveredEvent.getMovementDifficulty() );
         planet.setMovementDifficulty( movementDifficulty );
-        MineableResource mineableResource = MineableResource.fromTypeAndAmount(
+        MineableResource mineableResource = planetDiscoveredEvent.getResource() == null ?
+                null : MineableResource.fromTypeAndAmount(
                 planetDiscoveredEvent.getResource().getResourceType(), planetDiscoveredEvent.getResource().getCurrentAmount() );
         planet.setMineableResource( mineableResource );
         for ( PlanetNeighboursDto planetNeighboursDto : planetDiscoveredEvent.getNeighbours() ) {
