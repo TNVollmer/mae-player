@@ -8,7 +8,7 @@ import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetNeighboursDto;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotPlanetDto;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotPlanetDto;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetException;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;

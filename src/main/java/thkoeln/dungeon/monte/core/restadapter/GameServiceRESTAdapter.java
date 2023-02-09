@@ -43,6 +43,7 @@ public class GameServiceRESTAdapter {
         GameDto[] allGames;
         GameDto[] openGames;
         String urlString = gameServiceUrlString + "/games";
+        logger.debug( "GET request from " + gameServiceUrlString );
         try {
             allGames = restTemplate.getForObject( urlString, GameDto[].class );
             if ( allGames == null || allGames.length == 0 ) {

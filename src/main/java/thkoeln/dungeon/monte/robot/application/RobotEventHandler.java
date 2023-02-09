@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
 
 @Service
 public class RobotEventHandler {

@@ -10,6 +10,7 @@ public enum EventType {
     ROBOT_SPAWNED( "RobotSpawned" ),
     ROBOT_MOVED( "RobotMovedIntegrationEvent" ),
     ROBOT_REGENERATED_INTEGRATION( "RobotRegeneratedIntegrationEvent" ),
+    ROBOT_REVEALED_INTEGRATION( "RobotRevealedIntegrationEvent" ),
     PLANET_DISCOVERED( "PlanetDiscovered" ),
 
     ERROR( "error" ),
@@ -31,8 +32,9 @@ public enum EventType {
     }
 
     public boolean isRobotRelated() {
-        if ( this.equals( GAME_STATUS ) || this.equals( BANK_INITIALIZED ) || this.equals( UNKNOWN ) ||
-             this.equals( ROUND_STATUS ) || this.equals( TRADABLE_PRICES ) || this.equals( ERROR ) )
+        if ( this.equals( GAME_STATUS ) || this.equals( BANK_INITIALIZED ) || this.equals( ROUND_STATUS ) ||
+                this.equals( TRADABLE_PRICES ) || this.equals( ROBOT_REVEALED_INTEGRATION ) ||
+                this.equals( UNKNOWN ) || this.equals( ERROR ) )
             return false;
         if ( isPlanetRelated() ) return false;
         return true;

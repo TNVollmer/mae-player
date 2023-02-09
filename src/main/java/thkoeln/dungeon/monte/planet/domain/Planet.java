@@ -250,9 +250,11 @@ public class Planet implements PlanetPrintable {
      */
     @Override
     public String mapName() {
+        if ( isBlackHole() ) return "HOLE";
         String whoAmI = isSpaceStation() ? "#" : "_";
         return whoAmI + String.valueOf( planetId ).substring( 0, 3 );
     }
+
 
     @Override
     public String detailedDescription() {

@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
 import thkoeln.dungeon.monte.core.strategy.AbstractStrategy;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
 import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
-import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
 import thkoeln.dungeon.monte.robot.domain.*;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 import thkoeln.dungeon.monte.trading.domain.TradingAccount;
@@ -121,6 +121,26 @@ public class RobotApplicationService implements RobotFinderService {
         robot.updateEnergy( Energy.from( event.getAvailableEnergy() ) );
         robotRepository.save( robot );
     }
+
+
+    /**
+     * Move a robot to a new planet as a result of a movement event
+     * @param event
+     */
+/*
+    public void updateRobotPositions( RobotsRevealedIntegrationEvent event ) {
+        logger.info( "Update all robot positions ..." );
+        Optional<Robot> perhapsRobot = findRobotById( event.getRobotId() );
+        if ( !perhapsRobot.isPresent() ) {
+            logger.warn( "Robot with ID " + event.getRobotId() + " is unknown!" );
+            return;
+        }
+        Robot robot = perhapsRobot.get();
+        robot.updateEnergy( Energy.from( event.getAvailableEnergy() ) );
+        robotRepository.save( robot );
+    }
+
+*/
 
 
     /**

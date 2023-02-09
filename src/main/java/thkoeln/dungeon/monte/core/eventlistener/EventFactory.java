@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotMovedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotSpawnedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.ErrorEvent;
@@ -43,6 +44,9 @@ public class EventFactory {
                 break;
             case ROBOT_REGENERATED_INTEGRATION:
                 newEvent = new RobotRegeneratedIntegrationEvent();
+                break;
+            case ROBOT_REVEALED_INTEGRATION:
+                newEvent = new RobotsRevealedIntegrationEvent();
                 break;
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();

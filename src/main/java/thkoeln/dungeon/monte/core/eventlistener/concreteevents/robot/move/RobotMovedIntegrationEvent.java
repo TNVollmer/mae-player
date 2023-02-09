@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot;
+package thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

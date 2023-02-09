@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot;
+package thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

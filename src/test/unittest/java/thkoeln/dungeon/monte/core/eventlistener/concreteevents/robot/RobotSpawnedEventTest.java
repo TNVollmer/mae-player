@@ -3,6 +3,9 @@ package thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot;
 import org.junit.jupiter.api.Test;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractConcreteEventTest;
 import thkoeln.dungeon.monte.core.eventlistener.EventType;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotDto;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotInventoryDto;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
 
 import java.util.UUID;
 

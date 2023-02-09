@@ -157,6 +157,7 @@ public class PlayerApplicationService {
         if ( playerQueue == null ) throw new PlayerException( "playerQueue == null" );
         AbstractMessageListenerContainer listenerContainer = (AbstractMessageListenerContainer)
                 rabbitListenerEndpointRegistry.getListenerContainer( "player-queue" );
+        logger.debug( "listenerContainer.isRunning(): " + listenerContainer.isRunning() );
         String[] queueNames = listenerContainer.getQueueNames();
         if ( !Arrays.stream(queueNames).anyMatch( s->s.equals( playerQueue ) ) ) {
             listenerContainer.addQueueNames( player.getPlayerQueue() );
@@ -165,6 +166,7 @@ public class PlayerApplicationService {
         else {
             logger.info( "Queue " + playerQueue + " is already listened to.");
         }
+
     }
 
 
