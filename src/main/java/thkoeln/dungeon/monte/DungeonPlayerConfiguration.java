@@ -37,11 +37,13 @@ public class DungeonPlayerConfiguration {
         String username = environment.getProperty( "queue.username" );
         String password = environment.getProperty( "queue.password" );
         String host = environment.getProperty( "queue.host" );
-        logger.debug( "Property queue.host found: " + host );
+        int port = Integer.valueOf( environment.getProperty( "queue.port" ) );
+        logger.debug( "Property queue.host found: " + host + ":" + port );
         connectionFactory.setUsername( username );
         connectionFactory.setPassword( password );
         connectionFactory.setHost( host );
-        logger.debug( "Prepared RabbitMQ factory for host " + connectionFactory.getHost() );
+        connectionFactory.setPort( port );
+        logger.debug( "Prepared RabbitMQ factory for host " + connectionFactory.getVirtualHost() );
         return connectionFactory;
     }
 
