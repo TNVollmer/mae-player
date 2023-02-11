@@ -101,10 +101,10 @@ public class PlayerEventListener {
                 handleRoundStatusEvent( (RoundStatusEvent) event );
                 break;
             case TRADABLE_PRICES:
-                handleTradablePricesEvent( (TradeablePricesEvent) event );
+                logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
                 break;
-            case ROBOT_SPAWNED:
-                handleTradablePricesEvent( (TradeablePricesEvent) event );
+            case ROBOT_REVEALED_INTEGRATION:
+                logger.info( "ROBOT_REVEALED_INTEGRATION - no handling at the moment" );
                 break;
             default:
         }

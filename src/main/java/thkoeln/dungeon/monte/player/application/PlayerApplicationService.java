@@ -110,7 +110,8 @@ public class PlayerApplicationService {
             return;
         }
         player.assignPlayerId( playerId );
-        player.setGameId( gameApplicationService.queryActiveGame().getGameId() );
+        Game activeGame = gameApplicationService.queryActiveGame();
+        if ( activeGame != null ) player.setGameId( gameApplicationService.queryActiveGame().getGameId() );
 
         // We need the queue now, not at joining the game ... so we "guess" the queue name.
         openRabbitQueue( player );

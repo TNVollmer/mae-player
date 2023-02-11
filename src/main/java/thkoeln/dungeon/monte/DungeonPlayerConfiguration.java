@@ -1,5 +1,7 @@
 package thkoeln.dungeon.monte;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +13,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
+import thkoeln.dungeon.monte.player.application.PlayerEventListener;
 
 @Configuration
 @EnableAutoConfiguration
 @EntityScan("thkoeln.dungeon.*")
 @ComponentScan("thkoeln.dungeon.*")
 public class DungeonPlayerConfiguration {
+    private Logger logger = LoggerFactory.getLogger(DungeonPlayerConfiguration.class);
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
     @Autowired
@@ -32,8 +36,12 @@ public class DungeonPlayerConfiguration {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
         String username = environment.getProperty( "queue.username" );
         String password = environment.getProperty( "queue.password" );
+        String host = environment.getProperty( "queue.host" );
+        logger.debug( "Property queue.host found: " + host );
         connectionFactory.setUsername( username );
         connectionFactory.setPassword( password );
+        connectionFactory.setHost( host );
+        logger.debug( "Prepared RabbitMQ factory for host " + connectionFactory.getHost() );
         return connectionFactory;
     }
 
