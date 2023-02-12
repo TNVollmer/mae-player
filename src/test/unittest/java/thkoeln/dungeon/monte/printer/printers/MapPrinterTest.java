@@ -132,27 +132,30 @@ public class MapPrinterTest {
 
 
     @Test
-    public void testTwoIslands() {
+    public void testThreeIslands() {
         // given
         n.defineNeighbour( s, CompassDirection.SOUTH );
         n.defineNeighbour( ne, CompassDirection.EAST );
-        //    N--NE
+        see.defineNeighbour( se, CompassDirection.WEST );
+        //    N--NE   NEE
         //    |
-        //    S        SEE
-        TwoDimDynamicArray<PlanetPrintable> nCluster;
-        TwoDimDynamicArray<PlanetPrintable> seeCluster;
+        //    S   SE--SEE
+        TwoDimDynamicArray<PlanetPrintable> nCluster = null;
+        TwoDimDynamicArray<PlanetPrintable> neeCluster = null;
+        TwoDimDynamicArray<PlanetPrintable> seeCluster = null;
 
         // when
         List<TwoDimDynamicArray<PlanetPrintable>> planetClusters = planetPrinter_TwoIslands.allPlanetClusters();
-        assertEquals( 2, planetClusters.size() );
-        if ( planetClusters.get( 0 ).contains( n ) ) {
-            nCluster = planetClusters.get( 0 );
-            seeCluster = planetClusters.get( 1 );
-        }
-        else {
-            nCluster = planetClusters.get( 1 );
-            seeCluster = planetClusters.get( 0 );
-        }
+        assertEquals( 3, planetClusters.size() );
+        if ( planetClusters.get( 0 ).contains( n ) ) nCluster = planetClusters.get( 0 );
+        if ( planetClusters.get( 1 ).contains( n ) ) nCluster = planetClusters.get( 1 );
+        if ( planetClusters.get( 2 ).contains( n ) ) nCluster = planetClusters.get( 2 );
+        if ( planetClusters.get( 0 ).contains( nee ) ) neeCluster = planetClusters.get( 0 );
+        if ( planetClusters.get( 1 ).contains( nee ) ) neeCluster = planetClusters.get( 1 );
+        if ( planetClusters.get( 2 ).contains( nee ) ) neeCluster = planetClusters.get( 2 );
+        if ( planetClusters.get( 0 ).contains( see ) ) seeCluster = planetClusters.get( 0 );
+        if ( planetClusters.get( 1 ).contains( see ) ) seeCluster = planetClusters.get( 1 );
+        if ( planetClusters.get( 2 ).contains( see ) ) seeCluster = planetClusters.get( 2 );
 
         // then
         assertEquals( 2, nCluster.sizeY() );
@@ -161,9 +164,13 @@ public class MapPrinterTest {
         assertEquals( s, nCluster.at( c01 ) );
         assertEquals( ne, nCluster.at( c10 ) );
 
+        assertEquals( 1, neeCluster.sizeY() );
+        assertEquals( 1, neeCluster.sizeX() );
+        assertEquals( nee, neeCluster.at( c00 ) );
+
         assertEquals( 1, seeCluster.sizeY() );
-        assertEquals( 1, seeCluster.sizeX() );
-        assertEquals( see, seeCluster.at( c00 ) );
+        assertEquals( 2, seeCluster.sizeX() );
+        assertEquals( see, seeCluster.at( c10 ) );
     }
 
 

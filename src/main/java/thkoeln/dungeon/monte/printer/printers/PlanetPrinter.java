@@ -53,14 +53,14 @@ public class PlanetPrinter {
     public List<TwoDimDynamicArray<PlanetPrintable>> allPlanetClusters() {
         List<TwoDimDynamicArray<PlanetPrintable>> allPlanetClusters = new ArrayList<>();
 
-        List<? extends PlanetPrintable> spawnPoints = planetFinderService.allSpawnPoints();
-        for ( PlanetPrintable spawnPoint: spawnPoints ) {
-            Predicate<TwoDimDynamicArray<PlanetPrintable>> containsSpacestation =
-                    planetCluster -> planetCluster.contains( spawnPoint );
-            boolean alreadyThere = allPlanetClusters.stream().anyMatch( containsSpacestation );
+        List<? extends PlanetPrintable> allPlanets = planetFinderService.allPlanets();
+        for ( PlanetPrintable planet: allPlanets ) {
+            Predicate<TwoDimDynamicArray<PlanetPrintable>> containsPlanet =
+                    planetCluster -> planetCluster.contains( planet );
+            boolean alreadyThere = allPlanetClusters.stream().anyMatch( containsPlanet );
             if ( ! alreadyThere ) {
                 // this spawnPoint is not yet part of any previous cluster. Therefore, we start a new one.
-                PlanetMapConstructor planetMapConstructor = new PlanetMapConstructor( spawnPoint );
+                PlanetMapConstructor planetMapConstructor = new PlanetMapConstructor( planet );
                 TwoDimDynamicArray<PlanetPrintable> newPlanetCluster = planetMapConstructor.constructLocalClusterMap();
                 allPlanetClusters.add( newPlanetCluster );
             }
