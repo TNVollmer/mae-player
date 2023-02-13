@@ -25,6 +25,7 @@ public class MapCellDto {
     public String[] toCompartmentStrings() {
         String[] cellCompartments = new String[3];
         cellCompartments[0] = ( planetPrintable == null ) ? "" : planetPrintable.mapName();
+        // todo change to enemy robot here
         cellCompartments[1] = ( planetPrintable == null || planetPrintable.mineableResourcePrintable() == null ) ?
                 "" : planetPrintable.mineableResourcePrintable().mapName();
         if ( robotPrintables == null || robotPrintables.size() == 0 ) cellCompartments[2] = "";
@@ -43,7 +44,7 @@ public class MapCellDto {
 
     public String innerCellCSSClass( int compartmentNumber ) {
         // mineable resource
-        if ( compartmentNumber == 1 && planetPrintable != null && planetPrintable.mineableResourcePrintable() != null ) {
+        if ( compartmentNumber == 0 && planetPrintable != null && planetPrintable.mineableResourcePrintable() != null ) {
             return "innercell ressource" + planetPrintable.mineableResourcePrintable().relativeValue();
         }
         // robot

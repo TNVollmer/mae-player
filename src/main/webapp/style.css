@@ -106,3 +106,33 @@ h2 {
 .blackhole {
   background-color: #1c1c1c;
 }
+
+.enemyA {
+  background-color: hsl(0, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyB {
+  background-color: hsl(280, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyC {
+  background-color: hsl(40, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyD {
+  background-color: hsl(125, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyE {
+  background-color: hsl(60, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
