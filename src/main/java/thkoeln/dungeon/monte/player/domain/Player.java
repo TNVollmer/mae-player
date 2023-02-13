@@ -18,8 +18,8 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Setter
-@NoArgsConstructor
+@Setter( AccessLevel.PROTECTED )
+@NoArgsConstructor( access = AccessLevel.PROTECTED )
 public class Player implements ActionablePlayer, Actionable {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Player.class );
@@ -33,37 +33,81 @@ public class Player implements ActionablePlayer, Actionable {
     private final UUID id = UUID.randomUUID();
 
     // GameId is stored for convenience - you need this for creating commands.
+    @Setter( AccessLevel.PUBLIC )
     private UUID gameId;
 
     private String name;
     private String email;
-    @Setter( AccessLevel.PROTECTED )
     private UUID playerId;
+    @Getter( AccessLevel.NONE )
+    private String enemyShortName = null;
+
+    // Each enemy player is described by a letter that is used for visualizing in the client
+    @Setter( AccessLevel.PUBLIC )
+    private Character enemyChar;
     private Command recentCommand;
 
     @Transient
+    @Setter( AccessLevel.PUBLIC )
     PlayerStrategy strategy;
 
+    @Setter( AccessLevel.PUBLIC )
     private String playerQueue;
+
+
+    public static Player ownPlayer( String name, String email ) {
+        Player player = new Player();
+        player.setName( name );
+        player.setEmail( email );
+        return player;
+    }
+
+
+    public static Player enemyPlayer( String shortName ) {
+        if ( shortName == null ) throw new PlayerException( "shortName == null" );
+        Player player = new Player();
+        player.setEnemyShortName( shortName );
+        return player;
+    }
+
+
 
     public void assignPlayerId( UUID playerId ) {
         if ( playerId == null ) throw new PlayerException( "playerId == null" );
         this.playerId = playerId;
+
         // this we do in order to register the queue early - before joining the game
         resetToDefaultPlayerQueue();
     }
+
 
     public void resetToDefaultPlayerQueue() {
         if ( playerId == null ) return;
         this.playerQueue = "player-" + playerId;
     }
 
+
     public boolean isRegistered() {
         return getPlayerId() != null;
     }
 
+
     public boolean hasJoinedGame() {
         return getPlayerQueue() != null;
+    }
+
+
+    public boolean isEnemy() {
+        if ( playerId == null && enemyShortName != null ) return true;
+        return false;
+    }
+
+    public boolean matchesShortName( String shortName ) {
+        if ( shortName == null ) return false;
+        if ( enemyShortName != null && enemyShortName.equals( shortName) ) return true;
+        if ( playerId != null && enemyShortName == null && playerId.toString().substring( 0, 8 ).equals( shortName ) )
+            return true;
+        return false;
     }
 
 

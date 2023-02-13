@@ -127,7 +127,7 @@ public class RobotApplicationService implements RobotFinderService {
      * Move a robot to a new planet as a result of a movement event
      * @param event
      */
-/*
+    /*
     public void updateRobotPositions( RobotsRevealedIntegrationEvent event ) {
         logger.info( "Update all robot positions ..." );
         Optional<Robot> perhapsRobot = findRobotById( event.getRobotId() );
@@ -139,7 +139,6 @@ public class RobotApplicationService implements RobotFinderService {
         robot.updateEnergy( Energy.from( event.getAvailableEnergy() ) );
         robotRepository.save( robot );
     }
-
 */
 
 

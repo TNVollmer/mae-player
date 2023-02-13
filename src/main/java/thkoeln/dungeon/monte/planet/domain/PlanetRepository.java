@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface PlanetRepository extends CrudRepository<Planet, UUID> {
     public List<Planet> findAll();
-    Optional<Planet> findByPlanetId( UUID planetId );
+    public Optional<Planet> findByPlanetId( UUID planetId );
     public List<Planet> findBySpawnPointEquals( boolean spawnPointFlag );
 }

@@ -22,7 +22,6 @@ import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -50,6 +49,8 @@ public class PlayerApplicationService {
 
     @Value("${dungeon.playerEmail}")
     private String playerEmail;
+
+    private static final int INDEX_FOR_A_IN_ASCII_TABLE = 65;
 
     @Autowired
     public PlayerApplicationService(
@@ -81,9 +82,7 @@ public class PlayerApplicationService {
             player = players.get( 0 );
         }
         else {
-            player = new Player();
-            player.setName( playerName );
-            player.setEmail( playerEmail );
+            player = Player.ownPlayer( playerName, playerEmail );
             playerRepository.save( player );
             logger.info( "Created new player (not yet registered): " + player );
         }
@@ -183,7 +182,39 @@ public class PlayerApplicationService {
         playerRepository.save( player );
     }
 
+    /**
+     * Add another (enemy) player that was revealed via the RobotsRevealedIntegrationEvent.
+     * We only get an 8-char-shortname, basically the first 8 char of the player id.
+     * It might just as well be our own player - therefore we need to check this match.
+     * @param playerShortName
+     * @return the new enemy player, or the one found in the database, or null, if the short name belongs to my
+     *          own player.
+     */
+    public Player addEnemyPlayer( String playerShortName ) {
+        if ( playerShortName == null ) throw new PlayerException( "playerShortName == null" );
+        logger.info( "Learned about a new player with short name " + playerShortName );
+        Player meMyselfAndI = queryAndIfNeededCreatePlayer();
+        if ( meMyselfAndI.matchesShortName( playerShortName ) ) {
+            logger.info( "... oh, that is me." );
+            return null;
+        }
+        List<Player> enemies = playerRepository.findByEnemyShortName( playerShortName );
+        if ( enemies.size() > 0 ) {
+            logger.info( "The enemy exists already in my database." );
+            return enemies.get( 0 );
+        }
+        Player newEnemyPlayer = Player.enemyPlayer( playerShortName );
+        newEnemyPlayer.setEnemyChar( defineNextEnemyLetter() );
+        playerRepository.save( newEnemyPlayer );
+        return newEnemyPlayer;
+    }
 
+
+    private char defineNextEnemyLetter() {
+        int numberOfEnemies = playerRepository.countAllByEnemyCharIsNotNull();
+        Character c = Character.valueOf( (char) (INDEX_FOR_A_IN_ASCII_TABLE + numberOfEnemies) );
+        return c;
+    }
 
 
     public void submitRoundCommands() {

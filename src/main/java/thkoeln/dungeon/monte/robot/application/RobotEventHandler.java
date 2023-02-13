@@ -39,4 +39,10 @@ public class RobotEventHandler {
         }
     }
 
+
+    public void handleRobotsRevealedIntegrationEvent( RobotsRevealedIntegrationEvent event ) {
+        logger.info( "Handling RobotsRevealedIntegrationEvent - robot aspects ..." );
+
+    }
+
 }

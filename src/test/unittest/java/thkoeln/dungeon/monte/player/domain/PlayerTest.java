@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerTest {
     @Value("${dungeon.playerName}")
@@ -17,21 +17,48 @@ public class PlayerTest {
     @Test
     public void testStatus() {
         // given
-        Player player = new Player();
-        player.setName( playerName );
-        player.setEmail( playerEmail );
-        Assert.assertFalse( player.isRegistered() );
-        Assert.assertFalse( player.hasJoinedGame() );
+        Player player = Player.ownPlayer( playerName, playerEmail );
+        assertFalse( player.isRegistered() );
+        assertFalse( player.hasJoinedGame() );
+        assertFalse( player.isEnemy() );
 
         // when / then
         player.setPlayerId( UUID.randomUUID() );
-        Assert.assertTrue( player.isRegistered() );
-        Assert.assertFalse( player.hasJoinedGame() );
+        assertTrue( player.isRegistered() );
+        assertFalse( player.hasJoinedGame() );
+        assertFalse( player.isEnemy() );
 
         // when / then
         player.setPlayerQueue( "someString" );
-        Assert.assertTrue( player.isRegistered() );
-        Assert.assertTrue( player.hasJoinedGame() );
+        assertTrue( player.isRegistered() );
+        assertTrue( player.hasJoinedGame() );
+        assertFalse( player.isEnemy() );
+    }
 
+    @Test
+    public void testEnemyMatch() {
+        // given
+        Player player = Player.enemyPlayer( "abcd1234" );
+
+        // when / then
+        assertTrue( player.isEnemy() );
+        assertTrue( player.matchesShortName( "abcd1234" ) );
+    }
+
+
+    @Test
+    public void testNonEnemyMatch() {
+        // given
+        Player player = Player.ownPlayer( playerName, playerEmail );
+        UUID playerId = UUID.randomUUID();
+        String shortName = playerId.toString().substring( 0, 8 );
+
+        // when
+        assertFalse( player.isEnemy() );
+        player.assignPlayerId( playerId );
+
+        // then
+        assertFalse( player.isEnemy() );
+        assertTrue( player.matchesShortName( shortName ) );
     }
 }

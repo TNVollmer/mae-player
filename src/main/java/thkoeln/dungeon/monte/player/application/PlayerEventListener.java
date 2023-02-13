@@ -12,14 +12,18 @@ import thkoeln.dungeon.monte.core.eventlistener.EventHeader;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusType;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
+import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.printer.devices.ConsoleOutput;
 import thkoeln.dungeon.monte.printer.printers.PlayerPrinter;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
+
+import java.util.Set;
 
 @Service
 public class PlayerEventListener {
@@ -95,7 +99,9 @@ public class PlayerEventListener {
                 handleGameStatusEvent( (GameStatusEvent) event );
                 break;
             case BANK_INITIALIZED:
-                handleBankInitializedEvent( (BankInitializedEvent) event );
+                BankInitializedEvent bankInitializedEvent = (BankInitializedEvent) event;
+                playerApplicationService.adjustBankAccount(
+                        bankInitializedEvent.getPlayerId(), bankInitializedEvent.getBalance() );
                 break;
             case ROUND_STATUS:
                 handleRoundStatusEvent( (RoundStatusEvent) event );
@@ -104,7 +110,7 @@ public class PlayerEventListener {
                 logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
                 break;
             case ROBOT_REVEALED_INTEGRATION:
-                logger.info( "ROBOT_REVEALED_INTEGRATION - no handling at the moment" );
+                handleRobotsRevealedIntegrationEvent( (RobotsRevealedIntegrationEvent) event );
                 break;
             default:
         }
@@ -126,12 +132,6 @@ public class PlayerEventListener {
     }
 
 
-    private void handleBankInitializedEvent( BankInitializedEvent bankInitializedEvent ) {
-        playerApplicationService.adjustBankAccount(
-                bankInitializedEvent.getPlayerId(), bankInitializedEvent.getBalance() );
-    }
-
-
     private void handleRoundStatusEvent( RoundStatusEvent event ) {
         if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
             gameApplicationService.roundStarted( event.getRoundNumber() );
@@ -143,8 +143,16 @@ public class PlayerEventListener {
     }
 
 
-    private void handleTradablePricesEvent( TradeablePricesEvent event ) {
-        logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
+    private void handleRobotsRevealedIntegrationEvent( RobotsRevealedIntegrationEvent event ) {
+        logger.info( "Handling RobotsRevealedIntegrationEvent - player aspects ..." );
+        Set<String> playerShortNames = event.playerShortNames();
+        for ( String playerShortName : playerShortNames ) {
+            Player enemyPlayer = playerApplicationService.addEnemyPlayer( playerShortName );
+            Character enemyLetter = ( enemyPlayer == null ) ? null : enemyPlayer.getEnemyChar();
+            event.updateEnemyChar( playerShortName, enemyLetter );
+        }
+        // the rest is now robot related
+        robotEventHandler.handleRobotRelatedEvent( event );
     }
 
 }

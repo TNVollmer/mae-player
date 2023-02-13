@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PlayerRepository extends CrudRepository<Player, UUID> {
-    List<Player> findAll();
-    List<Player> findByPlayerId( UUID playerId );
+    public List<Player> findAll();
+    public List<Player> findByPlayerId( UUID playerId );
+    public List<Player> findByEnemyShortName( String shortName );
+    public boolean existsByEnemyShortName( String shortName );
+    public int countAllByEnemyCharIsNotNull();
 }

@@ -19,6 +19,10 @@ public class RobotRevealedDto {
     private Integer energy;
     private RobotRevealedLevelDto levels;
 
+    // this is set by the PlayerEventHandler class. It describes the 1-char code for enemy players,
+    // display purposes in the client.
+    private Character enemyChar = null;
+
     public boolean isValid() {
         return ( robotId != null && planetId != null  && playerNotion != null );
     }
