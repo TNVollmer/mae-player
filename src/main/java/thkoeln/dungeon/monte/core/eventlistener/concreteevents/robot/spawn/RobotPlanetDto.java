@@ -16,4 +16,10 @@ public class RobotPlanetDto {
     private UUID gameWorldId;
     private Integer movementDifficulty;
     private String resourceType;
+
+    public boolean isValid() {
+        if ( getPlanetId() == null ) return false;
+        if ( getMovementDifficulty() == null || getMovementDifficulty() < 0 ) return false;
+        return true;
+    }
 }

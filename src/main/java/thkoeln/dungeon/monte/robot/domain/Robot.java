@@ -49,7 +49,8 @@ public class Robot implements ActionableRobot, RobotPrintable {
     @Embedded
     private Command recentCommand;
 
-    boolean alive = true;
+    private boolean alive = true;
+    private Character enemyChar = null;
 
     @Transient
     AbstractRobotStrategy strategy;
@@ -74,8 +75,27 @@ public class Robot implements ActionableRobot, RobotPrintable {
         return robot;
     }
 
-    public static Robot of( UUID robotId ) {
-        return of( robotId, null, null, null );
+    public static Robot of( UUID robotId, UUID gameId ) {
+        return of( robotId, null, gameId, null );
+    }
+
+
+
+    /**
+     * @return true if this robot is an enemy robot, false if it is one of us
+     */
+    @Override
+    public boolean isEnemy() {
+        return ( enemyChar != null );
+    }
+
+
+    /**
+     * Enemy players are identified by a capital char (A, B, ...), which is used for color coding in the client.
+     * @return the char belonging to the robot's player, if it is an enemy robot. Null if it is our own robot.
+     */
+    public Character enemyChar() {
+        return enemyChar;
     }
 
 

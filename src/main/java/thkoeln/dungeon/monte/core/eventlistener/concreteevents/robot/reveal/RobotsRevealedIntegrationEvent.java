@@ -5,8 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -23,6 +22,7 @@ public class RobotsRevealedIntegrationEvent extends AbstractEvent {
         return true;
     }
 
+
     public Set<String> playerShortNames() {
         HashSet<String> playerShortNames = new HashSet<>();
         if ( robots != null ) {
@@ -33,6 +33,7 @@ public class RobotsRevealedIntegrationEvent extends AbstractEvent {
         return playerShortNames;
     }
 
+
     public void updateEnemyChar( String playerShortName, Character enemyChar ) {
         if ( robots != null ) {
             for ( RobotRevealedDto robotRevealedDto : robots ) {
@@ -42,4 +43,18 @@ public class RobotsRevealedIntegrationEvent extends AbstractEvent {
             }
         }
     }
+
+
+    public List<RobotRevealedDto> enemyRobotsRevealedDtos() {
+        if ( robots == null ) return new ArrayList<>();
+        return Arrays.stream( robots ).filter( robotRevealedDto -> (robotRevealedDto.getEnemyChar() != null) ).toList();
+    }
+
+
+    public List<RobotRevealedDto> ownRobotsRevealedDtos() {
+        if ( robots == null ) return new ArrayList<>();
+        return Arrays.stream( robots ).filter( robotRevealedDto -> (robotRevealedDto.getEnemyChar() == null) ).toList();
+    }
+
+
 }

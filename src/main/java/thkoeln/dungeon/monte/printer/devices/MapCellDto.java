@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
 import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
+import thkoeln.dungeon.monte.printer.util.PrinterException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,23 +18,35 @@ import java.util.List;
 @NoArgsConstructor
 public class MapCellDto {
     private PlanetPrintable planetPrintable;
-    private List<? extends RobotPrintable> robotPrintables;
+    private List<? extends RobotPrintable> robotPrintables = new ArrayList<>();
 
-    public MapCellDto(PlanetPrintable planetPrintable) {
+    public MapCellDto( PlanetPrintable planetPrintable ) {
         this.planetPrintable = planetPrintable;
     }
 
+    public List<? extends RobotPrintable> ownRobots() {
+        return robotPrintables.stream().filter( robot -> !robot.isEnemy() ).toList();
+    }
+
+    public List<? extends RobotPrintable> enemyRobots() {
+        return robotPrintables.stream().filter( robot -> robot.isEnemy() ).toList();
+    }
+
     public String[] toCompartmentStrings() {
-        String[] cellCompartments = new String[3];
+        String[] cellCompartments = new String[]{ "", "", "" };
+
         cellCompartments[0] = ( planetPrintable == null ) ? "" : planetPrintable.mapName();
-        // todo change to enemy robot here
-        cellCompartments[1] = ( planetPrintable == null || planetPrintable.mineableResourcePrintable() == null ) ?
-                "" : planetPrintable.mineableResourcePrintable().mapName();
-        if ( robotPrintables == null || robotPrintables.size() == 0 ) cellCompartments[2] = "";
-        else if ( robotPrintables.size() == 1 ) cellCompartments[2] = robotPrintables.get( 0 ).toString();
-        else cellCompartments[2] = "(" + robotPrintables.size() + ")";
+        cellCompartments[1] = robotMapString( ownRobots() );
+        cellCompartments[2] = robotMapString( enemyRobots() );
 
         return cellCompartments;
+    }
+
+
+    private String robotMapString( List<? extends RobotPrintable> robots ) {
+        if ( robots.size() == 0 ) return "";
+        if ( robots.size() == 1 ) return robotPrintables.get( 0 ).toString();
+        return "(" + robotPrintables.size() + ")";
     }
 
 
@@ -43,15 +57,28 @@ public class MapCellDto {
     }
 
     public String innerCellCSSClass( int compartmentNumber ) {
-        // mineable resource
+        // mineable resource, denoted as a color coding
         if ( compartmentNumber == 0 && planetPrintable != null && planetPrintable.mineableResourcePrintable() != null ) {
             return "innercell ressource" + planetPrintable.mineableResourcePrintable().relativeValue();
         }
-        // robot
-        if ( compartmentNumber == 2 && robotPrintables.size() > 0) {
+        // own robot
+        if ( compartmentNumber == 1 && ownRobots().size() > 0 ) {
             return "innercell robot";
         }
+        // enemy robot
+        if ( compartmentNumber == 2 && enemyRobots().size() > 0 ) {
+            return "innercell enemy" + enemyClassId( enemyRobots().get( 0 ) );
+        }
         return "innercell"; // no resource or robot => no markup
+    }
+
+
+    private String enemyClassId( RobotPrintable enemy ) {
+        if ( !enemy.isEnemy() ) throw new PrinterException( "!enemy.isEnemy()" );
+        Character enemyChar = enemy.enemyChar();
+        if ( enemyChar == null ) throw new PrinterException( "enemyChar == null" );
+        if ( enemyChar > 'E' ) enemyChar = 'X';
+        return String.valueOf( enemyChar );
     }
 
 }

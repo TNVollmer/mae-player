@@ -58,26 +58,10 @@ public class PlanetApplicationService implements PlanetFinderService {
 
 
     /**
-     * Add or update a planet (may be space station) we learn about from an external event,
-     * without having any information about its neighbours. That could be e.g. when
-     * new space stations are declared.
-     * @param robotPlanetDto - the RobotSpawnedEvent
-     * @param isSpaceStation (null if unknown)
-     * @return the found planet
-     */
-    public Planet addOrUpdatePlanet( RobotPlanetDto robotPlanetDto, Boolean isSpaceStation ) {
-        if ( robotPlanetDto == null ) throw new PlanetException( "robotPlanetDto == null" );
-        UUID planetId = robotPlanetDto.getPlanetId();
-        Energy movementDifficulty = Energy.from( robotPlanetDto.getMovementDifficulty() );
-        return addOrUpdatePlanet( planetId, movementDifficulty, isSpaceStation );
-    }
-
-
-    /**
      * Add or update a planet (may be space station) we learn about from an external event.
      * @param planetId
-     * @param movementDifficulty
-     * @param isSpaceStation
+     * @param movementDifficulty (can be null)
+     * @param isSpaceStation (can be null)
      * @return the found planet
      */
     public Planet addOrUpdatePlanet( UUID planetId, Energy movementDifficulty, Boolean isSpaceStation ) {
@@ -88,7 +72,7 @@ public class PlanetApplicationService implements PlanetFinderService {
         Planet newPlanet = foundOptional.isPresent() ? foundOptional.get() : new Planet(planetId);
         if ( isSpaceStation != null ) newPlanet.setSpawnPoint( isSpaceStation );
         if ( movementDifficulty != null ) newPlanet.setMovementDifficulty( movementDifficulty );
-        planetRepository.save(newPlanet);
+        planetRepository.save( newPlanet );
         return newPlanet;
     }
 

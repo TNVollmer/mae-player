@@ -52,7 +52,10 @@ public class RobotDto {
         if ( getEnergyRegen() <= 0 ) return false;
         if ( getAttackDamage() == null ) return false;
         if ( getAttackDamage() <= 0 ) return false;
-        if ( inventory == null ) return false;
-        return inventory.isValid();
+
+        if ( inventory == null || !inventory.isValid() ) return false;
+        if ( planet == null || !planet.isValid() ) return false;
+
+        return true;
     }    
 }

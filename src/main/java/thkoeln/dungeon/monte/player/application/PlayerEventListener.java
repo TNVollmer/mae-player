@@ -21,6 +21,7 @@ import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.printer.devices.ConsoleOutput;
 import thkoeln.dungeon.monte.printer.printers.PlayerPrinter;
+import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
 
 import java.util.Set;
@@ -33,6 +34,7 @@ public class PlayerEventListener {
     private PlayerApplicationService playerApplicationService;
     private PlanetEventHandler planetEventHandler;
     private RobotEventHandler robotEventHandler;
+    private RobotApplicationService robotApplicationService;
     private PlayerPrinter playerPrinter;
 
     @Autowired
@@ -41,6 +43,7 @@ public class PlayerEventListener {
                                 PlayerApplicationService playerApplicationService,
                                 PlanetEventHandler planetEventHandler,
                                 RobotEventHandler robotEventHandler,
+                                RobotApplicationService robotApplicationService,
                                 PlayerPrinter playerPrinter ) {
         this.eventFactory = eventFactory;
         this.gameApplicationService = gameApplicationService;
@@ -48,6 +51,7 @@ public class PlayerEventListener {
         this.robotEventHandler = robotEventHandler;
         this.planetEventHandler = planetEventHandler;
         this.playerPrinter = playerPrinter;
+        this.robotApplicationService = robotApplicationService;
     }
 
 
@@ -152,7 +156,7 @@ public class PlayerEventListener {
             event.updateEnemyChar( playerShortName, enemyLetter );
         }
         // the rest is now robot related
-        robotEventHandler.handleRobotRelatedEvent( event );
+        robotApplicationService.updateRobotsFromExternalEvent( event );
     }
 
 }
