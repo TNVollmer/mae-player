@@ -15,6 +15,7 @@ import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -107,7 +108,7 @@ public class Robot implements ActionableRobot, RobotPrintable {
                     ", but actually is on planet " + location + "!" );
             moveToPlanet( updatedLocation );
         }
-        if ( updatedEnergy == null || !updatedEnergy.equals( updatedEnergy ) ) {
+        if ( updatedEnergy != null || !updatedEnergy.equals( updatedEnergy ) ) {
             logger.warn( "Robot " + this + " should have " + updatedEnergy + ", but actually has " + energy + "!" );
             setEnergy( updatedEnergy );
         }
@@ -230,5 +231,17 @@ public class Robot implements ActionableRobot, RobotPrintable {
     @Override
     public String toString() {
         return mapName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Robot robot)) return false;
+        return id.equals(robot.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

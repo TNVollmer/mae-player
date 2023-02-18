@@ -77,6 +77,17 @@ public class PlanetApplicationService implements PlanetFinderService {
     }
 
 
+    /**
+     * Add or update a planet we learn about from an external event.
+     * @param planetId
+     * @param movementDifficulty
+     * @return
+     */
+    public Planet addOrUpdatePlanet( UUID planetId, Energy movementDifficulty ) {
+        return addOrUpdatePlanet( planetId, movementDifficulty, null );
+    }
+
+
     public void addPlanetNeighbours( PlanetDiscoveredEvent planetDiscoveredEvent ) {
         if ( planetDiscoveredEvent == null || !planetDiscoveredEvent.isValid() )
             throw new PlanetException( "planetDiscoveredEvent == null || !planetDiscoveredEvent.isValid()" );

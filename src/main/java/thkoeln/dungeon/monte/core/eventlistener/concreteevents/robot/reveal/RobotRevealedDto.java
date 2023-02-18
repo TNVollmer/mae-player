@@ -23,6 +23,29 @@ public class RobotRevealedDto {
     // display purposes in the client.
     private Character enemyChar = null;
 
+    public static final Integer DEFAULT_STRENGTH = 10;
+
+    /**
+     * Factory method for testing purposes
+     * @param robotId
+     * @param planetId
+     * @param playerShortName
+     * @param enemyChar
+     * @return
+     */
+    public static RobotRevealedDto defaultsFor( UUID robotId, UUID planetId, String playerShortName, Character enemyChar ) {
+        RobotRevealedDto robotRevealedDto = new RobotRevealedDto();
+        robotRevealedDto.setRobotId( robotId );
+        robotRevealedDto.setPlanetId( planetId );
+        robotRevealedDto.setEnemyChar( enemyChar );
+        robotRevealedDto.setPlayerNotion( playerShortName );
+        robotRevealedDto.setHealth( DEFAULT_STRENGTH );
+        robotRevealedDto.setEnergy( DEFAULT_STRENGTH );
+        robotRevealedDto.setLevels( RobotRevealedLevelDto.defaults() );
+        return robotRevealedDto;
+    }
+
+
     public boolean isValid() {
         return ( robotId != null && planetId != null  && playerNotion != null );
     }

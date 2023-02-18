@@ -14,6 +14,8 @@ import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.robot.domain.RobotException;
 
+import java.util.UUID;
+
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -40,7 +42,7 @@ public class RobotEventHandler {
                 handleRobotSpawnedEvent( (RobotSpawnedEvent) event );
                 break;
             case ROBOT_MOVED:
-                robotApplicationService.moveRobotFromExternalEvent( (RobotMovedIntegrationEvent) event );
+                handleRobotMovedIntegrationEvent( (RobotMovedIntegrationEvent) event );
                 break;
             case ROBOT_REGENERATED_INTEGRATION:
                 robotApplicationService.regenerateRobotFromExternalEvent( (RobotRegeneratedIntegrationEvent) event );
@@ -58,4 +60,12 @@ public class RobotEventHandler {
         robotApplicationService.addNewOwnRobot( event.getRobotDto().getId(), planet );
     }
 
+
+    private void handleRobotMovedIntegrationEvent( RobotMovedIntegrationEvent event ) {
+        UUID planetId = event.getToPlanet().getId();
+        Energy movementDifficulty = Energy.from( event.getToPlanet().getMovementDifficulty() );
+        Planet planet = planetApplicationService.addOrUpdatePlanet( planetId, movementDifficulty );
+        Energy updatedEnergy = Energy.from( event.getRemainingEnergy() );
+        robotApplicationService.moveRobotToNewPlanet( event.getRobotId(), planet, updatedEnergy );
+    }
 }
