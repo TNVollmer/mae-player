@@ -1,8 +1,10 @@
 package thkoeln.dungeon.monte.printer.printables;
 
+import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.printer.util.MapDirection;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Defines the methods that a planet implementation needs to provide, so that this module can print it on the
@@ -29,5 +31,11 @@ public interface PlanetPrintable extends MapPrintable {
      * @return true if this planet is a black hole, false otherwise
      */
     public boolean isBlackHole();
+
+
+    public boolean equals( Object o );
+
+    @Override
+    public int hashCode();
 
 }

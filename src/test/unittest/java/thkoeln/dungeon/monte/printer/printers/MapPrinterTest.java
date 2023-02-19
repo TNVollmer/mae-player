@@ -184,6 +184,11 @@ public class MapPrinterTest {
         public List<? extends PlanetPrintable> allSpawnPoints() {
             return Arrays.asList( n );
         }
+
+        @Override
+        public List<? extends PlanetPrintable> allVisitedPlanets() {
+            return Arrays.asList( n );
+        }
     }
 
 
@@ -196,6 +201,11 @@ public class MapPrinterTest {
         @Override
         public List<? extends PlanetPrintable> allSpawnPoints() {
             return Arrays.asList( n, see );
+        }
+
+        @Override
+        public List<? extends PlanetPrintable> allVisitedPlanets() {
+            return Arrays.asList( n, nee, see );
         }
     }
 }

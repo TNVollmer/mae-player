@@ -17,6 +17,7 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankIniti
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
+import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.printer.devices.ConsoleOutput;
@@ -33,6 +34,7 @@ public class PlayerEventListener {
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
     private PlanetEventHandler planetEventHandler;
+    private PlanetApplicationService planetApplicationService;
     private RobotEventHandler robotEventHandler;
     private RobotApplicationService robotApplicationService;
     private PlayerPrinter playerPrinter;
@@ -42,6 +44,7 @@ public class PlayerEventListener {
                                 GameApplicationService gameApplicationService,
                                 PlayerApplicationService playerApplicationService,
                                 PlanetEventHandler planetEventHandler,
+                                PlanetApplicationService planetApplicationService,
                                 RobotEventHandler robotEventHandler,
                                 RobotApplicationService robotApplicationService,
                                 PlayerPrinter playerPrinter ) {
@@ -50,6 +53,7 @@ public class PlayerEventListener {
         this.playerApplicationService = playerApplicationService;
         this.robotEventHandler = robotEventHandler;
         this.planetEventHandler = planetEventHandler;
+        this.planetApplicationService = planetApplicationService;
         this.playerPrinter = playerPrinter;
         this.robotApplicationService = robotApplicationService;
     }
@@ -142,6 +146,11 @@ public class PlayerEventListener {
             playerApplicationService.submitRoundCommands();
         }
         if ( event.getRoundStatus() == RoundStatusType.ENDED ) {
+            // every 3rd round make a sanity check for all the bidirectional relationships.
+            // there is still some bug out there, but I haven't found it yet :-(
+            if ( ( event.getRoundNumber() % 3 ) == 0 ) {
+                planetApplicationService.ensureBidirectionalRelationshipsBetweenAllPlanets();
+            }
             playerPrinter.printStatus();
         }
     }

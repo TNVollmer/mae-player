@@ -38,6 +38,10 @@ public class PlanetPrinter {
     public void printPlanetList() {
         outputDevices.forEach(p -> p.header( "Known planets" ) );
         List<? extends PlanetPrintable> planetPrintables = planetFinderService.allPlanets();
+        outputDevices.forEach(p -> p.startLine() );
+        outputDevices.forEach(p -> p.write( "Altogether " + planetPrintables.size() + " planets." ) );
+        outputDevices.forEach(p -> p.endLine() );
+
         outputDevices.forEach(p -> p.startBulletList() );
         for ( PlanetPrintable planetPrintable : planetPrintables) {
             outputDevices.forEach(p -> p.writeBulletItem( planetPrintable.detailedDescription() ) );
@@ -53,7 +57,7 @@ public class PlanetPrinter {
     public List<TwoDimDynamicArray<PlanetPrintable>> allPlanetClusters() {
         List<TwoDimDynamicArray<PlanetPrintable>> allPlanetClusters = new ArrayList<>();
 
-        List<? extends PlanetPrintable> allPlanets = planetFinderService.allPlanets();
+        List<? extends PlanetPrintable> allPlanets = planetFinderService.allVisitedPlanets();
         for ( PlanetPrintable planet: allPlanets ) {
             Predicate<TwoDimDynamicArray<PlanetPrintable>> containsPlanet =
                     planetCluster -> planetCluster.contains( planet );

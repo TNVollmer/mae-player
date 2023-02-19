@@ -8,7 +8,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetNeighboursDto;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotPlanetDto;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetException;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
@@ -31,6 +30,11 @@ public class PlanetApplicationService implements PlanetFinderService {
     @Override
     public List<Planet> allPlanets() {
         return planetRepository.findAll();
+    }
+
+    @Override
+    public List<Planet> allVisitedPlanets() {
+        return planetRepository.findAllByVisitedIs( true );
     }
 
     @Override
@@ -68,7 +72,7 @@ public class PlanetApplicationService implements PlanetFinderService {
         if ( planetId == null ) throw new PlanetException( "planetId == null" );
         logger.info("Add planet " + planetId + " with movement difficulty " + movementDifficulty  +
                 " (space station: " + isSpaceStation + ")");
-        Optional<Planet> foundOptional = planetRepository.findByPlanetId(planetId);
+        Optional<Planet> foundOptional = planetRepository.findByPlanetId( planetId );
         Planet newPlanet = foundOptional.isPresent() ? foundOptional.get() : new Planet(planetId);
         if ( isSpaceStation != null ) newPlanet.setSpawnPoint( isSpaceStation );
         if ( movementDifficulty != null ) newPlanet.setMovementDifficulty( movementDifficulty );
@@ -114,5 +118,15 @@ public class PlanetApplicationService implements PlanetFinderService {
     }
 
 
-
+    /**
+     * Just to be on the safe side: Run this method every couple of rounds
+     */
+    public void ensureBidirectionalRelationshipsBetweenAllPlanets() {
+        logger.info( "Check valid bidirectional relationships for all planets ..." );
+        List<Planet> planets = allPlanets();
+        for ( Planet planet : planets ) {
+            planet.ensureBidirectionalRelationshipsWithNeighbours();
+            savePlanetAndNeighbours( planet );
+        }
+    }
 }

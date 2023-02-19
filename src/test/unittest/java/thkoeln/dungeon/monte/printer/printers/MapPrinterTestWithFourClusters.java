@@ -236,5 +236,11 @@ public class MapPrinterTestWithFourClusters {
         public List<? extends PlanetPrintable> allSpawnPoints() {
             return Arrays.asList( spawnPoints );
         }
+
+
+        @Override
+        public List<? extends PlanetPrintable> allVisitedPlanets() {
+            return Arrays.asList( spawnPoints );
+        }
     }
 }

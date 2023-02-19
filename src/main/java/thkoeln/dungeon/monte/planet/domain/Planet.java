@@ -92,23 +92,29 @@ public class Planet implements PlanetPrintable {
         if ( otherPlanet == null ) throw new PlanetException( "Cannot establish neighbouring relationship with null planet!" ) ;
         try {
             Method otherGetter = neighbouringGetter( direction.getOppositeDirection() );
-            Method setter = neighbouringSetter( direction );
-            setter.invoke(this, otherPlanet );
+            if ( !otherPlanet.equals( getNeighbour( direction ) ) ) {
+                Method setter = neighbouringSetter(direction);
+                setter.invoke(this, otherPlanet);
+                logger.info( "Set relationship " + this + " -> " + otherPlanet );
+            }
             Planet remoteNeighbour = (Planet) otherGetter.invoke( otherPlanet );
             if ( !this.equals( remoteNeighbour ) ) {
                 Method otherSetter = neighbouringSetter( direction.getOppositeDirection() );
                 otherSetter.invoke( otherPlanet, this );
+                logger.info( "Set relationship " + otherPlanet + " -> " + this );
             }
         }
         catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
             throw new PlanetException( "Something went wrong that should not have happened ..." + e );
         }
-        logger.info( "Established neighbouring relationship between planet '" + this + "' and '" + otherPlanet + "'." );
         closeNeighbouringCycleForAllDirectionsBut( direction );
     }
 
 
-    public void closeNeighbouringCycleForAllDirectionsBut( CompassDirection notInThisDirection ) {
+
+
+
+    protected void closeNeighbouringCycleForAllDirectionsBut( CompassDirection notInThisDirection ) {
         for ( CompassDirection compassDirection: CompassDirection.values() ) {
             if ( compassDirection.equals( notInThisDirection ) ) continue;
             Planet neighbour = getNeighbour( compassDirection );
@@ -127,12 +133,17 @@ public class Planet implements PlanetPrintable {
     }
 
 
-    public void resetAllNeighbours() {
-        setNorthNeighbour( null );
-        setWestNeighbour( null );
-        setEastNeighbour( null );
-        setSouthNeighbour( null );
+    /**
+     * Intended as a security method, to run regularly over all planets
+     */
+    public void ensureBidirectionalRelationshipsWithNeighbours() {
+        for ( CompassDirection compassDirection: CompassDirection.values() ) {
+            Planet neighbour = getNeighbour( compassDirection );
+            if ( neighbour != null ) defineNeighbour( neighbour, compassDirection );
+        }
     }
+
+
 
 
     public Planet getNeighbour( CompassDirection compassDirection ) {
@@ -169,10 +180,12 @@ public class Planet implements PlanetPrintable {
 
 
     public void fillEmptyNeighbourSlotsWithBlackHoles() {
-        if ( getNorthNeighbour() == null ) setNorthNeighbour( Planet.blackHole() );
-        if ( getWestNeighbour() == null ) setWestNeighbour( Planet.blackHole() );
-        if ( getEastNeighbour() == null ) setEastNeighbour( Planet.blackHole() );
-        if ( getSouthNeighbour() == null ) setSouthNeighbour( Planet.blackHole() );
+        for ( CompassDirection compassDirection : CompassDirection.values() ) {
+            if ( getNeighbour( compassDirection ) == null ) {
+                Planet blackHole = Planet.blackHole();
+                defineNeighbour( blackHole, compassDirection );
+            }
+        }
     }
 
 
