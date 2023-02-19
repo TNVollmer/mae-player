@@ -37,6 +37,10 @@ public class PlanetApplicationService implements PlanetFinderService {
         return planetRepository.findAllByVisitedIs( true );
     }
 
+    public List<Planet> allPlanetsWithoutBlackHoles() {
+        return planetRepository.findAllByPlanetIdIsNotNull();
+    }
+
     @Override
     public List<Planet> allSpawnPoints() {
         return planetRepository.findBySpawnPointEquals( true );
@@ -93,10 +97,9 @@ public class PlanetApplicationService implements PlanetFinderService {
 
 
     public void addPlanetNeighbours( PlanetDiscoveredEvent planetDiscoveredEvent ) {
-        if ( planetDiscoveredEvent == null || !planetDiscoveredEvent.isValid() )
-            throw new PlanetException( "planetDiscoveredEvent == null || !planetDiscoveredEvent.isValid()" );
+        if ( planetDiscoveredEvent == null ) throw new PlanetException( "planetDiscoveredEvent == null" );
         UUID planetId = planetDiscoveredEvent.getPlanetId();
-        logger.info( "Add neighbour for planet " + planetId );
+        logger.info( "Add neighbours for planet " + planetId );
         Optional<Planet> perhapsPlanet = planetRepository.findByPlanetId( planetId );
         if ( !perhapsPlanet.isPresent() ) {
             logger.error( "No planet found for ID " + planetId + "!" );

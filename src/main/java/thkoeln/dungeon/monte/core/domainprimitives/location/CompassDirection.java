@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public enum CompassDirection {
     NORTH,
@@ -61,6 +62,11 @@ public enum CompassDirection {
                 retVals.add( SOUTH );
         }
         return retVals;
+    }
+
+    public static CompassDirection random() {
+        Random random = new Random();
+        return CompassDirection.values()[random.nextInt( 4 )];
     }
 
     public String toStringShort() {
