@@ -2,7 +2,6 @@ package thkoeln.dungeon.monte.planet.application;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDisc
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
-import thkoeln.dungeon.monte.player.application.PlayerApplicationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +29,8 @@ import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirect
  */
 
 @SpringBootTest
-public class MapBuildingRandomTest {
-    private Logger logger = LoggerFactory.getLogger(MapBuildingRandomTest.class);
+public class MapWalkTest {
+    private Logger logger = LoggerFactory.getLogger(MapWalkTest.class);
     Random random = new Random();
 
     @AllArgsConstructor
@@ -49,7 +47,7 @@ public class MapBuildingRandomTest {
         public UUID neighbourId( CompassDirection direction ) {
             Coordinate c = neighbour( direction );
             if ( c == null ) return null;
-            return planetIds[c.x][c.y];
+            return planetIds[c.y][c.x];
         }
         public Coordinate randomStep() {
             for ( int i = 0; i < 10; i++ ) {
@@ -61,11 +59,10 @@ public class MapBuildingRandomTest {
         }
     }
 
-    private final static int DIM_X = 10;
-    private final static int DIM_Y = 10;
-    private final static float BLACK_HOLE_RATIO = 0.0f;
-    private final static int NUMOF_ROBOTS = 4;
-    private final static int NUMOF_ITERATIONS = 30;
+    private static int DIM_X, DIM_Y;
+    private static float BLACK_HOLE_RATIO;
+    private static int NUMOF_ROBOTS;
+    private static int NUMOF_ITERATIONS;
 
     private boolean[][] blackHoles;
     private UUID[][] planetIds;
@@ -78,7 +75,13 @@ public class MapBuildingRandomTest {
     private PlanetRepository planetRepository;
 
     @BeforeEach
-    public void setup() {
+    public void setupRandom() {
+        DIM_X = 10;
+        DIM_Y = 8;
+        BLACK_HOLE_RATIO = 0.0f;
+        NUMOF_ROBOTS = 4;
+        NUMOF_ITERATIONS = 30;
+
         planetRepository.deleteAll();
         initializeBlackHoles();
         initializePlanets();
@@ -88,20 +91,20 @@ public class MapBuildingRandomTest {
 
 
     private void initializeBlackHoles() {
-        blackHoles = new boolean[DIM_X][DIM_Y];
+        blackHoles = new boolean[DIM_Y][DIM_X];
         for ( int x = 0; x < DIM_X; x++ ) {
             for ( int y = 0; y < DIM_Y; y++ ) {
-                blackHoles[x][y] = ( random.nextFloat() <= BLACK_HOLE_RATIO );
+                blackHoles[y][x] = ( random.nextFloat() <= BLACK_HOLE_RATIO );
             }
         }
     }
 
 
     private void initializePlanets() {
-        planetIds = new UUID[DIM_X][DIM_Y];
+        planetIds = new UUID[DIM_Y][DIM_X];
         for ( int x = 0; x < DIM_X; x++ ) {
             for ( int y = 0; y < DIM_Y; y++ ) {
-                planetIds[x][y] = blackHoles[x][y] ? null : UUID.randomUUID();
+                planetIds[y][x] = blackHoles[y][x] ? null : UUID.randomUUID();
             }
         }
     }
@@ -115,7 +118,7 @@ public class MapBuildingRandomTest {
             Coordinate c;
             do {
                 c = randomCoordinate();
-            } while ( blackHoles[c.x][c.y] );
+            } while ( blackHoles[c.y][c.x] );
             robotCoordinates[i] = c;
         }
     }
@@ -124,8 +127,8 @@ public class MapBuildingRandomTest {
     // can't do this as static factory method within Coordinate :-(
     private Coordinate randomCoordinate() {
         Coordinate c = new Coordinate();
-        c.x = random.nextInt( MapBuildingRandomTest.DIM_X );
-        c.x = random.nextInt( MapBuildingRandomTest.DIM_X );
+        c.x = random.nextInt( MapWalkTest.DIM_X );
+        c.y = random.nextInt( MapWalkTest.DIM_Y );
         return c;
     }
 
@@ -135,11 +138,9 @@ public class MapBuildingRandomTest {
         logger.info( "--- Random Walk");
         testProperSetup();
         spawnRobots();
-        testAllPlanets();
         for ( int i = 0; i < NUMOF_ITERATIONS; i++ ) {
             logger.info( "--- Start Iteration " + i );
             robotRandomWalk();
-            testAllPlanets();
         }
         assertTrue( true );
     }
@@ -151,7 +152,7 @@ public class MapBuildingRandomTest {
     private void testProperSetup() {
         for ( int x = 0; x < DIM_X; x++ ) {
             for ( int y = 0; y < DIM_Y; y++ ) {
-                assertEquals( blackHoles[x][y], planetIds[x][y] == null );
+                assertEquals( blackHoles[y][x], planetIds[y][x] == null );
             }
         }
     }
@@ -162,6 +163,7 @@ public class MapBuildingRandomTest {
             mockReceiveRobotSpawnedEvent( c );
             mockReceivePlanetDiscoveredEvent( c );
         }
+        testAllPlanets();
     }
 
 
@@ -174,11 +176,13 @@ public class MapBuildingRandomTest {
                 mockReceivePlanetDiscoveredEvent(c);
             }
         }
+        testAllPlanets();
     }
 
 
     private void mockReceiveRobotSpawnedEvent( Coordinate c ) {
-        UUID planetId = planetIds[c.x][c.y];
+        UUID planetId = planetIds[c.y][c.x];
+        assertNotNull( planetId );
         Planet planet = planetApplicationService.addOrUpdatePlanet( planetId, Energy.defaultMovementDifficulty() );
         planet.setVisited( true );
         planetApplicationService.save( planet );
@@ -189,10 +193,10 @@ public class MapBuildingRandomTest {
         List<PlanetNeighboursDto> neighbourDtos = new ArrayList<>();
         for ( CompassDirection direction : CompassDirection.values() ) {
             Coordinate d = c.neighbour( direction );
-            if ( d != null && !blackHoles[d.x][d.y] ) {
+            if ( d != null && !blackHoles[d.y][d.x] ) {
                 PlanetNeighboursDto dto = new PlanetNeighboursDto();
                 dto.setDirection( direction );
-                dto.setId( planetIds[d.x][d.y] );
+                dto.setId( planetIds[d.y][d.x] );
                 assertNotNull( dto.getId() );
                 neighbourDtos.add( dto );
             }
@@ -201,7 +205,7 @@ public class MapBuildingRandomTest {
         dtoArray = neighbourDtos.toArray( dtoArray );
 
         PlanetDiscoveredEvent event = new PlanetDiscoveredEvent();
-        event.setPlanetId( planetIds[c.x][c.y] );
+        event.setPlanetId( planetIds[c.y][c.x] );
         assertNotNull( event.getPlanetId() );
         event.setNeighbours( dtoArray );
         event.setMovementDifficulty( 1 );
@@ -217,7 +221,7 @@ public class MapBuildingRandomTest {
                 Planet neighbour = planet.getNeighbour( direction );
                 if ( neighbour != null ) {
                     // ... then we already know the neighbour
-                    if ( blackHoles[c.x][c.y] ) {
+                    if ( blackHoles[c.y][c.x] ) {
                         assertTrue( neighbour.isBlackHole() );
                     }
                     else {
@@ -239,7 +243,7 @@ public class MapBuildingRandomTest {
         // not an efficient implementation ...
         for ( int x = 0; x < DIM_X; x++ ) {
             for ( int y = 0; y < DIM_Y; y++ ) {
-                if ( !blackHoles[x][y] && planetIds[x][y].equals( planet.getPlanetId() ) ) {
+                if ( !blackHoles[y][x] && planetIds[y][x].equals( planet.getPlanetId() ) ) {
                     Coordinate c = new Coordinate();
                     c.x = x;
                     c.y = y;
@@ -249,5 +253,73 @@ public class MapBuildingRandomTest {
         }
         return null;
     }
+
+
+    /**
+     * Test a specific black hole problem. Consider a 2x3 matrix with 1 black hole and 2 robots.
+     * After initial RobotSpawned event:
+     *
+     *    ( )   (H)   ( )
+     *
+     *    (R)   ( )   (R)
+     *
+     * After first PlanetDiscoveredEvent:
+     *
+     *    ( )   (H)   ( )
+     *     |           |
+     *    (R) - ( ) - (R)
+     *
+     *  Iteration 0: left robot moves up. After PlanetDiscoveredEvent (and closing cycle):
+     *
+     *    (R) - (H)   ( )
+     *     |     |     |
+     *    ( ) - ( ) - (R)
+     *
+     *  Iteration 1: right robot moves up. After PlanetDiscoveredEvent (and closing cycle):
+     *
+     *    (R) - (H) (H)(R)
+     *     |     | /   |
+     *    ( ) - ( ) - ( )
+     *
+     *   I.e. this second move causes an extra black hole to be produced - if the code does not
+     *   check that.
+     */
+    @Test
+    public void testBlackHolePattern() {
+        init32BlackHolePattern();
+        spawnRobots();
+        // number of planets = 5 regular (all detected) + 2 * 2 "border holes"
+        List<Planet> allPlanets = planetApplicationService.allPlanets();
+        assertEquals( 9, allPlanets.size() );
+
+        robotWalk( 0, new Coordinate( 0, 0 ) );
+        // number of planets = 5 regular (all detected) + 3 * 2 "border holes" + black hole
+        allPlanets = planetApplicationService.allPlanets();
+        assertEquals( 12, allPlanets.size() );
+
+        robotWalk( 1, new Coordinate( 2, 0 ) );
+        allPlanets = planetApplicationService.allPlanets();
+        // 2 more border holes, otherwise number should not have changed.
+        assertEquals( 14, allPlanets.size() );
+    }
+
+
+    private void init32BlackHolePattern() {
+        DIM_X = 3;
+        DIM_Y = 2;
+        NUMOF_ROBOTS = 2;
+        blackHoles = new boolean[][] { {false, true, false}, {false, false, false} };
+        planetIds = new UUID[][] { {UUID.randomUUID(), null, UUID.randomUUID()}, {UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()} };
+        robotCoordinates = new Coordinate[] { new Coordinate(0, 1), new Coordinate(2, 1),  };
+        testProperSetup();
+    }
+
+    private void robotWalk( int robotIndex, Coordinate target ) {
+        robotCoordinates[robotIndex] = target;
+        mockReceiveRobotSpawnedEvent( target );
+        mockReceivePlanetDiscoveredEvent( target );
+        testAllPlanets();
+    }
+
 
 }
