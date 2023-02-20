@@ -5,10 +5,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
 import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
+import thkoeln.dungeon.monte.printer.util.MapDirection;
 import thkoeln.dungeon.monte.printer.util.PrinterException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.Boolean.TRUE;
 
 /**
  * Used for the printing of planets with the robots currently on them.
@@ -18,6 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 public class MapCellDto {
     private PlanetPrintable planetPrintable;
+    private boolean blackHole = false;
     private List<? extends RobotPrintable> robotPrintables = new ArrayList<>();
 
     public MapCellDto( PlanetPrintable planetPrintable ) {
@@ -51,10 +55,17 @@ public class MapCellDto {
 
 
     public String cellCSSClass() {
-        if ( planetPrintable != null && planetPrintable.isBlackHole() ) return "cell blackhole";
-        if ( planetPrintable != null && !planetPrintable.hasBeenVisited() ) return "cell unvisited";
-        return "cell";
+        StringBuffer cellCSS = new StringBuffer( "cell" );
+        if ( isBlackHole() ) cellCSS.append( " blackhole" );
+        for ( MapDirection mapDirection : MapDirection.values() ) {
+            if ( planetPrintable != null && planetPrintable.hardBorders().get( mapDirection ) == TRUE ) {
+                cellCSS.append( " border-" ).append( mapDirection );
+            }
+        }
+        if ( planetPrintable != null && !planetPrintable.hasBeenVisited() ) cellCSS.append( " unvisited" );
+        return cellCSS.toString();
     }
+
 
     public String innerCellCSSClass( int compartmentNumber ) {
         // mineable resource, denoted as a color coding

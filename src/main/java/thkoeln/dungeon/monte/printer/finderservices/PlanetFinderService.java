@@ -21,10 +21,4 @@ public interface PlanetFinderService {
      */
     public List<? extends PlanetPrintable> allVisitedPlanets();
 
-    /**
-     * @return the list of all currently known planets that were spawn points (on which a new robot has been
-     * spawned). This is important for the map cluster construction algorithm.
-     */
-    public List<? extends PlanetPrintable> allSpawnPoints();
-
 }

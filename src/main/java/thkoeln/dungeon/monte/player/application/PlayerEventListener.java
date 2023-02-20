@@ -146,11 +146,6 @@ public class PlayerEventListener {
             playerApplicationService.submitRoundCommands();
         }
         if ( event.getRoundStatus() == RoundStatusType.ENDED ) {
-            // every 3rd round make a sanity check for all the bidirectional relationships.
-            // there is still some bug out there, but I haven't found it yet :-(
-            if ( ( event.getRoundNumber() % 3 ) == 0 ) {
-                planetApplicationService.ensureBidirectionalRelationshipsBetweenAllPlanets();
-            }
             playerPrinter.printStatus();
         }
     }

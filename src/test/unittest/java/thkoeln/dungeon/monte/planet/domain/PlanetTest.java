@@ -2,13 +2,13 @@ package thkoeln.dungeon.monte.planet.domain;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import scala.concurrent.impl.FutureConvertersImpl;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
-import thkoeln.dungeon.monte.printer.util.MapCoordinate;
-import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.*;
 import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
@@ -31,8 +31,8 @@ public class PlanetTest {
         Planet planet = new Planet();
 
         // when
-        Method getter = planet.neighbouringGetter( CompassDirection.SOUTH);
-        Method setter = planet.neighbouringSetter( CompassDirection.WEST);
+        Method getter = planet.directionalGetter( CompassDirection.SOUTH, "Neighbour" );
+        Method setter = planet.directionalSetter( CompassDirection.WEST, "Neighbour", Planet.class );
 
         // then
         assertEquals( "getSouthNeighbour", getter.getName() );
@@ -128,25 +128,25 @@ public class PlanetTest {
         // when
         p2.defineNeighbour( p3, SOUTH );
         p1.defineNeighbour( p2, EAST );
-        p1.fillEmptyNeighbourSlotsWithBlackHoles();
-        p2.fillEmptyNeighbourSlotsWithBlackHoles();
-        p3.fillEmptyNeighbourSlotsWithBlackHoles();
+        p1.defineEmptyNeighbourSlotsAsHardBorders();
+        p2.defineEmptyNeighbourSlotsAsHardBorders();
+        p3.defineEmptyNeighbourSlotsAsHardBorders();
 
         // then
-        assertTrue( p1.getNorthNeighbour().isBlackHole() );
-        assertFalse( p1.getEastNeighbour().isBlackHole() );
-        assertTrue( p1.getSouthNeighbour().isBlackHole() );
-        assertTrue( p1.getWestNeighbour().isBlackHole() );
+        assertTrue( p1.getNorthHardBorder() );
+        assertNotEquals( TRUE, p1.getEastHardBorder() );
+        assertTrue( p1.getSouthHardBorder() );
+        assertTrue( p1.getWestHardBorder() );
 
-        assertTrue( p2.getNorthNeighbour().isBlackHole() );
-        assertTrue( p2.getEastNeighbour().isBlackHole() );
-        assertFalse( p2.getSouthNeighbour().isBlackHole() );
-        assertFalse( p2.getWestNeighbour().isBlackHole() );
+        assertTrue( p2.getNorthHardBorder() );
+        assertTrue( p2.getEastHardBorder() );
+        assertNotEquals( TRUE, p2.getSouthHardBorder() );
+        assertNotEquals( TRUE, p2.getWestHardBorder() );
 
-        assertFalse( p3.getNorthNeighbour().isBlackHole() );
-        assertTrue( p3.getEastNeighbour().isBlackHole() );
-        assertTrue( p3.getSouthNeighbour().isBlackHole() );
-        assertTrue( p3.getWestNeighbour().isBlackHole() );
+        assertNotEquals( TRUE, p3.getNorthHardBorder() );
+        assertTrue( p3.getEastHardBorder() );
+        assertTrue( p3.getSouthHardBorder() );
+        assertTrue( p3.getWestHardBorder() );
     }
 
 }

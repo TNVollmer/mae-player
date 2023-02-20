@@ -28,7 +28,7 @@ public class RobotDtoMapper {
 
     public void updateRobot( Robot robot, RobotRevealedDto robotRevealedDto, boolean warnIfDifference ) {
         if ( robot.getLocation() == null || robot.getLocation().getPlanetId() != robotRevealedDto.getPlanetId() ) {
-            Planet planet = planetApplicationService.addOrUpdatePlanet( robotRevealedDto.getPlanetId(), null, FALSE );
+            Planet planet = planetApplicationService.addOrUpdatePlanet( robotRevealedDto.getPlanetId(), null );
             if ( warnIfDifference ) logger.warn( "Robot " + robot + " is on different planet than expected. " +
                     " (expected: " + robot.getLocation() + ", received via event: " + planet + ")" ) ;
             robot.moveToPlanet( planet );

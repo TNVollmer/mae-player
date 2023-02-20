@@ -114,9 +114,9 @@ public class RobotApplicationServiceTest {
 
 
     private void initializePlanets() {
-        p1 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 1 ), false );
-        p2 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 2 ), false );
-        p3 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 3 ), false );
+        p1 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 1 ) );
+        p2 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 2 ) );
+        p3 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 3 ) );
     }
 
 

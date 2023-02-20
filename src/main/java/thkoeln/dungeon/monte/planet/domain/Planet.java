@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static java.lang.Boolean.*;
 import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
 @Entity
@@ -33,23 +34,25 @@ public class Planet implements PlanetPrintable {
     // we'll run into problems in case MapService messes up their ids. So, better we better keep these two apart.
     private UUID planetId;
 
-    @Setter ( AccessLevel.PROTECTED )
-    private boolean spawnPoint = false;
-
     private boolean visited = false;
 
     @OneToOne ( cascade = CascadeType.MERGE)
-    @Setter ( AccessLevel.PROTECTED )
+    //@Setter ( AccessLevel.PROTECTED )
     private Planet northNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
-    @Setter ( AccessLevel.PROTECTED )
+    //@Setter ( AccessLevel.PROTECTED )
     private Planet eastNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
-    @Setter ( AccessLevel.PROTECTED )
+    //@Setter ( AccessLevel.PROTECTED )
     private Planet southNeighbour = null;
     @OneToOne ( cascade = CascadeType.MERGE)
-    @Setter ( AccessLevel.PROTECTED )
+    //@Setter ( AccessLevel.PROTECTED )
     private Planet westNeighbour = null;
+
+    private Boolean northHardBorder = null;
+    private Boolean eastHardBorder = null;
+    private Boolean southHardBorder = null;
+    private Boolean westHardBorder = null;
 
     @Embedded
     private MineableResource mineableResource;
@@ -66,20 +69,21 @@ public class Planet implements PlanetPrintable {
         this.movementDifficulty = Energy.zero();
     }
 
-    public static Planet spawnPoint( UUID planetId ) {
-        Planet spawnPoint = new Planet( planetId );
-        spawnPoint.setSpawnPoint( true );
-        return spawnPoint;
-    }
 
-
-
-    public static Planet blackHole() {
-        Planet blackHole = new Planet();
-        blackHole.setPlanetId( null );
-        blackHole.setSpawnPoint( false );
-        blackHole.setVisited( false );
-        return blackHole;
+    /**
+     * This is to be called when an event is received that clearly and completely lists all the
+     * neighbours. Then it can be concluded that the missing neighbours must now be hard borders.
+     * @param directionPlanetMap
+     */
+    public void defineAllNeighbours( Map<CompassDirection, Planet> directionPlanetMap ) {
+        if ( directionPlanetMap == null ) throw new PlanetException( "directionPlanetMap == null" ) ;
+        for ( CompassDirection direction : CompassDirection.values() ) {
+            Planet potentialNeighbour = directionPlanetMap.get( direction );
+            if ( potentialNeighbour != null ) {
+                defineNeighbour( potentialNeighbour, direction );
+            }
+        }
+        defineEmptyNeighbourSlotsAsHardBorders();
     }
 
 
@@ -89,45 +93,79 @@ public class Planet implements PlanetPrintable {
      * @param direction
      */
     public void defineNeighbour( Planet otherPlanet, CompassDirection direction ) {
-        if ( otherPlanet == null ) throw new PlanetException( "Cannot establish neighbouring relationship with null planet!" ) ;
-        try {
-            Method otherGetter = neighbouringGetter( direction.getOppositeDirection() );
-            if ( !otherPlanet.equals( getNeighbour( direction ) ) ) {
-                Method setter = neighbouringSetter(direction);
-                setter.invoke(this, otherPlanet);
-                logger.info( "Set relationship " + this + " -> " + otherPlanet );
-            }
-            Planet remoteNeighbour = (Planet) otherGetter.invoke( otherPlanet );
-            if ( !this.equals( remoteNeighbour ) ) {
-                Method otherSetter = neighbouringSetter( direction.getOppositeDirection() );
-                otherSetter.invoke( otherPlanet, this );
-                logger.info( "Set relationship " + otherPlanet + " -> " + this );
-            }
+        logger.info( "Analyse connection in " + direction + " for " + this + " <-> " + otherPlanet + "..." );
+        if ( otherPlanet == null ) throw new PlanetException( "otherPlanet == null" ) ;
+        Planet currentNeighbour = getNeighbour( direction );
+        if ( currentNeighbour != null && !currentNeighbour.equals( otherPlanet ) ) {
+            logger.warn(this + " has already a " + direction +
+                    " connection to " + currentNeighbour + ", now is reset to " + otherPlanet);
         }
-        catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
-            throw new PlanetException( "Something went wrong that should not have happened ..." + e );
+        Planet thisShouldBeMe = otherPlanet.getNeighbour( direction.getOppositeDirection() );
+        if ( thisShouldBeMe != null && !this.equals( thisShouldBeMe ) ) {
+            logger.warn( otherPlanet + " should have a " + direction + " connection to " + this
+                    + ", but actually it was to " + thisShouldBeMe );
         }
-        closeNeighbouringCycleForAllDirectionsBut( direction );
+        setBidirectionalNeighbourConnectionAt( direction, otherPlanet );
+        propagateNeighbouringConnectionAlong( direction );
+        setHardBorder( direction, FALSE );
+        propagateHardBordersAlong( direction );
     }
 
 
+    /**
+     * This is to be called when an event is received that clearly and completely lists all the
+     * neighbours. Then it can be concluded that the missing neighbours must now be hard borders.
+     */
+    protected void defineEmptyNeighbourSlotsAsHardBorders() {
+        for ( CompassDirection direction : CompassDirection.values() ) {
+            if ( getNeighbour( direction ) == null ) {
+                setHardBorder( direction, TRUE );
+            }
+        }
+    }
 
 
+    /**
+     * Close cycle connections in patterns like these:
+     *  diagNeigh  ???   P
+     *     |             |
+     *    this --dir-->  neighbour
+     */
+    private void propagateNeighbouringConnectionAlong( CompassDirection direction ) {
+        Planet neighbour = getNeighbour( direction );
+        if ( neighbour == null ) return;
+        for ( CompassDirection diagonalDirection: direction.ninetyDegrees() ) {
+            Planet diagonalNeighbour = getNeighbour( diagonalDirection );
+            if( diagonalNeighbour != null && neighbour.getNeighbour( diagonalDirection ) != null ) {
+                diagonalNeighbour.setBidirectionalNeighbourConnectionAt(
+                        direction, neighbour.getNeighbour( diagonalDirection ) );
+                logger.info( "Closed cycle " + direction + " for " +
+                        diagonalNeighbour + " <-> " + neighbour.getNeighbour( diagonalDirection ) );
+            }
+        }
+    }
 
-    protected void closeNeighbouringCycleForAllDirectionsBut( CompassDirection notInThisDirection ) {
-        for ( CompassDirection compassDirection: CompassDirection.values() ) {
-            if ( compassDirection.equals( notInThisDirection ) ) continue;
-            Planet neighbour = getNeighbour( compassDirection );
-            if ( neighbour != null ) {
-                for ( CompassDirection ninetyDegrees: compassDirection.ninetyDegrees() ) {
-                    if( this.getNeighbour( ninetyDegrees ) != null &&
-                            neighbour.getNeighbour( ninetyDegrees ) != null &&
-                            this.getNeighbour( ninetyDegrees ).getNeighbour( compassDirection ) == null ) {
-                        this.getNeighbour( ninetyDegrees ).defineNeighbour(
-                                neighbour.getNeighbour( ninetyDegrees ), compassDirection );
-                        logger.info( "Closed cycle ..." );
-                    }
-                }
+
+    /**
+     *  Propagate hard borders in patterns like these:
+     *  diagNeigh --  rectNeighbour
+     *     |                ???
+     *    this --dir-->  Black Hole
+     */
+    private void propagateHardBordersAlong( CompassDirection direction ) {
+        if ( getHardBorder( direction ) != TRUE ) return;
+        for ( CompassDirection diagonalDirection: direction.ninetyDegrees() ) {
+            Planet diagonalNeighbour = getNeighbour( diagonalDirection );
+            Planet rectNeighbour = diagonalNeighbour != null ? diagonalNeighbour.getNeighbour( direction ) : null;
+            if( rectNeighbour != null &&
+                    rectNeighbour.getHardBorder( diagonalDirection.getOppositeDirection() ) == FALSE ) {
+                throw new PlanetException( "SNAFU in the hard border config!" );
+            }
+            if( rectNeighbour != null &&
+                    rectNeighbour.getHardBorder( diagonalDirection.getOppositeDirection() ) == null ) {
+                rectNeighbour.setHardBorder( diagonalDirection.getOppositeDirection(), TRUE );
+                logger.info( "Marked hard border on " + rectNeighbour + " in "
+                        + diagonalDirection.getOppositeDirection() );
             }
         }
     }
@@ -136,19 +174,25 @@ public class Planet implements PlanetPrintable {
     /**
      * Intended as a security method, to run regularly over all planets
      */
-    public void ensureBidirectionalRelationshipsWithNeighbours() {
-        for ( CompassDirection compassDirection: CompassDirection.values() ) {
-            Planet neighbour = getNeighbour( compassDirection );
-            if ( neighbour != null ) defineNeighbour( neighbour, compassDirection );
+    public boolean checkBidirectionalRelationshipsWithNeighbours() {
+        for ( CompassDirection direction : CompassDirection.values() ) {
+            Planet neighbour = getNeighbour( direction );
+            if ( neighbour != null ) {
+                Planet thisShouldBeMe = neighbour.getNeighbour( direction.getOppositeDirection() );
+                if ( !this.equals( thisShouldBeMe ) ) {
+                    logger.debug( "Planet check: " + this + " -> " + neighbour + " is unidirectional!" );
+                    return false;
+                }
+            }
         }
+        return true;
     }
 
 
-
-
-    public Planet getNeighbour( CompassDirection compassDirection ) {
+    public Planet getNeighbour( CompassDirection direction ) {
+        if ( direction == null ) throw new PlanetException( "direction == null" );
         try {
-            Method getter = neighbouringGetter( compassDirection );
+            Method getter = directionalGetter( direction, "Neighbour" );
             return (Planet) getter.invoke( this );
         }
         catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
@@ -156,15 +200,63 @@ public class Planet implements PlanetPrintable {
         }
     }
 
-    protected Method neighbouringGetter(CompassDirection direction ) throws NoSuchMethodException {
-        String name = "get" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) ) + "Neighbour";
+
+    public void setNeighbour( CompassDirection direction, Planet planet ) {
+        if ( direction == null || planet == null ) throw new PlanetException( "direction == null || planet == null" );
+        try {
+            Method setter = directionalSetter( direction, "Neighbour", this.getClass() );
+            setter.invoke( this, planet );
+        }
+        catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
+            throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
+        }
+    }
+
+
+    public void setBidirectionalNeighbourConnectionAt( CompassDirection direction, Planet planet ) {
+        if ( direction == null || planet == null ) throw new PlanetException( "direction == null || planet == null" );
+        setNeighbour( direction, planet );
+        planet.setNeighbour( direction.getOppositeDirection(), this );
+        logger.info( "Set connection in " + direction + " for " + this + " <-> " + planet );
+    }
+
+
+    public Boolean getHardBorder( CompassDirection direction ) {
+        if ( direction == null ) throw new PlanetException( "direction == null" );
+        try {
+            Method getter = directionalGetter( direction, "HardBorder" );
+            return (Boolean) getter.invoke( this );
+        }
+        catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
+            throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
+        }
+    }
+
+
+    public void setHardBorder( CompassDirection direction, Boolean hardBorderFlag ) {
+        if ( direction == null ) throw new PlanetException( "direction == null" );
+        try {
+            Method setter = directionalSetter( direction, "HardBorder", Boolean.class );
+            setter.invoke( this, hardBorderFlag );
+        }
+        catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e ) {
+            throw new PlanetException( "Something went wrong that should not have happened ..." + e.getStackTrace() );
+        }
+    }
+
+    protected Method directionalGetter( CompassDirection direction, String property )
+            throws NoSuchMethodException {
+        String name = "get" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) )
+                + property;
         return this.getClass().getDeclaredMethod( name );
     }
 
 
-    protected Method neighbouringSetter( CompassDirection direction ) throws NoSuchMethodException {
-        String name = "set" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) ) + "Neighbour";
-        return this.getClass().getDeclaredMethod( name, new Class[]{ this.getClass() } );
+    protected Method directionalSetter( CompassDirection direction, String property, Class parameterClass )
+            throws NoSuchMethodException {
+        String name = "set" + WordUtils.capitalize( WordUtils.swapCase( String.valueOf( direction ) ) )
+                + property;
+        return this.getClass().getDeclaredMethod( name, parameterClass );
     }
 
 
@@ -179,22 +271,15 @@ public class Planet implements PlanetPrintable {
 
 
 
-    public void fillEmptyNeighbourSlotsWithBlackHoles() {
-        for ( CompassDirection compassDirection : CompassDirection.values() ) {
-            if ( getNeighbour( compassDirection ) == null ) {
-                Planet blackHole = Planet.blackHole();
-                defineNeighbour( blackHole, compassDirection );
-            }
-        }
-    }
-
-
-
     /**
-     * @return A map with all neighbouring PlanetPrintables, in each direction.
+     * @return neighbouring PlanetPrintables in each direction. Only real planets count, no black holes.
+     * Null means "no known neighbour in this direction".
+     *
+     * NOTE: Must be consistent with hardBorders(). If neighbours() has a planet in direction d,
+     * then hardBorders() must have the value FALSE in this direction.
      */
     @Override
-    public Map<MapDirection, PlanetPrintable> neighbourMap() {
+    public Map<MapDirection, PlanetPrintable> neighbours() {
         Map<MapDirection, PlanetPrintable> neighbourMap = new HashMap<>();
         if ( getNorthNeighbour() != null ) neighbourMap.put( MapDirection.no, getNorthNeighbour() );
         if ( getWestNeighbour() != null ) neighbourMap.put( MapDirection.we, getWestNeighbour() );
@@ -207,24 +292,29 @@ public class Planet implements PlanetPrintable {
         return allNeighbours().size() > 0;
     }
 
-    public Boolean isSpaceStation() { return spawnPoint; }
 
-    public void setSpawnPoint( Boolean isSpaceStation ) {
-        if ( isSpaceStation != null && isSpaceStation ) {
-            spawnPoint = true;
-            visited = true;
-        }
+    /**
+     * @return Information for each direction if there is a hard border (the edges of the map,
+     * or a black hole).
+     * TRUE = there is a hard border
+     * FALSE = there is no hard border, and we are sure of it => there is a planet there.
+     * Null = we don't know yet, maybe hard border, maybe not.
+     *
+     * NOTE: Must be consistent with neighbours(). If neighbours() has a planet in direction d,
+     * then hardBorders() must have the value FALSE in this direction.
+     */
+    public Map<MapDirection, Boolean> hardBorders() {
+        Map<MapDirection, Boolean> hardBorderMap = new HashMap<>();
+        hardBorderMap.put( MapDirection.no, getNorthHardBorder() );
+        hardBorderMap.put( MapDirection.we, getWestHardBorder() );
+        hardBorderMap.put( MapDirection.ea, getEastHardBorder() );
+        hardBorderMap.put( MapDirection.so, getSouthHardBorder() );
+        return hardBorderMap;
     }
 
 
     @Override
     public boolean hasBeenVisited() { return visited; }
-
-
-    @Override
-    public boolean isBlackHole() {
-        return planetId == null;
-    }
 
 
     /**
@@ -236,7 +326,7 @@ public class Planet implements PlanetPrintable {
         Collection<Planet> neighbours = allNeighbours().values();
         Planet lastCheckedNeighbour = null;
         for ( Planet neighbour : neighbours ) {
-            if ( !neighbour.isBlackHole() ) lastCheckedNeighbour = neighbour;
+            lastCheckedNeighbour = neighbour;
             if ( lastCheckedNeighbour != null && !lastCheckedNeighbour.hasBeenVisited() ) break;
         }
         return lastCheckedNeighbour;
@@ -263,7 +353,6 @@ public class Planet implements PlanetPrintable {
      */
     @Override
     public String mapName() {
-        if ( isBlackHole() ) return "HOLE";
         Character whoAmI = (mineableResource == null || mineableResource.isEmpty()) ? '_' : mineableResource.key();
         return whoAmI + String.valueOf( planetId ).substring( 0, 3 );
     }
@@ -299,5 +388,26 @@ public class Planet implements PlanetPrintable {
     @Override
     public String toString() {
         return mapName();
+    }
+
+
+    public void setNorthNeighbour( Planet northNeighbour ) {
+        logger.debug( "XXX " + this + " setNorthNeighbour: " + northNeighbour);
+        this.northNeighbour = northNeighbour;
+    }
+
+    public void setEastNeighbour( Planet eastNeighbour ) {
+        logger.debug( "XXX " + this + " setEastNeighbour: " + eastNeighbour);
+        this.eastNeighbour = eastNeighbour;
+    }
+
+    public void setSouthNeighbour( Planet southNeighbour ) {
+        logger.debug( "XXX " + this + " setSouthNeighbour: " + southNeighbour);
+        this.southNeighbour = southNeighbour;
+    }
+
+    public void setWestNeighbour( Planet westNeighbour ) {
+        logger.debug( "XXX " + this + " setWestNeighbour: " + westNeighbour);
+        this.westNeighbour = westNeighbour;
     }
 }

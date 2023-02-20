@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
@@ -13,11 +14,13 @@ import thkoeln.dungeon.monte.planet.domain.PlanetException;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
 import thkoeln.dungeon.monte.printer.finderservices.PlanetFinderService;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import javax.transaction.Transactional;
+import java.util.*;
+
+import static java.lang.Boolean.TRUE;
 
 @Service
+@Transactional
 public class PlanetApplicationService implements PlanetFinderService {
     private Logger logger = LoggerFactory.getLogger( PlanetApplicationService.class );
     private PlanetRepository planetRepository;
@@ -29,7 +32,15 @@ public class PlanetApplicationService implements PlanetFinderService {
 
     @Override
     public List<Planet> allPlanets() {
-        return planetRepository.findAll();
+        List<Planet> allPlanets = planetRepository.findAll();
+        /*
+        for ( Planet planet : allPlanets ) {
+            if ( !planet.checkBidirectionalRelationshipsWithNeighbours()) {
+                throw new PlanetException( "allPlanets(): Unidirectional connection " + planet + " -> " + "neighbour");
+            }
+        }
+        */
+        return allPlanets;
     }
 
     @Override
@@ -37,14 +48,6 @@ public class PlanetApplicationService implements PlanetFinderService {
         return planetRepository.findAllByVisitedIs( true );
     }
 
-    public List<Planet> allPlanetsWithoutBlackHoles() {
-        return planetRepository.findAllByPlanetIdIsNotNull();
-    }
-
-    @Override
-    public List<Planet> allSpawnPoints() {
-        return planetRepository.findBySpawnPointEquals( true );
-    }
 
     public Optional<Planet> findById( UUID id ) {
         return planetRepository.findById( id );
@@ -52,36 +55,44 @@ public class PlanetApplicationService implements PlanetFinderService {
 
 
     public void save( Planet planet ) {
-        planetRepository.save( planet );
-    }
-
-
-    public void savePlanetAndNeighbours( Planet planet ) {
-        planetRepository.save( planet );
-        for ( Planet neighbour : planet.allNeighbours().values() ) {
-            planetRepository.save( neighbour );
+        if ( planet == null ) throw new PlanetException( "planet == null" );
+        logger.debug( "Save " + planet );
+        /*
+        if ( !planet.checkBidirectionalRelationshipsWithNeighbours() ) {
+            throw new PlanetException("save(...): Unidirectional connection " + planet + " -> " + "neighbour");
         }
+        */
+        planetRepository.save( planet );
     }
-
 
 
     /**
-     * Add or update a planet (may be space station) we learn about from an external event.
-     * @param planetId
-     * @param movementDifficulty (can be null)
-     * @param isSpaceStation (can be null)
-     * @return the found planet
+     * Save the "full circle" around this planet (this may be changed due propaging neighboring connections
+     * and hard borders. Like this (P + all N are saved):
+     *    N  --  N  --  N
+     *    |      |      |
+     *    N  --  P  --  N
+     *    |      |      |
+     *    N  --  N  --  N
+     *
+     * @param planet
      */
-    public Planet addOrUpdatePlanet( UUID planetId, Energy movementDifficulty, Boolean isSpaceStation ) {
-        if ( planetId == null ) throw new PlanetException( "planetId == null" );
-        logger.info("Add planet " + planetId + " with movement difficulty " + movementDifficulty  +
-                " (space station: " + isSpaceStation + ")");
-        Optional<Planet> foundOptional = planetRepository.findByPlanetId( planetId );
-        Planet newPlanet = foundOptional.isPresent() ? foundOptional.get() : new Planet(planetId);
-        if ( isSpaceStation != null ) newPlanet.setSpawnPoint( isSpaceStation );
-        if ( movementDifficulty != null ) newPlanet.setMovementDifficulty( movementDifficulty );
-        planetRepository.save( newPlanet );
-        return newPlanet;
+    public void savePlanetAndFullCircleAroundIt( Planet planet ) {
+        if ( planet == null ) throw new PlanetException( "planet == null" );
+        logger.info( "Save full circle around " + planet );
+        save( planet );
+        for ( CompassDirection direction : CompassDirection.values() ) {
+            Planet neighbour = planet.getNeighbour( direction );
+            if ( neighbour != null ) {
+                save( neighbour );
+                for ( CompassDirection diagonal : direction.ninetyDegrees() ) {
+                    Planet diagonalNeighbour = neighbour.getNeighbour( diagonal );
+                    if ( diagonalNeighbour != null ) {
+                        save( diagonalNeighbour );
+                    }
+                }
+            }
+        }
     }
 
 
@@ -92,7 +103,13 @@ public class PlanetApplicationService implements PlanetFinderService {
      * @return
      */
     public Planet addOrUpdatePlanet( UUID planetId, Energy movementDifficulty ) {
-        return addOrUpdatePlanet( planetId, movementDifficulty, null );
+        if ( planetId == null ) throw new PlanetException( "planetId == null" );
+        logger.info("Add planet " + planetId + " with movement difficulty " + movementDifficulty );
+        Optional<Planet> foundOptional = planetRepository.findByPlanetId( planetId );
+        Planet newPlanet = foundOptional.isPresent() ? foundOptional.get() : new Planet(planetId);
+        if ( movementDifficulty != null ) newPlanet.setMovementDifficulty( movementDifficulty );
+        planetRepository.save( newPlanet );
+        return newPlanet;
     }
 
 
@@ -112,24 +129,14 @@ public class PlanetApplicationService implements PlanetFinderService {
                 null : MineableResource.fromTypeAndAmount(
                 planetDiscoveredEvent.getResource().getResourceType(), planetDiscoveredEvent.getResource().getCurrentAmount() );
         planet.setMineableResource( mineableResource );
+        Map<CompassDirection, Planet> directionPlanetMap = new HashMap<>();
         for ( PlanetNeighboursDto planetNeighboursDto : planetDiscoveredEvent.getNeighbours() ) {
-            Planet neighbour = addOrUpdatePlanet( planetNeighboursDto.getId(), null, null );
-            planet.defineNeighbour( neighbour, planetNeighboursDto.getDirection() );
+            Planet neighbour = addOrUpdatePlanet( planetNeighboursDto.getId(), null );
+            directionPlanetMap.put( planetNeighboursDto.getDirection(), neighbour );
         }
-        planet.fillEmptyNeighbourSlotsWithBlackHoles();
-        savePlanetAndNeighbours( planet );
+        planet.defineAllNeighbours( directionPlanetMap );
+        savePlanetAndFullCircleAroundIt( planet );
     }
 
 
-    /**
-     * Just to be on the safe side: Run this method every couple of rounds
-     */
-    public void ensureBidirectionalRelationshipsBetweenAllPlanets() {
-        logger.info( "Check valid bidirectional relationships for all planets ..." );
-        List<Planet> planets = allPlanets();
-        for ( Planet planet : planets ) {
-            planet.ensureBidirectionalRelationshipsWithNeighbours();
-            savePlanetAndNeighbours( planet );
-        }
-    }
 }

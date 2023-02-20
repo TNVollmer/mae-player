@@ -46,7 +46,7 @@ public class MapPrinterTestWithFourClusters {
         spawnPoints = new Planet[5];
         neighbours = new HashMap<>();
         for ( int i = 0; i<5; i++ ) {
-            spawnPoints[i] = Planet.spawnPoint( sids[i] );
+            spawnPoints[i] = new Planet( sids[i] );
         }
         // We make this 4 clusters.
         // s0 is on its own (no neighbours).
@@ -98,11 +98,9 @@ public class MapPrinterTestWithFourClusters {
     public void makeSureThisTestIsProperlySetUp() {
         // given
         // when
-        List<? extends PlanetPrintable> allSpacestations = planetFinderService.allSpawnPoints();
         List<? extends PlanetPrintable> allPlanets = planetFinderService.allPlanets();
 
         // then
-        assertEquals( 5, allSpacestations.size() );
         assertEquals( 14, allPlanets.size() );
         assertEquals( 0, spawnPoints[0].allNeighbours().size() );
         assertEquals( 2, spawnPoints[1].allNeighbours().size() );
@@ -231,12 +229,6 @@ public class MapPrinterTestWithFourClusters {
             planetPrintableSet.addAll( s4neighbours.values() );
             return new ArrayList<>( planetPrintableSet );
         }
-
-        @Override
-        public List<? extends PlanetPrintable> allSpawnPoints() {
-            return Arrays.asList( spawnPoints );
-        }
-
 
         @Override
         public List<? extends PlanetPrintable> allVisitedPlanets() {

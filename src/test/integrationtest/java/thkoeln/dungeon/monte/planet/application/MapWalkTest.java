@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.*;
 import static thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection.*;
 
@@ -50,12 +52,18 @@ public class MapWalkTest {
             return planetIds[c.y][c.x];
         }
         public Coordinate randomStep() {
-            for ( int i = 0; i < 10; i++ ) {
+            for ( int i = 0; i < 15; i++ ) {
                 CompassDirection direction = CompassDirection.random();
                 Coordinate c = neighbour( direction );
-                if ( c != null ) return c;
+                if ( c != null ) {
+                    UUID id = neighbourId( direction );
+                    if ( id != null ) return c;
+                }
             }
-            return null;
+            return this;
+        }
+        public String toString() {
+            return "(" + x + "," + y + ")";
         }
     }
 
@@ -76,10 +84,10 @@ public class MapWalkTest {
 
     @BeforeEach
     public void setupRandom() {
-        DIM_X = 10;
-        DIM_Y = 8;
-        BLACK_HOLE_RATIO = 0.0f;
-        NUMOF_ROBOTS = 4;
+        DIM_X = 11;
+        DIM_Y = 9;
+        BLACK_HOLE_RATIO = 0.3f;
+        NUMOF_ROBOTS = 1;
         NUMOF_ITERATIONS = 30;
 
         planetRepository.deleteAll();
@@ -145,6 +153,15 @@ public class MapWalkTest {
         assertTrue( true );
     }
 
+    @Test
+    public void testRandomWalk99() {
+        for (int i = 0; i < 99; i++) {
+            setupRandom();
+            testRandomWalk();
+        }
+    }
+
+
 
     /**
      * make sure the init has been properly done
@@ -160,6 +177,7 @@ public class MapWalkTest {
     private void spawnRobots() {
         for ( int iR = 0; iR < NUMOF_ROBOTS; iR++ ) {
             Coordinate c = robotCoordinates[iR];
+            logger.info( "--- Spawn robot no. " + iR + " at " + c );
             mockReceiveRobotSpawnedEvent( c );
             mockReceivePlanetDiscoveredEvent( c );
         }
@@ -171,8 +189,8 @@ public class MapWalkTest {
         for ( int iR = 0; iR < NUMOF_ROBOTS; iR++ ) {
             Coordinate c = robotCoordinates[iR];
             c = c.randomStep();
+            logger.info( "--- Walk robot no. " + iR + " to " + c );
             if ( c != null ) {
-                mockReceiveRobotSpawnedEvent(c);
                 mockReceivePlanetDiscoveredEvent(c);
             }
         }
@@ -214,25 +232,30 @@ public class MapWalkTest {
 
 
     private void testAllPlanets() {
-        List<Planet> allPlanets = planetApplicationService.allPlanetsWithoutBlackHoles();
+        List<Planet> allPlanets = planetApplicationService.allPlanets();
         for ( Planet planet : allPlanets ) {
             Coordinate c = findCoordinateFor( planet );
             for ( CompassDirection direction : CompassDirection.values() ) {
                 Planet neighbour = planet.getNeighbour( direction );
                 if ( neighbour != null ) {
                     // ... then we already know the neighbour
-                    if ( blackHoles[c.y][c.x] ) {
-                        assertTrue( neighbour.isBlackHole() );
+                    if ( TRUE.equals( planet.getHardBorder( direction ) ) ) {
+                        assertNotEquals( TRUE, planet.getHardBorder( direction ) );
                     }
-                    else {
-                        UUID expectedId = c.neighbourId( direction );
-                        assertEquals( expectedId, neighbour.getPlanetId() );
-                    }
+                    assertNotEquals( TRUE, planet.getHardBorder( direction ) );
+                    UUID expectedId = c.neighbourId( direction );
+                    assertEquals( expectedId, neighbour.getPlanetId() );
                     // and also test for bidirectional pointers
                     CompassDirection oppositeDirection = direction.getOppositeDirection();
                     Planet thisShouldBeMe = neighbour.getNeighbour( oppositeDirection );
-                    assertNotNull( thisShouldBeMe );
+                    if ( thisShouldBeMe == null ) {
+                        assertNotNull( thisShouldBeMe );
+                    }
                     assertEquals( planet, thisShouldBeMe );
+                }
+                Coordinate neighbourC = c.neighbour( direction );
+                if ( neighbourC != null && blackHoles[neighbourC.y][neighbourC.x] ) {
+                    assertNotEquals( FALSE, planet.getHardBorder( direction ) );
                 }
             }
         }
@@ -288,19 +311,11 @@ public class MapWalkTest {
     public void testBlackHolePattern() {
         init32BlackHolePattern();
         spawnRobots();
-        // number of planets = 5 regular (all detected) + 2 * 2 "border holes"
-        List<Planet> allPlanets = planetApplicationService.allPlanets();
-        assertEquals( 9, allPlanets.size() );
-
         robotWalk( 0, new Coordinate( 0, 0 ) );
-        // number of planets = 5 regular (all detected) + 3 * 2 "border holes" + black hole
-        allPlanets = planetApplicationService.allPlanets();
-        assertEquals( 12, allPlanets.size() );
-
         robotWalk( 1, new Coordinate( 2, 0 ) );
-        allPlanets = planetApplicationService.allPlanets();
-        // 2 more border holes, otherwise number should not have changed.
-        assertEquals( 14, allPlanets.size() );
+
+        List<Planet> allPlanets = planetApplicationService.allPlanets();
+        assertEquals( 5, allPlanets.size() );
     }
 
 

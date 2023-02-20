@@ -7,9 +7,14 @@ import thkoeln.dungeon.monte.printer.devices.OutputDevice;
 import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
 import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
 import thkoeln.dungeon.monte.printer.util.MapCoordinate;
+import thkoeln.dungeon.monte.printer.util.MapDirection;
 import thkoeln.dungeon.monte.printer.util.TwoDimDynamicArray;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static java.lang.Boolean.TRUE;
 
 /**
  * OutputDevice class to output the map of all planets and robots to console. The map usually contains of several
@@ -106,9 +111,9 @@ public class MapPrinter  {
      * @param planetCluster
      * @return
      */
-    private TwoDimDynamicArray<MapCellDto> getPrintCellDtos(TwoDimDynamicArray<PlanetPrintable> planetCluster ) {
+    private TwoDimDynamicArray<MapCellDto> getPrintCellDtos( TwoDimDynamicArray<PlanetPrintable> planetCluster ) {
         MapCoordinate maxMapCoordinate = planetCluster.getMaxCoordinate();
-        TwoDimDynamicArray<MapCellDto> printCellDtos = new TwoDimDynamicArray<>(maxMapCoordinate);
+        TwoDimDynamicArray<MapCellDto> printCellDtos = new TwoDimDynamicArray<>( maxMapCoordinate );
         for (int y = 0; y <= maxMapCoordinate.getY(); y++ ) {
             for (int x = 0; x <= maxMapCoordinate.getX(); x++ ) {
                 PlanetPrintable planetPrintable = planetCluster.at( x, y );
@@ -117,7 +122,37 @@ public class MapPrinter  {
                 printCellDtos.put(x, y, mapPrintDto);
             }
         }
+        calcBlackHoleFlag( printCellDtos );
         return printCellDtos;
+    }
+
+
+    /**
+     * Set the black hole flag: If there is a hard border at some direction, and there is a neighbour,
+     * then this is a black hole.
+     */
+    private void calcBlackHoleFlag( TwoDimDynamicArray<MapCellDto> printCellDtos ) {
+        MapCoordinate maxMapCoordinate = printCellDtos.getMaxCoordinate();
+        for (int y = 0; y <= maxMapCoordinate.getY(); y++ ) {
+            for (int x = 0; x <= maxMapCoordinate.getX(); x++ ) {
+                MapCellDto mapPrintDto = printCellDtos.at( x, y );
+                PlanetPrintable planet = mapPrintDto.getPlanetPrintable();
+                Map<MapDirection, Boolean> hardBorders = (planet != null) ? planet.hardBorders() : new HashMap<>();
+                for ( MapDirection direction: MapDirection.values() ) {
+                    if ( hardBorders.get( direction ) == TRUE ) {
+                        MapCoordinate currentCoordinate = MapCoordinate.fromInteger( x, y );
+                        MapCoordinate neighbourCoordinate =
+                                currentCoordinate.nonlenientNeighbourCoordinate( direction, maxMapCoordinate );
+                        if ( neighbourCoordinate != null ) {
+                            MapCellDto neighbourDto = printCellDtos.at( neighbourCoordinate );
+                            if ( neighbourDto.getPlanetPrintable() == null ) {
+                                neighbourDto.setBlackHole( true );
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

@@ -51,13 +51,11 @@ public class MapPrinterTest {
         c21 = MapCoordinate.fromInteger( 2, 1 );
 
         n = new Planet( UUID.randomUUID() );
-        n.setSpawnPoint( Boolean.TRUE );
         s = new Planet( UUID.randomUUID() );
         ne = new Planet( UUID.randomUUID() );
         nee = new Planet( UUID.randomUUID() );
         se = new Planet( UUID.randomUUID() );
         see = new Planet( UUID.randomUUID() );
-        see.setSpawnPoint( true );
 
         planetPrinter_OneIsland = new PlanetPrinter( new MockPlanetFinderServiceImpl_OneIsland(), new ArrayList<>() );
         planetPrinter_TwoIslands = new PlanetPrinter( new MockPlanetFinderServiceImpl_TwoIslands(), new ArrayList<>() );
@@ -181,11 +179,6 @@ public class MapPrinterTest {
         }
 
         @Override
-        public List<? extends PlanetPrintable> allSpawnPoints() {
-            return Arrays.asList( n );
-        }
-
-        @Override
         public List<? extends PlanetPrintable> allVisitedPlanets() {
             return Arrays.asList( n );
         }
@@ -196,11 +189,6 @@ public class MapPrinterTest {
         @Override
         public List<? extends PlanetPrintable> allPlanets() {
             return Arrays.asList( n, s, ne, se, nee, see );
-        }
-
-        @Override
-        public List<? extends PlanetPrintable> allSpawnPoints() {
-            return Arrays.asList( n, see );
         }
 
         @Override

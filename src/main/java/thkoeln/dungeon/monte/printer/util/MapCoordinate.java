@@ -85,6 +85,23 @@ public class MapCoordinate {
         return MapCoordinate.fromInteger( newX, newY );
     }
 
+    /**
+     * @param direction
+     * @param max
+     * @return the neighbour, if really inside the limits, or null otherwise
+     */
+    public MapCoordinate nonlenientNeighbourCoordinate( MapDirection direction, MapCoordinate max ) {
+        if ( direction == null ) throw new PrinterException( "compassDirection must not be null." );
+        Integer newX = this.x;
+        Integer newY = this.y;
+        if ( direction == MapDirection.no ) newY--;
+        if ( direction == MapDirection.ea ) newX++;
+        if ( direction == MapDirection.so ) newY++;
+        if ( direction == MapDirection.we ) newX--;
+        if ( newX < 0 || newY < 0 || newX > max.x || newY > max.y ) return null;
+        return MapCoordinate.fromInteger( newX, newY );
+    }
+
 
     @Override
     public String toString() {

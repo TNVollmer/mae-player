@@ -56,7 +56,7 @@ public class RobotEventHandler {
         logger.info( "Handling ROBOT_SPAWNED event ..." );
         RobotPlanetDto robotPlanetDto = event.getRobotDto().getPlanet();
         Planet planet = planetApplicationService.addOrUpdatePlanet(
-                robotPlanetDto.getPlanetId(), Energy.from( robotPlanetDto.getMovementDifficulty() ), TRUE );
+                robotPlanetDto.getPlanetId(), Energy.from( robotPlanetDto.getMovementDifficulty() ) );
         robotApplicationService.addNewOwnRobot( event.getRobotDto().getId(), planet );
     }
 

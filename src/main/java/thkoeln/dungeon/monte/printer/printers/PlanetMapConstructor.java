@@ -37,7 +37,7 @@ public class PlanetMapConstructor {
     protected TwoDimDynamicArray<PlanetPrintable> addNeighboursToLocalClusterMap(
             TwoDimDynamicArray<PlanetPrintable> existingLocalCluster ) {
         TwoDimDynamicArray<PlanetPrintable> localCluster = existingLocalCluster;
-        Map<MapDirection, PlanetPrintable> allNeighbours = planetPrintable.neighbourMap();
+        Map<MapDirection, PlanetPrintable> allNeighbours = planetPrintable.neighbours();
         for ( Map.Entry<MapDirection, PlanetPrintable> entry : allNeighbours.entrySet() ) {
             MapDirection mapDirection = entry.getKey();
             PlanetPrintable neighbour = entry.getValue();
