@@ -11,9 +11,10 @@ public class MinerStrategy extends AbstractRobotStrategy {
     protected String[] commandCreatorMethodNames = new String[] {
         "regenerateIfLowAndNotAttacked",
         "fleeIfAttacked",
-        "mine",
         "upgrade",
-        "move",
+        "moveIfNotOnFittingResource",
+        "moveIfOptimalResourceNearby",
+        "mine",
         "regenerate"
     };
 

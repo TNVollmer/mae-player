@@ -174,7 +174,7 @@ public class Robot implements ActionableRobot, RobotPrintable {
 
 
     @Override
-    public Command move() {
+    public Command moveRandomlyToUnexploredPlanet() {
         if ( location == null ) {
             logger.error( "Robot wants to createMove, but planet is null ???" );
             return null;
@@ -189,6 +189,36 @@ public class Robot implements ActionableRobot, RobotPrintable {
         }
         // not sufficient energy to createMove => no command
         return null;
+    }
+
+
+    @Override
+    public Command moveRandomly() {
+        // todo: implement, this is just a placeholder
+        return moveRandomlyToUnexploredPlanet();
+    }
+
+
+
+
+    @Override
+    public Command moveIfNotOnFittingResource() {
+        // todo: implement, this is just a placeholder
+        return moveRandomlyToUnexploredPlanet();
+    }
+
+
+    @Override
+    public Command moveIfOptimalResourceNearby() {
+        // todo: implement, this is just a placeholder
+        return moveRandomlyToUnexploredPlanet();
+    }
+
+
+    @Override
+    public Command moveIfOpponentNearby() {
+        // todo: implement, this is just a placeholder
+        return moveRandomlyToUnexploredPlanet();
     }
 
 

@@ -16,7 +16,15 @@ public interface ActionableRobot extends Actionable {
 
     public Command mine();
 
-    public Command move();
+    public Command moveRandomlyToUnexploredPlanet();
+
+    public Command moveRandomly();
+
+    public Command moveIfNotOnFittingResource();
+
+    public Command moveIfOptimalResourceNearby();
+
+    public Command moveIfOpponentNearby();
 
     public Command upgrade( AccountInformation accountInformation );
 

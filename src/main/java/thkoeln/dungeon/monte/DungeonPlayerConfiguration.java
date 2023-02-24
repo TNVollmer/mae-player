@@ -13,7 +13,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
-import thkoeln.dungeon.monte.player.application.PlayerEventListener;
 
 @Configuration
 @EnableAutoConfiguration
@@ -34,11 +33,11 @@ public class DungeonPlayerConfiguration {
     @Bean
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
-        String username = environment.getProperty( "queue.username" );
-        String password = environment.getProperty( "queue.password" );
-        String host = environment.getProperty( "queue.host" );
-        int port = Integer.valueOf( environment.getProperty( "queue.port" ) );
-        logger.debug( "Property queue.host found: " + host + ":" + port );
+        String username = environment.getProperty( "dungeon.queue.username" );
+        String password = environment.getProperty( "dungeon.queue.password" );
+        String host = environment.getProperty( "dungeon.queue.host" );
+        int port = Integer.valueOf( environment.getProperty( "dungeon.queue.port" ) );
+        logger.debug( "Property dungeon.queue.host found: " + host + ":" + port );
         connectionFactory.setUsername( username );
         connectionFactory.setPassword( password );
         connectionFactory.setHost( host );

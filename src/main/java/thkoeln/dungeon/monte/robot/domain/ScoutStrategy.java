@@ -11,8 +11,7 @@ public class ScoutStrategy extends AbstractRobotStrategy {
     protected String[] commandCreatorMethodNames = new String[] {
         "regenerateIfLowAndNotAttacked",
         "fleeIfAttacked",
-        "mineIfNotMinedLastRound",
-        "move",
+        "moveRandomlyToUnexploredPlanet",
         "regenerate"
     };
 

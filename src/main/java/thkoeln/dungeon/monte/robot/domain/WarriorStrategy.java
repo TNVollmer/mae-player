@@ -10,9 +10,10 @@ public class WarriorStrategy extends AbstractRobotStrategy {
 
     protected String[] commandCreatorMethodNames = new String[] {
         "regenerateIfLowAndNotAttacked",
+        "moveIfOpponentNearby",
         "attack",
         "upgrade",
-        "move",
+        "moveRandomly",
         "regenerate"
     };
 

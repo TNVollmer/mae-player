@@ -26,7 +26,7 @@ import static org.springframework.http.HttpMethod.*;
 public class GameServiceRESTAdapter {
     private RestTemplate restTemplate;
     private Logger logger = LoggerFactory.getLogger( GameServiceRESTAdapter.class );
-    @Value("${GAME_SERVICE:http://localhost:8080}")
+    @Value("${dungeon.game.host}")
     private String gameServiceUrlString;
     private ObjectMapper objectMapper = new ObjectMapper();
 
