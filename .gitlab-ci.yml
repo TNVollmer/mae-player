@@ -1,0 +1,32 @@
+image: docker:20.10.16
+services:
+  - docker:20.10.16-dind
+
+variables:
+  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
+
+stages:
+  - build
+  - docker
+
+maven-build:
+  image: maven:latest
+
+  stage: build
+  script: "mvn clean package -B"
+  artifacts:
+    paths:
+      - target/*.jar
+
+
+docker-build:
+  stage: docker
+
+  before_script:
+    - echo "$DOCKER_REGISTRY_PASS" | docker login $DOCKER_REGISTRY -u $DOCKER_REGISTRY_USER -p
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
