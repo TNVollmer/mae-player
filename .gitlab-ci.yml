@@ -25,8 +25,7 @@ maven-build:
 docker-build:
   stage: docker
 
-  before_script:
-    - echo "$DOCKER_REGISTRY_PASS" | docker login $DOCKER_REGISTRY -u $DOCKER_REGISTRY_USER -p
   script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
