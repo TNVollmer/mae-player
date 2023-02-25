@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.printer.devices;
+package thkoeln.dungeon.monte.printer.devices.websocket;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

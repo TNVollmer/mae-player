@@ -1,4 +1,4 @@
-package thkoeln.dungeon.monte.printer.devices;
+package thkoeln.dungeon.monte.printer.devices.websocket;
 
 /**
  * Adapted from Baeldung, https://www.baeldung.com/websockets-spring and

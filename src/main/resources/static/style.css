@@ -1,0 +1,159 @@
+a:link {
+  text-decoration: none;
+}
+
+html{
+}
+
+body {
+  font-family: Roboto;
+  margin: 50px;
+}
+
+h1 {
+  margin-top: 50px !important;
+  font-weight: bold !important;
+}
+
+h2 {
+  line-height: 1.3em !important;
+  margin-top: 2em !important;
+  font-weight: bold !important;
+}
+
+.map {
+  margin-top: 50px;
+  display: grid;
+  grid-gap: 1px;
+  grid-template-columns: repeat(100, [col] 80px ) ;
+  grid-template-rows: 80px;
+}
+
+.colnum {
+  text-align: center;
+  font-weight: bold;
+  font-size: 200%;
+  border: 0px solid #CCCCCC;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rownum {
+  grid-column-start: 1;
+  text-align: center;
+  font-weight: bold;
+  font-size: 200%;
+  border: 0px solid #CCCCCC;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell {
+  border: 3px solid #CCCCCC;
+  text-align: center;
+  border-collapse: collapse;
+  padding: 10px;
+}
+
+.border-no {
+  border-top: 3px solid #1c1c1c;
+}
+
+.border-we {
+  border-left: 3px solid #1c1c1c;
+}
+
+.border-so {
+  border-bottom: 3px solid #1c1c1c;
+}
+
+.border-ea {
+  border-right: 3px solid #1c1c1c;
+}
+
+.innercell {
+  grid-column-start: 1;
+  text-align: center;
+  padding: 0px;
+  height: 20px;
+}
+
+.robot {
+  background-color: #5a8dfa;
+  color: white;
+  font-weight: bold;
+}
+
+.robotMinus1 {
+  background-color: #bdd2ff;
+}
+
+.robotMinus2 {
+  background-color: #e6eeff;
+}
+
+.ressource1 {
+  background-color: #FFFFCC;
+}
+
+.ressource2 {
+  background-color: #FFD999;
+}
+
+.ressource3 {
+  background-color: #FFB366;
+}
+
+.ressource4 {
+  background-color: #FF8C33;
+}
+
+.ressource5 {
+  background-color: #FF6600;
+}
+
+.unvisited {
+  background-color: #ededed;
+}
+
+.blackhole {
+  background-color: #1c1c1c;
+}
+
+.enemyA {
+  background-color: hsl(0, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyB {
+  background-color: hsl(280, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyC {
+  background-color: hsl(40, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyD {
+  background-color: hsl(125, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyE {
+  background-color: hsl(60, 100%, 50%);
+  color: white;
+  font-weight: bold;
+}
+
+.enemyX {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+}

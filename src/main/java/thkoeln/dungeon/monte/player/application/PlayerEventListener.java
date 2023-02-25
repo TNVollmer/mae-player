@@ -14,13 +14,12 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusE
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
-import thkoeln.dungeon.monte.printer.devices.ConsoleOutput;
+import thkoeln.dungeon.monte.printer.devices.console.ConsoleOutput;
 import thkoeln.dungeon.monte.printer.printers.PlayerPrinter;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;

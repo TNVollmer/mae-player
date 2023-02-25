@@ -1,8 +1,10 @@
-package thkoeln.dungeon.monte.printer.devices;
+package thkoeln.dungeon.monte.printer.devices.console;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import thkoeln.dungeon.monte.printer.devices.MapCellDto;
+import thkoeln.dungeon.monte.printer.devices.OutputDevice;
 
 import java.util.ArrayList;
 import java.util.List;

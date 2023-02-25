@@ -2,7 +2,6 @@ package thkoeln.dungeon.monte.planet.domain;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import scala.concurrent.impl.FutureConvertersImpl;
 import thkoeln.dungeon.monte.core.domainprimitives.location.CompassDirection;
 
 import java.lang.reflect.Method;

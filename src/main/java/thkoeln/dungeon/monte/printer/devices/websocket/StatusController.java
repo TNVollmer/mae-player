@@ -1,8 +1,9 @@
-package thkoeln.dungeon.monte.printer.devices;
+package thkoeln.dungeon.monte.printer.devices.websocket;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,10 +20,15 @@ public class StatusController {
 
     @MessageMapping("/playerstatus")
     @SendTo("/topic/pushstatus")
-    public OutputMessage send( String text ) throws Exception {
+    public OutputMessage send(String text ) throws Exception {
 
         final String time = new SimpleDateFormat("HH:mm").format(new Date());
         return new OutputMessage( text );
+    }
+
+    @GetMapping("/")
+    public String index() {
+        return "index.html";
     }
 
 }
