@@ -129,12 +129,15 @@ public class PlayerEventListener {
             gameApplicationService.fetchRemoteGame();
             playerApplicationService.registerPlayer();
             playerApplicationService.letPlayerJoinOpenGame();
+            playerPrinter.printStatus();
         }
         else if ( GameStatus.RUNNING.equals( gameStatusEvent.getStatus() ) ) {
             gameApplicationService.startGame( gameStatusEvent.getGameId() );
+            playerPrinter.printStatus();
         }
         else if ( GameStatus.FINISHED.equals( gameStatusEvent.getStatus() ) ) {
             playerApplicationService.cleanupAfterFinishingGame();
+            playerPrinter.printStatus();
         }
     }
 
