@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: player-monte
-          image: registry.gitlab.com/the-microservice-dungeon/player-monte:latest
+          image: registry.gitlab.com/the-microservice-dungeon/player-teams/player-monte:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: GAME_URL
