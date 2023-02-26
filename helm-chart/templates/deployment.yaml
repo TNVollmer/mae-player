@@ -1,33 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: { { .Values.name } }
+  name: player-monte-deployment
+  namespace: player-monte
   labels:
-    app: { { .Values.name } }
+    app: player-monte
 spec:
-  replicas: { { .Values.replicas | int } }
+  replicas: 1
   selector:
     matchLabels:
-      app: { { .Values.name } }
+      app: player-monte
   template:
     metadata:
       labels:
-        app: { { .Values.name } }
+        app: player-monte
     spec:
       containers:
-        - name: { { .Values.name } }
-          { { - if .Values.image.tag } }
-          image: { { .Values.image.name } }:{{ .Values.image.tag }}
-          {{- else }}
-          image: { { .Values.image.name } }:latest
-          {{- end }}
-          imagePullPolicy: { { .Values.imagePullPolicy } }
-          ports:
-            - containerPort: { { .Values.port | int } }
-          { { - if .Values.env } }
-          resources:
-            limits:
-              memory: 2G
+        - name: player-monte
+          image: registry.gitlab.com/the-microservice-dungeon/player-monte:latest
+          imagePullPolicy: IfNotPresent
           env:
-          { { toYaml .Values.env | nindent 12 } }
-          { { - end } }
+            - name: GAME_URL
+              value: http://game-service.game:8080
+            - name: RABBITMQ_HOST
+              value: rabbitmq-service.rabbitmq
+            - name: LOGGING_VISUALIZATION
+              value: "false"
+            - name: LOGGING_LEVEL
+              value: info
+          volumeMounts:
+            - mountPath: /app/logs
+              name: logs-volume
+      volumes:
+        - name: logs-volume
+          emptyDir:
+            sizeLimit: 500Mi
