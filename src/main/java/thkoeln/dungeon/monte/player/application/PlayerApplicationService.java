@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
@@ -111,9 +112,6 @@ public class PlayerApplicationService {
         player.assignPlayerId( playerId );
         Game activeGame = gameApplicationService.queryActiveGame();
         if ( activeGame != null ) player.setGameId( gameApplicationService.queryActiveGame().getGameId() );
-
-        // We need the queue now, not at joining the game ... so we "guess" the queue name.
-        openRabbitQueue( player );
         playerRepository.save( player );
         logger.info( "PlayerId sucessfully obtained for " + player + ", is now registered." );
     }
@@ -122,30 +120,51 @@ public class PlayerApplicationService {
     /**
      * Check if our player is not currently in a game, and if so, let him join the game -
      * if there is one, and it is open.
+     * @return True, if the player joined a game, false otherwise.
      */
-    public void letPlayerJoinOpenGame() {
+    public boolean letPlayerJoinOpenGame() {
         logger.info( "Trying to join game ..." );
         Player player = queryAndIfNeededCreatePlayer();
-        Game activeGame = gameApplicationService.queryActiveGame();
+        Game activeGame = gameApplicationService.queryAndIfNeededFetchRemoteGame();
         if ( activeGame == null ) {
             logger.info( "No open game at the moment - cannot join a game." );
-            return;
+            return false;
         }
         if ( !activeGame.getOurPlayerHasJoined() ) {
             String playerQueue =
                     gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( activeGame.getGameId(), player.getPlayerId() );
             if ( playerQueue == null ) {
                 logger.warn( "letPlayerJoinOpenGame: no join happened!" );
-                return;
+                return false;
             }
             // Player queue is set already at registering - but we do it again
             if ( playerQueue != null ) player.setPlayerQueue( playerQueue );
         }
+        player.setGameId( activeGame.getGameId() );
         openRabbitQueue( player );
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + activeGame + ", listening via player queue " +
                 player.getPlayerQueue() );
+        return true;
     }
+
+
+    /**
+     * Poll in regular intervals if there is now game open, and if so, join it.
+     */
+    public void pollForOpenGame() {
+        logger.info( "Polling for open game ..." );
+        while ( !letPlayerJoinOpenGame() ) {
+            logger.info( "No open game at the moment - polling for open game again in 5 seconds ..." );
+            try {
+                Thread.sleep( 5000 );
+            }
+            catch ( InterruptedException e ) {
+                logger.error( "pollForOpenGame: sleep interrupted!" );
+            }
+        }
+    }
+
 
 
     /**

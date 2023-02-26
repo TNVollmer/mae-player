@@ -39,7 +39,7 @@ public class GameApplicationService implements GameFinderService {
     /**
      * Throw away all stored games, and fetch the currently active game (if any).
      */
-    public void fetchRemoteGame() {
+    public Game fetchRemoteGame() {
         gameRepository.deleteAll();
         GameDto[] openGameDtos = gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
         if ( openGameDtos.length > 0 ) {
@@ -50,7 +50,9 @@ public class GameApplicationService implements GameFinderService {
             gameRepository.save( game );
             logger.info( "Open game found: " + game );
             if ( openGameDtos.length > 1 ) logger.warn( "More than one open game found!" );
+            return game;
         }
+        return null;
     }
 
     /**
@@ -68,6 +70,18 @@ public class GameApplicationService implements GameFinderService {
         }
     }
 
+
+    /**
+     * @return The currently available active (CREATED or RUNNING) game. If there is no such game, try to fetch
+     * it from the remote server.
+     */
+    public Game queryAndIfNeededFetchRemoteGame() {
+        Game game = queryActiveGame();
+        if ( game == null ) {
+            game = fetchRemoteGame();
+        }
+        return game;
+    }
 
 
     /**

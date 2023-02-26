@@ -38,7 +38,7 @@ public class DungeonPlayerStartupService implements ApplicationListener<ContextR
             try {
                 gameApplicationService.fetchRemoteGame();
                 playerApplicationService.registerPlayer();
-                playerApplicationService.letPlayerJoinOpenGame();
+                playerApplicationService.pollForOpenGame();
             } catch ( DungeonPlayerRuntimeException exc ) {
                 logger.error( "Error when initializing player: " + exc.getMessage() );
             }
