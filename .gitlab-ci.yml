@@ -2,30 +2,43 @@ image: docker:20.10.16
 services:
   - docker:20.10.16-dind
 
+include:
+  - project: "the-microservice-dungeon/devops-team/common-ci-cd"
+    ref: "main"
+    file: "helm/package-publish.yaml"
+
 variables:
   # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
+  PATH_TO_CHART: "helm-chart"
+  CHART_NAME: "player-monte"
 
 stages:
   - build
   - docker
+  - helm
 
 maven-build:
   image: maven:latest
-
   stage: build
   script: "mvn clean package -B"
   artifacts:
     paths:
       - target/*.jar
 
-
 docker-build:
   stage: docker
-
   script:
     - docker login "$CI_REGISTRY" --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD"
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
+
+helm-package-publish:
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      changes:
+        - ${PATH_TO_CHART}/**/*
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always

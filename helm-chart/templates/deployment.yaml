@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: { { .Values.name } }
+  labels:
+    app: { { .Values.name } }
+spec:
+  replicas: { { .Values.replicas | int } }
+  selector:
+    matchLabels:
+      app: { { .Values.name } }
+  template:
+    metadata:
+      labels:
+        app: { { .Values.name } }
+    spec:
+      containers:
+        - name: { { .Values.name } }
+          { { - if .Values.image.tag } }
+          image: { { .Values.image.name } }:{{ .Values.image.tag }}
+          {{- else }}
+          image: { { .Values.image.name } }:latest
+          {{- end }}
+          imagePullPolicy: { { .Values.imagePullPolicy } }
+          ports:
+            - containerPort: { { .Values.port | int } }
+          { { - if .Values.env } }
+          resources:
+            limits:
+              memory: 2G
+          env:
+          { { toYaml .Values.env | nindent 12 } }
+          { { - end } }
