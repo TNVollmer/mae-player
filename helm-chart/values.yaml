@@ -18,7 +18,8 @@ env:
     value: "rabbitmq-service.rabbitmq"
   - name: RABBITMQ_PORT
     value: "5672"
-
+  - name: LOGGING_LEVEL
+    value: "debug"
 ingress:
   enabled: true
   hostname: player-monte.dungeon-space.de

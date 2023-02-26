@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: player-monte-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: player-monte.dungeon-space.de
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: player-monte-service
+                port:
+                  number: 8999

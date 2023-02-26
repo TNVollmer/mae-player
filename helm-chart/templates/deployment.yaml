@@ -20,14 +20,14 @@ spec:
           image: registry.gitlab.com/the-microservice-dungeon/player-teams/player-monte:latest
           imagePullPolicy: IfNotPresent
           env:
-            - name: GAME_URL
+            - name: GAME_HOST
               value: http://game-service.game:8080
             - name: RABBITMQ_HOST
               value: rabbitmq-service.rabbitmq
-            - name: LOGGING_VISUALIZATION
-              value: "false"
+            - name: PLAYER_SERVER_PORT
+              value: "8999"
             - name: LOGGING_LEVEL
-              value: info
+              value: debug
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
