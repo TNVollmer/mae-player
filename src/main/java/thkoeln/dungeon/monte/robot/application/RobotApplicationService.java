@@ -59,6 +59,12 @@ public class RobotApplicationService implements RobotFinderService {
     }
 
 
+    public void cleanupAfterFinishingGame() {
+        robotRepository.deleteAll();
+    }
+
+
+
     /**
      * Add new robot, as result of an event. The robot type is decided according to current quotas.
      * @return the new robot

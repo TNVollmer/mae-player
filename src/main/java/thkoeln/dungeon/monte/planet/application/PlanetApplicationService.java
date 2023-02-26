@@ -30,18 +30,18 @@ public class PlanetApplicationService implements PlanetFinderService {
         this.planetRepository = planetRepository;
     }
 
+
+    public void cleanupAfterFinishingGame() {
+        planetRepository.deleteAll();
+    }
+
+
     @Override
     public List<Planet> allPlanets() {
         List<Planet> allPlanets = planetRepository.findAll();
-        /*
-        for ( Planet planet : allPlanets ) {
-            if ( !planet.checkBidirectionalRelationshipsWithNeighbours()) {
-                throw new PlanetException( "allPlanets(): Unidirectional connection " + planet + " -> " + "neighbour");
-            }
-        }
-        */
         return allPlanets;
     }
+
 
     @Override
     public List<Planet> allVisitedPlanets() {

@@ -12,6 +12,7 @@ import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.Game;
+import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
@@ -42,6 +43,7 @@ public class PlayerApplicationService {
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
     private TradingAccountApplicationService tradingAccountApplicationService;
     private RobotApplicationService robotApplicationService;
+    private PlanetApplicationService planetApplicationService;
     private PlayerStrategy playerStrategy;
 
 
@@ -61,6 +63,7 @@ public class PlayerApplicationService {
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
             TradingAccountApplicationService tradingAccountApplicationService,
             RobotApplicationService robotApplicationService,
+            PlanetApplicationService planetApplicationService,
             PlayerStrategy playerStrategy ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
@@ -69,6 +72,7 @@ public class PlayerApplicationService {
         this.tradingAccountApplicationService = tradingAccountApplicationService;
         this.robotApplicationService = robotApplicationService;
         this.playerStrategy = playerStrategy;
+        this.planetApplicationService = planetApplicationService;
     }
 
 
@@ -188,6 +192,17 @@ public class PlayerApplicationService {
 
     }
 
+
+    public void cleanupAfterFinishingGame() {
+        logger.info( "Cleaning up after finishing game ..." );
+        Player player = queryAndIfNeededCreatePlayer();
+        gameApplicationService.finishGame();
+        player.setGameId( null );
+        playerRepository.save( player );
+        robotApplicationService.cleanupAfterFinishingGame();
+        planetApplicationService.cleanupAfterFinishingGame();
+        logger.info( "Cleaned up after finishing game." );
+    }
 
     /**
      * @param playerId

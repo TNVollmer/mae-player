@@ -134,7 +134,7 @@ public class PlayerEventListener {
             gameApplicationService.startGame( gameStatusEvent.getGameId() );
         }
         else if ( GameStatus.FINISHED.equals( gameStatusEvent.getStatus() ) ) {
-            gameApplicationService.finishGame( gameStatusEvent.getGameId() );
+            playerApplicationService.cleanupAfterFinishingGame();
         }
     }
 

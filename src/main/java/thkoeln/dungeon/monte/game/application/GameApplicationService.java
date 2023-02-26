@@ -95,12 +95,19 @@ public class GameApplicationService implements GameFinderService {
 
 
 
+
     /**
-     * We received notice (by event) that a certain game has finished.
-     * @param gameId
+     * We received notice (by event) that the current game has finished.
      */
-    public void finishGame( UUID gameId ) {
-        changeGameStatus( gameId, GameStatus.FINISHED );
+    public void finishGame() {
+        logger.info( "Finish game" );
+        Game game = queryActiveGame();
+        if ( game == null ) {
+            logger.error( "No active game found!" );
+            return;
+        }
+        game.setGameStatus( GameStatus.FINISHED );
+        gameRepository.save( game );
     }
 
 
