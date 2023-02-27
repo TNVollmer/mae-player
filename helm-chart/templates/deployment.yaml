@@ -18,7 +18,7 @@ spec:
       containers:
         - name: player-monte
           image: registry.gitlab.com/the-microservice-dungeon/player-teams/player-monte:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: GAME_HOST
               value: http://game-service.game:8080
