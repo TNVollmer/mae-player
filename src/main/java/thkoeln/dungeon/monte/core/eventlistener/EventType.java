@@ -10,7 +10,7 @@ public enum EventType {
     ROBOT_SPAWNED( "RobotSpawned" ),
     ROBOT_MOVED( "RobotMovedIntegrationEvent" ),
     ROBOT_REGENERATED_INTEGRATION( "RobotRegeneratedIntegrationEvent" ),
-    ROBOT_REVEALED_INTEGRATION( "RobotRevealedIntegrationEvent" ),
+    ROBOT_REVEALED_INTEGRATION( "RobotsRevealedIntegrationEvent" ),
     PLANET_DISCOVERED( "PlanetDiscovered" ),
 
     ERROR( "error" ),
