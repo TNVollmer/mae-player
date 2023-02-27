@@ -252,11 +252,17 @@ public class Robot implements ActionableRobot, RobotPrintable {
 
     @Override
     public String mapName() {
-        String printString = ( type != null ) ? type.toString() : "Robot";
-        printString = printString.substring( 0, 1 );
+        String printString = firstLetter();
         printString += String.valueOf( robotId ).substring( 0, 3 );
         return printString;
     }
+
+    private String firstLetter() {
+        if ( isEnemy() ) return String.valueOf( enemyChar );
+        String printString = ( type != null ) ? type.toString() : "Robot";
+        return printString.substring( 0, 1 );
+    }
+
 
     @Override
     public String toString() {
