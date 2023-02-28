@@ -11,7 +11,9 @@ public enum EventType {
     ROBOT_MOVED( "RobotMovedIntegrationEvent" ),
     ROBOT_REGENERATED_INTEGRATION( "RobotRegeneratedIntegrationEvent" ),
     ROBOT_REVEALED_INTEGRATION( "RobotsRevealedIntegrationEvent" ),
+    ROBOT_RESOURCE_MINED_INTEGRATION( "RobotResourceMinedIntegrationEvent" ),
     PLANET_DISCOVERED( "PlanetDiscovered" ),
+
 
     ERROR( "error" ),
     UNKNOWN( "UNKNOWN" );

@@ -58,7 +58,7 @@ public abstract class AbstractStrategy {
                 if ( command != null ) return command;
             }
             catch ( Exception whateverWentWrongShouldntHaveHappenedAnyway ) {
-                logger.error( "Something went wrong ...: " + whateverWentWrongShouldntHaveHappenedAnyway );
+                logger.error( "Something went wrong ...: " + whateverWentWrongShouldntHaveHappenedAnyway.getMessage() );
                 throw new StrategyException( whateverWentWrongShouldntHaveHappenedAnyway );
             }
         }

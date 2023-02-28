@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotRevealedDto;
@@ -178,6 +179,14 @@ public class RobotApplicationService implements RobotFinderService {
         }
     }
 
+
+    public void robotHasMined( UUID robotId, MineableResource minedResource, MineableResource updatedInventory ) {
+        if ( robotId == null ) throw new RobotException( "robotId == null" );
+        Robot robot = queryAndIfNeededAddRobot( robotId );
+        logger.info( "Robot " + robot + " has mined " + minedResource + " and now has " + updatedInventory );
+        robot.updateInventoryAfterMining( minedResource, updatedInventory );
+        robotRepository.save( robot );
+    }
 
     /**
      * @return The RobotType the next purchased robot should be assigned, according to quota

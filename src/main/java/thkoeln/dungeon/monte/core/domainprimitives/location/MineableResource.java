@@ -30,6 +30,14 @@ public class MineableResource implements MineableResourcePrintable {
     }
 
 
+    public MineableResource add( MineableResource additionalResource ) {
+        if ( additionalResource == null ) throw new DomainPrimitiveException( "additionalResource cannot be null!" );
+        if ( additionalResource.isEmpty() ) return this;
+        if ( this.isEmpty() ) return additionalResource;
+        if ( this.type != additionalResource.type ) throw new DomainPrimitiveException( "Cannot add resources of different types!" );
+        return new MineableResource( this.type, this.amount + additionalResource.amount );
+    }
+
     /**
      * @return The short name of a mineable resource located on this planet. Name is <= 4 chars, for layout reasons.
      */

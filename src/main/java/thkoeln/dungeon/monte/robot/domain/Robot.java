@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
@@ -17,6 +18,8 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import static thkoeln.dungeon.monte.core.domainprimitives.location.MineableResourceType.COAL;
 
 @Entity
 @Getter
@@ -44,6 +47,11 @@ public class Robot implements ActionableRobot, RobotPrintable {
     @Embedded
     @AttributeOverride(name = "energyAmount", column = @Column(name = "max_energy_amount"))
     private Energy maxEnergy;
+
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "load_amount"))
+    @AttributeOverride(name = "type", column = @Column(name = "load_type"))
+    private MineableResource load;
 
     @Enumerated( EnumType.STRING )
     private RobotType type;
@@ -130,6 +138,22 @@ public class Robot implements ActionableRobot, RobotPrintable {
     }
 
 
+    public void updateInventoryAfterMining( MineableResource minedResource, MineableResource updatedInventory ) {
+        if ( minedResource == null || updatedInventory == null )
+            throw new RobotException( "minedResource == null || updatedInventory == null" );
+        if ( !minedResource.getType().equals( COAL ) ) throw new RobotException( "minedResource is not coal" );
+        if ( load == null ) {
+            setLoad( minedResource );
+        }
+        else {
+            setLoad( load.add( minedResource ) );
+        }
+        if ( !load.equals( updatedInventory ) )
+            logger.warn( this + ": I thought I had " + load + ", but actually event tells me " + updatedInventory );
+        logger.info( this + ": Updated inventory after mining: " + load );
+    }
+
+
     @Override
     public Command decideNextCommand( AccountInformation accountInformation ) {
         Command nextCommand = null;
@@ -169,16 +193,28 @@ public class Robot implements ActionableRobot, RobotPrintable {
 
     @Override
     public Command mine() {
+        if ( location == null ) throw new RobotException( "mine: location == null" );
+        MineableResource resource = location.getMineableResource();
+        if ( resource != null && resource.getType() == COAL ) {
+            Command command = Command.createMining( robotId, location.getPlanetId(), gameId, playerId );
+            return command;
+        }
         return null;
     }
 
 
     @Override
-    public Command moveRandomlyToUnexploredPlanet() {
-        if ( location == null ) {
-            logger.error( "Robot wants to createMove, but planet is null ???" );
-            return null;
+    public Command sellMineableResources() {
+        if ( load != null && load.getAmount() >= 10 ) {
+            Command command = Command.createSelling( robotId, gameId, playerId, load );
+            return command;
         }
+        return null;
+    }
+
+    @Override
+    public Command moveRandomlyToUnexploredPlanet() {
+        if ( location == null ) throw new RobotException( "moveRandomlyToUnexploredPlanet: location == null" );
         if ( energy.greaterEqualThan( location.getMovementDifficulty() ) ) {
             Planet target = location.findUnvisitedNeighbourOrAnyIfAllVisited();
             if ( target == null ) return null;
@@ -199,12 +235,12 @@ public class Robot implements ActionableRobot, RobotPrintable {
     }
 
 
-
-
     @Override
     public Command moveIfNotOnFittingResource() {
-        // todo: implement, this is just a placeholder
-        return moveRandomlyToUnexploredPlanet();
+        if ( location == null ) throw new RobotException( "moveIfNotOnFittingResource: location == null" );
+        MineableResource resource = location.getMineableResource();
+        if ( resource == null || resource.getType() != COAL ) return moveRandomlyToUnexploredPlanet();
+        return null;
     }
 
 
@@ -280,4 +316,5 @@ public class Robot implements ActionableRobot, RobotPrintable {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }

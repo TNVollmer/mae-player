@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.mine.RobotResourceMinedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotPlanetDto;
@@ -47,6 +49,9 @@ public class RobotEventHandler {
             case ROBOT_REGENERATED_INTEGRATION:
                 robotApplicationService.regenerateRobotFromExternalEvent( (RobotRegeneratedIntegrationEvent) event );
                 break;
+            case ROBOT_RESOURCE_MINED_INTEGRATION:
+                handleResourceMinedEvent( (RobotResourceMinedIntegrationEvent) event );
+                break;
             default:
         }
     }
@@ -62,10 +67,21 @@ public class RobotEventHandler {
 
 
     private void handleRobotMovedIntegrationEvent( RobotMovedIntegrationEvent event ) {
+        logger.info( "Handling ROBOT_MOVED_INTEGRATION event ..." );
         UUID planetId = event.getToPlanet().getId();
         Energy movementDifficulty = Energy.from( event.getToPlanet().getMovementDifficulty() );
         Planet planet = planetApplicationService.addOrUpdatePlanet( planetId, movementDifficulty );
         Energy updatedEnergy = Energy.from( event.getRemainingEnergy() );
         robotApplicationService.moveRobotToNewPlanet( event.getRobotId(), planet, updatedEnergy );
     }
+
+
+
+
+    private void handleResourceMinedEvent( RobotResourceMinedIntegrationEvent event ) {
+        logger.info( "Handling ROBOT_RESOURCE_MINED_INTEGRATION event ..." );
+        MineableResource resource = event.minedResourceAsDomainPrimitive();
+        robotApplicationService.robotHasMined( event.getRobotId(), resource, event.getResourceInventory().getResource() );
+    }
+
 }

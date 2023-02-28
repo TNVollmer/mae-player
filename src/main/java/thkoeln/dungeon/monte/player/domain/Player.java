@@ -27,7 +27,7 @@ public class Player implements ActionablePlayer, Actionable {
     // What share of the available credit balance should be re-invested into new robots?
     // Could be moved to a player strategy class, but there is currently not yet enough "beef"
     // for such a strategy class.
-    public final static float SHARE_OF_CREDIT_BALANCE_FOR_NEW_ROBOTS = 0.5f;
+    public final static float SHARE_OF_CREDIT_BALANCE_FOR_NEW_ROBOTS = 1.0f;
 
     @Id
     private final UUID id = UUID.randomUUID();

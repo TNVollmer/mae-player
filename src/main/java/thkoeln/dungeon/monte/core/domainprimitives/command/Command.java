@@ -2,6 +2,7 @@ package thkoeln.dungeon.monte.core.domainprimitives.command;
 
 import lombok.*;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
+import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableType;
@@ -83,6 +84,25 @@ public class Command {
         return command;
     }
 
+
+    public static Command createMining( UUID robotId, UUID planetId, UUID gameId, UUID playerId ) {
+        if ( robotId == null || planetId == null )
+            throw new DomainPrimitiveException( "robotId == null || planetId == null" );
+        Command command = new Command( CommandType.MINING, gameId, playerId );
+        command.setRobotId( robotId );
+        command.getCommandObject().setPlanetId( planetId );
+        return command;
+    }
+
+
+    public static Command createSelling(UUID robotId, UUID gameId, UUID playerId, MineableResource goods ) {
+        if ( robotId == null ) throw new DomainPrimitiveException( "robotId == null " );
+        Command command = new Command( CommandType.SELLING, gameId, playerId );
+        command.setRobotId( robotId );
+        command.getCommandObject().setItemName( goods.getType().toString() );
+        command.getCommandObject().setItemQuantity( goods.getAmount() );
+        return command;
+    }
 
     protected Command( CommandType type, UUID gameId, UUID playerId ) {
         if ( gameId == null || playerId == null || type == null )

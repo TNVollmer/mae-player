@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.mine.RobotResourceMinedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
@@ -47,6 +48,9 @@ public class EventFactory {
                 break;
             case ROBOT_REVEALED_INTEGRATION:
                 newEvent = new RobotsRevealedIntegrationEvent();
+                break;
+            case ROBOT_RESOURCE_MINED_INTEGRATION:
+                newEvent = new RobotResourceMinedIntegrationEvent();
                 break;
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();
