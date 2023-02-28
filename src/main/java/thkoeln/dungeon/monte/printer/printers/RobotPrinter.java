@@ -26,12 +26,19 @@ public class RobotPrinter {
 
 
     /**
-     * @return Print all currently alive robots, in a compact format suitable for the console.
+     * Print all currently alive robots, in a compact format suitable for the console.
      */
+    public void printRobots() {
+        List<? extends RobotPrintable> ownRobots = robotFinderService.allLivingOwnRobots();
+        List<? extends RobotPrintable> enemyRobots = robotFinderService.allLivingEnemyRobots();
+        printRobotList( ownRobots, "All my robots" );
+        printRobotList( enemyRobots, "All enemy robots" );
+    }
 
-    public void printRobotList() {
-        outputDevices.forEach(p -> p.header( "All my robots" ) );
-        List<? extends RobotPrintable> robotPrintables = robotFinderService.allLivingRobots();
+
+
+    private void printRobotList( List<? extends RobotPrintable> robotPrintables, String header ) {
+        outputDevices.forEach(p -> p.header( header ) );
         outputDevices.forEach(p -> p.startBulletList() );
         for ( RobotPrintable robotPrintable : robotPrintables ) {
             outputDevices.forEach(p -> p.writeBulletItem( robotPrintable.detailedDescription() ) );

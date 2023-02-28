@@ -41,7 +41,7 @@ public class PlayerPrinter {
         outputDevices.forEach(p -> p.initializeOutput() );
         gamePrinter.printStatus();
         mapPrinter.printMap();
-        robotPrinter.printRobotList();
+        robotPrinter.printRobots();
         planetPrinter.printPlanetList();
         outputDevices.forEach(p -> p.flush() );
     }

@@ -206,6 +206,7 @@ public class RobotApplicationService implements RobotFinderService {
     /**
      * @return all robots currently alive (including enemies)
      */
+    @Override
     public List<Robot> allLivingRobots() {
         List<Robot> robots = robotRepository.findAllByAliveEquals( true );
         robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
@@ -213,15 +214,23 @@ public class RobotApplicationService implements RobotFinderService {
     }
 
 
+    /**
+     * @return all OWN robots currently alive, sorted by type
+     */
+    @Override
     public List<Robot> allLivingOwnRobots() {
-        List<Robot> robots = robotRepository.findAllByEnemyCharIsNullAndAliveEquals( true );
+        List<Robot> robots = robotRepository.findAllByEnemyCharIsNullAndAliveEqualsOrderByType( true );
         robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robots;
     }
 
 
+    /**
+     * @return all ENEMY robots currently alive, sorted by enemy
+     */
+    @Override
     public List<Robot> allLivingEnemyRobots() {
-        List<Robot> robots = robotRepository.findAllByEnemyCharIsNotNullAndAliveEquals( true );
+        List<Robot> robots = robotRepository.findAllByEnemyCharIsNotNullAndAliveEqualsOrderByEnemyChar( true );
         robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robots;
     }

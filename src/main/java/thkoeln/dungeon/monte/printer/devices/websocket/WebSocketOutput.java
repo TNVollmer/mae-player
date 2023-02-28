@@ -42,12 +42,12 @@ public class WebSocketOutput implements OutputDevice {
 
     @Override
     public void startBulletList() {
-        stringBuffer.append( "<ul>" );
+        stringBuffer.append( "<ol>" );
     }
 
     @Override
     public void endBulletList() {
-        stringBuffer.append( "</ul>" );
+        stringBuffer.append( "</ol>" );
     }
 
     @Override

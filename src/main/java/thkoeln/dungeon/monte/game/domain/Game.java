@@ -88,4 +88,5 @@ public class Game implements GamePrintable {
     public String detailedDescription() {
         return toString();
     }
+
 }

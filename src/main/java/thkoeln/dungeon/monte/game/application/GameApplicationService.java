@@ -13,6 +13,8 @@ import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.core.restadapter.GameDto;
 import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.monte.printer.finderservices.GameFinderService;
+import thkoeln.dungeon.monte.printer.printables.TradingAccountPrintable;
+import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +24,7 @@ public class GameApplicationService implements GameFinderService {
     private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private Environment environment;
+    private TradingAccountApplicationService tradingAccountApplicationService;
 
     private Logger logger = LoggerFactory.getLogger( GameApplicationService.class );
     ModelMapper modelMapper = new ModelMapper();
@@ -29,10 +32,12 @@ public class GameApplicationService implements GameFinderService {
     @Autowired
     public GameApplicationService( GameRepository gameRepository,
                                    GameServiceRESTAdapter gameServiceRESTAdapter,
-                                   Environment environment ) {
+                                   Environment environment,
+                                   TradingAccountApplicationService tradingAccountApplicationService ) {
         this.gameRepository = gameRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.environment = environment;
+        this.tradingAccountApplicationService = tradingAccountApplicationService;
     }
 
 
@@ -135,5 +140,11 @@ public class GameApplicationService implements GameFinderService {
         if ( game == null ) throw new GameException( "No active game!" );
         game.setCurrentRoundNumber( roundNumber );
         gameRepository.save( game );
+    }
+
+
+    @Override
+    public TradingAccountPrintable tradingAccount() {
+        return tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
     }
 }
