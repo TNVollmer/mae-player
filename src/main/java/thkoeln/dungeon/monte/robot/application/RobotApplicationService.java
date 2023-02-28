@@ -196,10 +196,10 @@ public class RobotApplicationService implements RobotFinderService {
         long numOfWarriors = robotRepository.countAllByTypeIs( WARRIOR );
         if ( numOfRobots == 0 || (numOfWarriors * 100 / numOfRobots) < WARRIOR.quota() ) return WARRIOR;
 
-        Long numOfMiners = robotRepository.countAllByTypeIs( MINER );
-        if ( numOfRobots == 0 || (numOfMiners * 100 / numOfRobots) < MINER.quota() ) return MINER;
+        Long numOfScouts = robotRepository.countAllByTypeIs( SCOUT );
+        if ( numOfRobots == 0 || (numOfScouts * 100 / numOfRobots) < SCOUT.quota() ) return SCOUT;
 
-        return SCOUT;
+        return MINER;
     }
 
 
