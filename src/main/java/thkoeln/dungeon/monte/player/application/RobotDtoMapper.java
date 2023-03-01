@@ -27,14 +27,15 @@ public class RobotDtoMapper {
     }
 
     public void updateRobot( Robot robot, RobotRevealedDto robotRevealedDto, boolean warnIfDifference ) {
-        if ( robot.getLocation() == null || robot.getLocation().getPlanetId() != robotRevealedDto.getPlanetId() ) {
+        if ( robot.getLocation() == null ||
+                !robot.getLocation().getPlanetId().equals( robotRevealedDto.getPlanetId() ) ) {
             Planet planet = planetApplicationService.addOrUpdatePlanet( robotRevealedDto.getPlanetId(), null );
             if ( warnIfDifference ) logger.warn( "Robot " + robot + " is on different planet than expected. " +
                     " (expected: " + robot.getLocation() + ", received via event: " + planet + ")" ) ;
             robot.moveToPlanet( planet );
         }
         if ( robotRevealedDto.getEnergy() != null &&
-                robot.getEnergy().getEnergyAmount() != robotRevealedDto.getEnergy() ) {
+                !robotRevealedDto.getEnergy().equals( robotRevealedDto.getEnergy() ) ) {
             robot.setEnergy(Energy.from( robotRevealedDto.getEnergy() ) );
             if ( warnIfDifference ) logger.warn( "Robot " + robot + " has different energy level than expected. " +
                     " (expected: " + robot.getEnergy() + ", received via event: " + robotRevealedDto.getEnergy() + ")" ) ;

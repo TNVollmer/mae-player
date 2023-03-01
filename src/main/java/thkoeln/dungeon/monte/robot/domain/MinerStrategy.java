@@ -13,8 +13,9 @@ public class MinerStrategy extends AbstractRobotStrategy {
         "fleeIfAttacked",
         "upgrade",
         "moveIfNotOnFittingResource",
-        "moveIfOptimalResourceNearby",
+        "sellMineableResources",
         "mine",
+        "moveIfOptimalResourceNearby",
         "regenerate"
     };
 

@@ -116,7 +116,7 @@ public class Robot implements ActionableRobot, RobotPrintable {
                     ", but actually is on planet " + location + "!" );
             moveToPlanet( updatedLocation );
         }
-        if ( updatedEnergy != null || !updatedEnergy.equals( updatedEnergy ) ) {
+        if ( updatedEnergy != null && !updatedEnergy.equals( this.energy ) ) {
             logger.warn( "Robot " + this + " should have " + updatedEnergy + ", but actually has " + energy + "!" );
             setEnergy( updatedEnergy );
         }
@@ -281,7 +281,10 @@ public class Robot implements ActionableRobot, RobotPrintable {
     public String detailedDescription() {
         StringBuffer stringBuffer = new StringBuffer( mapName() );
         stringBuffer.append( " on " ).append( location );
-        stringBuffer.append( " (" ).append( energy ).append( ")" );
+        stringBuffer.append( " (" ).append( energy );
+        if ( load != null ) stringBuffer.append( ", " ).append( load );
+        stringBuffer.append( ")" );
+        if ( recentCommand != null ) stringBuffer.append( ". Last command: " ).append( recentCommand );
         return stringBuffer.toString();
     }
 
