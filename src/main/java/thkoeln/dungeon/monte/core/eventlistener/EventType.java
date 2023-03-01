@@ -37,6 +37,7 @@ public enum EventType {
     public boolean isRobotRelated() {
         if ( this.equals( GAME_STATUS ) || this.equals( BANK_INITIALIZED ) || this.equals( ROUND_STATUS ) ||
                 this.equals( TRADABLE_PRICES ) || this.equals( ROBOT_REVEALED_INTEGRATION ) ||
+                this.equals( BANK_ACCOUNT_TRANSACTION_BOOKED ) ||
                 this.equals( UNKNOWN ) || this.equals( ERROR ) )
             return false;
         if ( isPlanetRelated() ) return false;
