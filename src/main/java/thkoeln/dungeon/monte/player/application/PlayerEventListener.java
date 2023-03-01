@@ -13,6 +13,7 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEv
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankAccountTransactionBookedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
@@ -109,6 +110,12 @@ public class PlayerEventListener {
                 BankInitializedEvent bankInitializedEvent = (BankInitializedEvent) event;
                 playerApplicationService.adjustBankAccount(
                         bankInitializedEvent.getPlayerId(), bankInitializedEvent.getBalance() );
+                break;
+            case BANK_ACCOUNT_TRANSACTION_BOOKED:
+                BankAccountTransactionBookedEvent transactionBookedEvent =
+                        (BankAccountTransactionBookedEvent) event;
+                playerApplicationService.adjustBankAccount(
+                        transactionBookedEvent.getPlayerId(), transactionBookedEvent.getBalance() );
                 break;
             case ROUND_STATUS:
                 handleRoundStatusEvent( (RoundStatusEvent) event );

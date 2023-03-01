@@ -5,6 +5,7 @@ import java.util.Arrays;
 public enum EventType {
     GAME_STATUS( "game-status" ),
     BANK_INITIALIZED( "BankAccountInitialized" ),
+    BANK_ACCOUNT_TRANSACTION_BOOKED( "BankAccountTransactionBooked" ),
     ROUND_STATUS( "round-status" ),
     TRADABLE_PRICES( "TradablePrices" ),
     ROBOT_SPAWNED( "RobotSpawned" ),

@@ -207,6 +207,7 @@ public class Robot implements ActionableRobot, RobotPrintable {
     public Command sellMineableResources() {
         if ( load != null && load.getAmount() >= 10 ) {
             Command command = Command.createSelling( robotId, gameId, playerId, load );
+            setLoad( null );
             return command;
         }
         return null;

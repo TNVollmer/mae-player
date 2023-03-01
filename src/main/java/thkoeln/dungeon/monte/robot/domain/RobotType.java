@@ -39,8 +39,8 @@ public enum RobotType {
      */
     protected static final Map<RobotType, Long> QUOTA = Map.of(
             SCOUT, 0L,
-            MINER, 50L,
-            WARRIOR, 50L );
+            MINER, 100L,
+            WARRIOR, 0L );
 
     public Long quota() {
         return QUOTA.get( this );

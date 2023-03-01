@@ -11,6 +11,7 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotM
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankAccountTransactionBookedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.ErrorEvent;
@@ -30,6 +31,9 @@ public class EventFactory {
                 break;
             case BANK_INITIALIZED:
                 newEvent = new BankInitializedEvent();
+                break;
+            case BANK_ACCOUNT_TRANSACTION_BOOKED:
+                newEvent = new BankAccountTransactionBookedEvent();
                 break;
             case ROUND_STATUS:
                 newEvent = new RoundStatusEvent();
