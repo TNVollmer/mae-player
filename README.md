@@ -1,15 +1,18 @@
-# M.O.N.T.E.
+# Player Skeleton with Java and Spring Boot
 
-This player is named after [Big Bang Theory's M.O.N.T.E. robot](https://bigbangtheory.fandom.com/de/wiki/M.O.N.T.E.) - 
-ultimately crushed by Barry Kripke's robot in a heroic but senseless act of over-confidence.  
+This is a player skeleton for the microservice dungeon, which is written in Java using Spring Boot.
+You can use this player as a basis for your own player.
 
-![MONTE](https://static.wikia.nocookie.net/bigbangtheory/images/1/10/Monte.png/revision/latest?cb=20111229122742&path-prefix=de)
-(c) Big Bang Theory
+Requirements:
+- Java 11
 
-## Hacks
+## Preparation
 
-- RabbitMQ host during dry run: RABBITMQ_HOST 167.235.218.50:31111
-- GAME_SERVICE http://game.dungeon-space.de
+To use this skeleton as the base for your player development, you need to accomplish the following steps.
+
+First, fork this repository and create a new repository under the [Player Teams subgroup](https://gitlab.com/the-microservice-dungeon/player-teams) which is named after your desired player name, for example `player-constantine`.
+Now you need to add your player-name to a few files. The required places are marked using TODO comments.
+Update the files in `helm-chart/Chart.yaml`, `pom.xml`, `src/resources/application.properties` and `.gitlab-ci.yml`.
 
 
 Authors: Stefan Bente, Philipp Schmeier

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: player-monte-service
+  name: {{ .Chart.Name }}-service
 spec:
   selector:
-    app: player-monte
+    app: {{ .Chart.Name }}
   ports:
     - protocol: TCP
       port: 8999

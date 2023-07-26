@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: player-monte-deployment
-  namespace: player-monte
+  name: {{ .Chart.Name }}-deployment
+  namespace: {{ .Chart.Name }}
   labels:
-    app: player-monte
+    app: {{ .Chart.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: player-monte
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: player-monte
+        app: {{ .Chart.Name }}
     spec:
       containers:
-        - name: player-monte
-          image: registry.gitlab.com/the-microservice-dungeon/player-teams/player-monte:latest
+        - name: {{ .Chart.Name }}
+          image: registry.gitlab.com/the-microservice-dungeon/player-teams/{{ .Chart.Name }}:latest
           imagePullPolicy: Always
           env:
             - name: GAME_HOST
