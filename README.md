@@ -4,7 +4,7 @@ This is a player skeleton for the microservice dungeon, which is written in Java
 You can use this player as a basis for your own player.
 
 Requirements:
-- Java 11
+- Java 17
 
 ## Preparation
 

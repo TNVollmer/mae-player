@@ -191,7 +191,7 @@ public class RobotApplicationService implements RobotFinderService {
     /**
      * @return The RobotType the next purchased robot should be assigned, according to quota
      */
-    protected RobotType nextRobotTypeAccordingToQuota() {
+    RobotType nextRobotTypeAccordingToQuota() {
         long numOfRobots = robotRepository.countAllByEnemyCharIsNullAndAliveIs( true );
         long numOfWarriors = robotRepository.countAllByTypeIs( WARRIOR );
         if ( numOfRobots == 0 || (numOfWarriors * 100 / numOfRobots) < WARRIOR.quota() ) return WARRIOR;
