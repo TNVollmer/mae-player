@@ -1,5 +1,6 @@
 package thkoeln.dungeon.monte.core.domainprimitives.command;
 
+import javax.persistence.Column;
 import lombok.*;
 
 import javax.persistence.Embeddable;
@@ -16,9 +17,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @ToString
 public class CommandObject {
-    private CommandType commandType;
+    @Column(name = "cmd_robot_id")
+    private UUID robotId;
+    @Column(name = "cmd_planet_id")
     private UUID planetId;
+    @Column(name = "cmd_target_id")
     private UUID targetId;
+    @Column(name = "cmd_item_name")
     private String itemName;
+    @Column(name = "cmd_item_quantity")
     private Integer itemQuantity;
 }

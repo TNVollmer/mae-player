@@ -1,5 +1,6 @@
 package thkoeln.dungeon.monte.core.domainprimitives.command;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
@@ -23,16 +24,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Command {
-    @Column(name = "cmd_game_id")
-    private UUID gameId;
     @Column(name = "cmd_player_id")
     private UUID playerId;
-    @Column(name = "cmd_robot_id")
-    private UUID robotId;
+
     @Column(name = "cmd_type")
+    @JsonProperty("type")
     private CommandType commandType;
 
     @Embedded
+    @JsonProperty("data")
     private CommandObject commandObject;
 
 
@@ -40,7 +40,7 @@ public class Command {
         if ( robotId == null || planetId == null )
             throw new DomainPrimitiveException( "robotId == null || planetId == null" );
         Command command = new Command( CommandType.MOVEMENT, gameId, playerId );
-        command.setRobotId( robotId );
+        command.getCommandObject().setRobotId( robotId );
         command.getCommandObject().setPlanetId( planetId );
         return command;
     }
@@ -51,7 +51,7 @@ public class Command {
             throw new DomainPrimitiveException( "Item purchase: robotId == null || item == null || number < 0" );
         if ( number == 0 ) return null;
         Command command = new Command( CommandType.BUYING, gameId, playerId );
-        command.setRobotId( robotId );
+        command.getCommandObject().setRobotId( robotId );
         command.getCommandObject().setItemQuantity( number );
         command.getCommandObject().setItemName( item.name() );
         return command;
@@ -71,7 +71,7 @@ public class Command {
         if ( robotId == null || capability == null )
             throw new DomainPrimitiveException( "robotId == null || capability == null" );
         Command command = new Command( CommandType.BUYING, gameId, playerId );
-        command.setRobotId( robotId );
+        command.getCommandObject().setRobotId( robotId );
         command.getCommandObject().setItemName( capability.toStringForCommand() );
         return command;
     }
@@ -80,7 +80,7 @@ public class Command {
     public static Command createRegeneration( UUID robotId, UUID gameId, UUID playerId ) {
         if ( robotId == null ) throw new DomainPrimitiveException( "robotId == null " );
         Command command = new Command( CommandType.REGENERATE, gameId, playerId );
-        command.setRobotId( robotId );
+        command.getCommandObject().setRobotId( robotId );
         return command;
     }
 
@@ -89,7 +89,7 @@ public class Command {
         if ( robotId == null || planetId == null )
             throw new DomainPrimitiveException( "robotId == null || planetId == null" );
         Command command = new Command( CommandType.MINING, gameId, playerId );
-        command.setRobotId( robotId );
+        command.getCommandObject().setRobotId( robotId );
         command.getCommandObject().setPlanetId( planetId );
         return command;
     }
@@ -98,7 +98,7 @@ public class Command {
     public static Command createSelling(UUID robotId, UUID gameId, UUID playerId, MineableResource goods ) {
         if ( robotId == null ) throw new DomainPrimitiveException( "robotId == null " );
         Command command = new Command( CommandType.SELLING, gameId, playerId );
-        command.setRobotId( robotId );
+        command.getCommandObject().setRobotId( robotId );
         command.getCommandObject().setItemName( goods.getType().toString() );
         command.getCommandObject().setItemQuantity( goods.getAmount() );
         return command;
@@ -109,9 +109,7 @@ public class Command {
             throw new DomainPrimitiveException( "gameId == null || playerId == null || type == null" );
         setCommandObject( new CommandObject() );
         setCommandType( type );
-        getCommandObject().setCommandType( type );
         setPlayerId( playerId );
-        setGameId( gameId );
     }
 
 
@@ -125,7 +123,8 @@ public class Command {
     @Override
     public String toString() {
         String printString = commandType.name();
-        if ( robotId != null ) printString += " R:" + robotId.toString().substring( 0, 3 );
+        if ( commandObject != null && commandObject.getRobotId() != null )
+            printString += " R:" + commandObject.getRobotId().toString().substring( 0, 3 );
         if ( commandObject != null && commandObject.getPlanetId() != null )
             printString += " P:" + commandObject.getPlanetId().toString().substring( 0, 3 );
         if ( commandObject != null && commandObject.getItemName() != null )

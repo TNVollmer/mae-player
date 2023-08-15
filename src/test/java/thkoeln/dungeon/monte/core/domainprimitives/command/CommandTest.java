@@ -131,15 +131,6 @@ public class CommandTest {
     }
 
     @Test
-    public void testGameId() {
-        assertEquals( gameId, move.getGameId() );
-        assertEquals( gameId, item.getGameId() );
-        assertEquals( gameId, robot.getGameId() );
-        assertEquals( gameId, upgrade.getGameId() );
-        assertEquals( gameId, regen.getGameId() );
-    }
-
-    @Test
     public void testPlayerId() {
         assertEquals( playerId, move.getPlayerId() );
         assertEquals( playerId, item.getPlayerId() );
@@ -150,10 +141,10 @@ public class CommandTest {
 
     @Test
     public void testRobotId() {
-        assertEquals( robotId, move.getRobotId() );
-        assertEquals( robotId, item.getRobotId() );
-        assertEquals( robotId, upgrade.getRobotId() );
-        assertEquals( robotId, regen.getRobotId() );
+        assertEquals( robotId, move.getCommandObject().getRobotId() );
+        assertEquals( robotId, item.getCommandObject().getRobotId() );
+        assertEquals( robotId, upgrade.getCommandObject().getRobotId() );
+        assertEquals( robotId, regen.getCommandObject().getRobotId() );
     }
 
     @Test
