@@ -18,8 +18,6 @@ import thkoeln.dungeon.monte.robot.domain.RobotException;
 
 import java.util.UUID;
 
-import static java.lang.Boolean.TRUE;
-
 @Service
 public class RobotEventHandler {
     private Logger logger = LoggerFactory.getLogger(RobotEventHandler.class);
@@ -46,10 +44,10 @@ public class RobotEventHandler {
             case ROBOT_MOVED:
                 handleRobotMovedIntegrationEvent( (RobotMovedIntegrationEvent) event );
                 break;
-            case ROBOT_REGENERATED_INTEGRATION:
+            case ROBOT_REGENERATED:
                 robotApplicationService.regenerateRobotFromExternalEvent( (RobotRegeneratedIntegrationEvent) event );
                 break;
-            case ROBOT_RESOURCE_MINED_INTEGRATION:
+            case ROBOT_RESOURCE_MINED:
                 handleResourceMinedEvent( (RobotResourceMinedIntegrationEvent) event );
                 break;
             default:

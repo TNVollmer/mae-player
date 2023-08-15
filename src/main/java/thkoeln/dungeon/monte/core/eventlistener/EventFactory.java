@@ -47,13 +47,13 @@ public class EventFactory {
             case ROBOT_MOVED:
                 newEvent = new RobotMovedIntegrationEvent();
                 break;
-            case ROBOT_REGENERATED_INTEGRATION:
+            case ROBOT_REGENERATED:
                 newEvent = new RobotRegeneratedIntegrationEvent();
                 break;
-            case ROBOT_REVEALED_INTEGRATION:
+            case ROBOT_REVEALED:
                 newEvent = new RobotsRevealedIntegrationEvent();
                 break;
-            case ROBOT_RESOURCE_MINED_INTEGRATION:
+            case ROBOT_RESOURCE_MINED:
                 newEvent = new RobotResourceMinedIntegrationEvent();
                 break;
             case PLANET_DISCOVERED:

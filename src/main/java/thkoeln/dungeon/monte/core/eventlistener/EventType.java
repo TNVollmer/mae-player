@@ -9,10 +9,10 @@ public enum EventType {
     ROUND_STATUS( "round-status" ),
     TRADABLE_PRICES( "TradablePrices" ),
     ROBOT_SPAWNED( "RobotSpawned" ),
-    ROBOT_MOVED( "RobotMovedIntegrationEvent" ),
-    ROBOT_REGENERATED_INTEGRATION( "RobotRegeneratedIntegrationEvent" ),
-    ROBOT_REVEALED_INTEGRATION( "RobotsRevealedIntegrationEvent" ),
-    ROBOT_RESOURCE_MINED_INTEGRATION( "RobotResourceMinedIntegrationEvent" ),
+    ROBOT_MOVED( "RobotMoved" ),
+    ROBOT_REGENERATED( "RobotRegenerated" ),
+    ROBOT_REVEALED( "RobotsRevealed" ),
+    ROBOT_RESOURCE_MINED( "RobotResourceMined" ),
     PLANET_DISCOVERED( "PlanetDiscovered" ),
 
 
@@ -36,7 +36,7 @@ public enum EventType {
 
     public boolean isRobotRelated() {
         if ( this.equals( GAME_STATUS ) || this.equals( BANK_INITIALIZED ) || this.equals( ROUND_STATUS ) ||
-                this.equals( TRADABLE_PRICES ) || this.equals( ROBOT_REVEALED_INTEGRATION ) ||
+                this.equals( TRADABLE_PRICES ) || this.equals(ROBOT_REVEALED) ||
                 this.equals( BANK_ACCOUNT_TRANSACTION_BOOKED ) ||
                 this.equals( UNKNOWN ) || this.equals( ERROR ) )
             return false;

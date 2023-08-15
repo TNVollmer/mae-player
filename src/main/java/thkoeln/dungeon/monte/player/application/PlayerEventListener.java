@@ -123,7 +123,7 @@ public class PlayerEventListener {
             case TRADABLE_PRICES:
                 logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
                 break;
-            case ROBOT_REVEALED_INTEGRATION:
+            case ROBOT_REVEALED:
                 handleRobotsRevealedIntegrationEvent( (RobotsRevealedIntegrationEvent) event );
                 break;
             default:
