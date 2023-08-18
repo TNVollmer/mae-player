@@ -163,7 +163,7 @@ public class GameServiceRESTAdapter {
         try {
             PlayerJoinDto playerJoinDto =
                     restTemplate.execute( urlString, PUT, requestCallback(), playerJoinResponseExtractor() );
-            return playerJoinDto.getPlayerQueue();
+            return playerJoinDto.getPlayerExchange();
         }
         catch ( RestClientException e ) {
             logger.error( "Exception encountered in sendPutRequestToLetPlayerJoinGame" );

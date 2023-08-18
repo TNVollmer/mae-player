@@ -63,8 +63,7 @@ public class AbstractDungeonMockingIntegrationTest {
         playerRegistryDto = new PlayerRegistryDto();
 
         playerJoinDto = new PlayerJoinDto();
-        playerJoinDto.setPlayerQueue( "my_new_player_queue" );
-        playerJoinDto.setGameExchange( "whatever_game_exchange_may_be" );
+        playerJoinDto.setPlayerExchange( "my_new_player_queue" );
 
         gamesURI = new URI( gameServiceURIString + "/games" );
         createMockGameDtos();
