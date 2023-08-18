@@ -28,15 +28,13 @@ public class RobotRevealedDto {
     /**
      * Factory method for testing purposes
      * @param robotId
-     * @param planetId
      * @param playerShortName
      * @param enemyChar
      * @return
      */
-    public static RobotRevealedDto defaultsFor( UUID robotId, UUID planetId, String playerShortName, Character enemyChar ) {
+    public static RobotRevealedDto defaultsFor( UUID robotId, String playerShortName, Character enemyChar ) {
         RobotRevealedDto robotRevealedDto = new RobotRevealedDto();
         robotRevealedDto.setRobotId( robotId );
-        robotRevealedDto.setPlanetId( planetId );
         robotRevealedDto.setEnemyChar( enemyChar );
         robotRevealedDto.setPlayerNotion( playerShortName );
         robotRevealedDto.setHealth( DEFAULT_STRENGTH );

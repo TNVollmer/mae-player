@@ -10,7 +10,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
-import thkoeln.dungeon.monte.planet.domain.Planet;
 
 import javax.persistence.*;
 import java.util.List;
@@ -63,10 +62,6 @@ public class Robot {
     @Getter ( AccessLevel.PROTECTED )
     private final List<Capability> capabilities = Capability.allBaseCapabilities();
 
-    @ManyToOne
-    @Setter ( AccessLevel.PROTECTED )
-    private Planet location;
-
     public static Robot of( UUID robotId, RobotType type, UUID gameId, UUID playerId ) {
         if ( robotId == null ) throw new RobotException( "robotId == null" );
         Robot robot = new Robot();
@@ -102,24 +97,13 @@ public class Robot {
     }
 
 
-    public void verifyAndIfNeededUpdate( Planet updatedLocation, Energy updatedEnergy ) {
-        logger.debug( "Verify that robot " + this + " is really on planet " + updatedLocation +
-                ", with energy level " + updatedEnergy + "..." );
-        if ( updatedLocation == null || !updatedLocation.equals( location ) ) {
-            logger.warn( "Robot " + this + " should be on planet " + updatedLocation +
-                    ", but actually is on planet " + location + "!" );
-            moveToPlanet( updatedLocation );
-        }
+    public void verifyAndIfNeededUpdate( Energy updatedEnergy ) {
+        logger.debug( "Verify that robot has really energy level " + updatedEnergy + "..." );
+
         if ( updatedEnergy != null && !updatedEnergy.equals( this.energy ) ) {
             logger.warn( "Robot " + this + " should have " + updatedEnergy + ", but actually has " + energy + "!" );
             setEnergy( updatedEnergy );
         }
-    }
-
-    public void moveToPlanet( Planet newPlanet ) {
-        if ( newPlanet == null ) throw new RobotException( "newPlanet == null" );
-        setLocation( newPlanet );
-        newPlanet.setVisited( true );
     }
 
 

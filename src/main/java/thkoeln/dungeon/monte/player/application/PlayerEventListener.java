@@ -13,12 +13,8 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEv
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankAccountTransactionBookedEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
-import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
@@ -31,16 +27,12 @@ public class PlayerEventListener {
     private EventFactory eventFactory;
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
-    private PlanetEventHandler planetEventHandler;
-    private PlanetApplicationService planetApplicationService;
     private RobotEventHandler robotEventHandler;
     private RobotApplicationService robotApplicationService;
     @Autowired
     public PlayerEventListener( EventFactory eventFactory,
                                 GameApplicationService gameApplicationService,
                                 PlayerApplicationService playerApplicationService,
-                                PlanetEventHandler planetEventHandler,
-                                PlanetApplicationService planetApplicationService,
                                 RobotEventHandler robotEventHandler,
                                 RobotApplicationService robotApplicationService
     ) {
@@ -48,8 +40,6 @@ public class PlayerEventListener {
         this.gameApplicationService = gameApplicationService;
         this.playerApplicationService = playerApplicationService;
         this.robotEventHandler = robotEventHandler;
-        this.planetEventHandler = planetEventHandler;
-        this.planetApplicationService = planetApplicationService;
         this.robotApplicationService = robotApplicationService;
     }
 
@@ -83,7 +73,6 @@ public class PlayerEventListener {
                 return;
             }
             if ( eventHeader.getEventType().isRobotRelated() ) robotEventHandler.handleRobotRelatedEvent( newEvent );
-            else if ( eventHeader.getEventType().isPlanetRelated() ) planetEventHandler.handlePlanetRelatedEvent( newEvent);
             else handlePlayerRelatedEvent( newEvent );
         }
         catch ( Exception e ) {

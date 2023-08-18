@@ -1,7 +1,6 @@
 package thkoeln.dungeon.monte.robot.domain;
 
 import org.springframework.data.repository.CrudRepository;
-import thkoeln.dungeon.monte.planet.domain.Planet;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +15,4 @@ public interface RobotRepository extends CrudRepository<Robot, UUID> {
     public long count();
     public long countAllByEnemyCharIsNullAndAliveIs( boolean alive );
     public long countAllByTypeIs( RobotType type );
-    public List<Robot> findAllByLocationIsAndAliveIsTrue( Planet planetRobotIsLocatedOn );
 }

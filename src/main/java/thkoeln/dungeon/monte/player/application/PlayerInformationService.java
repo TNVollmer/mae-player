@@ -3,11 +3,9 @@ package thkoeln.dungeon.monte.player.application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
-import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.Game;
 import thkoeln.dungeon.monte.game.domain.GameRepository;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 

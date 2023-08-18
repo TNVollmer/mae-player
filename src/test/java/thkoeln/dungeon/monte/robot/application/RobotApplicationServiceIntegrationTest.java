@@ -10,8 +10,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotRevealedDto;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
-import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.application.RobotDtoMapper;
 import thkoeln.dungeon.monte.robot.domain.*;
 
@@ -25,7 +23,6 @@ import static thkoeln.dungeon.monte.robot.domain.RobotType.*;
 public class RobotApplicationServiceIntegrationTest {
     private Robot w1, m1, m2, s1, s2, s3, s4, eA, eB;
     private UUID gameId, playerId;
-    private Planet p1, p2, p3;
     private Energy energ15 = Energy.from( 15 );
     UUID newEnemyIdB, newEnemyIdC;
 
@@ -34,8 +31,6 @@ public class RobotApplicationServiceIntegrationTest {
 
     @Autowired
     private RobotRepository robotRepository;
-    @Autowired
-    private PlanetApplicationService planetApplicationService;
     @Autowired
     RobotDtoMapper robotDtoMapper;
 
@@ -58,14 +53,12 @@ public class RobotApplicationServiceIntegrationTest {
         initializeMockGameAndPlayer();
         initializeOwnRobots();
         initializeEnemyRobots();
-        initializePlanets();
     }
 
 
     private void initializeMockGameAndPlayer() {
         playerInformation = new MockPlayerInformation();
-        robotApplicationService = new RobotApplicationService( robotRepository, playerInformation,
-            planetApplicationService, robotDtoMapper );
+        robotApplicationService = new RobotApplicationService( robotRepository, playerInformation, robotDtoMapper );
         gameId = playerInformation.currentGameId();
         playerId = playerInformation.currentPlayerId();
     }
@@ -99,13 +92,6 @@ public class RobotApplicationServiceIntegrationTest {
         robotRepository.save( eB );
         newEnemyIdB = UUID.randomUUID();
         newEnemyIdC = UUID.randomUUID();
-    }
-
-
-    private void initializePlanets() {
-        p1 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 1 ) );
-        p2 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 2 ) );
-        p3 = planetApplicationService.addOrUpdatePlanet( UUID.randomUUID(), Energy.from( 3 ) );
     }
 
 
@@ -207,10 +193,10 @@ public class RobotApplicationServiceIntegrationTest {
         UUID robotId = UUID.randomUUID();
 
         // when
-        Robot robot = robotApplicationService.addNewOwnRobot( robotId, p1 );
+        Robot robot = robotApplicationService.addNewOwnRobot( robotId );
 
         // then
-        assertsForHealthyOwnRobot( robot, robotId, p1 );
+        assertsForHealthyOwnRobot( robot, robotId );
     }
 
 
@@ -219,10 +205,7 @@ public class RobotApplicationServiceIntegrationTest {
     @Test
     public void test_addNewOwnRobot_parameter_validation() {
         assertThrows( RobotException.class, () -> {
-            robotApplicationService.addNewOwnRobot( null, p1 );
-        });
-        assertThrows( RobotException.class, () -> {
-            robotApplicationService.addNewOwnRobot( UUID.randomUUID(), null );
+            robotApplicationService.addNewOwnRobot( null );
         });
     }
 
@@ -230,7 +213,7 @@ public class RobotApplicationServiceIntegrationTest {
     @Test
     public void test_addNewOwnRobot_no_double_robotId() {
         assertThrows( RobotException.class, () -> {
-            robotApplicationService.addNewOwnRobot( s1.getRobotId(), p1 );
+            robotApplicationService.addNewOwnRobot( s1.getRobotId() );
         });
     }
 
@@ -279,7 +262,7 @@ public class RobotApplicationServiceIntegrationTest {
         
         // when
         // then
-        assertsForHealthyOwnRobot( own, robotId, null );
+        assertsForHealthyOwnRobot( own, robotId );
     }
 
 
@@ -293,46 +276,7 @@ public class RobotApplicationServiceIntegrationTest {
 
         // when
         // then
-        assertsForHealthyEnemyRobot( enemy, robotId, 'B', null );
-    }
-
-
-    @Test
-    public void test_moveRobotToNewPlanet_parameter_validation() {
-        assertThrows( RobotException.class, () -> {
-            robotApplicationService.moveRobotToNewPlanet( null, p1, energ15 );
-        });
-        assertThrows( RobotException.class, () -> {
-            robotApplicationService.moveRobotToNewPlanet( w1.getRobotId(), null, energ15 );
-        });
-        assertThrows( RobotException.class, () -> {
-            robotApplicationService.moveRobotToNewPlanet( w1.getRobotId(), p2, null );
-        });
-    }
-
-
-
-    @Test
-    public void test_moveRobotToNewPlanet_null_when_robot_unknown() {
-        // given
-        // when
-        Robot robot = robotApplicationService.moveRobotToNewPlanet( UUID.randomUUID(), p2, energ15 );
-
-        // then
-        assertNull( robot );
-    }
-
-
-    @Test
-    public void test_moveRobotToNewPlanet_robot_properly_updated() {
-        // given
-        // when
-        Robot robot = robotApplicationService.moveRobotToNewPlanet( s2.getRobotId(), p2, energ15 );
-
-        // then
-        assertsForHealthyOwnRobot( robot, s2.getRobotId(), p2 );
-        assertEquals( s2, robot );
-        assertEquals( energ15, robot.getEnergy() );
+        assertsForHealthyEnemyRobot( enemy, robotId, 'B' );
     }
 
 
@@ -369,11 +313,9 @@ public class RobotApplicationServiceIntegrationTest {
         // then
         for ( Robot robot : enemies ) {
             if ( robot.getRobotId().equals( newEnemyIdB ) ) {
-                assertEquals( p1, robot.getLocation() );
                 assertEquals( 'B', robot.getEnemyChar() );
             }
             if ( robot.getRobotId().equals( newEnemyIdC ) ) {
-                assertEquals( p3, robot.getLocation() );
                 assertEquals( 'C', robot.getEnemyChar() );
             }
         }
@@ -394,50 +336,23 @@ public class RobotApplicationServiceIntegrationTest {
 
         // then
         assertEquals( w1, w1updated );
-        assertEquals( p1, w1updated.getLocation() );
 //        assertEquals( DEFAULT_STRENGTH, w1updated.getEnergy().getEnergyAmount() );
         assertFalse( w1updated.isEnemy() );
         // todo: test health and levels, once they are implemented
 
         assertEquals( s1, s1updated );
-        assertEquals( p3, s1updated.getLocation() );
 //        assertEquals( DEFAULT_STRENGTH, s1updated.getEnergy().getEnergyAmount() );
         assertFalse( s1updated.isEnemy() );
 
         assertEquals( eA, eAupdated );
-        assertEquals( p2, eAupdated.getLocation() );
 //        assertEquals( DEFAULT_STRENGTH, eAupdated.getEnergy().getEnergyAmount() );
         assertTrue( eAupdated.isEnemy() );
         assertEquals( 'A', eAupdated.getEnemyChar() );
 
         assertEquals( eB, eBupdated );
-        assertEquals( p3, eBupdated.getLocation() );
 //        assertEquals( DEFAULT_STRENGTH, eBupdated.getEnergy().getEnergyAmount() );
         assertTrue( eBupdated.isEnemy() );
         assertEquals( 'B', eBupdated.getEnemyChar() );
-    }
-
-
-    @Test
-    public void test_updateRobotsFromExternalEvent_correct_robots_on_planet() {
-        // given
-        RobotsRevealedEvent event = createRobotsRevealedEvent();
-
-        // when
-        robotApplicationService.updateRobotsFromExternalEvent(event);
-        List<Robot> p1robots  = robotApplicationService.livingRobotsOnPlanet( p1 );
-        List<Robot> p2robots  = robotApplicationService.livingRobotsOnPlanet( p2 );
-        List<Robot> p3robots  = robotApplicationService.livingRobotsOnPlanet( p3 );
-
-        // then
-        assertEquals( 2, p1robots.size() );
-        assertEquals( 1, p2robots.size() );
-        assertEquals( 3, p3robots.size() );
-
-        assertTrue( p1robots.contains( w1 ) );
-        assertTrue( p2robots.contains( eA ) );
-        assertTrue( p3robots.contains( s1 ) );
-        assertTrue( p3robots.contains( eB ) );
     }
 
 
@@ -445,19 +360,19 @@ public class RobotApplicationServiceIntegrationTest {
     private RobotsRevealedEvent createRobotsRevealedEvent() {
         RobotsRevealedEvent event = new RobotsRevealedEvent();
         RobotRevealedDto[] revealedDtos = new RobotRevealedDto[] {
-            RobotRevealedDto.defaultsFor( w1.getRobotId(), p1.getPlanetId(), null, null ),
-            RobotRevealedDto.defaultsFor( s1.getRobotId(), p3.getPlanetId(), null, null ),
-            RobotRevealedDto.defaultsFor( eA.getRobotId(), p2.getPlanetId(), null, 'A' ),
-            RobotRevealedDto.defaultsFor( eB.getRobotId(), p3.getPlanetId(), null, 'B' ),
-            RobotRevealedDto.defaultsFor( newEnemyIdB, p1.getPlanetId(), null, 'B' ),
-            RobotRevealedDto.defaultsFor( newEnemyIdC, p3.getPlanetId(), null, 'C' )
+            RobotRevealedDto.defaultsFor( w1.getRobotId(), null, null ),
+            RobotRevealedDto.defaultsFor( s1.getRobotId(), null, null ),
+            RobotRevealedDto.defaultsFor( eA.getRobotId(), null, 'A' ),
+            RobotRevealedDto.defaultsFor( eB.getRobotId(), null, 'B' ),
+            RobotRevealedDto.defaultsFor( newEnemyIdB, null, 'B' ),
+            RobotRevealedDto.defaultsFor( newEnemyIdC, null, 'C' )
         };
         event.setRobots( revealedDtos );
         return event;
     }
 
 
-    private void assertsForHealthyOwnRobot( Robot robot, UUID robotId, Planet planet ) {
+    private void assertsForHealthyOwnRobot( Robot robot, UUID robotId ) {
         // when
         List<Robot> robots = robotApplicationService.allLivingRobots();
 
@@ -469,11 +384,10 @@ public class RobotApplicationServiceIntegrationTest {
         assertTrue( robot.isAlive() );
         assertFalse( robot.isEnemy() );
         assertNull( robot.enemyChar() );
-        assertEquals( planet, robot.getLocation() );
     }
 
 
-    private void assertsForHealthyEnemyRobot( Robot robot, UUID robotId, Character enemyChar, Planet planet ) {
+    private void assertsForHealthyEnemyRobot( Robot robot, UUID robotId, Character enemyChar ) {
         // when
         List<Robot> robots = robotApplicationService.allLivingRobots();
 
@@ -485,6 +399,5 @@ public class RobotApplicationServiceIntegrationTest {
         assertTrue( robot.isAlive() );
         assertTrue( robot.isEnemy() );
         assertEquals( enemyChar, robot.enemyChar() );
-        assertEquals( planet, robot.getLocation() );
     }
 }

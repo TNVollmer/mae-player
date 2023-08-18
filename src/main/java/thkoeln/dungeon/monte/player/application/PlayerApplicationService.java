@@ -11,10 +11,8 @@ import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.Game;
-import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
@@ -41,7 +39,6 @@ public class PlayerApplicationService {
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
     private RobotApplicationService robotApplicationService;
-    private PlanetApplicationService planetApplicationService;
     private RabbitAdmin rabbitAdmin;
 
 
@@ -60,7 +57,6 @@ public class PlayerApplicationService {
             GameServiceRESTAdapter gameServiceRESTAdapter,
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
             RobotApplicationService robotApplicationService,
-            PlanetApplicationService planetApplicationService,
             RabbitAdmin rabbitAdmin
     ) {
         this.playerRepository = playerRepository;
@@ -68,7 +64,6 @@ public class PlayerApplicationService {
         this.gameApplicationService = gameApplicationService;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
         this.robotApplicationService = robotApplicationService;
-        this.planetApplicationService = planetApplicationService;
         this.rabbitAdmin = rabbitAdmin;
     }
 
@@ -210,7 +205,6 @@ public class PlayerApplicationService {
         player.setGameId( null );
         playerRepository.save( player );
         robotApplicationService.cleanupAfterFinishingGame();
-        planetApplicationService.cleanupAfterFinishingGame();
         logger.info( "Cleaned up after finishing game." );
     }
 
