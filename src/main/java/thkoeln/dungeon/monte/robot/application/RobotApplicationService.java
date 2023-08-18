@@ -16,8 +16,6 @@ import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.application.RobotDtoMapper;
 import thkoeln.dungeon.monte.robot.domain.*;
-import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
-import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,18 +30,15 @@ public class RobotApplicationService {
     private RobotRepository robotRepository;
     private PlayerInformation playerInformation;
     private PlanetApplicationService planetApplicationService;
-    private TradingAccountApplicationService tradingAccountApplicationService;
     private RobotDtoMapper robotDtoMapper;
 
     @Autowired
     public RobotApplicationService( RobotRepository robotRepository,
                                     PlayerInformation playerInformation,
-                                    TradingAccountApplicationService tradingAccountApplicationService,
                                     PlanetApplicationService planetApplicationService,
                                     RobotDtoMapper robotDtoMapper ) {
         this.robotRepository = robotRepository;
         this.playerInformation = playerInformation;
-        this.tradingAccountApplicationService = tradingAccountApplicationService;
         this.planetApplicationService = planetApplicationService;
         this.robotDtoMapper = robotDtoMapper;
     }
@@ -227,27 +222,6 @@ public class RobotApplicationService {
         if ( planet == null ) return new ArrayList<>();
         List<Robot> robotsOnPlanet = robotRepository.findAllByLocationIsAndAliveIsTrue( planet );
         return robotsOnPlanet;
-    }
-
-
-    public void decideAllRobotCommands() {
-        List<Robot> robots = allLivingRobots();
-        TradingAccount tradingAccount = tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
-        for ( Robot robot : robots ) {
-            robotRepository.save( robot );
-            planetApplicationService.save( robot.getLocation() );
-        }
-        tradingAccountApplicationService.save( tradingAccount );
-    }
-
-
-    public List<Command> currentRobotCommands() {
-        List<Robot> robots = allLivingRobots();
-        List<Command> commands = new ArrayList<>();
-        for ( Robot robot : robots ) {
-            if ( robot.getRecentCommand() != null ) commands.add( robot.getRecentCommand() );
-        }
-        return commands;
     }
 
 }

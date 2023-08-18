@@ -20,7 +20,6 @@ import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
-import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +40,6 @@ public class PlayerApplicationService {
     private GameApplicationService gameApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
-    private TradingAccountApplicationService tradingAccountApplicationService;
     private RobotApplicationService robotApplicationService;
     private PlanetApplicationService planetApplicationService;
     private RabbitAdmin rabbitAdmin;
@@ -61,7 +59,6 @@ public class PlayerApplicationService {
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
-            TradingAccountApplicationService tradingAccountApplicationService,
             RobotApplicationService robotApplicationService,
             PlanetApplicationService planetApplicationService,
             RabbitAdmin rabbitAdmin
@@ -70,7 +67,6 @@ public class PlayerApplicationService {
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
-        this.tradingAccountApplicationService = tradingAccountApplicationService;
         this.robotApplicationService = robotApplicationService;
         this.planetApplicationService = planetApplicationService;
         this.rabbitAdmin = rabbitAdmin;
@@ -216,18 +212,6 @@ public class PlayerApplicationService {
         robotApplicationService.cleanupAfterFinishingGame();
         planetApplicationService.cleanupAfterFinishingGame();
         logger.info( "Cleaned up after finishing game." );
-    }
-
-    /**
-     * @param playerId
-     * @param creditBalanceAsInt
-     */
-    public void adjustBankAccount( UUID playerId, Integer creditBalanceAsInt ) {
-        logger.info( "Adjust bank account to " + creditBalanceAsInt );
-        Money newCreditBalance = Money.from( creditBalanceAsInt );
-        Player player = queryAndIfNeededCreatePlayer();
-        tradingAccountApplicationService.updateCreditBalance( newCreditBalance );
-        playerRepository.save( player );
     }
 
     /**

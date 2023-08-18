@@ -12,7 +12,6 @@ import thkoeln.dungeon.monte.game.domain.GameRepository;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.core.restadapter.GameDto;
 import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +21,6 @@ public class GameApplicationService {
     private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private Environment environment;
-    private TradingAccountApplicationService tradingAccountApplicationService;
 
     private Logger logger = LoggerFactory.getLogger( GameApplicationService.class );
     ModelMapper modelMapper = new ModelMapper();
@@ -30,12 +28,10 @@ public class GameApplicationService {
     @Autowired
     public GameApplicationService( GameRepository gameRepository,
                                    GameServiceRESTAdapter gameServiceRESTAdapter,
-                                   Environment environment,
-                                   TradingAccountApplicationService tradingAccountApplicationService ) {
+                                   Environment environment ) {
         this.gameRepository = gameRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.environment = environment;
-        this.tradingAccountApplicationService = tradingAccountApplicationService;
     }
 
 

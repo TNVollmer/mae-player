@@ -101,17 +101,6 @@ public class PlayerEventListener {
             case GAME_STATUS:
                 handleGameStatusEvent( (GameStatusEvent) event );
                 break;
-            case BANK_INITIALIZED:
-                BankInitializedEvent bankInitializedEvent = (BankInitializedEvent) event;
-                playerApplicationService.adjustBankAccount(
-                        bankInitializedEvent.getPlayerId(), bankInitializedEvent.getBalance() );
-                break;
-            case BANK_ACCOUNT_TRANSACTION_BOOKED:
-                BankAccountTransactionBookedEvent transactionBookedEvent =
-                        (BankAccountTransactionBookedEvent) event;
-                playerApplicationService.adjustBankAccount(
-                        transactionBookedEvent.getPlayerId(), transactionBookedEvent.getBalance() );
-                break;
             case ROUND_STATUS:
                 handleRoundStatusEvent( (RoundStatusEvent) event );
                 break;

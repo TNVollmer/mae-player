@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotRevealedDto;
@@ -15,7 +14,6 @@ import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.application.RobotDtoMapper;
 import thkoeln.dungeon.monte.robot.domain.*;
-import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,8 +36,6 @@ public class RobotApplicationServiceIntegrationTest {
     private RobotRepository robotRepository;
     @Autowired
     private PlanetApplicationService planetApplicationService;
-    @Autowired
-    TradingAccountApplicationService tradingAccountApplicationService;
     @Autowired
     RobotDtoMapper robotDtoMapper;
 
@@ -69,7 +65,7 @@ public class RobotApplicationServiceIntegrationTest {
     private void initializeMockGameAndPlayer() {
         playerInformation = new MockPlayerInformation();
         robotApplicationService = new RobotApplicationService( robotRepository, playerInformation,
-                tradingAccountApplicationService, planetApplicationService, robotDtoMapper );
+            planetApplicationService, robotDtoMapper );
         gameId = playerInformation.currentGameId();
         playerId = playerInformation.currentPlayerId();
     }
