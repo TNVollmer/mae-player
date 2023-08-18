@@ -6,14 +6,13 @@ import lombok.Setter;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableItem;
-import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Getter
-public class TradingAccount implements AccountInformation {
+public class TradingAccount {
     @Id
     @Setter( AccessLevel.PROTECTED )
     private final UUID id = UUID.randomUUID();
@@ -34,22 +33,5 @@ public class TradingAccount implements AccountInformation {
 
     public void updatePrices( List<TradeableItem> tradeableItems ) {
         // currently not really needed - all hard coded
-    }
-
-    @Override
-    public int canBuyThatManyRobotsWith( float shareOfCreditBalance  ) {
-        if ( shareOfCreditBalance < 0f || shareOfCreditBalance > 1f )
-            throw new TradingException( "shareOfCreditBalance < 0f || shareOfCreditBalance > 1f" );
-        return ((int) (creditBalance.getAmount() * shareOfCreditBalance)) / 100;
-    }
-
-
-    @Override
-    public void payForCommand( Command command ) {
-        // todo - currently only robots, therefore still hardcoded, but this is of course temporary
-        if ( command != null && command.isRobotPurchase() ) {
-            Money amountDue = Money.from( command.getCommandObject().getItemQuantity() * 100 );
-
-        }
     }
 }

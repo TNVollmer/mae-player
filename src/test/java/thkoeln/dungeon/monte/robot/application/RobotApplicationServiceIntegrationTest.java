@@ -42,12 +42,6 @@ public class RobotApplicationServiceIntegrationTest {
     TradingAccountApplicationService tradingAccountApplicationService;
     @Autowired
     RobotDtoMapper robotDtoMapper;
-    @Autowired @Qualifier( "warriorStrategy" )
-    AbstractRobotStrategy warriorStrategy;
-    @Autowired @Qualifier( "scoutStrategy" )
-    AbstractRobotStrategy scoutStrategy;
-    @Autowired @Qualifier( "minerStrategy" )
-    AbstractRobotStrategy minerStrategy;
 
     protected class MockPlayerInformation implements PlayerInformation {
         @Override
@@ -75,8 +69,7 @@ public class RobotApplicationServiceIntegrationTest {
     private void initializeMockGameAndPlayer() {
         playerInformation = new MockPlayerInformation();
         robotApplicationService = new RobotApplicationService( robotRepository, playerInformation,
-                tradingAccountApplicationService, planetApplicationService, robotDtoMapper,
-                warriorStrategy, scoutStrategy, minerStrategy );
+                tradingAccountApplicationService, planetApplicationService, robotDtoMapper );
         gameId = playerInformation.currentGameId();
         playerId = playerInformation.currentPlayerId();
     }
@@ -474,7 +467,6 @@ public class RobotApplicationServiceIntegrationTest {
 
         // then
         assertTrue( robots.contains( robot ) );
-        assertNotNull( robot.getStrategy() );
         assertEquals(robotId, robot.getRobotId() );
         assertEquals( gameId, robot.getGameId() );
         assertEquals( playerId, robot.getPlayerId() );

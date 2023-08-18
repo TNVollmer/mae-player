@@ -10,7 +10,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
-import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 
 import javax.persistence.*;
@@ -24,7 +23,7 @@ import static thkoeln.dungeon.monte.core.domainprimitives.location.MineableResou
 @Getter
 @Setter
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
-public class Robot implements ActionableRobot {
+public class Robot {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Robot.class );
 
@@ -59,9 +58,6 @@ public class Robot implements ActionableRobot {
 
     private boolean alive = true;
     private Character enemyChar = null;
-
-    @Transient
-    AbstractRobotStrategy strategy;
 
     @ElementCollection( fetch = FetchType.EAGER )
     @Getter ( AccessLevel.PROTECTED )
@@ -149,130 +145,6 @@ public class Robot implements ActionableRobot {
         if ( !load.equals( updatedInventory ) )
             logger.warn( this + ": I thought I had " + load + ", but actually event tells me " + updatedInventory );
         logger.info( this + ": Updated inventory after mining: " + load );
-    }
-
-
-    @Override
-    public Command decideNextCommand( AccountInformation accountInformation ) {
-        Command nextCommand = null;
-        if ( strategy == null ) {
-            logger.error( "No strategy set for robot " + this + ", can't decide on a command." );
-        }
-        else {
-            nextCommand = strategy.findNextCommand( this, accountInformation );
-            logger.info( "Decided on command " + nextCommand + " for robot " + this );
-        }
-        setRecentCommand( nextCommand );
-        return nextCommand;
-    }
-
-
-    @Override
-    public Command regenerateIfLowAndNotAttacked() {
-        if ( energy.lowerThanPercentage( 20, maxEnergy ) ) {
-            Command command = Command.createRegeneration( robotId, gameId, playerId );
-            return command;
-        }
-        return null;
-    }
-
-
-    @Override
-    public Command fleeIfAttacked() {
-        return null;
-    }
-
-
-    @Override
-    public Command mineIfNotMinedLastRound() {
-        return null;
-    }
-
-
-    @Override
-    public Command mine() {
-        if ( location == null ) throw new RobotException( "mine: location == null" );
-        MineableResource resource = location.getMineableResource();
-        if ( resource != null && resource.getType() == COAL ) {
-            Command command = Command.createMining( robotId, location.getPlanetId(), gameId, playerId );
-            return command;
-        }
-        return null;
-    }
-
-
-    @Override
-    public Command sellMineableResources() {
-        if ( load != null && load.getAmount() >= 10 ) {
-            Command command = Command.createSelling( robotId, gameId, playerId, load );
-            setLoad( null );
-            return command;
-        }
-        return null;
-    }
-
-    @Override
-    public Command moveRandomlyToUnexploredPlanet() {
-        if ( location == null ) throw new RobotException( "moveRandomlyToUnexploredPlanet: location == null" );
-        if ( energy.greaterEqualThan( location.getMovementDifficulty() ) ) {
-            Planet target = location.findUnvisitedNeighbourOrAnyIfAllVisited();
-            if ( target == null ) return null;
-            Command command = Command.createMove( robotId, target.getPlanetId(), gameId, playerId );
-            setEnergy( energy.decreaseBy( location.getMovementDifficulty() ) );
-            moveToPlanet( target );
-            return command;
-        }
-        // not sufficient energy to createMove => no command
-        return null;
-    }
-
-
-    @Override
-    public Command moveRandomly() {
-        // todo: implement, this is just a placeholder
-        return moveRandomlyToUnexploredPlanet();
-    }
-
-
-    @Override
-    public Command moveIfNotOnFittingResource() {
-        if ( location == null ) throw new RobotException( "moveIfNotOnFittingResource: location == null" );
-        MineableResource resource = location.getMineableResource();
-        if ( resource == null || resource.getType() != COAL ) return moveRandomlyToUnexploredPlanet();
-        return null;
-    }
-
-
-    @Override
-    public Command moveIfOptimalResourceNearby() {
-        // todo: implement, this is just a placeholder
-        return moveRandomlyToUnexploredPlanet();
-    }
-
-
-    @Override
-    public Command moveIfOpponentNearby() {
-        // todo: implement, this is just a placeholder
-        return moveRandomlyToUnexploredPlanet();
-    }
-
-
-    @Override
-    public Command upgrade(AccountInformation accountInformation) {
-        return null;
-    }
-
-
-    @Override
-    public Command attack() {
-        return null;
-    }
-
-
-    @Override
-    public Command regenerate() {
-        Command command = Command.createRegeneration( robotId, gameId, playerId );
-        return command;
     }
 
 

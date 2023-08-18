@@ -3,7 +3,6 @@ package thkoeln.dungeon.monte.player.application;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.ExchangeBuilder;
 import org.springframework.amqp.core.QueueBuilder;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -12,7 +11,6 @@ import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.Game;
@@ -20,11 +18,9 @@ import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
-import thkoeln.dungeon.monte.player.domain.PlayerStrategy;
 import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
-import thkoeln.dungeon.monte.trading.domain.TradingAccount;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +44,6 @@ public class PlayerApplicationService {
     private TradingAccountApplicationService tradingAccountApplicationService;
     private RobotApplicationService robotApplicationService;
     private PlanetApplicationService planetApplicationService;
-    private PlayerStrategy playerStrategy;
     private RabbitAdmin rabbitAdmin;
 
 
@@ -69,7 +64,6 @@ public class PlayerApplicationService {
             TradingAccountApplicationService tradingAccountApplicationService,
             RobotApplicationService robotApplicationService,
             PlanetApplicationService planetApplicationService,
-            PlayerStrategy playerStrategy,
             RabbitAdmin rabbitAdmin
     ) {
         this.playerRepository = playerRepository;
@@ -78,7 +72,6 @@ public class PlayerApplicationService {
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
         this.tradingAccountApplicationService = tradingAccountApplicationService;
         this.robotApplicationService = robotApplicationService;
-        this.playerStrategy = playerStrategy;
         this.planetApplicationService = planetApplicationService;
         this.rabbitAdmin = rabbitAdmin;
     }
@@ -99,7 +92,6 @@ public class PlayerApplicationService {
             playerRepository.save( player );
             logger.info( "Created new player (not yet registered): " + player );
         }
-        player.setStrategy( playerStrategy );
         return player;
     }
 
@@ -270,24 +262,6 @@ public class PlayerApplicationService {
         int numberOfEnemies = playerRepository.countAllByEnemyCharIsNotNull();
         Character c = Character.valueOf( (char) (INDEX_FOR_A_IN_ASCII_TABLE + numberOfEnemies) );
         return c;
-    }
-
-
-    public void submitRoundCommands() {
-        logger.info( "Define and then submit commands ..." );
-        Player player = queryAndIfNeededCreatePlayer();
-        TradingAccount tradingAccount = tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
-        Command playerCommand = player.decideNextCommand( tradingAccount );
-        tradingAccountApplicationService.save( tradingAccount );
-        robotApplicationService.decideAllRobotCommands();
-        List<Command> allCommands = robotApplicationService.currentRobotCommands();
-        if ( playerCommand != null ) allCommands.add( playerCommand );
-
-        Game currentGame = gameApplicationService.queryActiveGame();
-        if ( currentGame != null && currentGame.getGameStatus().isRunning() ) {
-            for ( Command command : allCommands ) gameServiceRESTAdapter.sendPostRequestForCommand( command );
-        }
-        logger.info( "Sent " + allCommands.size() + " commands!" );
     }
 
 }

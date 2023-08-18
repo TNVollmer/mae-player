@@ -8,9 +8,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
-import thkoeln.dungeon.monte.core.strategy.AccountInformation;
-import thkoeln.dungeon.monte.core.strategy.Actionable;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.TradeablePricesEvent;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -20,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter( AccessLevel.PROTECTED )
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
-public class Player implements ActionablePlayer, Actionable {
+public class Player {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Player.class );
 
@@ -46,10 +43,6 @@ public class Player implements ActionablePlayer, Actionable {
     @Setter( AccessLevel.PUBLIC )
     private Character enemyChar;
     private Command recentCommand;
-
-    @Transient
-    @Setter( AccessLevel.PUBLIC )
-    PlayerStrategy strategy;
 
     @Setter( AccessLevel.PUBLIC )
     private String playerExchange;
@@ -108,35 +101,6 @@ public class Player implements ActionablePlayer, Actionable {
         if ( playerId != null && enemyShortName == null && playerId.toString().substring( 0, 8 ).equals( shortName ) )
             return true;
         return false;
-    }
-
-
-    @Override
-    public Command decideNextCommand( AccountInformation accountInformation ) {
-        Command nextCommand = null;
-        if ( strategy == null ) {
-            logger.error( "No strategy set for Player! Can't decide on a command." );
-        }
-        else {
-            nextCommand = strategy.findNextCommand( this, accountInformation );
-            logger.info( "Decided on command " + nextCommand + " for player." );
-        }
-        setRecentCommand( nextCommand );
-        return nextCommand;
-    }
-
-
-    @Override
-    public Command buyRobots( AccountInformation accountInformation ) {
-        int numOfNewRobots = accountInformation.canBuyThatManyRobotsWith( SHARE_OF_CREDIT_BALANCE_FOR_NEW_ROBOTS );
-        logger.info( "Can buy " + numOfNewRobots + " robots ..." );
-        Command command = Command.createRobotPurchase( numOfNewRobots, getGameId(), getPlayerId() );
-        return command;
-    }
-
-
-    private void handleTradablePricesEvent( TradeablePricesEvent event ) {
-        logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
     }
 
 

@@ -11,7 +11,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotRevealedDto;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
-import thkoeln.dungeon.monte.core.strategy.AbstractStrategy;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
@@ -36,25 +35,17 @@ public class RobotApplicationService {
     private TradingAccountApplicationService tradingAccountApplicationService;
     private RobotDtoMapper robotDtoMapper;
 
-    private AbstractRobotStrategy warriorStrategy, scoutStrategy, minerStrategy;
-
     @Autowired
     public RobotApplicationService( RobotRepository robotRepository,
                                     PlayerInformation playerInformation,
                                     TradingAccountApplicationService tradingAccountApplicationService,
                                     PlanetApplicationService planetApplicationService,
-                                    RobotDtoMapper robotDtoMapper,
-                                    @Qualifier( "warriorStrategy" ) AbstractRobotStrategy warriorStrategy,
-                                    @Qualifier( "scoutStrategy" ) AbstractRobotStrategy scoutStrategy,
-                                    @Qualifier( "minerStrategy" ) AbstractRobotStrategy minerStrategy ) {
+                                    RobotDtoMapper robotDtoMapper ) {
         this.robotRepository = robotRepository;
         this.playerInformation = playerInformation;
         this.tradingAccountApplicationService = tradingAccountApplicationService;
         this.planetApplicationService = planetApplicationService;
         this.robotDtoMapper = robotDtoMapper;
-        this.warriorStrategy = warriorStrategy;
-        this.scoutStrategy = scoutStrategy;
-        this.minerStrategy = minerStrategy;
     }
 
 
@@ -78,7 +69,7 @@ public class RobotApplicationService {
         robot.moveToPlanet( planet );
         robotRepository.save( robot );
         logger.debug( "Added robot " + robot );
-        return withStrategy( robot );
+        return robot;
     }
 
 
@@ -100,7 +91,7 @@ public class RobotApplicationService {
                     (enemyChar != null) + ", found " + robot.isEnemy() + "!" );
             if ( robot.isEnemy() && ( enemyChar != robot.enemyChar() ) )
                 throw new RobotException( "Enemy robot has char " + robot.enemyChar() + ", expected " + enemyChar );
-            return withStrategy( robot );
+            return robot;
         }
         if ( enemyChar == null ) {
             RobotType robotType = nextRobotTypeAccordingToQuota();
@@ -112,7 +103,7 @@ public class RobotApplicationService {
         }
         robotRepository.save( robot );
         logger.debug( "Added robot " + robot );
-        return withStrategy( robot );
+        return robot;
     }
 
 
@@ -144,7 +135,7 @@ public class RobotApplicationService {
         robot.verifyAndIfNeededUpdate( planet, updatedEnergy );
         robotRepository.save( robot );
         planetApplicationService.save( robot.getLocation() );
-        return withStrategy( robot );
+        return robot;
     }
 
 
@@ -162,7 +153,7 @@ public class RobotApplicationService {
         Robot robot = perhapsRobot.get();
         robot.updateEnergy( Energy.from( event.getAvailableEnergy() ) );
         robotRepository.save( robot );
-        return withStrategy( robot );
+        return robot;
     }
 
 
@@ -206,7 +197,6 @@ public class RobotApplicationService {
      */
     public List<Robot> allLivingRobots() {
         List<Robot> robots = robotRepository.findAllByAliveEquals( true );
-        robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robots;
     }
 
@@ -216,7 +206,6 @@ public class RobotApplicationService {
      */
     public List<Robot> allLivingOwnRobots() {
         List<Robot> robots = robotRepository.findAllByEnemyCharIsNullAndAliveEqualsOrderByType( true );
-        robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robots;
     }
 
@@ -226,7 +215,6 @@ public class RobotApplicationService {
      */
     public List<Robot> allLivingEnemyRobots() {
         List<Robot> robots = robotRepository.findAllByEnemyCharIsNotNullAndAliveEqualsOrderByEnemyChar( true );
-        robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robots;
     }
 
@@ -238,7 +226,6 @@ public class RobotApplicationService {
     public List<Robot> livingRobotsOnPlanet( Planet planet ) {
         if ( planet == null ) return new ArrayList<>();
         List<Robot> robotsOnPlanet = robotRepository.findAllByLocationIsAndAliveIsTrue( planet );
-        robotsOnPlanet.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robotsOnPlanet;
     }
 
@@ -246,7 +233,6 @@ public class RobotApplicationService {
     public void decideAllRobotCommands() {
         List<Robot> robots = allLivingRobots();
         TradingAccount tradingAccount = tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
-        AbstractStrategy.findNextCommandsForGroup( robots, tradingAccount );
         for ( Robot robot : robots ) {
             robotRepository.save( robot );
             planetApplicationService.save( robot.getLocation() );
@@ -262,22 +248,6 @@ public class RobotApplicationService {
             if ( robot.getRecentCommand() != null ) commands.add( robot.getRecentCommand() );
         }
         return commands;
-    }
-
-
-    private AbstractRobotStrategy getStrategyFor( Robot robot ) {
-        if ( robot == null || robot.isEnemy() ) return null;
-        RobotType robotType = robot.getType();
-        AbstractRobotStrategy strategy = SCOUT.equals( robotType ) ? scoutStrategy :
-                MINER.equals( robotType ) ? minerStrategy : warriorStrategy;
-        return strategy;
-    }
-
-    private Robot withStrategy( Robot robot ) {
-        if ( robot == null ) throw new RobotException( "robot == null" );
-        AbstractRobotStrategy strategy = getStrategyFor( robot );
-        robot.setStrategy( strategy );
-        return robot;
     }
 
 }
