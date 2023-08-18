@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetDiscoveredEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.mine.RobotResourceMinedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.mine.RobotResourceMinedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankAccountTransactionBookedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
@@ -45,16 +45,16 @@ public class EventFactory {
                 newEvent = new RobotSpawnedEvent();
                 break;
             case ROBOT_MOVED:
-                newEvent = new RobotMovedIntegrationEvent();
+                newEvent = new RobotMovedEvent();
                 break;
             case ROBOT_REGENERATED:
-                newEvent = new RobotRegeneratedIntegrationEvent();
+                newEvent = new RobotRegeneratedEvent();
                 break;
             case ROBOT_REVEALED:
-                newEvent = new RobotsRevealedIntegrationEvent();
+                newEvent = new RobotsRevealedEvent();
                 break;
             case ROBOT_RESOURCE_MINED:
-                newEvent = new RobotResourceMinedIntegrationEvent();
+                newEvent = new RobotResourceMinedEvent();
                 break;
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();

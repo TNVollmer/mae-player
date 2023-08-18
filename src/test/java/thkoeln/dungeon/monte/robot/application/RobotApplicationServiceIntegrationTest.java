@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotRevealedDto;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.application.RobotDtoMapper;
-import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.domain.*;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotRevealedDto.DEFAULT_STRENGTH;
 import static thkoeln.dungeon.monte.robot.domain.RobotType.*;
 
 @SpringBootTest
@@ -352,7 +350,7 @@ public class RobotApplicationServiceIntegrationTest {
     @Test
     public void test_updateRobotsFromExternalEvent_numbers_are_correct() {
         // given
-        RobotsRevealedIntegrationEvent event = createRobotsRevealedEvent();
+        RobotsRevealedEvent event = createRobotsRevealedEvent();
         int totalNumOfRobotsBefore = robotApplicationService.allLivingRobots().size();
         int numOfOwnRobotsBefore = robotApplicationService.allLivingOwnRobots().size();
         int numOfEnemiesBefore = robotApplicationService.allLivingEnemyRobots().size();
@@ -373,7 +371,7 @@ public class RobotApplicationServiceIntegrationTest {
     @Test
     public void test_updateRobotsFromExternalEvent_new_robots() {
         // given
-        RobotsRevealedIntegrationEvent event = createRobotsRevealedEvent();
+        RobotsRevealedEvent event = createRobotsRevealedEvent();
 
         // when
         robotApplicationService.updateRobotsFromExternalEvent( event );
@@ -396,7 +394,7 @@ public class RobotApplicationServiceIntegrationTest {
     @Test
     public void test_updateRobotsFromExternalEvent_existing_robots() {
         // given
-        RobotsRevealedIntegrationEvent event = createRobotsRevealedEvent();
+        RobotsRevealedEvent event = createRobotsRevealedEvent();
 
         // when
         robotApplicationService.updateRobotsFromExternalEvent( event );
@@ -434,7 +432,7 @@ public class RobotApplicationServiceIntegrationTest {
     @Test
     public void test_updateRobotsFromExternalEvent_correct_robots_on_planet() {
         // given
-        RobotsRevealedIntegrationEvent event = createRobotsRevealedEvent();
+        RobotsRevealedEvent event = createRobotsRevealedEvent();
 
         // when
         robotApplicationService.updateRobotsFromExternalEvent(event);
@@ -455,8 +453,8 @@ public class RobotApplicationServiceIntegrationTest {
 
 
     @NotNull
-    private RobotsRevealedIntegrationEvent createRobotsRevealedEvent() {
-        RobotsRevealedIntegrationEvent event = new RobotsRevealedIntegrationEvent();
+    private RobotsRevealedEvent createRobotsRevealedEvent() {
+        RobotsRevealedEvent event = new RobotsRevealedEvent();
         RobotRevealedDto[] revealedDtos = new RobotRevealedDto[] {
             RobotRevealedDto.defaultsFor( w1.getRobotId(), p1.getPlanetId(), null, null ),
             RobotRevealedDto.defaultsFor( s1.getRobotId(), p3.getPlanetId(), null, null ),

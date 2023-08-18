@@ -10,7 +10,7 @@ import java.util.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RobotsRevealedIntegrationEvent extends AbstractEvent {
+public class RobotsRevealedEvent extends AbstractEvent {
     private RobotRevealedDto[] robots;
 
     @Override

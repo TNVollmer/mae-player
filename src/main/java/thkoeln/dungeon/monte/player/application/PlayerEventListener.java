@@ -12,7 +12,7 @@ import thkoeln.dungeon.monte.core.eventlistener.EventHeader;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.RoundStatusType;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankAccountTransactionBookedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
@@ -119,7 +119,7 @@ public class PlayerEventListener {
                 logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
                 break;
             case ROBOT_REVEALED:
-                handleRobotsRevealedIntegrationEvent( (RobotsRevealedIntegrationEvent) event );
+                handleRobotsRevealedIntegrationEvent( (RobotsRevealedEvent) event );
                 break;
             default:
         }
@@ -149,7 +149,7 @@ public class PlayerEventListener {
     }
 
 
-    private void handleRobotsRevealedIntegrationEvent( RobotsRevealedIntegrationEvent event ) {
+    private void handleRobotsRevealedIntegrationEvent( RobotsRevealedEvent event ) {
         logger.info( "Handling RobotsRevealedIntegrationEvent - player aspects ..." );
         Set<String> playerShortNames = event.playerShortNames();
         for ( String playerShortName : playerShortNames ) {

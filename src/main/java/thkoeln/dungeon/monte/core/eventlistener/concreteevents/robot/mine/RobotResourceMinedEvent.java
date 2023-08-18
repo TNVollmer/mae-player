@@ -6,14 +6,13 @@ import lombok.Setter;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovePlanetDto;
 
 import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class RobotResourceMinedIntegrationEvent extends AbstractEvent {
+public class RobotResourceMinedEvent extends AbstractEvent {
     private UUID robotId;
     private int minedAmount = 0;
     private String minedResource;

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotRevealedDto;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.monte.core.strategy.AbstractStrategy;
 import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
@@ -152,7 +152,7 @@ public class RobotApplicationService {
      * Move a robot to a new planet as a result of a movement event
      * @param event
      */
-    public Robot regenerateRobotFromExternalEvent( RobotRegeneratedIntegrationEvent event ) {
+    public Robot regenerateRobotFromExternalEvent( RobotRegeneratedEvent event ) {
         logger.info( "Regenerate robot as reaction to event ..." );
         Optional<Robot> perhapsRobot = robotRepository.findByRobotId( event.getRobotId() );
         if ( !perhapsRobot.isPresent() ) {
@@ -167,7 +167,7 @@ public class RobotApplicationService {
 
 
 
-    public void updateRobotsFromExternalEvent( RobotsRevealedIntegrationEvent event ) {
+    public void updateRobotsFromExternalEvent( RobotsRevealedEvent event ) {
         logger.info( "Update all robots from event ..." );
         for ( RobotRevealedDto robotRevealedDto : event.getRobots() ) {
             Robot robot = queryAndIfNeededAddRobot( robotRevealedDto.getRobotId(), robotRevealedDto.getEnemyChar() );

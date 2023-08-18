@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RobotRegeneratedIntegrationEvent  extends AbstractEvent {
+public class RobotRegeneratedEvent extends AbstractEvent {
     private UUID robotId;
     private Integer availableEnergy;
 

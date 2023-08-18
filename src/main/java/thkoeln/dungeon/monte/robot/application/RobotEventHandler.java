@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.mine.RobotResourceMinedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedIntegrationEvent;
-import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedIntegrationEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.mine.RobotResourceMinedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.move.RobotMovedEvent;
+import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotPlanetDto;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
@@ -42,13 +42,13 @@ public class RobotEventHandler {
                 handleRobotSpawnedEvent( (RobotSpawnedEvent) event );
                 break;
             case ROBOT_MOVED:
-                handleRobotMovedIntegrationEvent( (RobotMovedIntegrationEvent) event );
+                handleRobotMovedIntegrationEvent( (RobotMovedEvent) event );
                 break;
             case ROBOT_REGENERATED:
-                robotApplicationService.regenerateRobotFromExternalEvent( (RobotRegeneratedIntegrationEvent) event );
+                robotApplicationService.regenerateRobotFromExternalEvent( (RobotRegeneratedEvent) event );
                 break;
             case ROBOT_RESOURCE_MINED:
-                handleResourceMinedEvent( (RobotResourceMinedIntegrationEvent) event );
+                handleResourceMinedEvent( (RobotResourceMinedEvent) event );
                 break;
             default:
         }
@@ -64,7 +64,7 @@ public class RobotEventHandler {
     }
 
 
-    private void handleRobotMovedIntegrationEvent( RobotMovedIntegrationEvent event ) {
+    private void handleRobotMovedIntegrationEvent( RobotMovedEvent event ) {
         logger.info( "Handling ROBOT_MOVED_INTEGRATION event ..." );
         UUID planetId = event.getToPlanet().getId();
         Energy movementDifficulty = Energy.from( event.getToPlanet().getMovementDifficulty() );
@@ -76,7 +76,7 @@ public class RobotEventHandler {
 
 
 
-    private void handleResourceMinedEvent( RobotResourceMinedIntegrationEvent event ) {
+    private void handleResourceMinedEvent( RobotResourceMinedEvent event ) {
         logger.info( "Handling ROBOT_RESOURCE_MINED_INTEGRATION event ..." );
         MineableResource resource = event.minedResourceAsDomainPrimitive();
         robotApplicationService.robotHasMined( event.getRobotId(), resource, event.getResourceInventory().getResource() );
