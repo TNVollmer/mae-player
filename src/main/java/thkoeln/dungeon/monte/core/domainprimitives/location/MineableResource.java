@@ -2,7 +2,6 @@ package thkoeln.dungeon.monte.core.domainprimitives.location;
 
 import lombok.*;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
-import thkoeln.dungeon.monte.printer.printables.MineableResourcePrintable;
 
 import javax.persistence.Embeddable;
 
@@ -17,7 +16,7 @@ import static thkoeln.dungeon.monte.core.domainprimitives.location.MineableResou
 @Getter
 @EqualsAndHashCode
 @Embeddable
-public class MineableResource implements MineableResourcePrintable {
+public class MineableResource {
     private MineableResourceType type;
     private Integer amount;
 
@@ -41,7 +40,6 @@ public class MineableResource implements MineableResourcePrintable {
     /**
      * @return The short name of a mineable resource located on this planet. Name is <= 4 chars, for layout reasons.
      */
-    @Override
     public String mapName() {
         Character key = key();
         if ( amount >= 999000 ) return key + "999";
@@ -69,26 +67,6 @@ public class MineableResource implements MineableResourcePrintable {
         if ( getType() == GEM ) return 'J'; // avoid confusion with G for gold
         return getType().toString().charAt( 0 );
     }
-
-
-    /**
-     * @return The relative value of a mineable resource, as an int value between 1 and 5
-     */
-    @Override
-    public int relativeValue() {
-        return type.ordinal() + 1;
-    }
-
-
-    /**
-     * @return Detailed description of a printable entity - should fit in one line, but no constraints otherwise.
-     */
-    @Override
-    public String detailedDescription() {
-        // for simplicity reasons ...
-        return mapName();
-    }
-
 
     @Override
     public String toString() {

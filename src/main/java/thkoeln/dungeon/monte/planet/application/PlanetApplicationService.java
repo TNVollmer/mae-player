@@ -12,7 +12,6 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.planet.PlanetNeig
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.planet.domain.PlanetException;
 import thkoeln.dungeon.monte.planet.domain.PlanetRepository;
-import thkoeln.dungeon.monte.printer.finderservices.PlanetFinderService;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -21,7 +20,7 @@ import static java.lang.Boolean.TRUE;
 
 @Service
 @Transactional
-public class PlanetApplicationService implements PlanetFinderService {
+public class PlanetApplicationService {
     private Logger logger = LoggerFactory.getLogger( PlanetApplicationService.class );
     private PlanetRepository planetRepository;
 
@@ -36,14 +35,12 @@ public class PlanetApplicationService implements PlanetFinderService {
     }
 
 
-    @Override
     public List<Planet> allPlanets() {
         List<Planet> allPlanets = planetRepository.findAll();
         return allPlanets;
     }
 
 
-    @Override
     public List<Planet> allVisitedPlanets() {
         return planetRepository.findAllByVisitedIs( true );
     }

@@ -12,15 +12,13 @@ import thkoeln.dungeon.monte.game.domain.GameRepository;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.core.restadapter.GameDto;
 import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.monte.printer.finderservices.GameFinderService;
-import thkoeln.dungeon.monte.printer.printables.TradingAccountPrintable;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
-public class GameApplicationService implements GameFinderService {
+public class GameApplicationService {
     private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private Environment environment;
@@ -63,7 +61,6 @@ public class GameApplicationService implements GameFinderService {
     /**
      * @return The currently available active (CREATED or RUNNING) game, or null if there is no such game
      */
-    @Override
     public Game queryActiveGame() {
         List<Game> foundGames = gameRepository.findAllByGameStatusBetween( GameStatus.CREATED, GameStatus.RUNNING );
         if ( foundGames.size() > 1 ) throw new GameException( "More than one active game!" );
@@ -142,9 +139,4 @@ public class GameApplicationService implements GameFinderService {
         gameRepository.save( game );
     }
 
-
-    @Override
-    public TradingAccountPrintable tradingAccount() {
-        return tradingAccountApplicationService.queryAndIfNeededCreateTradingAccount();
-    }
 }

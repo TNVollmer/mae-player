@@ -16,8 +16,6 @@ import thkoeln.dungeon.monte.core.util.PlayerInformation;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.domain.Planet;
 import thkoeln.dungeon.monte.player.application.RobotDtoMapper;
-import thkoeln.dungeon.monte.printer.finderservices.RobotFinderService;
-import thkoeln.dungeon.monte.printer.printables.PlanetPrintable;
 import thkoeln.dungeon.monte.robot.domain.*;
 import thkoeln.dungeon.monte.trading.application.TradingAccountApplicationService;
 import thkoeln.dungeon.monte.trading.domain.TradingAccount;
@@ -30,7 +28,7 @@ import java.util.UUID;
 import static thkoeln.dungeon.monte.robot.domain.RobotType.*;
 
 @Service
-public class RobotApplicationService implements RobotFinderService {
+public class RobotApplicationService {
     private Logger logger = LoggerFactory.getLogger( RobotApplicationService.class );
     private RobotRepository robotRepository;
     private PlayerInformation playerInformation;
@@ -206,7 +204,6 @@ public class RobotApplicationService implements RobotFinderService {
     /**
      * @return all robots currently alive (including enemies)
      */
-    @Override
     public List<Robot> allLivingRobots() {
         List<Robot> robots = robotRepository.findAllByAliveEquals( true );
         robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
@@ -217,7 +214,6 @@ public class RobotApplicationService implements RobotFinderService {
     /**
      * @return all OWN robots currently alive, sorted by type
      */
-    @Override
     public List<Robot> allLivingOwnRobots() {
         List<Robot> robots = robotRepository.findAllByEnemyCharIsNullAndAliveEqualsOrderByType( true );
         robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
@@ -228,7 +224,6 @@ public class RobotApplicationService implements RobotFinderService {
     /**
      * @return all ENEMY robots currently alive, sorted by enemy
      */
-    @Override
     public List<Robot> allLivingEnemyRobots() {
         List<Robot> robots = robotRepository.findAllByEnemyCharIsNotNullAndAliveEqualsOrderByEnemyChar( true );
         robots.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
@@ -240,10 +235,8 @@ public class RobotApplicationService implements RobotFinderService {
     /**
      * @return Find the robots on a specific planet (including enemies)
      */
-    @Override
-    public List<Robot> livingRobotsOnPlanet( PlanetPrintable planetPrintable ) {
-        if ( planetPrintable == null ) return new ArrayList<>();
-        Planet planet = (Planet) planetPrintable;
+    public List<Robot> livingRobotsOnPlanet( Planet planet ) {
+        if ( planet == null ) return new ArrayList<>();
         List<Robot> robotsOnPlanet = robotRepository.findAllByLocationIsAndAliveIsTrue( planet );
         robotsOnPlanet.stream().forEach( robot -> { robot.setStrategy( getStrategyFor( robot ) ); } );
         return robotsOnPlanet;

@@ -12,7 +12,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
 import thkoeln.dungeon.monte.planet.domain.Planet;
-import thkoeln.dungeon.monte.printer.printables.RobotPrintable;
 
 import javax.persistence.*;
 import java.util.List;
@@ -25,7 +24,7 @@ import static thkoeln.dungeon.monte.core.domainprimitives.location.MineableResou
 @Getter
 @Setter
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
-public class Robot implements ActionableRobot, RobotPrintable {
+public class Robot implements ActionableRobot {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Robot.class );
 
@@ -93,7 +92,6 @@ public class Robot implements ActionableRobot, RobotPrintable {
     /**
      * @return true if this robot is an enemy robot, false if it is one of us
      */
-    @Override
     public boolean isEnemy() {
         return ( enemyChar != null );
     }
@@ -278,19 +276,6 @@ public class Robot implements ActionableRobot, RobotPrintable {
     }
 
 
-    @Override
-    public String detailedDescription() {
-        StringBuffer stringBuffer = new StringBuffer( mapName() );
-        stringBuffer.append( " on " ).append( location );
-        stringBuffer.append( " (" ).append( energy );
-        if ( load != null ) stringBuffer.append( ", " ).append( load );
-        stringBuffer.append( ")" );
-        if ( recentCommand != null ) stringBuffer.append( ". Last command: " ).append( recentCommand );
-        return stringBuffer.toString();
-    }
-
-
-    @Override
     public String mapName() {
         String printString = firstLetter();
         printString += String.valueOf( robotId ).substring( 0, 3 );

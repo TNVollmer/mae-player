@@ -7,14 +7,13 @@ import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableItem;
 import thkoeln.dungeon.monte.core.strategy.AccountInformation;
-import thkoeln.dungeon.monte.printer.printables.TradingAccountPrintable;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
 @Getter
-public class TradingAccount implements AccountInformation, TradingAccountPrintable {
+public class TradingAccount implements AccountInformation {
     @Id
     @Setter( AccessLevel.PROTECTED )
     private final UUID id = UUID.randomUUID();
@@ -52,10 +51,5 @@ public class TradingAccount implements AccountInformation, TradingAccountPrintab
             Money amountDue = Money.from( command.getCommandObject().getItemQuantity() * 100 );
 
         }
-    }
-
-    @Override
-    public String detailedDescription() {
-        return "Bank account: " + creditBalance;
     }
 }

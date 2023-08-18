@@ -20,8 +20,6 @@ import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.planet.application.PlanetApplicationService;
 import thkoeln.dungeon.monte.planet.application.PlanetEventHandler;
 import thkoeln.dungeon.monte.player.domain.Player;
-import thkoeln.dungeon.monte.printer.devices.console.ConsoleOutput;
-import thkoeln.dungeon.monte.printer.printers.PlayerPrinter;
 import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
 
@@ -37,8 +35,6 @@ public class PlayerEventListener {
     private PlanetApplicationService planetApplicationService;
     private RobotEventHandler robotEventHandler;
     private RobotApplicationService robotApplicationService;
-    private PlayerPrinter playerPrinter;
-
     @Autowired
     public PlayerEventListener( EventFactory eventFactory,
                                 GameApplicationService gameApplicationService,
@@ -46,15 +42,14 @@ public class PlayerEventListener {
                                 PlanetEventHandler planetEventHandler,
                                 PlanetApplicationService planetApplicationService,
                                 RobotEventHandler robotEventHandler,
-                                RobotApplicationService robotApplicationService,
-                                PlayerPrinter playerPrinter ) {
+                                RobotApplicationService robotApplicationService
+    ) {
         this.eventFactory = eventFactory;
         this.gameApplicationService = gameApplicationService;
         this.playerApplicationService = playerApplicationService;
         this.robotEventHandler = robotEventHandler;
         this.planetEventHandler = planetEventHandler;
         this.planetApplicationService = planetApplicationService;
-        this.playerPrinter = playerPrinter;
         this.robotApplicationService = robotApplicationService;
     }
 
@@ -81,8 +76,8 @@ public class PlayerEventListener {
             EventHeader eventHeader =
                     new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
             AbstractEvent newEvent = eventFactory.fromHeaderAndPayload( eventHeader, payload );
-            logger.info( ConsoleOutput.BLUE + "======== EVENT =====> " + newEvent.toStringShort() + ConsoleOutput.RESET );
-            logger.debug( ConsoleOutput.BLUE + "======== EVENT (detailed) =====>\n" + newEvent + ConsoleOutput.RESET );
+            logger.info( "======== EVENT =====> " + newEvent.toStringShort() );
+            logger.debug( "======== EVENT (detailed) =====>\n" + newEvent );
             if ( !newEvent.isValid() ) {
                 logger.warn( "Event invalid: " + newEvent );
                 return;
@@ -136,15 +131,12 @@ public class PlayerEventListener {
             gameApplicationService.fetchRemoteGame();
             playerApplicationService.registerPlayer();
             playerApplicationService.letPlayerJoinOpenGame();
-            playerPrinter.printStatus();
         }
         else if ( GameStatus.RUNNING.equals( gameStatusEvent.getStatus() ) ) {
             gameApplicationService.startGame( gameStatusEvent.getGameId() );
-            playerPrinter.printStatus();
         }
         else if ( GameStatus.FINISHED.equals( gameStatusEvent.getStatus() ) ) {
             playerApplicationService.cleanupAfterFinishingGame();
-            playerPrinter.printStatus();
         }
     }
 
@@ -153,9 +145,6 @@ public class PlayerEventListener {
         if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
             gameApplicationService.roundStarted( event.getRoundNumber() );
             playerApplicationService.submitRoundCommands();
-        }
-        if ( event.getRoundStatus() == RoundStatusType.ENDED ) {
-            playerPrinter.printStatus();
         }
     }
 
