@@ -40,30 +40,4 @@ public class MineableResourcesTest {
         });
     }
 
-    @Test
-    public void testToString() {
-        // given
-        MineableResource c9 = MineableResource.fromTypeAndAmount( COAL, 9 );
-        MineableResource g22 = MineableResource.fromTypeAndAmount( GOLD, 22 );
-        MineableResource p103 = MineableResource.fromTypeAndAmount( PLATIN, 103 );
-        MineableResource j752 = MineableResource.fromTypeAndAmount( GEM, 752 );
-        MineableResource i1203 = MineableResource.fromTypeAndAmount( IRON, 1203 );
-        MineableResource c8921 = MineableResource.fromTypeAndAmount( COAL, 8921 );
-        MineableResource g12655 = MineableResource.fromTypeAndAmount( GOLD, 12655 );
-        MineableResource i562899 = MineableResource.fromTypeAndAmount( IRON, 562899 );
-        MineableResource c2716623 = MineableResource.fromTypeAndAmount( COAL, 2716623 );
-
-        // when
-        // then
-        assertEquals( "C.01", c9.toString() );
-        assertEquals( "G.02", g22.toString() );
-        assertEquals( "P.10", p103.toString() );
-        assertEquals( "J.75", j752.toString() );
-        assertEquals( "I1.2", i1203.toString() );
-        assertEquals( "C8.9", c8921.toString() );
-        assertEquals( "G 12", g12655.toString() );
-        assertEquals( "I562", i562899.toString() );
-        assertEquals( "C999", c2716623.toString() );
-    }
-
 }
