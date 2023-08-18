@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.UUID;
-import thkoeln.dungeon.monte.player.domain.Player;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,7 +28,7 @@ public class PlayerTest {
         assertFalse( player.isEnemy() );
 
         // when / then
-        player.setPlayerQueue( "someString" );
+        player.setPlayerExchange( "someString" );
         assertTrue( player.isRegistered() );
         assertTrue( player.hasJoinedGame() );
         assertFalse( player.isEnemy() );

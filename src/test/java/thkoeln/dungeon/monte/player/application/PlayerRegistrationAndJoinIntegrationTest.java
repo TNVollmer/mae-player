@@ -1,6 +1,8 @@
 package thkoeln.dungeon.monte.player.application;
 
 
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import thkoeln.dungeon.monte.core.AbstractDungeonMockingIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,10 @@ public class PlayerRegistrationAndJoinIntegrationTest extends
     private PlayerRepository playerRepository;
     @Autowired
     private PlayerApplicationService playerApplicationService;
+
+    @MockBean
+    private RabbitAdmin rabbitAdmin;
+
     private Game game;
 
 

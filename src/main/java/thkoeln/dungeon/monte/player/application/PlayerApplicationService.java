@@ -1,12 +1,16 @@
 package thkoeln.dungeon.monte.player.application;
 
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.ExchangeBuilder;
+import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.domainprimitives.command.Command;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Money;
@@ -45,6 +49,7 @@ public class PlayerApplicationService {
     private RobotApplicationService robotApplicationService;
     private PlanetApplicationService planetApplicationService;
     private PlayerStrategy playerStrategy;
+    private RabbitAdmin rabbitAdmin;
 
 
     @Value("${dungeon.playerName}")
@@ -64,7 +69,9 @@ public class PlayerApplicationService {
             TradingAccountApplicationService tradingAccountApplicationService,
             RobotApplicationService robotApplicationService,
             PlanetApplicationService planetApplicationService,
-            PlayerStrategy playerStrategy ) {
+            PlayerStrategy playerStrategy,
+            RabbitAdmin rabbitAdmin
+    ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
@@ -73,6 +80,7 @@ public class PlayerApplicationService {
         this.robotApplicationService = robotApplicationService;
         this.playerStrategy = playerStrategy;
         this.planetApplicationService = planetApplicationService;
+        this.rabbitAdmin = rabbitAdmin;
     }
 
 
@@ -135,20 +143,20 @@ public class PlayerApplicationService {
             return false;
         }
         if ( !activeGame.getOurPlayerHasJoined() ) {
-            String playerQueue =
+            String playerExchange =
                     gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( activeGame.getGameId(), player.getPlayerId() );
-            if ( playerQueue == null ) {
+            if ( playerExchange == null ) {
                 logger.warn( "letPlayerJoinOpenGame: no join happened!" );
                 return false;
             }
             // Player queue is set already at registering - but we do it again
-            if ( playerQueue != null ) player.setPlayerQueue( playerQueue );
+            if ( playerExchange != null ) player.setPlayerExchange( playerExchange );
         }
         player.setGameId( activeGame.getGameId() );
         openRabbitQueue( player );
         playerRepository.save( player );
         logger.info( "Player successfully joined game " + activeGame + ", listening via player queue " +
-                player.getPlayerQueue() );
+                player.getPlayerExchange() );
         return true;
     }
 
@@ -176,18 +184,32 @@ public class PlayerApplicationService {
      * @param player
      */
     protected void openRabbitQueue( Player player ) {
-        String playerQueue = player.getPlayerQueue();
-        if ( playerQueue == null ) throw new PlayerException( "playerQueue == null" );
+        String playerExchange = player.getPlayerExchange();
+        if ( playerExchange == null ) throw new PlayerException( "playerExchange == null" );
         AbstractMessageListenerContainer listenerContainer = (AbstractMessageListenerContainer)
                 rabbitListenerEndpointRegistry.getListenerContainer( "player-queue" );
         logger.debug( "listenerContainer.isRunning(): " + listenerContainer.isRunning() );
+
+        var playerQueueId = "player-queue";
+        var queue = QueueBuilder.durable(playerQueueId)
+            .build();
+        var exchange = ExchangeBuilder.topicExchange(player.getPlayerExchange())
+            .build();
+        var binding = BindingBuilder
+            .bind(queue)
+            .to(exchange)
+            .with("#")
+            .noargs();
+        rabbitAdmin.declareBinding(binding);
+
         String[] queueNames = listenerContainer.getQueueNames();
-        if ( !Arrays.stream(queueNames).anyMatch( s->s.equals( playerQueue ) ) ) {
-            listenerContainer.addQueueNames( player.getPlayerQueue() );
-            logger.info( "Added queue " + playerQueue + " to listener." );
+
+        if ( !Arrays.stream(queueNames).anyMatch( s->s.equals( playerQueueId ) ) ) {
+            listenerContainer.addQueueNames( playerQueueId );
+            logger.info( "Added queue " + playerQueueId + " to listener." );
         }
         else {
-            logger.info( "Queue " + playerQueue + " is already listened to.");
+            logger.info( "Queue " + playerQueueId + " is already listened to.");
         }
 
     }

@@ -52,7 +52,7 @@ public class Player implements ActionablePlayer, Actionable {
     PlayerStrategy strategy;
 
     @Setter( AccessLevel.PUBLIC )
-    private String playerQueue;
+    private String playerExchange;
 
 
     public static Player ownPlayer( String name, String email ) {
@@ -77,13 +77,13 @@ public class Player implements ActionablePlayer, Actionable {
         this.playerId = playerId;
 
         // this we do in order to register the queue early - before joining the game
-        resetToDefaultPlayerQueue();
+        resetToDefaultPlayerExchange();
     }
 
 
-    public void resetToDefaultPlayerQueue() {
+    public void resetToDefaultPlayerExchange() {
         if ( playerId == null ) return;
-        this.playerQueue = "player-" + playerId;
+        this.playerExchange = "player-" + playerId;
     }
 
 
@@ -93,7 +93,7 @@ public class Player implements ActionablePlayer, Actionable {
 
 
     public boolean hasJoinedGame() {
-        return getPlayerQueue() != null;
+        return getPlayerExchange() != null;
     }
 
 
