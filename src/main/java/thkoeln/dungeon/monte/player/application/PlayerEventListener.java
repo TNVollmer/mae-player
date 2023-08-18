@@ -16,8 +16,6 @@ import thkoeln.dungeon.monte.core.eventlistener.concreteevents.robot.reveal.Robo
 import thkoeln.dungeon.monte.game.application.GameApplicationService;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.player.domain.Player;
-import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
-import thkoeln.dungeon.monte.robot.application.RobotEventHandler;
 
 import java.util.Set;
 
@@ -27,20 +25,14 @@ public class PlayerEventListener {
     private EventFactory eventFactory;
     private GameApplicationService gameApplicationService;
     private PlayerApplicationService playerApplicationService;
-    private RobotEventHandler robotEventHandler;
-    private RobotApplicationService robotApplicationService;
     @Autowired
     public PlayerEventListener( EventFactory eventFactory,
                                 GameApplicationService gameApplicationService,
-                                PlayerApplicationService playerApplicationService,
-                                RobotEventHandler robotEventHandler,
-                                RobotApplicationService robotApplicationService
+                                PlayerApplicationService playerApplicationService
     ) {
         this.eventFactory = eventFactory;
         this.gameApplicationService = gameApplicationService;
         this.playerApplicationService = playerApplicationService;
-        this.robotEventHandler = robotEventHandler;
-        this.robotApplicationService = robotApplicationService;
     }
 
 
@@ -72,7 +64,6 @@ public class PlayerEventListener {
                 logger.warn( "Event invalid: " + newEvent );
                 return;
             }
-            if ( eventHeader.getEventType().isRobotRelated() ) robotEventHandler.handleRobotRelatedEvent( newEvent );
             else handlePlayerRelatedEvent( newEvent );
         }
         catch ( Exception e ) {
@@ -92,12 +83,6 @@ public class PlayerEventListener {
                 break;
             case ROUND_STATUS:
                 handleRoundStatusEvent( (RoundStatusEvent) event );
-                break;
-            case TRADABLE_PRICES:
-                logger.info( "TradeablePricesEvent - no handling at the moment, assume prices to be fix." );
-                break;
-            case ROBOT_REVEALED:
-                handleRobotsRevealedIntegrationEvent( (RobotsRevealedEvent) event );
                 break;
             default:
         }
@@ -124,18 +109,4 @@ public class PlayerEventListener {
             gameApplicationService.roundStarted( event.getRoundNumber() );
         }
     }
-
-
-    private void handleRobotsRevealedIntegrationEvent( RobotsRevealedEvent event ) {
-        logger.info( "Handling RobotsRevealedIntegrationEvent - player aspects ..." );
-        Set<String> playerShortNames = event.playerShortNames();
-        for ( String playerShortName : playerShortNames ) {
-            Player enemyPlayer = playerApplicationService.addEnemyPlayer( playerShortName );
-            Character enemyLetter = ( enemyPlayer == null ) ? null : enemyPlayer.getEnemyChar();
-            event.updateEnemyChar( playerShortName, enemyLetter );
-        }
-        // the rest is now robot related
-        robotApplicationService.updateRobotsFromExternalEvent( event );
-    }
-
 }

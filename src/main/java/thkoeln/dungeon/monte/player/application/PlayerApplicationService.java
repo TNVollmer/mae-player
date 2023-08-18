@@ -17,7 +17,6 @@ import thkoeln.dungeon.monte.player.domain.Player;
 import thkoeln.dungeon.monte.player.domain.PlayerException;
 import thkoeln.dungeon.monte.player.domain.PlayerRepository;
 import thkoeln.dungeon.monte.core.restadapter.GameServiceRESTAdapter;
-import thkoeln.dungeon.monte.robot.application.RobotApplicationService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +37,6 @@ public class PlayerApplicationService {
     private GameApplicationService gameApplicationService;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
-    private RobotApplicationService robotApplicationService;
     private RabbitAdmin rabbitAdmin;
 
 
@@ -56,14 +54,12 @@ public class PlayerApplicationService {
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
             RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
-            RobotApplicationService robotApplicationService,
             RabbitAdmin rabbitAdmin
     ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
         this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
-        this.robotApplicationService = robotApplicationService;
         this.rabbitAdmin = rabbitAdmin;
     }
 
@@ -204,7 +200,6 @@ public class PlayerApplicationService {
         gameApplicationService.finishGame();
         player.setGameId( null );
         playerRepository.save( player );
-        robotApplicationService.cleanupAfterFinishingGame();
         logger.info( "Cleaned up after finishing game." );
     }
 

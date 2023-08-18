@@ -7,7 +7,6 @@ import thkoeln.dungeon.monte.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableType;
-import thkoeln.dungeon.monte.robot.domain.RobotType;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
