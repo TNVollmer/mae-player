@@ -2,6 +2,9 @@ package thkoeln.dungeon.monte.player.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
@@ -46,7 +49,11 @@ public class PlayerEventListener {
      * @param timestampStr
      * @param payload
      */
-    @RabbitListener( id = "player-queue" )
+    @RabbitListener( bindings = @QueueBinding(
+        exchange = @Exchange(name = "player-${dungeon.playerName}", type = "topic", declare = "false"),
+        key = "#",
+        value = @Queue
+    ))
     public void receiveEvent( @Header( required = false, value = EventHeader.EVENT_ID_KEY ) String eventIdStr,
                               @Header( required = false, value = EventHeader.TRANSACTION_ID_KEY ) String transactionIdStr,
                               @Header( required = false, value = EventHeader.PLAYER_ID_KEY ) String playerIdStr,

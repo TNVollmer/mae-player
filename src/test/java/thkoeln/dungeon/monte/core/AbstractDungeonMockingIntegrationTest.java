@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import thkoeln.dungeon.monte.core.restadapter.PlayerRegistryDto;
 
 import java.net.URI;
 import java.util.UUID;
+import thkoeln.dungeon.monte.player.application.PlayerEventListener;
 
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -53,6 +55,11 @@ public class AbstractDungeonMockingIntegrationTest {
     protected final String genericTransactionIdStr = genericTransactionId.toString();
     protected final UUID playerId = UUID.randomUUID();
     protected PlayerRegistryDto playerRegistryDto;
+
+    // Mock the listener away.
+    // TODO: Start a testcontainer
+    @MockBean
+    PlayerEventListener eventListener;
 
     protected void setUp() throws Exception {
         String getExtension = "/players?name=" + playerName + "&mail=" + playerEmail;

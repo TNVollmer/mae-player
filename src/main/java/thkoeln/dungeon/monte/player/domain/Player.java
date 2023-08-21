@@ -52,8 +52,8 @@ public class Player {
 
 
     public void resetToDefaultPlayerExchange() {
-        if ( playerId == null ) return;
-        this.playerExchange = "player-" + playerId;
+        if ( name == null ) throw new PlayerException( "name == null" );
+        this.playerExchange = "player-" + name;
     }
 
 

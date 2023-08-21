@@ -124,10 +124,8 @@ public class PlayerApplicationService {
             gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( activeGame.getGameId(), player.getPlayerId() );
         }
         player.setGameId( activeGame.getGameId() );
-        openRabbitQueue( player );
         playerRepository.save( player );
-        logger.info( "Player successfully joined game " + activeGame + ", listening via player queue " +
-                player.getPlayerExchange() );
+        logger.info( "Player successfully joined game ");
         return true;
     }
 
@@ -146,43 +144,6 @@ public class PlayerApplicationService {
                 logger.error( "pollForOpenGame: sleep interrupted!" );
             }
         }
-    }
-
-
-
-    /**
-     * Try to open the queue using the given name
-     * @param player
-     */
-    protected void openRabbitQueue( Player player ) {
-        String playerExchange = player.getPlayerExchange();
-        if ( playerExchange == null ) throw new PlayerException( "playerExchange == null" );
-        AbstractMessageListenerContainer listenerContainer = (AbstractMessageListenerContainer)
-                rabbitListenerEndpointRegistry.getListenerContainer( "player-queue" );
-        logger.debug( "listenerContainer.isRunning(): " + listenerContainer.isRunning() );
-
-        var playerQueueId = "player-queue";
-        var queue = QueueBuilder.durable(playerQueueId)
-            .build();
-        var exchange = ExchangeBuilder.topicExchange(player.getPlayerExchange())
-            .build();
-        var binding = BindingBuilder
-            .bind(queue)
-            .to(exchange)
-            .with("#")
-            .noargs();
-        rabbitAdmin.declareBinding(binding);
-
-        String[] queueNames = listenerContainer.getQueueNames();
-
-        if ( !Arrays.stream(queueNames).anyMatch( s->s.equals( playerQueueId ) ) ) {
-            listenerContainer.addQueueNames( playerQueueId );
-            logger.info( "Added queue " + playerQueueId + " to listener." );
-        }
-        else {
-            logger.info( "Queue %s" + playerQueueId + " is already listened to.");
-        }
-
     }
 
 
