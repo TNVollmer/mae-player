@@ -65,12 +65,12 @@ public class Capability {
 
 
     public boolean isMinimumLevel() {
-        return level == MIN_LEVEL;
+        return Objects.equals(level, MIN_LEVEL);
     }
 
 
     public boolean isMaximumLevel() {
-        return level == MAX_LEVEL;
+        return Objects.equals(level, MAX_LEVEL);
     }
 
 
@@ -86,8 +86,7 @@ public class Capability {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Capability)) return false;
-        Capability that = (Capability) o;
+        if (!(o instanceof Capability that)) return false;
         return type == that.type && level.equals(that.level);
     }
 

@@ -66,7 +66,7 @@ public class GameServiceRESTAdapter {
 
     public UUID sendGetRequestForPlayerId( String playerName, String email ) {
         String urlString = gameServiceUrlString + "/players?name=" + playerName + "&mail=" + email;
-        PlayerRegistryDto returnedPlayerRegistryDto = null;
+        PlayerRegistryDto returnedPlayerRegistryDto;
         try {
             returnedPlayerRegistryDto =
                     restTemplate.execute( urlString, GET, requestCallback(), playerRegistryResponseExtractor() );
@@ -125,7 +125,7 @@ public class GameServiceRESTAdapter {
     public UUID sendPostRequestForCommand( Command command ) {
         logger.info( "Try to send command  " + command );
         String urlString = gameServiceUrlString + "/commands";
-        CommandAnswerDto commandAnswerDto = null;
+        CommandAnswerDto commandAnswerDto;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString( command );
@@ -183,20 +183,14 @@ public class GameServiceRESTAdapter {
      * Adapted from Baeldung example: https://www.baeldung.com/rest-template
      */
     private RequestCallback requestCallback() {
-        return clientHttpRequest -> {
-            clientHttpRequest.getHeaders().setContentType( MediaType.APPLICATION_JSON );
-        };
+        return clientHttpRequest -> clientHttpRequest.getHeaders().setContentType( MediaType.APPLICATION_JSON );
     }
 
     private ResponseExtractor<PlayerRegistryDto> playerRegistryResponseExtractor() {
-        return response -> {
-            return objectMapper.readValue( response.getBody(), PlayerRegistryDto.class );
-        };
+        return response -> objectMapper.readValue( response.getBody(), PlayerRegistryDto.class );
     }
 
     private ResponseExtractor<PlayerJoinDto> playerJoinResponseExtractor() {
-        return response -> {
-            return objectMapper.readValue( response.getBody(), PlayerJoinDto.class );
-        };
+        return response -> objectMapper.readValue( response.getBody(), PlayerJoinDto.class );
     }
 }

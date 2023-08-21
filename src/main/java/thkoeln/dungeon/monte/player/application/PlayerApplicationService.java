@@ -186,7 +186,7 @@ public class PlayerApplicationService {
             logger.info( "Added queue " + playerQueueId + " to listener." );
         }
         else {
-            logger.info( "Queue " + playerQueueId + " is already listened to.");
+            logger.info( "Queue %s" + playerQueueId + " is already listened to.");
         }
 
     }

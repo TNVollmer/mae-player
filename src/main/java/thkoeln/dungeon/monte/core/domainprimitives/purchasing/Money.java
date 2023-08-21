@@ -31,8 +31,6 @@ public class Money {
         return from( 0 );
     }
 
-
-
     public int canBuyThatManyFor( Money price ) {
         if ( amount == null ) throw new DomainPrimitiveException( "price == null" );
         return ( this.amount / price.amount );
@@ -46,7 +44,6 @@ public class Money {
         return Money.from( amount - moneyDue.amount );
     }
 
-
     public Money increaseBy( Money additionalMoney ) {
         if ( additionalMoney == null ) throw new DomainPrimitiveException( "additionalAmount == null" );
         return Money.from( amount + additionalMoney.amount);
@@ -56,7 +53,6 @@ public class Money {
         if ( otherMoney == null ) throw new DomainPrimitiveException( "otherMoney == null" );
         return ( amount > otherMoney.amount);
     }
-
 
     public boolean greaterEqualThan( Money otherMoney ) {
         if ( otherMoney == null ) throw new DomainPrimitiveException( ">=: otherMoney == null" );

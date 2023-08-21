@@ -12,7 +12,7 @@ public enum CapabilityType {
 
     private final String stringValue;
 
-    private CapabilityType( String s ) {
+    CapabilityType( String s ) {
         stringValue = s;
     }
 
