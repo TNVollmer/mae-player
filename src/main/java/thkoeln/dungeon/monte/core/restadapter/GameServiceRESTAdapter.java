@@ -64,7 +64,7 @@ public class GameServiceRESTAdapter {
 
 
 
-    public UUID sendGetRequestForPlayerId( String playerName, String email ) {
+    public PlayerRegistryDto sendGetRequestForPlayerId( String playerName, String email ) {
         String urlString = gameServiceUrlString + "/players?name=" + playerName + "&mail=" + email;
         PlayerRegistryDto returnedPlayerRegistryDto;
         try {
@@ -88,12 +88,12 @@ public class GameServiceRESTAdapter {
         }
         UUID playerId = returnedPlayerRegistryDto.getPlayerId();
         logger.info( "Player is already registered, with playerId: " + playerId );
-        return playerId;
+        return returnedPlayerRegistryDto;
     }
 
 
 
-    public UUID sendPostRequestForPlayerId( String playerName, String email ) {
+    public PlayerRegistryDto sendPostRequestForPlayerId( String playerName, String email ) {
         PlayerRegistryDto requestDto = new PlayerRegistryDto();
         requestDto.setName( playerName );
         requestDto.setEmail( email );
@@ -118,7 +118,7 @@ public class GameServiceRESTAdapter {
         }
         UUID playerId = returnedPlayerRegistryDto.getPlayerId();
         logger.info( "Registered player via REST, got playerId: " + playerId );
-        return playerId;
+        return returnedPlayerRegistryDto;
     }
 
 
@@ -155,24 +155,19 @@ public class GameServiceRESTAdapter {
      * Caveat: GameService returns somewhat weird error codes (non-standard).
      * @param gameId of the game
      * @param playerId of the player
-     * @return transactionId if successful
      */
-    public String sendPutRequestToLetPlayerJoinGame( UUID gameId, UUID playerId ) {
+    public void sendPutRequestToLetPlayerJoinGame( UUID gameId, UUID playerId ) {
         String urlString = gameServiceUrlString + "/games/" + gameId + "/players/" + playerId;
         logger.info( "Try to sendPutRequestToLetPlayerJoinGame at: " + urlString );
         try {
-            PlayerJoinDto playerJoinDto =
-                    restTemplate.execute( urlString, PUT, requestCallback(), playerJoinResponseExtractor() );
-            return playerJoinDto.getPlayerExchange();
+            restTemplate.execute( urlString, PUT, requestCallback(), null);
         }
         catch ( RestClientException e ) {
             logger.error( "Exception encountered in sendPutRequestToLetPlayerJoinGame" );
             if ( e.getMessage() != null && e.getMessage().contains( "Player is already participating" ) ) {
                 // this is a very specific design flaw in /games/id/players/pid - it throws a 400 if player has
-                // already joined. As a workaround, we improvise the queue name ...
-                String playerExchange = "player-" + playerId.toString();
-                logger.info( "... but player is already participating. So we assume this player queue: " + playerExchange );
-                return playerExchange;
+                // already joined.
+                return;
             }
             throw new RESTAdapterException( urlString, e );
         }
@@ -188,9 +183,5 @@ public class GameServiceRESTAdapter {
 
     private ResponseExtractor<PlayerRegistryDto> playerRegistryResponseExtractor() {
         return response -> objectMapper.readValue( response.getBody(), PlayerRegistryDto.class );
-    }
-
-    private ResponseExtractor<PlayerJoinDto> playerJoinResponseExtractor() {
-        return response -> objectMapper.readValue( response.getBody(), PlayerJoinDto.class );
     }
 }

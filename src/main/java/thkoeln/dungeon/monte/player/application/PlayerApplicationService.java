@@ -90,15 +90,16 @@ public class PlayerApplicationService {
             logger.info( "Player " + player + " is already registered." );
             return;
         }
-        UUID playerId = gameServiceRESTAdapter.sendGetRequestForPlayerId( player.getName(), player.getEmail() );
-        if ( playerId == null ) {
-            playerId = gameServiceRESTAdapter.sendPostRequestForPlayerId( player.getName(), player.getEmail() );
+        var remotePlayer = gameServiceRESTAdapter.sendGetRequestForPlayerId( player.getName(), player.getEmail() );
+        if ( remotePlayer == null ) {
+            remotePlayer = gameServiceRESTAdapter.sendPostRequestForPlayerId( player.getName(), player.getEmail() );
         }
-        if ( playerId == null ) {
+        if ( remotePlayer == null ) {
             logger.warn( "Registration for player " + player + " failed." );
             return;
         }
-        player.assignPlayerId( playerId );
+        player.assignPlayerId( remotePlayer.getPlayerId() );
+        player.setPlayerExchange( remotePlayer.getPlayerExchange() );
         Game activeGame = gameApplicationService.queryActiveGame();
         if ( activeGame != null ) player.setGameId( gameApplicationService.queryActiveGame().getGameId() );
         playerRepository.save( player );
@@ -120,14 +121,7 @@ public class PlayerApplicationService {
             return false;
         }
         if ( !activeGame.getOurPlayerHasJoined() ) {
-            String playerExchange =
-                    gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( activeGame.getGameId(), player.getPlayerId() );
-            if ( playerExchange == null ) {
-                logger.warn( "letPlayerJoinOpenGame: no join happened!" );
-                return false;
-            }
-            // Player queue is set already at registering - but we do it again
-            if ( playerExchange != null ) player.setPlayerExchange( playerExchange );
+            gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( activeGame.getGameId(), player.getPlayerId() );
         }
         player.setGameId( activeGame.getGameId() );
         openRabbitQueue( player );

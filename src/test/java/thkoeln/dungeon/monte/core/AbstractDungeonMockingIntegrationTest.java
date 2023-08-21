@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.monte.game.domain.Game;
 import thkoeln.dungeon.monte.game.domain.GameStatus;
 import thkoeln.dungeon.monte.core.restadapter.GameDto;
-import thkoeln.dungeon.monte.core.restadapter.PlayerJoinDto;
 import thkoeln.dungeon.monte.core.restadapter.PlayerRegistryDto;
 
 import java.net.URI;
@@ -54,16 +53,13 @@ public class AbstractDungeonMockingIntegrationTest {
     protected final String genericTransactionIdStr = genericTransactionId.toString();
     protected final UUID playerId = UUID.randomUUID();
     protected PlayerRegistryDto playerRegistryDto;
-    protected PlayerJoinDto playerJoinDto;
 
     protected void setUp() throws Exception {
         String getExtension = "/players?name=" + playerName + "&mail=" + playerEmail;
         playersGetURI = new URI( gameServiceURIString + getExtension );
         playersPostURI = new URI( gameServiceURIString + "/players" );
         playerRegistryDto = new PlayerRegistryDto();
-
-        playerJoinDto = new PlayerJoinDto();
-        playerJoinDto.setPlayerExchange( "my_new_player_queue" );
+        playerRegistryDto.setPlayerExchange( "test-" + playerName );
 
         gamesURI = new URI( gameServiceURIString + "/games" );
         createMockGameDtos();
@@ -140,7 +136,7 @@ public class AbstractDungeonMockingIntegrationTest {
         URI uri = new URI(gameServiceURIString + "/games/" + gameId + "/players/" + playerId );
         mockServer.expect( ExpectedCount.once(), MockRestRequestMatchers.requestTo(uri) )
                 .andExpect( MockRestRequestMatchers.method(HttpMethod.PUT) )
-                .andRespond( MockRestResponseCreators.withSuccess(objectMapper.writeValueAsString( playerJoinDto ), MediaType.APPLICATION_JSON) );
+                .andRespond( MockRestResponseCreators.withSuccess() );
     }
 
 

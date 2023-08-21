@@ -18,12 +18,14 @@ public class PlayerRegistryDto {
     @Value("${dungeon.playerEmail}")
     private String email;
     private UUID playerId;
+    private String playerExchange;
 
     public PlayerRegistryDto clone() {
         PlayerRegistryDto myClone = new PlayerRegistryDto();
         myClone.setPlayerId( this.playerId );
         myClone.setName( this.name );
         myClone.setEmail( this.email );
+        myClone.setPlayerExchange( this.playerExchange );
         return myClone;
     }
 }
