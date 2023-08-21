@@ -29,4 +29,15 @@ The player can be configured using environment variables
 | PLAYER_EMAIL         | player-skeleton-typescript-nodejs@example.com |
 | LOGGING_LEVEL        | debug                                         |
 
-Authors: Stefan Bente, Philipp Schmeier
+## Usage
+
+The player can be started in starts the player in a dev mode. 
+This mode creates and starts a player automatically for you when you start the player. 
+No manual requests are required.
+This feature is **ONLY FOR LOCAL DEVELOPMENT**.
+To enable it, activate the `dev` Spring Boot profile. 
+You can achieve it over the command line by setting the `spring.profiles.active` property or 
+instruct your IDE (e.g [IntelliJ](https://www.jetbrains.com/help/idea/run-debug-configuration-spring-boot.html#modify-options)) 
+to activate it. 
+
+Authors: <Add your authors name here>
