@@ -21,11 +21,6 @@ public class Player {
     @Transient
     private Logger logger = LoggerFactory.getLogger( Player.class );
 
-    // What share of the available credit balance should be re-invested into new robots?
-    // Could be moved to a player strategy class, but there is currently not yet enough "beef"
-    // for such a strategy class.
-    public final static float SHARE_OF_CREDIT_BALANCE_FOR_NEW_ROBOTS = 1.0f;
-
     @Id
     private final UUID id = UUID.randomUUID();
 
@@ -36,17 +31,9 @@ public class Player {
     private String name;
     private String email;
     private UUID playerId;
-    @Getter( AccessLevel.NONE )
-    private String enemyShortName = null;
-
-    // Each enemy player is described by a letter that is used for visualizing in the client
-    @Setter( AccessLevel.PUBLIC )
-    private Character enemyChar;
-    private Command recentCommand;
 
     @Setter( AccessLevel.PUBLIC )
     private String playerExchange;
-
 
     public static Player ownPlayer( String name, String email ) {
         Player player = new Player();
@@ -54,16 +41,6 @@ public class Player {
         player.setEmail( email );
         return player;
     }
-
-
-    public static Player enemyPlayer( String shortName ) {
-        if ( shortName == null ) throw new PlayerException( "shortName == null" );
-        Player player = new Player();
-        player.setEnemyShortName( shortName );
-        return player;
-    }
-
-
 
     public void assignPlayerId( UUID playerId ) {
         if ( playerId == null ) throw new PlayerException( "playerId == null" );
@@ -89,21 +66,6 @@ public class Player {
         return getPlayerExchange() != null;
     }
 
-
-    public boolean isEnemy() {
-        if ( playerId == null && enemyShortName != null ) return true;
-        return false;
-    }
-
-    public boolean matchesShortName( String shortName ) {
-        if ( shortName == null ) return false;
-        if ( enemyShortName != null && enemyShortName.equals( shortName) ) return true;
-        if ( playerId != null && enemyShortName == null && playerId.toString().substring( 0, 8 ).equals( shortName ) )
-            return true;
-        return false;
-    }
-
-
     @Override
     public String toString() {
         return "Player '" + name + "' (email: " + getEmail() + ", playerId: " + playerId + ")";
@@ -111,14 +73,21 @@ public class Player {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Player)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Player player = (Player) o;
-        return Objects.equals(id, player.id);
+        return Objects.equals(id, player.id) && Objects.equals(gameId, player.gameId)
+            && Objects.equals(name, player.name) && Objects.equals(email,
+            player.email) && Objects.equals(playerId, player.playerId)
+            && Objects.equals(playerExchange, player.playerExchange);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, gameId, name, email, playerId, playerExchange);
     }
 }

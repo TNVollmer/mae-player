@@ -19,29 +19,7 @@ public class RobotRevealedDto {
     private Integer energy;
     private RobotRevealedLevelDto levels;
 
-    // this is set by the PlayerEventHandler class. It describes the 1-char code for enemy players,
-    // display purposes in the client.
-    private Character enemyChar = null;
-
     public static final Integer DEFAULT_STRENGTH = 10;
-
-    /**
-     * Factory method for testing purposes
-     * @param robotId
-     * @param playerShortName
-     * @param enemyChar
-     * @return
-     */
-    public static RobotRevealedDto defaultsFor( UUID robotId, String playerShortName, Character enemyChar ) {
-        RobotRevealedDto robotRevealedDto = new RobotRevealedDto();
-        robotRevealedDto.setRobotId( robotId );
-        robotRevealedDto.setEnemyChar( enemyChar );
-        robotRevealedDto.setPlayerNotion( playerShortName );
-        robotRevealedDto.setHealth( DEFAULT_STRENGTH );
-        robotRevealedDto.setEnergy( DEFAULT_STRENGTH );
-        robotRevealedDto.setLevels( RobotRevealedLevelDto.defaults() );
-        return robotRevealedDto;
-    }
 
 
     public boolean isValid() {

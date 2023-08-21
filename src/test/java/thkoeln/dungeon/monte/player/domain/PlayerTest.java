@@ -19,45 +19,15 @@ public class PlayerTest {
         Player player = Player.ownPlayer( playerName, playerEmail );
         assertFalse( player.isRegistered() );
         assertFalse( player.hasJoinedGame() );
-        assertFalse( player.isEnemy() );
 
         // when / then
         player.setPlayerId( UUID.randomUUID() );
         assertTrue( player.isRegistered() );
         assertFalse( player.hasJoinedGame() );
-        assertFalse( player.isEnemy() );
 
         // when / then
         player.setPlayerExchange( "someString" );
         assertTrue( player.isRegistered() );
         assertTrue( player.hasJoinedGame() );
-        assertFalse( player.isEnemy() );
-    }
-
-    @Test
-    public void testEnemyMatch() {
-        // given
-        Player player = Player.enemyPlayer( "abcd1234" );
-
-        // when / then
-        assertTrue( player.isEnemy() );
-        assertTrue( player.matchesShortName( "abcd1234" ) );
-    }
-
-
-    @Test
-    public void testNonEnemyMatch() {
-        // given
-        Player player = Player.ownPlayer( playerName, playerEmail );
-        UUID playerId = UUID.randomUUID();
-        String shortName = playerId.toString().substring( 0, 8 );
-
-        // when
-        assertFalse( player.isEnemy() );
-        player.assignPlayerId( playerId );
-
-        // then
-        assertFalse( player.isEnemy() );
-        assertTrue( player.matchesShortName( shortName ) );
     }
 }
