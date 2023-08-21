@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.monte.core.eventlistener.AbstractEvent;
-import thkoeln.dungeon.monte.core.eventlistener.DungeonEventListener;
 import thkoeln.dungeon.monte.core.eventlistener.EventFactory;
 import thkoeln.dungeon.monte.core.eventlistener.EventHeader;
 import thkoeln.dungeon.monte.core.eventlistener.concreteevents.game.GameStatusEvent;
@@ -50,7 +49,11 @@ public class PlayerEventListener {
      * @param timestampStr
      * @param payload
      */
-    @DungeonEventListener("#")
+    @RabbitListener( bindings = @QueueBinding(
+        exchange = @Exchange(name = "player-${dungeon.playerName}", type = "topic", declare = "false"),
+        key = "#",
+        value = @Queue
+    ))
     public void receiveEvent( @Header( required = false, value = EventHeader.EVENT_ID_KEY ) String eventIdStr,
                               @Header( required = false, value = EventHeader.TRANSACTION_ID_KEY ) String transactionIdStr,
                               @Header( required = false, value = EventHeader.PLAYER_ID_KEY ) String playerIdStr,
