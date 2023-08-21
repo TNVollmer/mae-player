@@ -3,7 +3,7 @@ package thkoeln.dungeon.monte.core.domainprimitives.status;
 import lombok.*;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
 @AllArgsConstructor( access = AccessLevel.PRIVATE )

@@ -3,7 +3,7 @@ package thkoeln.dungeon.monte.core.domainprimitives.location;
 import lombok.*;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

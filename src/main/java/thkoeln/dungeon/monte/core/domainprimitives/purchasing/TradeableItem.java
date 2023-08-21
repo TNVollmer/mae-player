@@ -1,7 +1,7 @@
 package thkoeln.dungeon.monte.core.domainprimitives.purchasing;
 
 import lombok.*;
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
 @AllArgsConstructor

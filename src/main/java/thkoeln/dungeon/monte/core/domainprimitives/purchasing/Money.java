@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.monte.core.domainprimitives.DomainPrimitiveException;
 import thkoeln.dungeon.monte.core.domainprimitives.status.Energy;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Transient;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Transient;
 
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
 @AllArgsConstructor

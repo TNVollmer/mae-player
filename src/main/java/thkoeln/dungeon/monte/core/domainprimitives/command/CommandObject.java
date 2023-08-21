@@ -1,9 +1,9 @@
 package thkoeln.dungeon.monte.core.domainprimitives.command;
 
-import javax.persistence.Column;
+import jakarta.persistence.Column;
 import lombok.*;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 import java.util.UUID;
 
 /**

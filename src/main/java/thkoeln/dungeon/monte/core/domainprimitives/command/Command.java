@@ -8,9 +8,9 @@ import thkoeln.dungeon.monte.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.monte.core.domainprimitives.purchasing.TradeableType;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import java.util.UUID;
 
 /**
