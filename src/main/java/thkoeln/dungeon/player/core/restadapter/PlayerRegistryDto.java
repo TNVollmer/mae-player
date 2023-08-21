@@ -19,6 +19,7 @@ public class PlayerRegistryDto {
     private String email;
     private UUID playerId;
     private String playerExchange;
+    private String playerQueue;
 
     public PlayerRegistryDto clone() {
         PlayerRegistryDto myClone = new PlayerRegistryDto();
@@ -26,6 +27,7 @@ public class PlayerRegistryDto {
         myClone.setName( this.name );
         myClone.setEmail( this.email );
         myClone.setPlayerExchange( this.playerExchange );
+        myClone.setPlayerQueue( this.playerQueue );
         return myClone;
     }
 }

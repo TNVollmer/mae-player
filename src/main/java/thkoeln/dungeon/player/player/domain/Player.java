@@ -34,6 +34,9 @@ public class Player {
     @Setter( AccessLevel.PUBLIC )
     private String playerExchange;
 
+    @Setter( AccessLevel.PUBLIC )
+    private String playerQueue;
+
     public static Player ownPlayer( String name, String email ) {
         Player player = new Player();
         player.setName( name );
@@ -58,11 +61,6 @@ public class Player {
 
     public boolean isRegistered() {
         return getPlayerId() != null;
-    }
-
-
-    public boolean hasJoinedGame() {
-        return getPlayerExchange() != null;
     }
 
     @Override

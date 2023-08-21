@@ -93,6 +93,7 @@ public class PlayerApplicationService {
         }
         player.assignPlayerId( remotePlayer.getPlayerId() );
         player.setPlayerExchange( remotePlayer.getPlayerExchange() );
+        player.setPlayerQueue( remotePlayer.getPlayerQueue() );
         Game activeGame = gameApplicationService.queryActiveGame();
         if ( activeGame != null ) player.setGameId( gameApplicationService.queryActiveGame().getGameId() );
         playerRepository.save( player );

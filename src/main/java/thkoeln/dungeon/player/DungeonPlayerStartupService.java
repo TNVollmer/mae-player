@@ -4,6 +4,7 @@ package thkoeln.dungeon.player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.player.domain.Player;
 
 @Service
-public class DungeonPlayerStartupService implements ApplicationListener<ContextRefreshedEvent> {
+public class DungeonPlayerStartupService implements ApplicationListener<ApplicationReadyEvent> {
     private Logger logger = LoggerFactory.getLogger( DungeonPlayerStartupService.class );
     private PlayerApplicationService playerApplicationService;
     private GameApplicationService gameApplicationService;
@@ -30,16 +31,13 @@ public class DungeonPlayerStartupService implements ApplicationListener<ContextR
      * @param event
      */
     @Override
-    public void onApplicationEvent( ContextRefreshedEvent event ) {
+    public void onApplicationEvent( ApplicationReadyEvent event ) {
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
-        if ( !player.hasJoinedGame() ) {
-            try {
-                gameApplicationService.fetchRemoteGame();
-                playerApplicationService.registerPlayer();
-                playerApplicationService.pollForOpenGame();
-            } catch ( DungeonPlayerRuntimeException exc ) {
-                logger.error( "Error when initializing player: " + exc.getMessage() );
-            }
+        try {
+            gameApplicationService.fetchRemoteGame();
+            playerApplicationService.pollForOpenGame();
+        } catch ( DungeonPlayerRuntimeException exc ) {
+            logger.error( "Error when initializing player: " + exc.getMessage() );
         }
     }
 }

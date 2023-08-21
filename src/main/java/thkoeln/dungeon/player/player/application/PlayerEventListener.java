@@ -45,11 +45,7 @@ public class PlayerEventListener {
      * @param timestampStr
      * @param payload
      */
-    @RabbitListener( bindings = @QueueBinding(
-        exchange = @Exchange(name = "player-${dungeon.playerName}", type = "topic", declare = "false"),
-        key = "#",
-        value = @Queue
-    ))
+    @RabbitListener( queues = "player-${dungeon.playerName}" )
     public void receiveEvent( @Header( required = false, value = EventHeader.EVENT_ID_KEY ) String eventIdStr,
                               @Header( required = false, value = EventHeader.TRANSACTION_ID_KEY ) String transactionIdStr,
                               @Header( required = false, value = EventHeader.PLAYER_ID_KEY ) String playerIdStr,
