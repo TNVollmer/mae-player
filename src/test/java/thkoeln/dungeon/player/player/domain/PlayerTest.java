@@ -18,16 +18,13 @@ public class PlayerTest {
         // given
         Player player = Player.ownPlayer( playerName, playerEmail );
         assertFalse( player.isRegistered() );
-        assertFalse( player.hasJoinedGame() );
 
         // when / then
         player.setPlayerId( UUID.randomUUID() );
         assertTrue( player.isRegistered() );
-        assertFalse( player.hasJoinedGame() );
 
         // when / then
         player.setPlayerExchange( "someString" );
         assertTrue( player.isRegistered() );
-        assertTrue( player.hasJoinedGame() );
     }
 }

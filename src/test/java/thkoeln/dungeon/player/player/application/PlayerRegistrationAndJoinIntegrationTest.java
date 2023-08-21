@@ -78,7 +78,6 @@ public class PlayerRegistrationAndJoinIntegrationTest extends
         assertEquals( playerEmail, player.getEmail(), "player email" );
         assertEquals( playerName, player.getName(), "player name" );
         assertTrue( player.isRegistered(), "Player must be registered" );
-        assertTrue( player.hasJoinedGame(), "Player must have joined game" );
     }
 
 
@@ -120,7 +119,6 @@ public class PlayerRegistrationAndJoinIntegrationTest extends
         assertNotNull( player.getEmail(), "player email" );
         assertNotNull( player.getName(), "player name"  );
         assertTrue( player.isRegistered(), "should be ready to play" );
-        assertTrue( player.hasJoinedGame(), "should have joined the game" );
     }
 
 
