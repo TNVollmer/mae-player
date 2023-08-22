@@ -31,6 +31,15 @@ The player can be configured using environment variables
 
 ## Usage
 
+### Event Listening
+
+The skeleton player makes use of a single messaging queue for all events. It automatically listens
+on the player-owned queue for all events and deserializes them. Afterwards the events are dispatched
+using the [in-memory eventing system provided by the Spring framework](https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html).
+See the [RabbitMQ Listener implementation](src/main/java/thkoeln/dungeon/player/player/application/PlayerEventListener.java)
+and exemplary [in-memory event listeners](src/main/java/thkoeln/dungeon/player/game/application/GameEventListener.java).
+
+### Dev Mode
 The player can be started in starts the player in a dev mode. 
 This mode creates and starts a player automatically for you when you start the player. 
 No manual requests are required.
