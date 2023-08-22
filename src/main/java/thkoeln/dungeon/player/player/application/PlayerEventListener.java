@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.eventlistener.AbstractEvent;
@@ -22,16 +23,13 @@ import thkoeln.dungeon.player.game.domain.GameStatus;
 public class PlayerEventListener {
     private Logger logger = LoggerFactory.getLogger(PlayerEventListener.class);
     private EventFactory eventFactory;
-    private GameApplicationService gameApplicationService;
-    private PlayerApplicationService playerApplicationService;
+    private ApplicationEventPublisher applicationEventPublisher;
     @Autowired
     public PlayerEventListener( EventFactory eventFactory,
-                                GameApplicationService gameApplicationService,
-                                PlayerApplicationService playerApplicationService
+                                ApplicationEventPublisher applicationEventPublisher
     ) {
         this.eventFactory = eventFactory;
-        this.gameApplicationService = gameApplicationService;
-        this.playerApplicationService = playerApplicationService;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
 
@@ -63,49 +61,12 @@ public class PlayerEventListener {
                 logger.warn( "Event invalid: " + newEvent );
                 return;
             }
-            else handlePlayerRelatedEvent( newEvent );
+            else {
+                this.applicationEventPublisher.publishEvent(newEvent);
+            }
         }
         catch ( Exception e ) {
             logger.error ( "!!!!!!!!!!!!!! EVENT ERROR !!!!!!!!!!!!!\n" + e );
-        }
-    }
-
-
-    /**
-     * Dispatch to the appropriate application service method
-     * @param event
-     */
-    private void handlePlayerRelatedEvent( AbstractEvent event ) {
-        switch ( event.getEventHeader().getEventType() ) {
-            case GAME_STATUS:
-                handleGameStatusEvent( (GameStatusEvent) event );
-                break;
-            case ROUND_STATUS:
-                handleRoundStatusEvent( (RoundStatusEvent) event );
-                break;
-            default:
-        }
-    }
-
-
-    private void handleGameStatusEvent( GameStatusEvent gameStatusEvent ) {
-        if ( GameStatus.CREATED.equals( gameStatusEvent.getStatus() ) ) {
-            gameApplicationService.fetchRemoteGame();
-            playerApplicationService.registerPlayer();
-            playerApplicationService.letPlayerJoinOpenGame();
-        }
-        else if ( GameStatus.RUNNING.equals( gameStatusEvent.getStatus() ) ) {
-            gameApplicationService.startGame( gameStatusEvent.getGameId() );
-        }
-        else if ( GameStatus.FINISHED.equals( gameStatusEvent.getStatus() ) ) {
-            playerApplicationService.cleanupAfterFinishingGame();
-        }
-    }
-
-
-    private void handleRoundStatusEvent( RoundStatusEvent event ) {
-        if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
-            gameApplicationService.roundStarted( event.getRoundNumber() );
         }
     }
 }
