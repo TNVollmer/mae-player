@@ -3,10 +3,10 @@ package thkoeln.dungeon.player.core.eventlistener;
 import java.util.Arrays;
 
 public enum EventType {
-    GAME_STATUS( "game-status" ),
+    GAME_STATUS( "GameStatus" ),
     BANK_INITIALIZED( "BankAccountInitialized" ),
     BANK_ACCOUNT_TRANSACTION_BOOKED( "BankAccountTransactionBooked" ),
-    ROUND_STATUS( "round-status" ),
+    ROUND_STATUS( "RoundStatus" ),
     TRADABLE_PRICES( "TradablePrices" ),
     ROBOT_SPAWNED( "RobotSpawned" ),
     ROBOT_MOVED( "RobotMoved" ),
