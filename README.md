@@ -49,4 +49,7 @@ You can achieve it over the command line by setting the `spring.profiles.active`
 instruct your IDE (e.g [IntelliJ](https://www.jetbrains.com/help/idea/run-debug-configuration-spring-boot.html#modify-options)) 
 to activate it. 
 
-Authors: <Add your authors name here>
+Authors:
+- Adrian Geiss
+- Maurice Lange
+- Mario Schmidt
