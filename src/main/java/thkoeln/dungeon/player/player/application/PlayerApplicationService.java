@@ -54,6 +54,8 @@ public class PlayerApplicationService {
         this.rabbitAdmin = rabbitAdmin;
     }
 
+    //Hier kommen dann unsere eigenen Methoden für den Player rein? ~Adrian
+
 
     /**
      * Fetch the existing player. If there isn't one yet, it is created and stored to the database.

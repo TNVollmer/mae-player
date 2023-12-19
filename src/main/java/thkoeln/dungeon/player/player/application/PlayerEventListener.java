@@ -51,6 +51,7 @@ public class PlayerEventListener {
                               @Header( required = false, value = EventHeader.VERSION_KEY ) String version,
                               @Header( required = false, value = EventHeader.TIMESTAMP_KEY ) String timestampStr,
                               String payload ) {
+        //Müssen wir hier unsere eigenen Event-Handling-Methoden schreiben? Also anstatt alles einfach nur zu loggen, soll ja noch was damit gemacht werden. ~Adrian
         try {
             EventHeader eventHeader =
                     new EventHeader( type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version );
