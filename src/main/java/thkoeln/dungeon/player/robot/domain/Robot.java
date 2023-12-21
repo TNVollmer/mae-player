@@ -7,6 +7,8 @@ import jakarta.persistence.Transient;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.player.core.domainprimitives.status.Energy;
+import thkoeln.dungeon.player.core.domainprimitives.status.Health;
 
 import java.util.UUID;
 
@@ -24,8 +26,8 @@ public class Robot {
 
     private UUID planetId;
     private String playerNotion;
-    private Integer health;
-    private Integer energy;
-    //Hier fehlt noch eine Representation der Level
+    private Health health;
+    private Energy energy;
+    //TODO: Hier fehlt noch eine Representation der Level
 
 }

@@ -28,8 +28,8 @@ public class RobotApplicationService {
     }
 
     public void saveNewRobot(String dataAsJSON) {
-        //Hier müssen die Daten aus dem JSON-String in ein Robot-Objekt umgewandelt werden
-        Robot newRobot = new Robot(/* Hier müssen dann die umgewandelten Daten rein */);
+        //TODO: Hier müssen die Daten aus dem JSON-String in ein Robot-Objekt umgewandelt werden
+        Robot newRobot = new Robot(/* TODO: Hier müssen dann die umgewandelten Daten rein */);
         robotRepository.save(newRobot);
     }
 }
