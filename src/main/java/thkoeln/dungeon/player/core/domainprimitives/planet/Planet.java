@@ -2,20 +2,21 @@ package thkoeln.dungeon.player.core.domainprimitives.planet;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 
-import java.util.Objects;
 import java.util.UUID;
 
-@NoArgsConstructor( access = AccessLevel.PROTECTED )
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Setter( AccessLevel.PROTECTED )
+@Setter(AccessLevel.PROTECTED)
 @EqualsAndHashCode
 @Embeddable
 public class Planet {
     private UUID planetId;
     private UUID gameWorldId;
     private int movementDifficulty;
-    private String resourceType;
+    private MineableResource resourceType;
 
     public Planet(UUID planetId, UUID gameWorldId, int movementDifficulty, String resourceType) {
         this.planetId = planetId;
@@ -23,10 +24,10 @@ public class Planet {
         this.movementDifficulty = movementDifficulty;
 
         // allowed resource types: "COAL", "IRON", "GEM", "GOLD", "PLATIN" -> Platinum?
-        if (Objects.equals(resourceType, "COAL") || Objects.equals(resourceType, "IRON") || Objects.equals(resourceType, "GEM") || Objects.equals(resourceType, "GOLD") || Objects.equals(resourceType, "PLATIN")) {
-            this.resourceType = resourceType;
-        } else {
-            throw new IllegalArgumentException("Invalid resource type!");
+        try {
+            MineableResourceType.valueOf(resourceType);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid resource type: " + resourceType);
         }
     }
 }
