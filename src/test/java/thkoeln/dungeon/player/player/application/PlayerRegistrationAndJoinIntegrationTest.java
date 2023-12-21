@@ -3,6 +3,7 @@ package thkoeln.dungeon.player.player.application;
 
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Profile;
 import thkoeln.dungeon.player.core.AbstractDungeonMockingIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

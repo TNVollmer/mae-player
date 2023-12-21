@@ -1,28 +1,27 @@
 package thkoeln.dungeon.player.game.application;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.restadapter.GameDto;
+import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameException;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
-import thkoeln.dungeon.player.core.restadapter.GameDto;
-import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class GameApplicationService {
     private GameRepository gameRepository;
     private GameServiceRESTAdapter gameServiceRESTAdapter;
     private Environment environment;
 
-    private Logger logger = LoggerFactory.getLogger( GameApplicationService.class );
     ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
@@ -47,8 +46,8 @@ public class GameApplicationService {
             game.checkIfOurPlayerHasJoined(
                     openGameDtos[0].getParticipatingPlayers(), environment.getProperty( "dungeon.playerName" ));
             gameRepository.save( game );
-            logger.info( "Open game found: " + game );
-            if ( openGameDtos.length > 1 ) logger.warn( "More than one open game found!" );
+            log.info( "Open game found: " + game );
+            if ( openGameDtos.length > 1 ) log.warn( "More than one open game found!" );
             return game;
         }
         return null;
@@ -58,8 +57,15 @@ public class GameApplicationService {
      * @return The currently available active (CREATED or RUNNING) game, or null if there is no such game
      */
     public Game queryActiveGame() {
-        List<Game> foundGames = gameRepository.findAllByGameStatusBetween( GameStatus.CREATED, GameStatus.STARTED );
-        if ( foundGames.size() > 1 ) throw new GameException( "More than one active game!" );
+        log.debug( "queryActiveGame() ..." );
+        List<Game> foundGames = gameRepository.findAll();
+        if ( foundGames.size() > 1 ) {
+            log.error( "More than one game found!" );
+            for ( Game game : foundGames ) {
+                log.error( "Game: " + game.getGameId() + ", " + game.getGameStatus() + ", internal ID: " + game.getId() );
+            }
+            throw new GameException( "More than one game!" );
+        }
         if ( foundGames.size() == 1 ) {
             return foundGames.get( 0 );
         }
@@ -98,10 +104,10 @@ public class GameApplicationService {
      * We received notice (by event) that the current game has finished.
      */
     public void finishGame() {
-        logger.info( "Finish game" );
+        log.info( "Finish game" );
         Game game = queryActiveGame();
         if ( game == null ) {
-            logger.error( "No active game found!" );
+            log.error( "No active game found!" );
             return;
         }
         game.setGameStatus( GameStatus.ENDED );
@@ -115,12 +121,12 @@ public class GameApplicationService {
      * @param gameId
      */
     public void changeGameStatus( UUID gameId, GameStatus gameStatus ) {
-        logger.info( "Change status for game with gameId " + gameId + " to " + gameStatus );
+        log.info( "Change status for game with gameId " + gameId + " to " + gameStatus );
         if ( gameId == null ) throw new GameException( "gameId == null" );
 
         Game game = queryActiveGame();
         if ( game == null ) {
-            logger.error( "No game with id " + gameId + " found!" );
+            log.error( "No game with id " + gameId + " found!" );
             return;
         }
         game.setGameStatus( gameStatus );
@@ -134,5 +140,4 @@ public class GameApplicationService {
         game.setCurrentRoundNumber( roundNumber );
         gameRepository.save( game );
     }
-
 }
