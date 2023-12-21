@@ -36,7 +36,6 @@ public class GameEventListener {
   void handleRoundStatusEvent( RoundStatusEvent event ) {
     if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
       gameApplicationService.roundStarted( event.getRoundNumber() );
-      playerApplicationService.getRobotData();
     }
   }
 }
