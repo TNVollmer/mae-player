@@ -58,7 +58,7 @@ public class GameApplicationService {
      * @return The currently available active (CREATED or RUNNING) game, or null if there is no such game
      */
     public Game queryActiveGame() {
-        List<Game> foundGames = gameRepository.findAllByGameStatusBetween( GameStatus.CREATED, GameStatus.RUNNING );
+        List<Game> foundGames = gameRepository.findAllByGameStatusBetween( GameStatus.CREATED, GameStatus.STARTED );
         if ( foundGames.size() > 1 ) throw new GameException( "More than one active game!" );
         if ( foundGames.size() == 1 ) {
             return foundGames.get( 0 );
@@ -88,7 +88,7 @@ public class GameApplicationService {
      * game.
      */
     public void startGame( UUID gameId ) {
-        changeGameStatus( gameId, GameStatus.RUNNING );
+        changeGameStatus( gameId, GameStatus.STARTED );
     }
 
 
@@ -104,7 +104,7 @@ public class GameApplicationService {
             logger.error( "No active game found!" );
             return;
         }
-        game.setGameStatus( GameStatus.FINISHED );
+        game.setGameStatus( GameStatus.ENDED );
         gameRepository.save( game );
     }
 

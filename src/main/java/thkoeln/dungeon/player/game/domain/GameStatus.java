@@ -6,17 +6,17 @@ public enum GameStatus {
     @JsonProperty("created")
     CREATED,
     @JsonProperty("started")
-    RUNNING,
+    STARTED,
     @JsonProperty("ended")
-    FINISHED;
+    ENDED;
 
     public boolean isActive() {
-        return ( this.equals( CREATED ) || this.equals( RUNNING ) );
+        return ( this.equals( CREATED ) || this.equals( STARTED ) );
     }
     public boolean isOpenForJoining() {
         return ( this.equals( CREATED ) );
     }
     public boolean isRunning() {
-        return ( this.equals( RUNNING ) );
+        return ( this.equals( STARTED ) );
     }
 }

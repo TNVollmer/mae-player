@@ -80,11 +80,11 @@ public class AbstractDungeonMockingIntegrationTest {
     protected void createMockGameDtos() {
         gameDtosWithRunningGame = new GameDto[2];
         gameDtosWithRunningGame[0] = new GameDto();
-        gameDtosWithRunningGame[0].setGameStatus( GameStatus.FINISHED );
+        gameDtosWithRunningGame[0].setGameStatus( GameStatus.ENDED );
         gameDtosWithRunningGame[0].setGameId( UUID.randomUUID() );
         gameDtosWithRunningGame[0].setCurrentRoundNumber( 100 );
         gameDtosWithRunningGame[1] = new GameDto();
-        gameDtosWithRunningGame[1].setGameStatus( GameStatus.RUNNING );
+        gameDtosWithRunningGame[1].setGameStatus( GameStatus.STARTED );
         gameDtosWithRunningGame[1].setGameId( UUID.randomUUID() );
         gameDtosWithRunningGame[1].setCurrentRoundNumber( 34 );
 

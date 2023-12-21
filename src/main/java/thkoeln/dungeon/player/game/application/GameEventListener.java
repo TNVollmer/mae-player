@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.GameStatusEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatusEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatusType;
+import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.game.domain.GameStatus;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 
@@ -24,10 +24,10 @@ public class GameEventListener {
       playerApplicationService.registerPlayer();
       playerApplicationService.letPlayerJoinOpenGame();
     }
-    else if ( GameStatus.RUNNING.equals( gameStatusEvent.getStatus() ) ) {
+    else if ( GameStatus.STARTED.equals( gameStatusEvent.getStatus() ) ) {
       gameApplicationService.startGame( gameStatusEvent.getGameId() );
     }
-    else if ( GameStatus.FINISHED.equals( gameStatusEvent.getStatus() ) ) {
+    else if ( GameStatus.ENDED.equals( gameStatusEvent.getStatus() ) ) {
       playerApplicationService.cleanupAfterFinishingGame();
     }
   }
