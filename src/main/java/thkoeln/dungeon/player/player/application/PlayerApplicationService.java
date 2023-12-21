@@ -59,18 +59,18 @@ public class PlayerApplicationService {
 
     /**
      * Fetch the existing player. If there isn't one yet, it is created and stored to the database.
+     *
      * @return The current player.
      */
     public Player queryAndIfNeededCreatePlayer() {
         Player player = null;
         List<Player> players = playerRepository.findAll();
-        if ( players.size() >= 1 ) {
-            player = players.get( 0 );
-        }
-        else {
-            player = Player.ownPlayer( playerName, playerEmail );
-            playerRepository.save( player );
-            logger.info( "Created new player (not yet registered): " + player );
+        if (players.size() >= 1) {
+            player = players.get(0);
+        } else {
+            player = Player.ownPlayer(playerName, playerEmail);
+            playerRepository.save(player);
+            logger.info("Created new player (not yet registered): " + player);
         }
         return player;
     }
@@ -81,47 +81,48 @@ public class PlayerApplicationService {
      */
     public void registerPlayer() {
         Player player = queryAndIfNeededCreatePlayer();
-        if ( player.getPlayerId() != null ) {
-            logger.info( "Player " + player + " is already registered." );
+        if (player.getPlayerId() != null) {
+            logger.info("Player " + player + " is already registered.");
             return;
         }
-        var remotePlayer = gameServiceRESTAdapter.sendGetRequestForPlayerId( player.getName(), player.getEmail() );
-        if ( remotePlayer == null ) {
-            remotePlayer = gameServiceRESTAdapter.sendPostRequestForPlayerId( player.getName(), player.getEmail() );
+        var remotePlayer = gameServiceRESTAdapter.sendGetRequestForPlayerId(player.getName(), player.getEmail());
+        if (remotePlayer == null) {
+            remotePlayer = gameServiceRESTAdapter.sendPostRequestForPlayerId(player.getName(), player.getEmail());
         }
-        if ( remotePlayer == null ) {
-            logger.warn( "Registration for player " + player + " failed." );
+        if (remotePlayer == null) {
+            logger.warn("Registration for player " + player + " failed.");
             return;
         }
-        player.assignPlayerId( remotePlayer.getPlayerId() );
-        player.setPlayerExchange( remotePlayer.getPlayerExchange() );
-        player.setPlayerQueue( remotePlayer.getPlayerQueue() );
+        player.assignPlayerId(remotePlayer.getPlayerId());
+        player.setPlayerExchange(remotePlayer.getPlayerExchange());
+        player.setPlayerQueue(remotePlayer.getPlayerQueue());
         Game activeGame = gameApplicationService.queryActiveGame();
-        if ( activeGame != null ) player.setGameId( gameApplicationService.queryActiveGame().getGameId() );
-        playerRepository.save( player );
-        logger.info( "PlayerId sucessfully obtained for " + player + ", is now registered." );
+        if (activeGame != null) player.setGameId(gameApplicationService.queryActiveGame().getGameId());
+        playerRepository.save(player);
+        logger.info("PlayerId sucessfully obtained for " + player + ", is now registered.");
     }
 
 
     /**
      * Check if our player is not currently in a game, and if so, let him join the game -
      * if there is one, and it is open.
+     *
      * @return True, if the player joined a game, false otherwise.
      */
     public boolean letPlayerJoinOpenGame() {
-        logger.info( "Trying to join game ..." );
+        logger.info("Trying to join game ...");
         Player player = queryAndIfNeededCreatePlayer();
         Game activeGame = gameApplicationService.queryAndIfNeededFetchRemoteGame();
-        if ( activeGame == null ) {
-            logger.info( "No open game at the moment - cannot join a game." );
+        if (activeGame == null) {
+            logger.info("No open game at the moment - cannot join a game.");
             return false;
         }
-        if ( !activeGame.getOurPlayerHasJoined() ) {
-            gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( activeGame.getGameId(), player.getPlayerId() );
+        if (!activeGame.getOurPlayerHasJoined()) {
+            gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame(activeGame.getGameId(), player.getPlayerId());
         }
-        player.setGameId( activeGame.getGameId() );
-        playerRepository.save( player );
-        logger.info( "Player successfully joined game ");
+        player.setGameId(activeGame.getGameId());
+        playerRepository.save(player);
+        logger.info("Player successfully joined game ");
         return true;
     }
 
@@ -130,25 +131,30 @@ public class PlayerApplicationService {
      * Poll in regular intervals if there is now game open, and if so, join it.
      */
     public void pollForOpenGame() {
-        logger.info( "Polling for open game ..." );
-        while ( !letPlayerJoinOpenGame() ) {
-            logger.info( "No open game at the moment - polling for open game again in 5 seconds ..." );
+        logger.info("Polling for open game ...");
+        while (!letPlayerJoinOpenGame()) {
+            logger.info("No open game at the moment - polling for open game again in 5 seconds ...");
             try {
-                Thread.sleep( 5000 );
-            }
-            catch ( InterruptedException e ) {
-                logger.error( "pollForOpenGame: sleep interrupted!" );
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                logger.error("pollForOpenGame: sleep interrupted!");
             }
         }
     }
 
 
     public void cleanupAfterFinishingGame() {
-        logger.info( "Cleaning up after finishing game ..." );
+        logger.info("Cleaning up after finishing game ...");
         Player player = queryAndIfNeededCreatePlayer();
         gameApplicationService.finishGame();
-        player.setGameId( null );
-        playerRepository.save( player );
-        logger.info( "Cleaned up after finishing game." );
+        player.setGameId(null);
+        playerRepository.save(player);
+        logger.info("Cleaned up after finishing game.");
     }
+
+
+    public void displayRobotData(String messageBody) {
+        logger.info("Robot data received: " + messageBody);
+    }
+
 }
