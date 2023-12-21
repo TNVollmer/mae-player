@@ -61,15 +61,15 @@ instruct your IDE (e.g [IntelliJ](https://www.jetbrains.com/help/idea/run-debug-
 Easiest way is to right click on the main class `thkoeln.dungeon.player.DungeonPlayerMainApplication` 
 and select "Run DungeonPlayerMainApplication ..." in the context menu.
  
-![Create Spring Boot run configuration](/images/activate-dev-mode0.png)
+![Create Spring Boot run configuration](/static/images/activate-dev-mode0.png)
 
 **2. Open the run configuration editor ...**
 
-![Create Spring Boot run configuration](/images/activate-dev-mode1.png)
+![Open the run configuration editor](/static/images/activate-dev-mode1.png)
 
 **3. ... and add the `dev` profile to the active profiles**
 
-![Create Spring Boot run configuration](/images/activate-dev-mode2.jpg)
+![Add dev profile](/static/images/activate-dev-mode2.jpg)
 
 
 ## Tests
