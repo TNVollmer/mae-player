@@ -2,9 +2,6 @@ package thkoeln.dungeon.player.player.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.Exchange;
-import org.springframework.amqp.rabbit.annotation.Queue;
-import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -13,12 +10,7 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.eventlistener.AbstractEvent;
 import thkoeln.dungeon.player.core.eventlistener.EventFactory;
 import thkoeln.dungeon.player.core.eventlistener.EventHeader;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.GameStatusEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatusEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatusType;
-import thkoeln.dungeon.player.game.application.GameApplicationService;
-import thkoeln.dungeon.player.game.domain.GameStatus;
-import thkoeln.dungeon.player.robot.RobotApplicationService;
+import thkoeln.dungeon.player.robot.application.RobotApplicationService;
 
 @Service
 public class PlayerEventListener {
