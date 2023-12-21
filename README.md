@@ -56,18 +56,18 @@ instruct your IDE (e.g [IntelliJ](https://www.jetbrains.com/help/idea/run-debug-
 
 ### Enable Dev Mode in IntelliJ Ultimate
 
-#### 1. Create a Spring Boot run configuration for your main class (if not already done)
+**1. Create a Spring Boot run configuration for your main class (if not already done)**
 
 Easiest way is to right click on the main class `thkoeln.dungeon.player.DungeonPlayerMainApplication` 
 and select "Run DungeonPlayerMainApplication ..." in the context menu.
  
 ![Create Spring Boot run configuration](/images/activate-dev-mode0.png)
 
-#### 2. Open the run configuration editor ...
+**2. Open the run configuration editor ...**
 
 ![Create Spring Boot run configuration](/images/activate-dev-mode1.png)
 
-#### 3. ... and add the `dev` profile to the active profiles
+**3. ... and add the `dev` profile to the active profiles**
 
 ![Create Spring Boot run configuration](/images/activate-dev-mode2.jpg)
 
