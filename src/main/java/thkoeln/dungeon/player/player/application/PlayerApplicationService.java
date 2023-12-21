@@ -152,9 +152,4 @@ public class PlayerApplicationService {
         logger.info("Cleaned up after finishing game.");
     }
 
-
-    public void displayRobotData(String messageBody) {
-        logger.info("Robot data received: " + messageBody);
-    }
-
 }

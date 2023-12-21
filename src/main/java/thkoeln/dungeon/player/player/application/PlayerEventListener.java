@@ -60,15 +60,6 @@ public class PlayerEventListener {
                 return;
             } else {
                 this.applicationEventPublisher.publishEvent(newEvent);
-                switch (newEvent.getEventHeader().getEventTypeString()) {
-                    case "RobotsRevealed":
-                        logger.info("RobotsRevealed Event received");
-                        robotApplicationService.displayRobotData(newEvent.getMessageBodyAsJson());
-                        break;
-                    case "RobotSpawned":
-                        logger.info("RobotSpawned Event received");
-                        break;
-                }
             }
         } catch (Exception e) {
             logger.error("!!!!!!!!!!!!!! EVENT ERROR !!!!!!!!!!!!!\n" + e);

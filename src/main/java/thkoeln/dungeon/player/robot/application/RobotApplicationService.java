@@ -3,7 +3,10 @@ package thkoeln.dungeon.player.robot.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
+import thkoeln.dungeon.player.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.robot.domain.Robot;
@@ -23,11 +26,13 @@ public class RobotApplicationService {
         this.robotRepository = robotRepository;
     }
 
-    public void displayRobotData(String dataAsJSON) {
-        logger.info("Robot data: " + dataAsJSON);
+    @EventListener(RobotsRevealedEvent.class)
+    public void displayRobotData(RobotsRevealedEvent robotsRevealedEvent) {
+        logger.info("Robot data: " + robotsRevealedEvent.getRobots());
     }
 
-    public void saveNewRobot(String dataAsJSON) {
+    @EventListener(RobotSpawnedEvent.class)
+    public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         //TODO: Hier müssen die Daten aus dem JSON-String in ein Robot-Objekt umgewandelt werden
         Robot newRobot = new Robot(/* TODO: Hier müssen dann die umgewandelten Daten rein */);
         robotRepository.save(newRobot);
