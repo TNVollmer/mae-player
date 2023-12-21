@@ -18,19 +18,22 @@ import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatus
 import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.GameStatus;
+import thkoeln.dungeon.player.robot.RobotApplicationService;
 
 @Service
 public class PlayerEventListener {
     private Logger logger = LoggerFactory.getLogger(PlayerEventListener.class);
     private EventFactory eventFactory;
     private ApplicationEventPublisher applicationEventPublisher;
+    private RobotApplicationService robotApplicationService;
 
     @Autowired
     public PlayerEventListener(EventFactory eventFactory,
-                               ApplicationEventPublisher applicationEventPublisher
+                               ApplicationEventPublisher applicationEventPublisher, RobotApplicationService robotApplicationService
     ) {
         this.eventFactory = eventFactory;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.robotApplicationService = robotApplicationService;
     }
 
 
@@ -68,7 +71,7 @@ public class PlayerEventListener {
                 switch (newEvent.getEventHeader().getEventTypeString()) {
                     case "RobotsRevealed":
                         logger.info("RobotsRevealed Event received");
-                        //robotApplicationService.displayRobotData(newEvent.getPayload());
+                        robotApplicationService.displayRobotData(newEvent.getMessageBodyAsJson());
                         break;
                     case "RobotSpawned":
                         logger.info("RobotSpawned Event received");
