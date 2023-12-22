@@ -8,8 +8,8 @@ import jakarta.persistence.Transient;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import thkoeln.dungeon.player.core.domainprimitives.status.Energy;
-import thkoeln.dungeon.player.core.domainprimitives.status.Health;
+import thkoeln.dungeon.player.core.domainprimitives.robot.RobotInventory;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
 
 import java.util.UUID;
 
@@ -26,8 +26,28 @@ public class Robot {
     private final UUID id = UUID.randomUUID();
 
     private UUID robotId;
-
     private String name = "Robot";
+
+    private boolean isAlive = true;
+    private int maxHealth;
+    private int health;
+
+    private int maxEnergy;
+    private int energy;
+    private int energyRegen;
+
+    private int healthLevel;
+    private int energyLevel;
+    private int energyRegenLevel;
+    private int storageLevel;
+
+    private int attackDamage;
+    private int miningSpeed;
+
+    @Embedded
+    @Setter
+    private RobotInventory robotInventory;
+
 
     @Embedded
     @Setter
