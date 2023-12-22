@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface RobotRepository extends CrudRepository<Robot, UUID> {
     List<Robot> findAll();
     Robot findByRobotId(UUID robotId);
+    List<Robot> findByRobotsPlanetPlanetId(UUID planetId);
     Robot findByRobotIdAndRobotPlanetPlanetId(UUID robotId, UUID planetId);
 }

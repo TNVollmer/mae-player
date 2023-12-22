@@ -1,5 +1,6 @@
 package thkoeln.dungeon.player.robot.application;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import thkoeln.dungeon.player.player.domain.Player;
 public class StrategyService {
 
     private PlayerApplicationService playerApplicationService;
+    private Logger logger;
 
 
     @Autowired
@@ -21,6 +23,8 @@ public class StrategyService {
     @EventListener(RoundStatusEvent.class)
     public void runCommands(RoundStatusEvent roundStatusEvent){
         if (!roundStatusEvent.getRoundStatus().equals("started")){return;}
+        int numberOfCommands = 0;
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
+        logger.info("Sent " + numberOfCommands + " commands");
     }
 }

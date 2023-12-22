@@ -6,17 +6,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
+import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
+import thkoeln.dungeon.player.robot.domain.RobotPlanet;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -43,19 +49,55 @@ public class RobotApplicationService {
 
     @EventListener(RobotSpawnedEvent.class)
     public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
-        //TODO: Hier müssen die Daten aus dem JSON-String in ein Robot-Objekt umgewandelt werden
-        //Robot newRobot = new Robot(/* TODO: Hier müssen dann die umgewandelten Daten rein */);
-        //robotRepository.save(newRobot);
+        RobotDto robotDto = robotSpawnedEvent.getRobotDto();
+        Robot newRobot = new Robot(robotDto.getId(), robotDto.getPlanet().getPlanetId());
+        robotRepository.save(newRobot);
+        logger.info("Robot spawned: " + newRobot.toString());
+        Player player = playerRepository.findAll().get(0);
+        player.getRobots().add(newRobot);
+        playerRepository.save(player);
     }
 
     public void saveRobot(Robot robot){
         robotRepository.save(robot);
     }
 
+
+    //TODO: Später muss das hier im StrategyService aufgerufen werden und muss variable Mengen an Robots kaufen können
     @EventListener(BankInitializedEvent.class)
     public void buyRobot() {
         Command buyRobotCommand = Command.createRobotPurchase(1, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
+    }
+
+    public void moveRobots(){
+        Player player = playerRepository.findAll().get(0);
+        for(Robot robot: player.getRobots()){
+            UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
+            if (neighbourPlanetId == null){
+                logger.info("Robot " + robot.getId() + " has no neighbours");
+                continue;
+            }
+            Command moveRobotCommand = Command.createMove(robot.getId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+            logger.info("Moving robot: " + robot.getId() + " to planet: " + neighbourPlanetId);
+            gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
+        }
+    }
+
+    @EventListener(PlanetDiscoveredEvent.class)
+    public void savePlanet(PlanetDiscoveredEvent planetDiscoveredEvent){
+        List<Robot> robotsOnPlanet = robotRepository.findByRobotsPlanetPlanetId(planetDiscoveredEvent.getPlanetId());
+        if (robotsOnPlanet.isEmpty()){
+            logger.info("No robots on planet: " + planetDiscoveredEvent.getPlanetId());
+            return;
+        }
+        PlanetNeighboursDto[] planetNeighbours = planetDiscoveredEvent.getNeighbours();
+        for (Robot robot: robotsOnPlanet){
+            RobotPlanet updatedRobotPlanet = RobotPlanet.planetWithNeighbours(planetDiscoveredEvent.getPlanetId(), planetNeighbours);
+            robot.setRobotPlanet(updatedRobotPlanet);
+            robotRepository.save(robot);
+            logger.info("Updated robot: " + robot.getId() + " with planet: " + updatedRobotPlanet.toString());
+        }
     }
 
     public UUID[] getGameAndPlayerId() {

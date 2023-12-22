@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +38,30 @@ public class RobotPlanet {
 
     public static RobotPlanet planetWithoutNeighbours(UUID planetId){
         return new RobotPlanet(planetId, null, null, null, null);
+    }
+
+    public static RobotPlanet planetWithNeighbours(UUID planetId, PlanetNeighboursDto[] neighbours){
+        UUID north = null;
+        UUID east = null;
+        UUID south = null;
+        UUID west = null;
+        for(PlanetNeighboursDto neighbour : neighbours){
+            switch (neighbour.getDirection()){
+                case NORTH:
+                    north = neighbour.getId();
+                    break;
+                case EAST:
+                    east = neighbour.getId();
+                    break;
+                case SOUTH:
+                    south = neighbour.getId();
+                    break;
+                case WEST:
+                    west = neighbour.getId();
+                    break;
+            }
+        }
+        return new RobotPlanet(planetId, north, east, south, west);
     }
 
 
