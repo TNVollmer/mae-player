@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
@@ -14,7 +15,6 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawne
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
-import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
@@ -55,7 +55,7 @@ public class RobotApplicationService {
         RobotDto robotDto = robotSpawnedEvent.getRobotDto();
         Robot newRobot = new Robot(robotDto.getId(), robotDto.getPlanet().getPlanetId());
         robotRepository.save(newRobot);
-        logger.info("Robot spawned: " + newRobot.toString());
+        logger.info("Robot spawned: " + newRobot);
         Player player = playerRepository.findAll().get(0);
         player.getRobots().add(newRobot);
         playerRepository.save(player);
@@ -96,10 +96,15 @@ public class RobotApplicationService {
         }
         PlanetNeighboursDto[] planetNeighbours = planetDiscoveredEvent.getNeighbours();
         for (Robot robot: robotsOnPlanet){
-            RobotPlanet updatedRobotPlanet = RobotPlanet.planetWithNeighbours(planetDiscoveredEvent.getPlanetId(), planetNeighbours);
+            RobotPlanet updatedRobotPlanet = RobotPlanet.planetWithNeighbours(
+                    planetDiscoveredEvent.getPlanetId(),
+                    planetNeighbours,
+                    planetDiscoveredEvent.getMovementDifficulty(),
+                    MineableResource.fromTypeAndAmount(planetDiscoveredEvent.getResource().getResourceType(), planetDiscoveredEvent.getResource().getCurrentAmount())
+            );
             robot.setRobotPlanet(updatedRobotPlanet);
             robotRepository.save(robot);
-            logger.info("Updated robot: " + robot.getId() + " with planet: " + updatedRobotPlanet.toString());
+            logger.info("Updated robot: " + robot.getId() + " with planet: " + updatedRobotPlanet);
         }
     }
 

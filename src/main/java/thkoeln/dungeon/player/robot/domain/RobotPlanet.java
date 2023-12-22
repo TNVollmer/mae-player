@@ -5,13 +5,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Embeddable
 @Getter
@@ -23,6 +23,8 @@ public class RobotPlanet {
     private UUID east;
     private UUID south;
     private UUID west;
+    private int movementDifficulty;
+    private MineableResource mineableResource;
 
     public UUID randomNonNullNeighbourId() {
         UUID[] neighbours = {north, east, south, west};
@@ -34,14 +36,14 @@ public class RobotPlanet {
     }
 
     public static RobotPlanet nullPlanet() {
-        return new RobotPlanet(null, null, null, null, null);
+        return new RobotPlanet(null, null, null, null, null, 0, null);
     }
 
     public static RobotPlanet planetWithoutNeighbours(UUID planetId) {
-        return new RobotPlanet(planetId, null, null, null, null);
+        return new RobotPlanet(planetId, null, null, null, null, 0, null);
     }
 
-    public static RobotPlanet planetWithNeighbours(UUID planetId, PlanetNeighboursDto[] neighbours) {
+    public static RobotPlanet planetWithNeighbours(UUID planetId, PlanetNeighboursDto[] neighbours, int movementDifficulty, MineableResource resourceType) {
         UUID north = null;
         UUID east = null;
         UUID south = null;
@@ -62,7 +64,7 @@ public class RobotPlanet {
                     break;
             }
         }
-        return new RobotPlanet(planetId, north, east, south, west);
+        return new RobotPlanet(planetId, north, east, south, west, movementDifficulty, resourceType);
     }
 
 
