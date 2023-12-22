@@ -9,6 +9,7 @@ import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
@@ -53,7 +54,7 @@ public class RobotApplicationService {
     @EventListener(RobotSpawnedEvent.class)
     public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         RobotDto robotDto = robotSpawnedEvent.getRobotDto();
-        Robot newRobot = new Robot(robotDto.getId(), robotDto.getPlanet().getPlanetId());
+        Robot newRobot = new Robot(robotDto.getId(),("Robot" + robotRepository.findAll().size()), robotDto.getPlanet().getPlanetId());
         robotRepository.save(newRobot);
         logger.info("Robot spawned: " + newRobot);
         Player player = playerRepository.findAll().get(0);
@@ -61,8 +62,18 @@ public class RobotApplicationService {
         playerRepository.save(player);
     }
 
-    public void saveRobot(Robot robot){
-        robotRepository.save(robot);
+    @EventListener(RobotsRevealedEvent.class)
+    public void saveRobot(RobotsRevealedEvent robotsRevealedEvent){
+        List<Robot> robots = robotRepository.findAll();
+        for(Robot robot: robots){
+            for(RobotRevealedDto robotRevealedDto: robotsRevealedEvent.getRobots()){
+                if(robot.getId().equals(robotRevealedDto.getRobotId())){
+                    robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
+                    robotRepository.save(robot);
+                    logger.info("Updated robot: " + robot.getId() + " with planet: " + robotRevealedDto.getPlanetId());
+                }
+            }
+        }
     }
 
 

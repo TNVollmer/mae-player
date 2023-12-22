@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TradableBoughtEvent extends AbstractEvent {
+public class TradeableBoughtEvent extends AbstractEvent {
 
     private UUID playerId;
     private UUID robotId;
@@ -23,7 +23,7 @@ public class TradableBoughtEvent extends AbstractEvent {
     @Override
     public boolean isValid() {
         if ( eventHeader == null ) return false;
-        return ( playerId != null && robotId != null && type != null && name != null && amount != null && pricePerUnit != null && totalPrice != null);
+        return ( playerId != null && type != null && name != null && amount != null && pricePerUnit != null && totalPrice != null);
     }
 
 }

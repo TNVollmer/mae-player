@@ -19,44 +19,44 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Setter( AccessLevel.PROTECTED )
-@NoArgsConstructor( access = AccessLevel.PROTECTED )
+@Setter(AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Player {
     @Transient
-    private Logger logger = LoggerFactory.getLogger( Player.class );
+    private Logger logger = LoggerFactory.getLogger(Player.class);
 
     @Id
     private final UUID id = UUID.randomUUID();
 
     // GameId is stored for convenience - you need this for creating commands.
-    @Setter( AccessLevel.PUBLIC )
+    @Setter(AccessLevel.PUBLIC)
     private UUID gameId;
 
     private String name;
     private String email;
     private UUID playerId;
 
-    @Setter( AccessLevel.PUBLIC )
+    @Setter(AccessLevel.PUBLIC)
     private Money balance = Money.zero();
 
     @OneToMany
     private List<Robot> robots = new ArrayList<>();
 
-    @Setter( AccessLevel.PUBLIC )
+    @Setter(AccessLevel.PUBLIC)
     private String playerExchange;
 
-    @Setter( AccessLevel.PUBLIC )
+    @Setter(AccessLevel.PUBLIC)
     private String playerQueue;
 
-    public static Player ownPlayer( String name, String email ) {
+    public static Player ownPlayer(String name, String email) {
         Player player = new Player();
-        player.setName( name );
-        player.setEmail( email );
+        player.setName(name);
+        player.setEmail(email);
         return player;
     }
 
-    public void assignPlayerId( UUID playerId ) {
-        if ( playerId == null ) throw new PlayerException( "playerId == null" );
+    public void assignPlayerId(UUID playerId) {
+        if (playerId == null) throw new PlayerException("playerId == null");
         this.playerId = playerId;
 
         // this we do in order to register the queue early - before joining the game
@@ -65,7 +65,7 @@ public class Player {
 
 
     public void resetToDefaultPlayerExchange() {
-        if ( name == null ) throw new PlayerException( "name == null" );
+        if (name == null) throw new PlayerException("name == null");
         this.playerExchange = "player-" + name;
     }
 
@@ -76,7 +76,7 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player '" + name + "' (email: " + getEmail() + ", playerId: " + playerId + ")";
+        return "Player '" + name + "' (email: " + getEmail() + ", playerId: " + playerId + ")" + "Owns following robots: " + "List is brocken: could not initialize proxy - no Session";
     }
 
     @Override
@@ -89,9 +89,9 @@ public class Player {
         }
         Player player = (Player) o;
         return Objects.equals(id, player.id) && Objects.equals(gameId, player.gameId)
-            && Objects.equals(name, player.name) && Objects.equals(email,
-            player.email) && Objects.equals(playerId, player.playerId)
-            && Objects.equals(playerExchange, player.playerExchange);
+                && Objects.equals(name, player.name) && Objects.equals(email,
+                player.email) && Objects.equals(playerId, player.playerId)
+                && Objects.equals(playerExchange, player.playerExchange);
     }
 
     @Override

@@ -23,23 +23,26 @@ public class Robot {
     private Logger logger = LoggerFactory.getLogger(Robot.class);
 
     @Id
-   private final UUID id = UUID.randomUUID();
+    private final UUID id = UUID.randomUUID();
 
     private UUID robotId;
+
+    private String name = "Robot";
 
     @Embedded
     @Setter
     private RobotPlanet robotPlanet = RobotPlanet.nullPlanet();
-   public Robot(UUID robotId, UUID planetId){
-       if(robotId == null || planetId == null){
-           logger.error("Robot or planet id is null");
-           throw new IllegalArgumentException("Robot or planet id is null");
-       }
-       this.robotId = robotId;
-         this.robotPlanet = RobotPlanet.planetWithoutNeighbours(planetId);
-   }
 
-   public static Robot of(UUID robotId, UUID planetId){
-       return new Robot(robotId, planetId);
-   }
+    public Robot(UUID robotId, String name, UUID planetId) {
+        if (robotId == null || planetId == null) {
+            logger.error("Robot or planet id is null");
+            throw new IllegalArgumentException("Robot or planet id is null");
+        }
+        this.robotId = robotId;
+        this.robotPlanet = RobotPlanet.planetWithoutNeighbours(planetId);
+    }
+
+    public static Robot of(UUID robotId, String name, UUID planetId) {
+        return new Robot(robotId, name, planetId);
+    }
 }
