@@ -16,7 +16,7 @@ public class MineableResource {
 
 
     public static MineableResource fromTypeAndAmount( MineableResourceType mineableResourceType, Integer amount ) {
-        if ( mineableResourceType == null ) throw new DomainPrimitiveException( "MineableResourceType cannot be null!" );
+        if ( mineableResourceType == null ) return null;
         if ( amount == null ) throw new DomainPrimitiveException( "Amount cannot be null!" );
         if ( amount <= 0 ) throw new DomainPrimitiveException( "Amount must be > 0!" );
         return new MineableResource( mineableResourceType, amount );

@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TradeableBoughtEvent extends AbstractEvent {
+public class TradableBoughtEvent extends AbstractEvent {
 
     private UUID playerId;
     private UUID robotId;

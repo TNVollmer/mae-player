@@ -80,6 +80,12 @@ public class RobotEventListener {
                     planetDiscoveredEvent.getMovementDifficulty(),
                     MineableResource.fromTypeAndAmount(planetDiscoveredEvent.getResource().getResourceType(), planetDiscoveredEvent.getResource().getCurrentAmount())
             );
+            if (planetDiscoveredEvent.getResource().getResourceType() == null) {
+                logger.info("RESOURCE --> No mineable resource on planet: " + planetDiscoveredEvent.getPlanetId());
+            }
+            else {
+                logger.info("RESOURCE --> Mineable resource found: " + updatedRobotPlanet.getMineableResource().getType() + " with amount: " + updatedRobotPlanet.getMineableResource().getAmount());
+            }
             robot.setRobotPlanet(updatedRobotPlanet);
             robotRepository.save(robot);
             logger.info("Updated robot: " + robot.getId() + " with planet: " + updatedRobotPlanet);

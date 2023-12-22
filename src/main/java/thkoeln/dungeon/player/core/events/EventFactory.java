@@ -59,8 +59,8 @@ public class EventFactory {
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();
                 break;
-            case TRADEABLE_BOUGHT:
-                newEvent = new TradeableBoughtEvent();
+            case TRADABLE_BOUGHT:
+                newEvent = new TradableBoughtEvent();
                 break;
             case BANK_ACCOUNT_CLEARED:
                 newEvent = new BankAccountClearedEvent();

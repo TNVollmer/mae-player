@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class RobotPlanet {
     private UUID planetId;
     private UUID north;
@@ -73,7 +75,13 @@ public class RobotPlanet {
     }
 
     public void updateMineableResource(PlanetResourceDto resource) {
-        this.mineableResource = MineableResource.fromTypeAndAmount(resource.getResourceType(), resource.getCurrentAmount());
+        try {
+            this.mineableResource = MineableResource.fromTypeAndAmount(resource.getResourceType(), resource.getCurrentAmount());
+            log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource);
+        } catch (Exception e) {
+            this.mineableResource = null;
+            log.info("RESSOURCE --> " + "No mineable resource on planet: " + this.planetId);
+        }
     }
 
 
