@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
@@ -51,7 +52,7 @@ public class RobotEventListener {
     }
 
     @EventListener(RobotsRevealedEvent.class)
-    public void saveRobot(RobotsRevealedEvent robotsRevealedEvent) {
+    public void updateRobot(RobotsRevealedEvent robotsRevealedEvent) {
         List<Robot> robots = robotRepository.findAll();
         for (Robot robot : robots) {
             for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots()) {
@@ -82,6 +83,20 @@ public class RobotEventListener {
             robot.setRobotPlanet(updatedRobotPlanet);
             robotRepository.save(robot);
             logger.info("Updated robot: " + robot.getId() + " with planet: " + updatedRobotPlanet);
+        }
+    }
+
+    @EventListener(ResourceMinedEvent.class)
+    public void updatePlanetResource(ResourceMinedEvent resourceMinedEvent) {
+        List<Robot> robotsOnPlanet = robotRepository.findByRobotPlanetPlanetId(resourceMinedEvent.getPlanetId());
+        if (robotsOnPlanet.isEmpty()) {
+            logger.info("No robots on planet: " + resourceMinedEvent.getPlanetId());
+            return;
+        }
+        for (Robot robot : robotsOnPlanet) {
+            robot.getRobotPlanet().updateMineableResource(resourceMinedEvent.getResource());
+            robotRepository.save(robot);
+            logger.info("Updated robot: " + robot.getId() + " with planet: " + robot.getRobotPlanet()+ ". New resource: " + resourceMinedEvent.getResource().getResourceType() + " with amount: " + resourceMinedEvent.getResource().getCurrentAmount());
         }
     }
 }

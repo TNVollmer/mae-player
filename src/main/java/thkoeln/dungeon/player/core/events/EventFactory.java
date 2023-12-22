@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
@@ -63,6 +64,9 @@ public class EventFactory {
                 break;
             case BANK_ACCOUNT_CLEARED:
                 newEvent = new BankAccountClearedEvent();
+                break;
+            case RESOURCE_MINED:
+                newEvent = new ResourceMinedEvent();
                 break;
             case ERROR:
                 newEvent = new ErrorEvent();

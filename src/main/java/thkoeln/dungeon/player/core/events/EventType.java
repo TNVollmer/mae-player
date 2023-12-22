@@ -16,6 +16,7 @@ public enum EventType {
     PLANET_DISCOVERED( "PlanetDiscovered" ),
     TRADEABLE_BOUGHT( "TradeableBought" ),
     BANK_ACCOUNT_CLEARED( "BankAccountCleared" ),
+    RESOURCE_MINED( "ResourceMined" ),
 
     ERROR( "error" ),
     UNKNOWN( "UNKNOWN" );

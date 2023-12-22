@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetResourceDto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +67,10 @@ public class RobotPlanet {
             }
         }
         return new RobotPlanet(planetId, north, east, south, west, movementDifficulty, resourceType);
+    }
+
+    public void updateMineableResource(PlanetResourceDto resource) {
+        this.mineableResource = MineableResource.fromTypeAndAmount(resource.getResourceType(), resource.getCurrentAmount());
     }
 
 
