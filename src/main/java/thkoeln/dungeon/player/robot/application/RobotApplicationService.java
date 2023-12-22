@@ -29,7 +29,7 @@ import java.util.UUID;
 @Service
 public class RobotApplicationService {
 
-    private final Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
+    private final Logger logger = LoggerFactory.getLogger(RobotApplicationService.class);
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
     private final RobotRepository robotRepository;
     private final PlayerRepository playerRepository;
@@ -66,10 +66,9 @@ public class RobotApplicationService {
     }
 
 
-    //TODO: Später muss das hier im StrategyService aufgerufen werden und muss variable Mengen an Robots kaufen können
-    @EventListener(BankInitializedEvent.class)
-    public void buyRobot() {
-        Command buyRobotCommand = Command.createRobotPurchase(1, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+
+    public void buyRobot(int amount){
+        Command buyRobotCommand = Command.createRobotPurchase(amount, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
 

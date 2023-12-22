@@ -41,6 +41,7 @@ public class EventFactory {
             case TRADABLE_PRICES:
                 newEvent = new TradeablePricesEvent();
                 break;
+
             case ROBOT_SPAWNED:
                 newEvent = new RobotSpawnedEvent();
                 break;
@@ -58,6 +59,9 @@ public class EventFactory {
                 break;
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();
+                break;
+            case TRADABLE_BOUGHT:
+                newEvent = new TradeablePricesEvent();
                 break;
             case ERROR:
                 newEvent = new ErrorEvent();
