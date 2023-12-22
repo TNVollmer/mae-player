@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.GameStatusEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatusEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
-import thkoeln.dungeon.player.core.eventlistener.concreteevents.trading.BankInitializedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
@@ -24,11 +22,11 @@ import java.util.UUID;
 @Service
 public class RobotApplicationService {
 
-    private Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
-    private GameServiceRESTAdapter gameServiceRESTAdapter;
-    private RobotRepository robotRepository;
-    private GameRepository gameRepository;
-    private PlayerRepository playerRepository;
+    private final Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
+    private final GameServiceRESTAdapter gameServiceRESTAdapter;
+    private final RobotRepository robotRepository;
+    private final GameRepository gameRepository;
+    private final PlayerRepository playerRepository;
 
     @Autowired
     public RobotApplicationService(GameServiceRESTAdapter gameServiceRESTAdapter, RobotRepository robotRepository, GameRepository gameRepository, PlayerRepository playerRepository) {
@@ -51,12 +49,12 @@ public class RobotApplicationService {
     }
 
     @EventListener(BankInitializedEvent.class)
-    public void buyRobot(){
+    public void buyRobot() {
         Command buyRobotCommand = Command.createRobotPurchase(1, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
 
-    public UUID[] getGameAndPlayerId(){
+    public UUID[] getGameAndPlayerId() {
         UUID[] ids = new UUID[2];
         ids[0] = gameRepository.findAll().get(0).getId();
         ids[1] = playerRepository.findAll().get(0).getId();
