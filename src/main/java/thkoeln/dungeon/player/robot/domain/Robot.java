@@ -8,6 +8,7 @@ import jakarta.persistence.Transient;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.player.core.domainprimitives.robot.RobotInventory;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
 
 import java.util.UUID;
@@ -42,6 +43,10 @@ public class Robot {
 
     private int attackDamage;
     private int miningSpeed;
+
+    @Embedded
+    @Setter
+    private RobotInventory robotInventory;
 
 
     @Embedded
