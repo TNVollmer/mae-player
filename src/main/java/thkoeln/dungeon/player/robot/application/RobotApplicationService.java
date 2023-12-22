@@ -13,6 +13,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.player.domain.Player;
@@ -31,15 +32,17 @@ public class RobotApplicationService {
     private final Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
     private final RobotRepository robotRepository;
-    private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final PlayerApplicationService playerApplicationService;
+    private final GameApplicationService gameApplicationService;
 
     @Autowired
-    public RobotApplicationService(GameServiceRESTAdapter gameServiceRESTAdapter, RobotRepository robotRepository, GameRepository gameRepository, PlayerRepository playerRepository) {
+    public RobotApplicationService(GameServiceRESTAdapter gameServiceRESTAdapter, RobotRepository robotRepository,  PlayerRepository playerRepository, PlayerApplicationService playerApplicationService, GameApplicationService gameApplicationService) {
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.robotRepository = robotRepository;
-        this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.playerApplicationService = playerApplicationService;
+        this.gameApplicationService = gameApplicationService;
     }
 
     @EventListener(RobotsRevealedEvent.class)
@@ -102,8 +105,8 @@ public class RobotApplicationService {
 
     public UUID[] getGameAndPlayerId() {
         UUID[] ids = new UUID[2];
-        ids[0] = gameRepository.findAll().get(0).getId();
-        ids[1] = playerRepository.findAll().get(0).getId();
+        ids[0] = gameApplicationService.queryAndIfNeededFetchRemoteGame().getGameId();
+        ids[1] = playerApplicationService.queryAndIfNeededCreatePlayer().getPlayerId();
         return ids;
     }
 }
