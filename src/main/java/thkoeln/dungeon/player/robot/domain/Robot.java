@@ -27,21 +27,21 @@ public class Robot {
     private UUID robotId;
     private String name = "Robot";
 
-
     private boolean isAlive = true;
-    private int health = 100;
-    private int healthLevel = 5;
-    private int energy = 43;
-    private int energyLevel = 5;
-    private int maxHealth = 100;
+    private int maxHealth;
+    private int health;
 
-    private int energyRegen = 8;
-    private int energyRegenLevel = 5;
-    private int maxEnergy = 100;
+    private int maxEnergy;
+    private int energy;
+    private int energyRegen;
 
-    private int attackDamage = 5;
-    private int miningSpeed = 10;
-    private int storageLevel = 5;
+    private int healthLevel;
+    private int energyLevel;
+    private int energyRegenLevel;
+    private int storageLevel;
+
+    private int attackDamage;
+    private int miningSpeed;
 
 
     @Embedded
