@@ -44,8 +44,12 @@ public class RobotApplicationService {
     @EventListener(RobotSpawnedEvent.class)
     public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         //TODO: Hier müssen die Daten aus dem JSON-String in ein Robot-Objekt umgewandelt werden
-        Robot newRobot = new Robot(/* TODO: Hier müssen dann die umgewandelten Daten rein */);
-        robotRepository.save(newRobot);
+        //Robot newRobot = new Robot(/* TODO: Hier müssen dann die umgewandelten Daten rein */);
+        //robotRepository.save(newRobot);
+    }
+
+    public void saveRobot(Robot robot){
+        robotRepository.save(robot);
     }
 
     @EventListener(BankInitializedEvent.class)

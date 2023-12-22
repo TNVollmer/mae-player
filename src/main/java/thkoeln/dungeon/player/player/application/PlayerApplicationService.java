@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.player.domain.Player;
@@ -150,6 +151,13 @@ public class PlayerApplicationService {
         player.setGameId(null);
         playerRepository.save(player);
         logger.info("Cleaned up after finishing game.");
+    }
+
+    public void updateMoney(Money money){
+        Player player = queryAndIfNeededCreatePlayer();
+        if (player.getBalance().equals(money)) return;
+        player.setBalance(money);
+        playerRepository.save(player);
     }
 
 }

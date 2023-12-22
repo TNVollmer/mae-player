@@ -9,6 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.persistence.*;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.robot.domain.Robot;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,6 +35,12 @@ public class Player {
     private String name;
     private String email;
     private UUID playerId;
+
+    @Setter( AccessLevel.PUBLIC )
+    private Money balance = Money.zero();
+
+    @OneToMany
+    private List<Robot> robots = new ArrayList<>();
 
     @Setter( AccessLevel.PUBLIC )
     private String playerExchange;
@@ -87,4 +98,5 @@ public class Player {
     public int hashCode() {
         return Objects.hash(id, gameId, name, email, playerId, playerExchange);
     }
+
 }

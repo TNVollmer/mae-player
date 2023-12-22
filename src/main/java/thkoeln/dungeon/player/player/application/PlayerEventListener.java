@@ -5,11 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.events.AbstractEvent;
 import thkoeln.dungeon.player.core.events.EventFactory;
 import thkoeln.dungeon.player.core.events.EventHeader;
+import thkoeln.dungeon.player.core.events.concreteevents.trading.BankAccountTransactionBookedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.robot.application.RobotApplicationService;
 
 @Service
@@ -18,14 +22,16 @@ public class PlayerEventListener {
     private EventFactory eventFactory;
     private ApplicationEventPublisher applicationEventPublisher;
     private RobotApplicationService robotApplicationService;
+    private PlayerApplicationService playerApplicationService;
 
     @Autowired
     public PlayerEventListener(EventFactory eventFactory,
-                               ApplicationEventPublisher applicationEventPublisher, RobotApplicationService robotApplicationService
+                               ApplicationEventPublisher applicationEventPublisher, RobotApplicationService robotApplicationService, PlayerApplicationService playerApplicationService
     ) {
         this.eventFactory = eventFactory;
         this.applicationEventPublisher = applicationEventPublisher;
         this.robotApplicationService = robotApplicationService;
+        this.playerApplicationService = playerApplicationService;
     }
 
 
@@ -64,5 +70,15 @@ public class PlayerEventListener {
         } catch (Exception e) {
             logger.error("!!!!!!!!!!!!!! EVENT ERROR !!!!!!!!!!!!!\n" + e);
         }
+    }
+
+    @EventListener(BankInitializedEvent.class)
+    private void initialiseMoney(BankInitializedEvent bankInitializedEvent){
+        playerApplicationService.updateMoney(Money.from(bankInitializedEvent.getBalance()));
+    }
+
+    @EventListener(BankAccountTransactionBookedEvent.class)
+    private void updateMoney(BankAccountTransactionBookedEvent bankAccountTransactionBookedEvent){
+        playerApplicationService.updateMoney(Money.from(bankAccountTransactionBookedEvent.getBalance()));
     }
 }
