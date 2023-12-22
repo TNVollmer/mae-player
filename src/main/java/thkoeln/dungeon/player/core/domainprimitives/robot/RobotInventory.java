@@ -27,14 +27,6 @@ public class RobotInventory {
         return new RobotInventory( storageLevel, 0, RobotInventoryResources.empty(), Boolean.FALSE, maxStorage );
     }
 
-    public RobotInventory add( RobotInventory additionalInventory ) {
-        if ( additionalInventory == null ) throw new DomainPrimitiveException( "additionalInventory cannot be null!" );
-        if ( additionalInventory.isEmpty() ) return this;
-        if ( this.isEmpty() ) return additionalInventory;
-        if (!Objects.equals(this.storageLevel, additionalInventory.storageLevel)) throw new DomainPrimitiveException( "Cannot add inventories of different storage levels!" );
-        return new RobotInventory( this.storageLevel, this.usedStorage + additionalInventory.usedStorage, this.resources.add( additionalInventory.resources ), this.full || additionalInventory.full, this.maxStorage );
-    }
-
     public RobotInventory updateInventory(RobotInventoryDto robotInventoryDto){
         this.storageLevel = robotInventoryDto.getStorageLevel();
         this.usedStorage = robotInventoryDto.getUsedStorage();
