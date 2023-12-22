@@ -10,6 +10,7 @@ import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.GameStatusE
 import thkoeln.dungeon.player.core.eventlistener.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.eventlistener.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.eventlistener.concreteevents.robot.spawn.RobotSpawnedEvent;
+import thkoeln.dungeon.player.core.eventlistener.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
@@ -49,7 +50,7 @@ public class RobotApplicationService {
         robotRepository.save(newRobot);
     }
 
-    @EventListener(RoundStatusEvent.class)
+    @EventListener(BankInitializedEvent.class)
     public void buyRobot(){
         Command buyRobotCommand = Command.createRobotPurchase(1, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
