@@ -40,7 +40,6 @@ public class Robot {
    }
 
    public static Robot of(UUID robotId, UUID planetId){
-       Robot robot = new Robot(robotId, planetId);
-       return robot;
+       return new Robot(robotId, planetId);
    }
 }
