@@ -1,15 +1,11 @@
 package thkoeln.dungeon.player.robot.domain;
 
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotInventory;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
 
 import java.util.UUID;
 
@@ -39,14 +35,14 @@ public class Robot {
     private int healthLevel;
     private int energyLevel;
     private int energyRegenLevel;
-    private int storageLevel;
 
     private int attackDamage;
     private int miningSpeed;
 
+
     @Embedded
     @Setter
-    private RobotInventory robotInventory;
+    private RobotInventory robotInventory = RobotInventory.emptyInventory();
 
 
     @Embedded

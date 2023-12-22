@@ -1,6 +1,7 @@
 package thkoeln.dungeon.player.robot.domain;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,8 @@ public class RobotPlanet {
     private UUID south;
     private UUID west;
     private int movementDifficulty;
+
+    @Embedded
     private MineableResource mineableResource;
 
     public UUID randomNonNullNeighbourId() {
