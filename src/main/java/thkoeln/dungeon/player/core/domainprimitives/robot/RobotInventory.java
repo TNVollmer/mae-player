@@ -3,6 +3,7 @@ package thkoeln.dungeon.player.core.domainprimitives.robot;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
 
 import java.util.Objects;
 
@@ -32,6 +33,15 @@ public class RobotInventory {
         if ( this.isEmpty() ) return additionalInventory;
         if (!Objects.equals(this.storageLevel, additionalInventory.storageLevel)) throw new DomainPrimitiveException( "Cannot add inventories of different storage levels!" );
         return new RobotInventory( this.storageLevel, this.usedStorage + additionalInventory.usedStorage, this.resources.add( additionalInventory.resources ), this.full || additionalInventory.full, this.maxStorage );
+    }
+
+    public RobotInventory updateInventory(RobotInventoryDto robotInventoryDto){
+        this.storageLevel = robotInventoryDto.getStorageLevel();
+        this.usedStorage = robotInventoryDto.getUsedStorage();
+        this.resources = this.resources.updateResources(robotInventoryDto.getResources());
+        this.full = robotInventoryDto.getFull();
+        this.maxStorage = robotInventoryDto.getMaxStorage();
+        return this;
     }
 
     private boolean isEmpty() {
