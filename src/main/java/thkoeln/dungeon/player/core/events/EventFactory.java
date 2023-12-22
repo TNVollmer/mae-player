@@ -11,10 +11,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEv
 import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.trading.BankAccountTransactionBookedEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.trading.TradeablePricesEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.trading.TradeableBoughtEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.trading.*;
 import thkoeln.dungeon.player.core.events.concreteevents.ErrorEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.UnknownEvent;
 
@@ -61,8 +58,11 @@ public class EventFactory {
             case PLANET_DISCOVERED:
                 newEvent = new PlanetDiscoveredEvent();
                 break;
-            case TRADABLE_BOUGHT:
+            case TRADEABLE_BOUGHT:
                 newEvent = new TradeableBoughtEvent();
+                break;
+            case BANK_ACCOUNT_CLEARED:
+                newEvent = new BankAccountClearedEvent();
                 break;
             case ERROR:
                 newEvent = new ErrorEvent();
