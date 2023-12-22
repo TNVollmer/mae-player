@@ -40,7 +40,7 @@ public class GameApplicationServiceIntegrationTest extends AbstractDungeonMockin
         // then
         Game game = gameApplicationService.queryActiveGame();
         assertNotNull( game );
-        assertEquals( GameStatus.RUNNING, game.getGameStatus() );
+        assertEquals( GameStatus.STARTED, game.getGameStatus() );
     }
 
     @Test

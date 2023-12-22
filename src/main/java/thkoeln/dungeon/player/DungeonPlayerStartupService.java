@@ -6,13 +6,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.player.domain.Player;
 
 @Service
+@Profile("!dev")
 public class DungeonPlayerStartupService implements ApplicationListener<ApplicationReadyEvent> {
     private Logger logger = LoggerFactory.getLogger( DungeonPlayerStartupService.class );
     private PlayerApplicationService playerApplicationService;

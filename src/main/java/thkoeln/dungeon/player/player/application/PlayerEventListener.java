@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
-import thkoeln.dungeon.player.core.eventlistener.AbstractEvent;
-import thkoeln.dungeon.player.core.eventlistener.EventFactory;
-import thkoeln.dungeon.player.core.eventlistener.EventHeader;
+import thkoeln.dungeon.player.core.events.AbstractEvent;
+import thkoeln.dungeon.player.core.events.EventFactory;
+import thkoeln.dungeon.player.core.events.EventHeader;
 import thkoeln.dungeon.player.robot.application.RobotApplicationService;
 
 @Service
