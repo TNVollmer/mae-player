@@ -86,7 +86,7 @@ public class RobotApplicationService {
 
     @EventListener(PlanetDiscoveredEvent.class)
     public void savePlanet(PlanetDiscoveredEvent planetDiscoveredEvent){
-        List<Robot> robotsOnPlanet = robotRepository.findByRobotsPlanetPlanetId(planetDiscoveredEvent.getPlanetId());
+        List<Robot> robotsOnPlanet = robotRepository.findByRobotPlanetPlanetId(planetDiscoveredEvent.getPlanetId());
         if (robotsOnPlanet.isEmpty()){
             logger.info("No robots on planet: " + planetDiscoveredEvent.getPlanetId());
             return;

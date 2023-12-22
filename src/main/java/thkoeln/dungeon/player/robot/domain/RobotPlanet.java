@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Embeddable
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor (access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RobotPlanet {
     private UUID planetId;
     private UUID north;
@@ -24,29 +24,30 @@ public class RobotPlanet {
     private UUID south;
     private UUID west;
 
-    public UUID randomNonNullNeighbourId(){
+    public UUID randomNonNullNeighbourId() {
         UUID[] neighbours = {north, east, south, west};
-        List<UUID> nonNullNeighbours = Arrays.stream(neighbours).filter(Objects::nonNull).collect(Collectors.toList());
-        if(nonNullNeighbours.isEmpty()){
+        List<UUID> nonNullNeighbours = Arrays.stream(neighbours).filter(Objects::nonNull).toList();
+        if (nonNullNeighbours.isEmpty()) {
             return null;
         }
         return nonNullNeighbours.get((int) (Math.random() * nonNullNeighbours.size()));
     }
-    public static RobotPlanet nullPlanet(){
+
+    public static RobotPlanet nullPlanet() {
         return new RobotPlanet(null, null, null, null, null);
     }
 
-    public static RobotPlanet planetWithoutNeighbours(UUID planetId){
+    public static RobotPlanet planetWithoutNeighbours(UUID planetId) {
         return new RobotPlanet(planetId, null, null, null, null);
     }
 
-    public static RobotPlanet planetWithNeighbours(UUID planetId, PlanetNeighboursDto[] neighbours){
+    public static RobotPlanet planetWithNeighbours(UUID planetId, PlanetNeighboursDto[] neighbours) {
         UUID north = null;
         UUID east = null;
         UUID south = null;
         UUID west = null;
-        for(PlanetNeighboursDto neighbour : neighbours){
-            switch (neighbour.getDirection()){
+        for (PlanetNeighboursDto neighbour : neighbours) {
+            switch (neighbour.getDirection()) {
                 case NORTH:
                     north = neighbour.getId();
                     break;
