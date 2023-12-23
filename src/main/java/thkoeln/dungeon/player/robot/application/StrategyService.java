@@ -51,6 +51,7 @@ public class StrategyService {
 
         List<Robot> robots = robotRepository.findAll();
         for (Robot robot : robots) {
+            try{
             switch (robot.getStrategyStatus()) {
                 case "idle":
                     standardIdleStrategy(robot);
@@ -64,7 +65,10 @@ public class StrategyService {
                 default:
                     logger.info(loggerName + "No strategy found for robot: " + robot.getId());
             }
-            robotRepository.save(robot);
+            robotRepository.save(robot);}
+            catch (Exception e){
+                logger.info(loggerName + "Exception: " + e);
+            }
         }
         logger.info(loggerName + "Owned robots: " + robotRepository.findAll().size());
         for (Robot robot : robots){

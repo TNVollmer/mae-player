@@ -57,7 +57,7 @@ public class RobotApplicationService {
             logger.info("Robot " + robot.getRobotId() + " has no neighbours");
         }
         Command moveRobotCommand = Command.createMove(robot.getRobotId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Moving robot: " + robot.getRobotId() + " to planet: " + neighbourPlanetId);
+        logger.info("Moving robot: " + robot.getRobotId() + " from planet: "+ robot.getRobotPlanet().getPlanetId() + " to planet: " + neighbourPlanetId);
         gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
     }
 

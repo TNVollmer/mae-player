@@ -13,6 +13,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevea
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
+import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
@@ -29,10 +30,13 @@ public class RobotEventListener {
     private final RobotRepository robotRepository;
     private final PlayerRepository playerRepository;
 
+    private final PlayerApplicationService playerApplicationService;
+
     @Autowired
-    public RobotEventListener(RobotRepository robotRepository, PlayerRepository playerRepository) {
+    public RobotEventListener(RobotRepository robotRepository, PlayerRepository playerRepository, PlayerApplicationService playerApplicationService) {
         this.robotRepository = robotRepository;
         this.playerRepository = playerRepository;
+        this.playerApplicationService = playerApplicationService;
     }
 
     @EventListener(RobotsRevealedEvent.class)
@@ -43,10 +47,10 @@ public class RobotEventListener {
     @EventListener(RobotSpawnedEvent.class)
     public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         RobotDto robotDto = robotSpawnedEvent.getRobotDto();
-        Robot newRobot = new Robot(robotDto.getId(), ("Robot" + robotRepository.findAll().size()), robotDto.getPlanet().getPlanetId());
+        Robot newRobot = new Robot(robotDto.getId(), ("Robot" + robotRepository.findAll().size()+1), robotDto.getPlanet().getPlanetId());
         robotRepository.save(newRobot);
-        logger.info("Robot spawned: " + newRobot);
-        Player player = playerRepository.findAll().get(0);
+        logger.info("Robot spawned: " + newRobot.getRobotId());
+        Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
         player.getRobots().add(newRobot);
         playerRepository.save(player);
     }
@@ -56,10 +60,10 @@ public class RobotEventListener {
         List<Robot> robots = robotRepository.findAll();
         for (Robot robot : robots) {
             for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots()) {
-                if (robot.getId().equals(robotRevealedDto.getRobotId())) {
+                if (robot.getRobotId().equals(robotRevealedDto.getRobotId())) {
                     robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
                     robotRepository.save(robot);
-                    logger.info("Updated robot: " + robot.getId() + " with planet: " + robotRevealedDto.getPlanetId());
+                    logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
                 }
             }
         }
@@ -68,6 +72,7 @@ public class RobotEventListener {
     @EventListener(PlanetDiscoveredEvent.class)
     public void savePlanet(PlanetDiscoveredEvent planetDiscoveredEvent) {
         List<Robot> robotsOnPlanet = robotRepository.findByRobotPlanetPlanetId(planetDiscoveredEvent.getPlanetId());
+        logger.info("Robots: "+ robotsOnPlanet.toString() + " on planet: " + planetDiscoveredEvent.getPlanetId());
         if (robotsOnPlanet.isEmpty()) {
             logger.info("No robots on planet: " + planetDiscoveredEvent.getPlanetId());
             return;
@@ -94,7 +99,7 @@ public class RobotEventListener {
             }
             robot.setRobotPlanet(updatedRobotPlanet);
             robotRepository.save(robot);
-            logger.info("Updated robot: " + robot.getId() + " with planet: " + updatedRobotPlanet);
+            logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + updatedRobotPlanet.getPlanetId());
         }
     }
 
@@ -108,7 +113,7 @@ public class RobotEventListener {
         for (Robot robot : robotsOnPlanet) {
             robot.getRobotPlanet().updateMineableResource(resourceMinedEvent.getResource());
             robotRepository.save(robot);
-            logger.info("Updated robot: " + robot.getId() + " with planet: " + robot.getRobotPlanet() + ". New resource: " + resourceMinedEvent.getResource().getResourceType() + " with amount: " + resourceMinedEvent.getResource().getCurrentAmount());
+            logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robot.getRobotPlanet() + ". New resource: " + resourceMinedEvent.getResource().getResourceType() + " with amount: " + resourceMinedEvent.getResource().getCurrentAmount());
         }
     }
 }
