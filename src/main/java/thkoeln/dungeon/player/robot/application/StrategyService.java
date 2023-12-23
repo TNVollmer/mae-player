@@ -51,6 +51,8 @@ public class StrategyService {
         List<Robot> robots = robotRepository.findAll();
         for (Robot robot : robots) {
             try {
+                //TODO: Periodically check if robot is still alive, Remove robot from database if not
+                //TODO: Periodically upgrade health, mining speed and damage, so Robots can survive longer and mine faster
                 switch (robot.getStrategyStatus()) {
                     case "idle":
                         standardIdleStrategy(robot);
@@ -62,7 +64,7 @@ public class StrategyService {
                         logger.info(loggerName + "Fighting not yet implemented");
                         break;
                     default:
-                        logger.info(loggerName + "No strategy found for robot: " + robot.getId());
+                        logger.info(loggerName + "No strategy found for robot: " + robot.getRobotId());
                 }
             } catch (Exception e) {
                 logger.info(loggerName + "Exception: " + e);
@@ -70,10 +72,10 @@ public class StrategyService {
         }
         logger.info(loggerName + "Owned robots: " + robotRepository.findAll().size());
         for (Robot robot : robots) {
-            if (roundStatusEvent.getRoundNumber() % 3 == 0) {
+            if (roundStatusEvent.getRoundNumber() % 4 == 0) {
                 logger.info(loggerName + "Detailed Robot Analysis: " + robot);
             } else {
-                logger.info(loggerName + "Robot: " + robot.getId() + " is " + robot.getStrategyStatus());
+                logger.info(loggerName + "Robot: " + robot.getRobotId() + " is " + robot.getStrategyStatus());
             }
         }
     }
@@ -87,13 +89,11 @@ public class StrategyService {
         if (robot.getRobotPlanet().getMineableResource() == null || robot.getRobotPlanet().getMineableResource().isEmpty()) {
             if (robot.getRobotInventory().isEmpty()) {
                 robotApplicationService.letRobotMove(robot);
-                robot.setStrategyStatus("idle");
-                robotRepository.save(robot);
             } else {
                 robotApplicationService.letRobotSell(robot);
-                robot.setStrategyStatus("idle");
-                robotRepository.save(robot);
             }
+            robot.setStrategyStatus("idle");
+            robotRepository.save(robot);
         } else if (!robot.getRobotPlanet().getMineableResource().isEmpty()) {
             robotApplicationService.letRobotMine(robot);
             robot.setStrategyStatus("mining");
@@ -102,13 +102,21 @@ public class StrategyService {
     }
 
     private void standardMinerStrategy(Robot robot) {
+        //TODO: Miner needs to check, if he is able to mine resource. If not, he either needs to move to another planet or upgrade his mining level
+        //TODO: Therefore a prioritization of upgrades is needed, as a way to determine which upgrade is the most important or which robot needs to move to another planet
+
         if (robot.getRobotInventory().getIsCapped()) {
             robotApplicationService.letRobotSell(robot);
             robot.setStrategyStatus("idle");
             robotRepository.save(robot);
         } else {
-            robotApplicationService.letRobotMine(robot);
-            robot.setStrategyStatus("mining");
+            if (!robotApplicationService.checkIfRobotCanMine(robot)) {
+                robotApplicationService.letRobotMove(robot);
+                robot.setStrategyStatus("idle");
+            } else {
+                robotApplicationService.letRobotMine(robot);
+                robot.setStrategyStatus("mining");
+            }
             robotRepository.save(robot);
         }
     }

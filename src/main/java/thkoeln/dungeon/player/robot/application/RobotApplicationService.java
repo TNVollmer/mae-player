@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
@@ -105,5 +106,21 @@ public class RobotApplicationService {
         ids[0] = gameApplicationService.queryAndIfNeededFetchRemoteGame().getGameId();
         ids[1] = playerApplicationService.queryAndIfNeededCreatePlayer().getPlayerId();
         return ids;
+    }
+
+    public boolean checkIfRobotCanMine(Robot robot) {
+        switch (robot.getRobotPlanet().getMineableResource().getType()) {
+        case COAL:
+            return true;
+        case IRON:
+            return robot.getMiningLevel() >= 1;
+        case GEM:
+            return robot.getMiningLevel() >= 2;
+        case GOLD:
+            return robot.getMiningLevel() >= 3;
+        case PLATIN:
+            return robot.getMiningLevel() >= 4;
+        }
+        return false;
     }
 }

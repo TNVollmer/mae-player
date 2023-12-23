@@ -41,6 +41,7 @@ public class Robot {
     private int energyRegenLevel;
 
     private int attackDamage;
+    private int damageLevel;
     private int miningSpeed;
     private int miningSpeedLevel;
     private int miningLevel;
@@ -67,6 +68,7 @@ public class Robot {
         robot.setEnergyLevel(robotDto.getEnergyLevel());
         robot.setEnergyRegenLevel(robotDto.getEnergyRegenLevel());
         robot.setAttackDamage(robotDto.getAttackDamage());
+        robot.setDamageLevel(robotDto.getDamageLevel());
         robot.setMiningSpeed(robotDto.getMiningSpeed());
         robot.setMiningSpeedLevel(robotDto.getMiningSpeedLevel());
         robot.setMiningLevel(robotDto.getMiningLevel());
@@ -79,6 +81,7 @@ public class Robot {
     @Override
     public String toString() {
         String result = ("Robot: " + name + " | RobotId: " + robotId + " | Strategy: " + strategyStatus + " | Health: " + health + "/" + maxHealth + " | Energy: " + energy + "/" + maxEnergy + " | Energy Regen: " + energyRegen + " | Attack Damage: " + attackDamage + " | Mining Speed: " + miningSpeed);
+        result += (" | Health Level: " + healthLevel + " | Energy Level: " + energyLevel + " | Energy Regen Level: " + energyRegenLevel + " | Damage Level: " + damageLevel + " | Mining Speed Level: " + miningSpeedLevel + " | Mining Level: " + miningLevel);
         result += (" Robot Inventory: " + robotInventory.toString());
         return result;
     }
