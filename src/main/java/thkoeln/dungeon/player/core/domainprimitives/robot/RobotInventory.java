@@ -4,6 +4,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import lombok.*;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
 
 import java.util.UUID;
@@ -37,13 +38,12 @@ public class RobotInventory {
         return new RobotInventory(storageLevel, 0, RobotInventoryResources.empty(), false, maxStorage);
     }
 
-    public RobotInventory updateInventory(RobotInventoryDto robotInventoryDto) {
-        this.storageLevel = robotInventoryDto.getStorageLevel();
-        this.usedStorage = robotInventoryDto.getUsedStorage();
-        this.resources = this.resources.updateResources(robotInventoryDto.getResources());
-        this.isCapped = robotInventoryDto.getFull();
-        this.maxStorage = robotInventoryDto.getMaxStorage();
-        return this;
+    public void updateResource(MineableResource mineableResource) {
+        this.resources.updateResource(mineableResource);
+        this.usedStorage = this.resources.getUsedStorage();
+        if (this.usedStorage >= this.maxStorage) {
+            this.isCapped = true;
+        }
     }
 
     public boolean isEmpty() {

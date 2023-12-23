@@ -114,7 +114,7 @@ public class GameServiceRESTAdapter {
 
 
     public UUID sendPostRequestForCommand(Command command) {
-        logger.info("Try to send command  " + command);
+        logger.debug("Try to send command  " + command);
         String urlString = gameServiceUrlString + "/commands";
         CommandAnswerDto commandAnswerDto;
         try {
@@ -133,7 +133,7 @@ public class GameServiceRESTAdapter {
             throw new RESTAdapterException(urlString, e);
         }
         UUID transactionId = commandAnswerDto.getTransactionId();
-        logger.info("Successfully sent command, got transaction ID: " + transactionId);
+        logger.debug("Successfully sent command, got transaction ID: " + transactionId);
         return transactionId;
     }
 

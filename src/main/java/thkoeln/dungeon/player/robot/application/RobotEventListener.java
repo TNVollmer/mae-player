@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.robot.RobotInventory;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
-import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
@@ -62,10 +62,15 @@ public class RobotEventListener {
         List<Robot> robots = robotRepository.findAll();
         for (Robot robot : robots) {
             for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots()) {
-                if (robot.getRobotId().equals(robotRevealedDto.getRobotId()) && !robot.getRobotPlanet().getPlanetId().equals(robotRevealedDto.getPlanetId())) {
-                    robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
+                if (robot.getRobotId().equals(robotRevealedDto.getRobotId())) {
+                    if (!robot.getRobotPlanet().getPlanetId().equals(robotRevealedDto.getPlanetId())) {
+                        robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
+                        logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
+                    }
+                    robot.setEnergy(robotRevealedDto.getEnergy());
+                    robot.setHealth(robotRevealedDto.getHealth());
+                    logger.warn("Updated robot: " + robot.getRobotId() + " with energy: " + robotRevealedDto.getEnergy() + " and health: " + robotRevealedDto.getHealth());
                     robotRepository.save(robot);
-                    logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
                 }
             }
         }
@@ -105,9 +110,10 @@ public class RobotEventListener {
     }
 
     @EventListener(RobotResourceMinedEvent.class)
-    public void updatePlanetResource(RobotResourceMinedEvent robotResourceMinedEvent) {
+    public void updatePlanetAndRobotResource(RobotResourceMinedEvent robotResourceMinedEvent) {
         Robot robot = robotRepository.findByRobotId(robotResourceMinedEvent.getRobotId());
         robot.getRobotPlanet().updateMineableResource(robotResourceMinedEvent.minedResourceAsDomainPrimitive());
+        robot.getRobotInventory().updateResource(robotResourceMinedEvent.minedResourceAsDomainPrimitive());
         robotRepository.save(robot);
         logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robot.getRobotPlanet() + ". Mined new resource: " + robotResourceMinedEvent.getMinedResource() + " with amount: " + robotResourceMinedEvent.getMinedAmount());
     }
