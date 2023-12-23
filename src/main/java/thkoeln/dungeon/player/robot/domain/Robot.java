@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Robot {
@@ -39,17 +39,12 @@ public class Robot {
     private int attackDamage;
     private int miningSpeed;
 
-    @Setter
     private String strategyStatus = "idle";
 
-
     @Embedded
-    @Setter
     private RobotInventory robotInventory = RobotInventory.emptyInventory();
 
-
     @Embedded
-    @Setter
     private RobotPlanet robotPlanet = RobotPlanet.nullPlanet();
 
     public Robot(UUID robotId, String name, UUID planetId) {
@@ -57,11 +52,20 @@ public class Robot {
             logger.error("Robot or planet id is null");
             throw new IllegalArgumentException("Robot or planet id is null");
         }
+        this.name = name;
         this.robotId = robotId;
         this.robotPlanet = RobotPlanet.planetWithoutNeighbours(planetId);
     }
 
     public static Robot of(UUID robotId, String name, UUID planetId) {
         return new Robot(robotId, name, planetId);
+    }
+
+
+    @Override
+    public String toString() {
+        String result = ("Robot: " + name + " | RobotId: " + robotId + " | Strategy: "+ strategyStatus + " | Health: " + health + "/" + maxHealth + " | Energy: " + energy + "/" + maxEnergy + " | Energy Regen: " + energyRegen + " | Attack Damage: " + attackDamage + " | Mining Speed: " + miningSpeed);
+        result += ("Robot Inventory: " + robotInventory.toString());
+        return result;
     }
 }

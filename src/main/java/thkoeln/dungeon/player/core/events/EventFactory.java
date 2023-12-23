@@ -40,7 +40,6 @@ public class EventFactory {
             case TRADABLE_PRICES:
                 newEvent = new TradeablePricesEvent();
                 break;
-
             case ROBOT_SPAWNED:
                 newEvent = new RobotSpawnedEvent();
                 break;

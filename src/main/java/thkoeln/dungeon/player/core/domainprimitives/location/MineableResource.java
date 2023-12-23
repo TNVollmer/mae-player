@@ -35,4 +35,8 @@ public class MineableResource {
     public boolean isEmpty() {
         return ( amount == 0 );
     }
+
+    public void subtractAmount(Integer amount) {
+        this.amount -= amount;
+    }
 }

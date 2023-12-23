@@ -48,31 +48,33 @@ public class StrategyService {
         if (round == 2) {
             startOfGame();
         }
-
         List<Robot> robots = robotRepository.findAll();
         for (Robot robot : robots) {
-            try{
-            switch (robot.getStrategyStatus()) {
-                case "idle":
-                    standardIdleStrategy(robot);
-                    break;
-                case "mining":
-                    standardMinerStrategy(robot);
-                    break;
-                case "fighting":
-                    logger.info(loggerName + "Fighting not yet implemented");
-                    break;
-                default:
-                    logger.info(loggerName + "No strategy found for robot: " + robot.getId());
-            }
-            robotRepository.save(robot);}
-            catch (Exception e){
+            try {
+                switch (robot.getStrategyStatus()) {
+                    case "idle":
+                        standardIdleStrategy(robot);
+                        break;
+                    case "mining":
+                        standardMinerStrategy(robot);
+                        break;
+                    case "fighting":
+                        logger.info(loggerName + "Fighting not yet implemented");
+                        break;
+                    default:
+                        logger.info(loggerName + "No strategy found for robot: " + robot.getId());
+                }
+            } catch (Exception e) {
                 logger.info(loggerName + "Exception: " + e);
             }
         }
         logger.info(loggerName + "Owned robots: " + robotRepository.findAll().size());
-        for (Robot robot : robots){
-            logger.info(loggerName + "Robot: " + robot.getId() + " is " + robot.getStrategyStatus());
+        for (Robot robot : robots) {
+            if (roundStatusEvent.getRoundNumber()%3 == 0) {
+                logger.info(loggerName + "Detailed Robot Analysis: " + robot);
+            }else {
+                logger.info(loggerName + "Robot: " + robot.getId() + " is " + robot.getStrategyStatus());
+            }
         }
     }
 
@@ -86,14 +88,17 @@ public class StrategyService {
             if (robot.getRobotInventory().isEmpty()) {
                 robotApplicationService.letRobotMove(robot);
                 robot.setStrategyStatus("idle");
+                robotRepository.save(robot);
             } else {
                 //robotApplicationService.letRobotSell(robot);
                 //robot.setStrategyStatus("idle");
                 logger.info(loggerName + "Selling not yet implemented");
+                robotRepository.save(robot);
             }
         } else if (!robot.getRobotPlanet().getMineableResource().isEmpty()) {
             robotApplicationService.letRobotMine(robot);
             robot.setStrategyStatus("mining");
+            robotRepository.save(robot);
         }
     }
 
@@ -102,6 +107,12 @@ public class StrategyService {
             //robotApplicationService.letRobotSell(robot);
             //robot.setStrategyStatus("idle");
             logger.info(loggerName + "Selling not yet implemented");
+            robotRepository.save(robot);
+        }
+        else {
+            robotApplicationService.letRobotMine(robot);
+            robot.setStrategyStatus("mining");
+            robotRepository.save(robot);
         }
     }
 

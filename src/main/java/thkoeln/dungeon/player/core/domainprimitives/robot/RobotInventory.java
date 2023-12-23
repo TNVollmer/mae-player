@@ -49,4 +49,14 @@ public class RobotInventory {
     public boolean isEmpty() {
         return (usedStorage == 0);
     }
+
+    @Override
+    public String toString() {
+        return "RobotInventory{" +
+                "storageLevel=" + storageLevel +
+                ", usedStorage=" + usedStorage +
+                ", maxStorage=" + maxStorage +
+                ", resources=" + resources.toString() +
+                '}';
+    }
 }

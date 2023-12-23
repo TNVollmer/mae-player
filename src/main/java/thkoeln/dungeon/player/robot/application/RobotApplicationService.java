@@ -12,6 +12,7 @@ import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
@@ -54,7 +55,9 @@ public class RobotApplicationService {
     public void letRobotMove(Robot robot) {
         UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
         if (neighbourPlanetId == null) {
-            logger.info("Robot " + robot.getRobotId() + " has no neighbours");
+            logger.error("Robot " + robot.getRobotId() + " has no neighbours");
+            logger.info("Planets neighbours: " + Arrays.toString(robot.getRobotPlanet().getNeighbours()));
+            return;
         }
         Command moveRobotCommand = Command.createMove(robot.getRobotId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
         logger.info("Moving robot: " + robot.getRobotId() + " from planet: "+ robot.getRobotPlanet().getPlanetId() + " to planet: " + neighbourPlanetId);
