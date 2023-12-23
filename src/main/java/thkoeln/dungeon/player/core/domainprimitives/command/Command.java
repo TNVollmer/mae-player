@@ -111,6 +111,7 @@ public class Command {
         setPlayerId( playerId );
     }
 
+    // TODO: Command for fighting is not implemented yet - ask
     public static Command createFight(UUID id, UUID planetId, UUID uuid, UUID uuid1) {
         if ( id == null || planetId == null )
             throw new DomainPrimitiveException( "robotId == null || planetId == null" );
