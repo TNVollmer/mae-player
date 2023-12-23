@@ -10,6 +10,7 @@ import thkoeln.dungeon.player.core.domainprimitives.robot.RobotInventory;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
@@ -125,5 +126,13 @@ public class RobotEventListener {
         robot.setEnergy(robotMovedEvent.getRemainingEnergy());
         robotRepository.save(robot);
         logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robotMovedEvent.getToPlanet().getId());
+    }
+
+    @EventListener(RobotResourceRemovedEvent.class)
+    public void removeRobotResource(RobotResourceRemovedEvent robotResourceRemovedEvent) {
+        Robot robot = robotRepository.findByRobotId(robotResourceRemovedEvent.getRobotId());
+        robot.getRobotInventory().removeResource(robotResourceRemovedEvent.removedResourceAsDomainPrimitive());
+        robotRepository.save(robot);
+        logger.info("Removed resource from robot: " + robot.getRobotId() + " with resource: " + robotResourceRemovedEvent.getRemovedResource() + " with amount: " + robotResourceRemovedEvent.getRemovedAmount());
     }
 }

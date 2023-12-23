@@ -8,6 +8,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
@@ -61,11 +62,17 @@ public class EventFactory {
             case TRADABLE_BOUGHT:
                 newEvent = new TradableBoughtEvent();
                 break;
+            case TRADABLE_SOLD:
+                newEvent = new TradableSoldEvent();
+                break;
             case BANK_ACCOUNT_CLEARED:
                 newEvent = new BankAccountClearedEvent();
                 break;
             case RESOURCE_MINED:
                 newEvent = new ResourceMinedEvent();
+                break;
+            case ROBOT_RESOURCE_REMOVED:
+                newEvent = new RobotResourceRemovedEvent();
                 break;
             case ERROR:
                 newEvent = new ErrorEvent();

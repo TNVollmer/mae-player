@@ -46,6 +46,12 @@ public class RobotInventory {
         }
     }
 
+    public void removeResource(MineableResource mineableResource) {
+        this.resources.removeResource(mineableResource);
+        this.usedStorage = this.resources.getUsedStorage();
+        this.isCapped = false;
+    }
+
     public boolean isEmpty() {
         return (usedStorage == 0);
     }
@@ -59,4 +65,6 @@ public class RobotInventory {
                 ", resources= " + resources.toString() +
                 '}';
     }
+
+
 }

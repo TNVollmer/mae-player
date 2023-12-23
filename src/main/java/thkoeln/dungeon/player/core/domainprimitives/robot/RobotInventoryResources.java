@@ -67,6 +67,28 @@ public class RobotInventoryResources {
         }
     }
 
+    public void removeResource(MineableResource mineableResource) {
+        switch (mineableResource.getType()) {
+            case COAL:
+                this.coal -= mineableResource.getAmount();
+                break;
+            case IRON:
+                this.iron -= mineableResource.getAmount();
+                break;
+            case GEM:
+                this.gem -= mineableResource.getAmount();
+                break;
+            case GOLD:
+                this.gold -= mineableResource.getAmount();
+                break;
+            case PLATIN:
+                this.platin -= mineableResource.getAmount();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected resource-type value: " + mineableResource.getType());
+        }
+    }
+
     @Override
     public String toString() {
         return "RobotInventoryResources{" +
@@ -77,4 +99,6 @@ public class RobotInventoryResources {
                 ", platin=" + platin +
                 '}';
     }
+
+
 }
