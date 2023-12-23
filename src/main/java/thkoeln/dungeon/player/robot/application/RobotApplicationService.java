@@ -59,6 +59,17 @@ public class RobotApplicationService {
         }
     }
 
+    // TODO: Command for fighting is not implemented yet - ask
+    public void letRobotFight() {
+        UUID planetId = playerRepository.findAll().get(0).getRobots().get(0).getRobotPlanet().getPlanetId();
+        Player player = playerRepository.findAll().get(0);
+        for (Robot robot : player.getRobots()) {
+            Command fightCommand = Command.createFight(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+            logger.info("Robot " + robot.getId() + " is fighting");
+            gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
+        }
+    }
+
     public UUID[] getGameAndPlayerId() {
         UUID[] ids = new UUID[2];
         ids[0] = gameApplicationService.queryAndIfNeededFetchRemoteGame().getGameId();

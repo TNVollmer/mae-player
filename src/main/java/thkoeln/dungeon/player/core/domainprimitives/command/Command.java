@@ -111,6 +111,15 @@ public class Command {
         setPlayerId( playerId );
     }
 
+    public static Command createFight(UUID id, UUID planetId, UUID uuid, UUID uuid1) {
+        if ( id == null || planetId == null )
+            throw new DomainPrimitiveException( "robotId == null || planetId == null" );
+        Command command = new Command( CommandType.BATTLE, uuid, uuid1 );
+        command.getCommandObject().setRobotId( id );
+        command.getCommandObject().setPlanetId( planetId );
+        return command;
+    }
+
 
     public boolean isRobotPurchase() {
         if ( commandObject == null || commandObject.getItemName() == null ) return false;
