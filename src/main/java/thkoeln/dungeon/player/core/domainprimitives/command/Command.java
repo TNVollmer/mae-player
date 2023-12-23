@@ -103,22 +103,21 @@ public class Command {
         return command;
     }
 
+    public static Command createFight(UUID robotId, UUID gameId, UUID playerId, UUID targetID) {
+        if ( robotId == null || targetID == null )
+            throw new DomainPrimitiveException( "robotId == null || targetId == null" );
+        Command command = new Command( CommandType.BATTLE, gameId, playerId );
+        command.getCommandObject().setRobotId( robotId );
+        command.getCommandObject().setTargetId( targetID );
+        return command;
+    }
+
     protected Command( CommandType type, UUID gameId, UUID playerId ) {
         if ( gameId == null || playerId == null || type == null )
             throw new DomainPrimitiveException( "gameId == null || playerId == null || type == null" );
         setCommandObject( new CommandObject() );
         setCommandType( type );
         setPlayerId( playerId );
-    }
-
-    // TODO: Command for fighting is not implemented yet - ask
-    public static Command createFight(UUID id, UUID planetId, UUID uuid, UUID uuid1) {
-        if ( id == null || planetId == null )
-            throw new DomainPrimitiveException( "robotId == null || planetId == null" );
-        Command command = new Command( CommandType.BATTLE, uuid, uuid1 );
-        command.getCommandObject().setRobotId( id );
-        command.getCommandObject().setPlanetId( planetId );
-        return command;
     }
 
 

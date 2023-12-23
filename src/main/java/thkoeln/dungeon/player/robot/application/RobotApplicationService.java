@@ -11,6 +11,7 @@ import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
+
 import java.util.UUID;
 
 @Service
@@ -35,7 +36,7 @@ public class RobotApplicationService {
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
 
-    public void moveRobots() {
+    public void moveAllRobots() {
         Player player = playerRepository.findAll().get(0);
         for (Robot robot : player.getRobots()) {
             UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
@@ -49,25 +50,32 @@ public class RobotApplicationService {
         }
     }
 
-    public void letRobotMine() {
-        UUID planetId = playerRepository.findAll().get(0).getRobots().get(0).getRobotPlanet().getPlanetId();
-        Player player = playerRepository.findAll().get(0);
-        for (Robot robot : player.getRobots()) {
-            Command mineCommand = Command.createMining(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-            logger.info("Robot " + robot.getId() + " is mining");
-            gameServiceRESTAdapter.sendPostRequestForCommand(mineCommand);
+    public void letRobotMove(Robot robot) {
+        UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
+        if (neighbourPlanetId == null) {
+            logger.info("Robot " + robot.getId() + " has no neighbours");
         }
+        Command moveRobotCommand = Command.createMove(robot.getId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Moving robot: " + robot.getId() + " to planet: " + neighbourPlanetId);
+        gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
     }
 
-    // TODO: Command for fighting is not implemented yet - ask
-    public void letRobotFight() {
-        UUID planetId = playerRepository.findAll().get(0).getRobots().get(0).getRobotPlanet().getPlanetId();
-        Player player = playerRepository.findAll().get(0);
-        for (Robot robot : player.getRobots()) {
-            Command fightCommand = Command.createFight(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-            logger.info("Robot " + robot.getId() + " is fighting");
-            gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
+    public void letRobotMine(Robot robot) {
+        UUID planetId = robot.getRobotPlanet().getPlanetId();
+        if (robot.getRobotPlanet().getMineableResource() == null) {
+            logger.info("Robot " + robot.getId() + " has no mineable resource");
+            return;
         }
+        Command mineCommand = Command.createMining(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getId() + " is mining");
+        gameServiceRESTAdapter.sendPostRequestForCommand(mineCommand);
+    }
+
+    public void letRobotFight(Robot robot) {
+        UUID planetId = robot.getRobotPlanet().getPlanetId();
+        Command fightCommand = Command.createFight(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getId() + " is fighting");
+        gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
     }
 
     public UUID[] getGameAndPlayerId() {
