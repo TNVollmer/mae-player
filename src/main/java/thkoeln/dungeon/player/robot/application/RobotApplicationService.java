@@ -33,6 +33,7 @@ public class RobotApplicationService {
 
     public void buyRobot(int amount) {
         Command buyRobotCommand = Command.createRobotPurchase(amount, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Buying " + amount + " robots");
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
 
@@ -41,11 +42,11 @@ public class RobotApplicationService {
         for (Robot robot : player.getRobots()) {
             UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
             if (neighbourPlanetId == null) {
-                logger.info("Robot " + robot.getId() + " has no neighbours");
+                logger.info("Robot " + robot.getRobotId() + " has no neighbours");
                 continue;
             }
-            Command moveRobotCommand = Command.createMove(robot.getId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-            logger.info("Moving robot: " + robot.getId() + " to planet: " + neighbourPlanetId);
+            Command moveRobotCommand = Command.createMove(robot.getRobotId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+            logger.info("Moving robot: " + robot.getRobotId() + " to planet: " + neighbourPlanetId);
             gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
         }
     }
@@ -53,28 +54,27 @@ public class RobotApplicationService {
     public void letRobotMove(Robot robot) {
         UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
         if (neighbourPlanetId == null) {
-            logger.info("Robot " + robot.getId() + " has no neighbours");
+            logger.info("Robot " + robot.getRobotId() + " has no neighbours");
         }
-        Command moveRobotCommand = Command.createMove(robot.getId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Moving robot: " + robot.getId() + " to planet: " + neighbourPlanetId);
+        Command moveRobotCommand = Command.createMove(robot.getRobotId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Moving robot: " + robot.getRobotId() + " to planet: " + neighbourPlanetId);
         gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
     }
 
     public void letRobotMine(Robot robot) {
-        UUID planetId = robot.getRobotPlanet().getPlanetId();
         if (robot.getRobotPlanet().getMineableResource() == null) {
-            logger.info("Robot " + robot.getId() + " has no mineable resource");
+            logger.info("Robot " + robot.getRobotId() + " has no mineable resource");
             return;
         }
-        Command mineCommand = Command.createMining(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Robot " + robot.getId() + " is mining");
+        Command mineCommand = Command.createMining(robot.getRobotId(), robot.getRobotPlanet().getPlanetId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getRobotId() + " is mining");
         gameServiceRESTAdapter.sendPostRequestForCommand(mineCommand);
     }
 
     public void letRobotFight(Robot robot) {
         UUID planetId = robot.getRobotPlanet().getPlanetId();
-        Command fightCommand = Command.createFight(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Robot " + robot.getId() + " is fighting");
+        Command fightCommand = Command.createFight(robot.getRobotId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getRobotId() + " is fighting");
         gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
     }
 

@@ -20,7 +20,7 @@ public class RobotInventory {
     @Embedded
     private RobotInventoryResources resources;
 
-    private Boolean capped = Boolean.FALSE;
+    private Boolean isCapped = Boolean.FALSE;
     private Integer maxStorage;
 
 
@@ -41,12 +41,12 @@ public class RobotInventory {
         this.storageLevel = robotInventoryDto.getStorageLevel();
         this.usedStorage = robotInventoryDto.getUsedStorage();
         this.resources = this.resources.updateResources(robotInventoryDto.getResources());
-        this.capped = robotInventoryDto.getFull();
+        this.isCapped = robotInventoryDto.getFull();
         this.maxStorage = robotInventoryDto.getMaxStorage();
         return this;
     }
 
-    private boolean isEmpty() {
+    public boolean isEmpty() {
         return (usedStorage == 0);
     }
 }

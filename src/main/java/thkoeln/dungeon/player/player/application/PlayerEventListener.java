@@ -14,6 +14,7 @@ import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableType;
 import thkoeln.dungeon.player.core.events.AbstractEvent;
 import thkoeln.dungeon.player.core.events.EventFactory;
 import thkoeln.dungeon.player.core.events.EventHeader;
+import thkoeln.dungeon.player.core.events.EventType;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankAccountTransactionBookedEvent;
@@ -65,7 +66,9 @@ public class PlayerEventListener {
             EventHeader eventHeader =
                     new EventHeader(type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version);
             AbstractEvent newEvent = eventFactory.fromHeaderAndPayload(eventHeader, payload);
-            logger.info("======== EVENT =====> " + newEvent.toStringShort());
+            if (!eventHeader.getEventType().equals(EventType.TRADABLE_PRICES)){
+                logger.info("======== EVENT =====> " + newEvent.toStringShort());
+            }
             logger.debug("======== EVENT (detailed) =====>\n" + newEvent);
             if (!newEvent.isValid()) {
                 logger.warn("Event invalid: " + newEvent);
@@ -95,7 +98,7 @@ public class PlayerEventListener {
         }
     }
 
-    @EventListener(TradeablePricesEvent.class)
+    //@EventListener(TradeablePricesEvent.class)
     private void displayPrices(TradeablePricesEvent tradeablePricesEvent) {
         List<TradeableItem> items = tradeablePricesEvent.getTradeableItems();
         StringBuilder miningUpgrades = new StringBuilder();

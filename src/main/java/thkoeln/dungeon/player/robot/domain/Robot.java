@@ -39,6 +39,7 @@ public class Robot {
     private int attackDamage;
     private int miningSpeed;
 
+    @Setter
     private String strategyStatus = "idle";
 
 
