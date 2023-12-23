@@ -1,9 +1,9 @@
 package thkoeln.dungeon.player.core.domainprimitives.purchasing;
 
+import jakarta.persistence.Embeddable;
 import lombok.*;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
 
-import jakarta.persistence.Embeddable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

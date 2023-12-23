@@ -1,7 +1,10 @@
 package thkoeln.dungeon.player.robot.domain;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

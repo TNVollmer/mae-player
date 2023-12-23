@@ -1,9 +1,8 @@
 package thkoeln.dungeon.player.core.domainprimitives.location;
 
+import jakarta.persistence.Embeddable;
 import lombok.*;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
-
-import jakarta.persistence.Embeddable;
 
 @NoArgsConstructor( access = AccessLevel.PROTECTED )
 @AllArgsConstructor( access = AccessLevel.PRIVATE )

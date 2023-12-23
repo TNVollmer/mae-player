@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
-import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 
 import java.util.List;
 

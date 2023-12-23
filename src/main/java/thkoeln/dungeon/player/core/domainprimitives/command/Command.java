@@ -1,6 +1,9 @@
 package thkoeln.dungeon.player.core.domainprimitives.command;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import lombok.*;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
@@ -8,9 +11,6 @@ import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableType;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import java.util.UUID;
 
 /**

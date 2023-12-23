@@ -5,9 +5,7 @@ import jakarta.persistence.Embedded;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
-import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetResourceDto;
 
 import java.util.Arrays;
 import java.util.List;

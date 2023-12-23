@@ -2,12 +2,12 @@ package thkoeln.dungeon.player.core.domainprimitives.robot;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
-
-import java.util.UUID;
 
 
 @Embeddable

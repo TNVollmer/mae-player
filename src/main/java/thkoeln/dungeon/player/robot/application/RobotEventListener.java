@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.player.core.domainprimitives.robot.RobotInventory;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;

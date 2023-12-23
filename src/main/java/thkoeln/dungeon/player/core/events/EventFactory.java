@@ -3,19 +3,19 @@ package thkoeln.dungeon.player.core.events;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.events.concreteevents.ErrorEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.UnknownEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.*;
-import thkoeln.dungeon.player.core.events.concreteevents.ErrorEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.UnknownEvent;
 
 @Service
 public class EventFactory {

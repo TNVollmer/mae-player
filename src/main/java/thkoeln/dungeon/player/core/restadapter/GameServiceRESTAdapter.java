@@ -17,7 +17,8 @@ import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PUT;
 
 /**
  * Adapter for sending Game and Player life cycle calls to GameService

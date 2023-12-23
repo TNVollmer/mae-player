@@ -1,9 +1,9 @@
 package thkoeln.dungeon.player.core.domainprimitives.command;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.*;
 
-import jakarta.persistence.Embeddable;
 import java.util.UUID;
 
 /**
