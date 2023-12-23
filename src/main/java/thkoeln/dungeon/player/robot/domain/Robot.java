@@ -78,7 +78,7 @@ public class Robot {
 
     @Override
     public String toString() {
-        String result = ("Robot: " + name + " | RobotId: " + robotId + " | Strategy: "+ strategyStatus + " | Health: " + health + "/" + maxHealth + " | Energy: " + energy + "/" + maxEnergy + " | Energy Regen: " + energyRegen + " | Attack Damage: " + attackDamage + " | Mining Speed: " + miningSpeed);
+        String result = ("Robot: " + name + " | RobotId: " + robotId + " | Strategy: " + strategyStatus + " | Health: " + health + "/" + maxHealth + " | Energy: " + energy + "/" + maxEnergy + " | Energy Regen: " + energyRegen + " | Attack Damage: " + attackDamage + " | Mining Speed: " + miningSpeed);
         result += (" Robot Inventory: " + robotInventory.toString());
         return result;
     }

@@ -14,28 +14,26 @@ import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 @RequiredArgsConstructor
 @Slf4j
 public class GameEventListener {
-  private final GameApplicationService gameApplicationService;
-  private final PlayerApplicationService playerApplicationService;
+    private final GameApplicationService gameApplicationService;
+    private final PlayerApplicationService playerApplicationService;
 
-  @EventListener(GameStatusEvent.class)
-  void handleGameStatusEvent( GameStatusEvent gameStatusEvent ) {
-    if ( GameStatus.CREATED.equals( gameStatusEvent.getStatus() ) ) {
-      gameApplicationService.fetchRemoteGame();
-      playerApplicationService.registerPlayer();
-      playerApplicationService.letPlayerJoinOpenGame();
+    @EventListener(GameStatusEvent.class)
+    void handleGameStatusEvent(GameStatusEvent gameStatusEvent) {
+        if (GameStatus.CREATED.equals(gameStatusEvent.getStatus())) {
+            gameApplicationService.fetchRemoteGame();
+            playerApplicationService.registerPlayer();
+            playerApplicationService.letPlayerJoinOpenGame();
+        } else if (GameStatus.STARTED.equals(gameStatusEvent.getStatus())) {
+            gameApplicationService.startGame(gameStatusEvent.getGameId());
+        } else if (GameStatus.ENDED.equals(gameStatusEvent.getStatus())) {
+            playerApplicationService.cleanupAfterFinishingGame();
+        }
     }
-    else if ( GameStatus.STARTED.equals( gameStatusEvent.getStatus() ) ) {
-      gameApplicationService.startGame( gameStatusEvent.getGameId() );
-    }
-    else if ( GameStatus.ENDED.equals( gameStatusEvent.getStatus() ) ) {
-      playerApplicationService.cleanupAfterFinishingGame();
-    }
-  }
 
-  @EventListener(RoundStatusEvent.class)
-  void handleRoundStatusEvent( RoundStatusEvent event ) {
-    if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
-      gameApplicationService.roundStarted( event.getRoundNumber() );
+    @EventListener(RoundStatusEvent.class)
+    void handleRoundStatusEvent(RoundStatusEvent event) {
+        if (event.getRoundStatus() == RoundStatusType.STARTED) {
+            gameApplicationService.roundStarted(event.getRoundNumber());
+        }
     }
-  }
 }

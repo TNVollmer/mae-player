@@ -19,15 +19,13 @@ public class DungeonPlayerConfiguration {
 
     /**
      * todo needed?
+     *
      * @return
      */
     @Bean
     public RestTemplate restTemplate() {
         return restTemplateBuilder.build();
     }
-
-
-
 
 
 }

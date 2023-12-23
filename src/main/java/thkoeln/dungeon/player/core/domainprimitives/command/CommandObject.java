@@ -12,7 +12,7 @@ import java.util.UUID;
 @Embeddable
 @EqualsAndHashCode
 @Getter
-@Setter( AccessLevel.PROTECTED )
+@Setter(AccessLevel.PROTECTED)
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString

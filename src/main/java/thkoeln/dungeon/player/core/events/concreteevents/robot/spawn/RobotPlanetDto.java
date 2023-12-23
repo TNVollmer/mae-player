@@ -18,8 +18,7 @@ public class RobotPlanetDto {
     private String resourceType;
 
     public boolean isValid() {
-        if ( getPlanetId() == null ) return false;
-        if ( getMovementDifficulty() == null || getMovementDifficulty() < 0 ) return false;
-        return true;
+        if (getPlanetId() == null) return false;
+        return getMovementDifficulty() != null && getMovementDifficulty() >= 0;
     }
 }

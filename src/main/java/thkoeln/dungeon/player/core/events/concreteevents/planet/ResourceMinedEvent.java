@@ -23,10 +23,8 @@ public class ResourceMinedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if ( planetId == null ) return false;
-        if ( minedAmount <= 0 ) return false;
-
-        return true;
+        if (planetId == null) return false;
+        return minedAmount > 0;
     }
 
 

@@ -7,16 +7,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * Domain Primitive to represent a command type
  */
 public enum CommandType {
-    MOVEMENT ( "movement" ),
-    BATTLE ( "battle" ),
-    MINING ( "mining" ),
-    REGENERATE ( "regenerate" ),
-    BUYING ( "buying" ),
-    SELLING ( "selling" );
+    MOVEMENT("movement"),
+    BATTLE("battle"),
+    MINING("mining"),
+    REGENERATE("regenerate"),
+    BUYING("buying"),
+    SELLING("selling");
 
     private final String stringValue;
 
-    private CommandType( String s ) {
+    CommandType(String s) {
         stringValue = s;
     }
 

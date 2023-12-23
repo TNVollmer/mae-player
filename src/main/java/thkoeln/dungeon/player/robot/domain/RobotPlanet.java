@@ -76,7 +76,7 @@ public class RobotPlanet {
             if (this.mineableResource.getType().equals(resource.getType())) {
                 this.mineableResource.subtractAmount(resource.getAmount());
                 log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
-            }else {
+            } else {
                 log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
             }
 

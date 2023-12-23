@@ -19,13 +19,13 @@ import thkoeln.dungeon.player.core.events.concreteevents.trading.*;
 
 @Service
 public class EventFactory {
-    private Logger logger = LoggerFactory.getLogger( EventFactory.class );
+    private final Logger logger = LoggerFactory.getLogger(EventFactory.class);
 
-    public AbstractEvent fromHeaderAndPayload( EventHeader eventHeader, String payload ) {
-        if ( eventHeader == null || payload == null )
-            throw new DungeonEventException( "eventHeader == null || payload == null" );
+    public AbstractEvent fromHeaderAndPayload(EventHeader eventHeader, String payload) {
+        if (eventHeader == null || payload == null)
+            throw new DungeonEventException("eventHeader == null || payload == null");
         AbstractEvent newEvent = null;
-        switch ( eventHeader.getEventType() ) {
+        switch (eventHeader.getEventType()) {
             case GAME_STATUS:
                 newEvent = new GameStatusEvent();
                 break;
@@ -80,9 +80,9 @@ public class EventFactory {
             default:
                 newEvent = new UnknownEvent();
         }
-        newEvent.setEventHeader( eventHeader );
-        newEvent.fillWithPayload( payload );
-        logger.debug( "Created event: " + newEvent );
+        newEvent.setEventHeader(eventHeader);
+        newEvent.fillWithPayload(payload);
+        logger.debug("Created event: " + newEvent);
         return newEvent;
     }
 

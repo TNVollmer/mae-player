@@ -25,13 +25,13 @@ public class RobotRevealedLevelDto {
      */
     public static RobotRevealedLevelDto defaults() {
         RobotRevealedLevelDto levelDto = new RobotRevealedLevelDto();
-        levelDto.setHealthLevel( DEFAULT_LEVEL );
-        levelDto.setDamageLevel( DEFAULT_LEVEL );
-        levelDto.setMiningSpeedLevel( DEFAULT_LEVEL );
-        levelDto.setMiningLevel( DEFAULT_LEVEL );
-        levelDto.setEnergyLevel( DEFAULT_LEVEL );
-        levelDto.setEnergyRegenLevel( DEFAULT_LEVEL );
-        levelDto.setStorageLevel( DEFAULT_LEVEL );
+        levelDto.setHealthLevel(DEFAULT_LEVEL);
+        levelDto.setDamageLevel(DEFAULT_LEVEL);
+        levelDto.setMiningSpeedLevel(DEFAULT_LEVEL);
+        levelDto.setMiningLevel(DEFAULT_LEVEL);
+        levelDto.setEnergyLevel(DEFAULT_LEVEL);
+        levelDto.setEnergyRegenLevel(DEFAULT_LEVEL);
+        levelDto.setStorageLevel(DEFAULT_LEVEL);
         return levelDto;
     }
 }

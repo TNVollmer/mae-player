@@ -26,11 +26,11 @@ import java.util.List;
 
 @Service
 public class PlayerEventListener {
-    private Logger logger = LoggerFactory.getLogger(PlayerEventListener.class);
-    private EventFactory eventFactory;
-    private ApplicationEventPublisher applicationEventPublisher;
-    private RobotApplicationService robotApplicationService;
-    private PlayerApplicationService playerApplicationService;
+    private final Logger logger = LoggerFactory.getLogger(PlayerEventListener.class);
+    private final EventFactory eventFactory;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final RobotApplicationService robotApplicationService;
+    private final PlayerApplicationService playerApplicationService;
 
     @Autowired
     public PlayerEventListener(EventFactory eventFactory,
@@ -66,13 +66,12 @@ public class PlayerEventListener {
             EventHeader eventHeader =
                     new EventHeader(type, eventIdStr, playerIdStr, transactionIdStr, timestampStr, version);
             AbstractEvent newEvent = eventFactory.fromHeaderAndPayload(eventHeader, payload);
-            if (!eventHeader.getEventType().equals(EventType.TRADABLE_PRICES)){
+            if (!eventHeader.getEventType().equals(EventType.TRADABLE_PRICES)) {
                 logger.info("======== EVENT =====> " + newEvent.toStringShort());
             }
             logger.debug("======== EVENT (detailed) =====>\n" + newEvent);
             if (!newEvent.isValid()) {
                 logger.warn("Event invalid: " + newEvent);
-                return;
             } else {
                 this.applicationEventPublisher.publishEvent(newEvent);
             }

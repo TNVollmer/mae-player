@@ -70,9 +70,9 @@ public class StrategyService {
         }
         logger.info(loggerName + "Owned robots: " + robotRepository.findAll().size());
         for (Robot robot : robots) {
-            if (roundStatusEvent.getRoundNumber()%3 == 0) {
+            if (roundStatusEvent.getRoundNumber() % 3 == 0) {
                 logger.info(loggerName + "Detailed Robot Analysis: " + robot);
-            }else {
+            } else {
                 logger.info(loggerName + "Robot: " + robot.getId() + " is " + robot.getStrategyStatus());
             }
         }
@@ -106,8 +106,7 @@ public class StrategyService {
             robotApplicationService.letRobotSell(robot);
             robot.setStrategyStatus("idle");
             robotRepository.save(robot);
-        }
-        else {
+        } else {
             robotApplicationService.letRobotMine(robot);
             robot.setStrategyStatus("mining");
             robotRepository.save(robot);

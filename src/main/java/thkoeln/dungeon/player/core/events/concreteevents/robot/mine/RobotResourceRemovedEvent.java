@@ -24,9 +24,8 @@ public class RobotResourceRemovedEvent extends AbstractEvent {
         try {
             minedResourceAsDomainPrimitive = MineableResource.fromTypeAndAmount(
                     MineableResourceType.valueOf(removedResource.toUpperCase()), removedAmount);
-        }
-        catch ( Exception e ) {
-            logger.debug( "Could not convert removedResource to MineableResource: " + e.getMessage() );
+        } catch (Exception e) {
+            logger.debug("Could not convert removedResource to MineableResource: " + e.getMessage());
         }
         return minedResourceAsDomainPrimitive;
     }
@@ -34,9 +33,9 @@ public class RobotResourceRemovedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if ( robotId == null ) return false;
-        if ( removedAmount <= 0 ) return false;
-        if ( removedResource == null ) return false;
+        if (robotId == null) return false;
+        if (removedAmount <= 0) return false;
+        if (removedResource == null) return false;
         return removedResourceAsDomainPrimitive() != null;
     }
 }

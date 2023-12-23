@@ -25,11 +25,11 @@ import static org.springframework.http.HttpMethod.PUT;
  */
 @Component
 public class GameServiceRESTAdapter {
-    private RestTemplate restTemplate;
-    private Logger logger = LoggerFactory.getLogger(GameServiceRESTAdapter.class);
+    private final RestTemplate restTemplate;
+    private final Logger logger = LoggerFactory.getLogger(GameServiceRESTAdapter.class);
     @Value("${dungeon.game.host}")
     private String gameServiceUrlString;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public GameServiceRESTAdapter(RestTemplate restTemplate) {

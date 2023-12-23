@@ -17,8 +17,8 @@ public class BankAccountClearedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if ( eventHeader == null ) return false;
-        return ( playerId != null && balance != null);
+        if (eventHeader == null) return false;
+        return (playerId != null && balance != null);
     }
 
 }

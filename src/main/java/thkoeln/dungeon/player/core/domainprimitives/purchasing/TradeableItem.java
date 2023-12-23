@@ -3,7 +3,7 @@ package thkoeln.dungeon.player.core.domainprimitives.purchasing;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
-@NoArgsConstructor( access = AccessLevel.PROTECTED )
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
 @EqualsAndHashCode

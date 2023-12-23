@@ -2,17 +2,17 @@ package thkoeln.dungeon.player.core.domainprimitives.purchasing;
 
 
 public enum CapabilityType {
-    DAMAGE( "DA" ),
-    ENERGY_REGEN( "ER" ),
-    HEALTH( "H" ),
-    MAX_ENERGY( "ME" ),
-    MINING( "MI" ),
-    MINING_SPEED( "MS" ),
-    STORAGE( "S" );
+    DAMAGE("DA"),
+    ENERGY_REGEN("ER"),
+    HEALTH("H"),
+    MAX_ENERGY("ME"),
+    MINING("MI"),
+    MINING_SPEED("MS"),
+    STORAGE("S");
 
     private final String stringValue;
 
-    CapabilityType( String s ) {
+    CapabilityType(String s) {
         stringValue = s;
     }
 
