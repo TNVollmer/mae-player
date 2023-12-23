@@ -37,7 +37,7 @@ public class RobotEventListener {
 
     @EventListener(RobotsRevealedEvent.class)
     public void displayRobotData(RobotsRevealedEvent robotsRevealedEvent) {
-        logger.info("Robot data: " + Arrays.toString(robotsRevealedEvent.getRobots()));
+        logger.info("Robots revealed: " + Arrays.asList(robotsRevealedEvent.getRobots()).size());
     }
 
     @EventListener(RobotSpawnedEvent.class)

@@ -43,8 +43,7 @@ public class StrategyService {
             numberOfCommands++;
         }
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
-        logger.info(loggerName + "Player: " + player.toString());
-        logger.info(loggerName + "Owned robots: " + robotRepository.findAll());
+        logger.info(loggerName + "Owned robots: " + robotRepository.findAll().size());
         logger.info(loggerName + "Sent " + numberOfCommands + " commands");
     }
 }
