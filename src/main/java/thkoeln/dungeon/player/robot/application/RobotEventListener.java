@@ -15,9 +15,6 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevea
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
-import thkoeln.dungeon.player.player.application.PlayerApplicationService;
-import thkoeln.dungeon.player.player.domain.Player;
-import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
 import thkoeln.dungeon.player.robot.domain.RobotPlanet;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
@@ -30,15 +27,9 @@ public class RobotEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(RobotApplicationService.class);
     private final RobotRepository robotRepository;
-    private final PlayerRepository playerRepository;
-
-    private final PlayerApplicationService playerApplicationService;
-
     @Autowired
-    public RobotEventListener(RobotRepository robotRepository, PlayerRepository playerRepository, PlayerApplicationService playerApplicationService) {
+    public RobotEventListener(RobotRepository robotRepository) {
         this.robotRepository = robotRepository;
-        this.playerRepository = playerRepository;
-        this.playerApplicationService = playerApplicationService;
     }
 
     @EventListener(RobotsRevealedEvent.class)
@@ -50,18 +41,17 @@ public class RobotEventListener {
     public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         RobotDto robotDto = robotSpawnedEvent.getRobotDto();
         Robot newRobot = Robot.of(robotDto, ("Robot" + (robotRepository.findAll().size() + 1)));
+        newRobot.setPlayerOwned(true);
         robotRepository.save(newRobot);
         logger.info("Robot spawned: " + newRobot.getRobotId());
-        Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
-        player.getRobots().add(newRobot);
-        playerRepository.save(player);
     }
 
     @EventListener(RobotsRevealedEvent.class)
     public void updateRobot(RobotsRevealedEvent robotsRevealedEvent) {
-        List<Robot> robots = robotRepository.findAll();
-        for (Robot robot : robots) {
-            for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots()) {
+        List<Robot> robots = robotRepository.findByPlayerOwned(true);
+        for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots() ) {
+            boolean isEnemyRobot = true;
+            for (Robot robot : robots) {
                 if (robot.getRobotId().equals(robotRevealedDto.getRobotId())) {
                     if (!robot.getRobotPlanet().getPlanetId().equals(robotRevealedDto.getPlanetId())) {
                         robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
@@ -69,7 +59,27 @@ public class RobotEventListener {
                     }
                     robot.setEnergy(robotRevealedDto.getEnergy());
                     robot.setHealth(robotRevealedDto.getHealth());
+                    isEnemyRobot = false;
                     robotRepository.save(robot);
+                }
+            }
+            if (isEnemyRobot){
+                List<Robot> enemyRobots = robotRepository.findByPlayerOwned(false);
+                for (Robot enemyRobot : enemyRobots) {
+                    if (enemyRobot.getRobotId().equals(robotRevealedDto.getRobotId())) {
+                        if (!enemyRobot.getRobotPlanet().getPlanetId().equals(robotRevealedDto.getPlanetId())) {
+                            enemyRobot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
+                            logger.info("Updated enemy robot: " + enemyRobot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
+                        }
+                        enemyRobot.setEnergy(robotRevealedDto.getEnergy());
+                        enemyRobot.setHealth(robotRevealedDto.getHealth());
+                        robotRepository.save(enemyRobot);
+                    }
+                    else {
+                        logger.error("WARNING --> ENEMY ROBOT DETECTED: " + robotRevealedDto.getRobotId() + " on planet: " + robotRevealedDto.getPlanetId());
+                        Robot newEnemyRobot = Robot.ofEnemy(robotRevealedDto, "Enemy Robot");
+                        robotRepository.save(newEnemyRobot);
+                    }
                 }
             }
         }

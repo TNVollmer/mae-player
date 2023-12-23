@@ -48,7 +48,7 @@ public class StrategyService {
         if (round == 2) {
             startOfGame();
         }
-        List<Robot> robots = robotRepository.findAll();
+        List<Robot> robots = robotRepository.findByPlayerOwned(true);
         for (Robot robot : robots) {
             try {
                 //TODO: Periodically check if robot is still alive, Remove robot from database if not
@@ -70,7 +70,7 @@ public class StrategyService {
                 logger.info(loggerName + "Exception: " + e);
             }
         }
-        logger.info(loggerName + "Owned robots: " + robotRepository.findAll().size());
+        logger.info(loggerName + "Owned robots: " + robotRepository.findByPlayerOwned(true).size());
         for (Robot robot : robots) {
             if (roundStatusEvent.getRoundNumber() % 4 == 0) {
                 logger.info(loggerName + "Detailed Robot Analysis: " + robot);
@@ -104,7 +104,6 @@ public class StrategyService {
     private void standardMinerStrategy(Robot robot) {
         //TODO: Miner needs to check, if he is able to mine resource. If not, he either needs to move to another planet or upgrade his mining level
         //TODO: Therefore a prioritization of upgrades is needed, as a way to determine which upgrade is the most important or which robot needs to move to another planet
-
         if (robot.getRobotInventory().getIsCapped()) {
             robotApplicationService.letRobotSell(robot);
             robot.setStrategyStatus("idle");

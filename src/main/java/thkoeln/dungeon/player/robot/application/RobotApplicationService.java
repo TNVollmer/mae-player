@@ -41,20 +41,6 @@ public class RobotApplicationService {
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
 
-    public void moveAllRobots() {
-        Player player = playerRepository.findAll().get(0);
-        for (Robot robot : player.getRobots()) {
-            UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
-            if (neighbourPlanetId == null) {
-                logger.info("Robot " + robot.getRobotId() + " has no neighbours");
-                continue;
-            }
-            Command moveRobotCommand = Command.createMove(robot.getRobotId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-            logger.info("Moving robot: " + robot.getRobotId() + " to planet: " + neighbourPlanetId);
-            gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
-        }
-    }
-
     public void letRobotMove(Robot robot) {
         UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
         if (neighbourPlanetId == null) {

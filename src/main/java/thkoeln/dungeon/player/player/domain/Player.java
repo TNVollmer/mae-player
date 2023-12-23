@@ -41,10 +41,6 @@ public class Player {
     @Setter(AccessLevel.PUBLIC)
     private Money balance = Money.zero();
 
-    //TODO: Fix this list to not get the error: could not initialize proxy - no Session
-    @OneToMany
-    private List<Robot> robots = new ArrayList<>();
-
     @Setter(AccessLevel.PUBLIC)
     private String playerExchange;
 
