@@ -24,8 +24,6 @@ public class StrategyService {
     private final RobotRepository robotRepository;
     private final Logger logger = LoggerFactory.getLogger(StrategyService.class);
 
-    private final String loggerName = "StrategyService --> ";
-
     Player player;
     Money hypotheticalPlayerBalance = Money.zero();
 
@@ -49,6 +47,7 @@ public class StrategyService {
             startOfGame();
         }
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
+        String loggerName = "StrategyService --> ";
         for (Robot robot : robots) {
             try {
                 //TODO: Periodically check if robot is still alive, Remove robot from database if not
@@ -61,6 +60,7 @@ public class StrategyService {
                         standardMinerStrategy(robot);
                         break;
                     case "fighting":
+                        //TODO: Fighting needs to be implemented
                         logger.info(loggerName + "Fighting not yet implemented");
                         break;
                     default:

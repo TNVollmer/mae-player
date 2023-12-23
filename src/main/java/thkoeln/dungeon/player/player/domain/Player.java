@@ -3,7 +3,6 @@ package thkoeln.dungeon.player.player.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,10 +11,7 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
-import thkoeln.dungeon.player.robot.domain.Robot;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 

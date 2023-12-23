@@ -79,7 +79,7 @@ public class Robot {
         return robot;
     }
 
-    public static Robot ofEnemy(RobotRevealedDto robotRevealedDto, String name){
+    public static Robot ofEnemy(RobotRevealedDto robotRevealedDto, String name) {
         Robot robot = new Robot();
         robot.setRobotId(robotRevealedDto.getRobotId());
         robot.setName(name);

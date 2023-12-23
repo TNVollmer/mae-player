@@ -27,6 +27,7 @@ public class RobotEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(RobotApplicationService.class);
     private final RobotRepository robotRepository;
+
     @Autowired
     public RobotEventListener(RobotRepository robotRepository) {
         this.robotRepository = robotRepository;
@@ -49,7 +50,7 @@ public class RobotEventListener {
     @EventListener(RobotsRevealedEvent.class)
     public void updateRobot(RobotsRevealedEvent robotsRevealedEvent) {
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
-        for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots() ) {
+        for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots()) {
             boolean isEnemyRobot = true;
             for (Robot robot : robots) {
                 if (robot.getRobotId().equals(robotRevealedDto.getRobotId())) {
@@ -63,7 +64,7 @@ public class RobotEventListener {
                     robotRepository.save(robot);
                 }
             }
-            if (isEnemyRobot){
+            if (isEnemyRobot) {
                 List<Robot> enemyRobots = robotRepository.findByPlayerOwned(false);
                 for (Robot enemyRobot : enemyRobots) {
                     if (enemyRobot.getRobotId().equals(robotRevealedDto.getRobotId())) {
@@ -74,8 +75,7 @@ public class RobotEventListener {
                         enemyRobot.setEnergy(robotRevealedDto.getEnergy());
                         enemyRobot.setHealth(robotRevealedDto.getHealth());
                         robotRepository.save(enemyRobot);
-                    }
-                    else {
+                    } else {
                         logger.error("WARNING --> ENEMY ROBOT DETECTED: " + robotRevealedDto.getRobotId() + " on planet: " + robotRevealedDto.getPlanetId());
                         Robot newEnemyRobot = Robot.ofEnemy(robotRevealedDto, "Enemy Robot");
                         robotRepository.save(newEnemyRobot);
