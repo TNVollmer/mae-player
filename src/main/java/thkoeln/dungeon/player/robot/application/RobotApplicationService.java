@@ -49,6 +49,16 @@ public class RobotApplicationService {
         }
     }
 
+    public void letRobotMine() {
+        UUID planetId = playerRepository.findAll().get(0).getRobots().get(0).getRobotPlanet().getPlanetId();
+        Player player = playerRepository.findAll().get(0);
+        for (Robot robot : player.getRobots()) {
+            Command mineCommand = Command.createMining(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+            logger.info("Robot " + robot.getId() + " is mining");
+            gameServiceRESTAdapter.sendPostRequestForCommand(mineCommand);
+        }
+    }
+
     public UUID[] getGameAndPlayerId() {
         UUID[] ids = new UUID[2];
         ids[0] = gameApplicationService.queryAndIfNeededFetchRemoteGame().getGameId();
