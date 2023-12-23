@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryResourcesDto;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -13,6 +14,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInvent
 @EqualsAndHashCode
 @Embeddable
 public class RobotInventoryResources {
+    //ERROR from Springboot in mapping when using MineableResource-DomainPrimitive, resorting back to Integers
     private Integer coal;
     private Integer iron;
     private Integer gem;
@@ -40,11 +42,29 @@ public class RobotInventoryResources {
             case PLATIN:
                 this.platin += mineableResource.getAmount();
                 break;
+            default:
+                throw new IllegalStateException("Unexpected resource-type value: " + mineableResource.getType());
         }
     }
 
     public int getUsedStorage() {
         return coal + iron + gem + gold + platin;
+    }
+
+    public MineableResource getHighestMinedResource() {
+        if (coal > 0) {
+            return MineableResource.fromTypeAndAmount(MineableResourceType.COAL, coal);
+        } else if (iron > 0) {
+            return MineableResource.fromTypeAndAmount(MineableResourceType.IRON, iron);
+        } else if (gem > 0) {
+            return MineableResource.fromTypeAndAmount(MineableResourceType.GEM, gem);
+        } else if (gold > 0) {
+            return MineableResource.fromTypeAndAmount(MineableResourceType.GOLD, gold);
+        } else if (platin > 0) {
+            return MineableResource.fromTypeAndAmount(MineableResourceType.PLATIN, platin);
+        } else {
+            return null;
+        }
     }
 
     @Override

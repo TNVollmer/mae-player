@@ -31,6 +31,10 @@ public class MineableResource {
         return new MineableResource( this.type, this.amount + additionalResource.amount );
     }
 
+    public static MineableResource empty(MineableResourceType type) {
+        return new MineableResource( type, 0 );
+    }
+
 
     public boolean isEmpty() {
         return ( amount == 0 );

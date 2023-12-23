@@ -69,7 +69,6 @@ public class RobotEventListener {
                     }
                     robot.setEnergy(robotRevealedDto.getEnergy());
                     robot.setHealth(robotRevealedDto.getHealth());
-                    logger.warn("Updated robot: " + robot.getRobotId() + " with energy: " + robotRevealedDto.getEnergy() + " and health: " + robotRevealedDto.getHealth());
                     robotRepository.save(robot);
                 }
             }

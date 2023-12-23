@@ -18,10 +18,10 @@ import java.util.List;
 @Service
 public class StrategyService {
 
-    private PlayerApplicationService playerApplicationService;
-    private RobotApplicationService robotApplicationService;
+    private final PlayerApplicationService playerApplicationService;
+    private final RobotApplicationService robotApplicationService;
 
-    private RobotRepository robotRepository;
+    private final RobotRepository robotRepository;
     private final Logger logger = LoggerFactory.getLogger(StrategyService.class);
 
     private final String loggerName = "StrategyService --> ";
@@ -90,9 +90,8 @@ public class StrategyService {
                 robot.setStrategyStatus("idle");
                 robotRepository.save(robot);
             } else {
-                //robotApplicationService.letRobotSell(robot);
-                //robot.setStrategyStatus("idle");
-                logger.info(loggerName + "Selling not yet implemented");
+                robotApplicationService.letRobotSell(robot);
+                robot.setStrategyStatus("idle");
                 robotRepository.save(robot);
             }
         } else if (!robot.getRobotPlanet().getMineableResource().isEmpty()) {
@@ -104,9 +103,8 @@ public class StrategyService {
 
     private void standardMinerStrategy(Robot robot) {
         if (robot.getRobotInventory().getIsCapped()) {
-            //robotApplicationService.letRobotSell(robot);
-            //robot.setStrategyStatus("idle");
-            logger.info(loggerName + "Selling not yet implemented");
+            robotApplicationService.letRobotSell(robot);
+            robot.setStrategyStatus("idle");
             robotRepository.save(robot);
         }
         else {
