@@ -49,7 +49,7 @@ public class RobotEventListener {
     @EventListener(RobotSpawnedEvent.class)
     public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         RobotDto robotDto = robotSpawnedEvent.getRobotDto();
-        Robot newRobot = new Robot(robotDto.getId(), ("Robot" + robotRepository.findAll().size() + 1), robotDto.getPlanet().getPlanetId());
+        Robot newRobot = Robot.of(robotDto, ("Robot" + (robotRepository.findAll().size() + 1)));
         robotRepository.save(newRobot);
         logger.info("Robot spawned: " + newRobot.getRobotId());
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
@@ -109,7 +109,7 @@ public class RobotEventListener {
         Robot robot = robotRepository.findByRobotId(robotResourceMinedEvent.getRobotId());
         robot.getRobotPlanet().updateMineableResource(robotResourceMinedEvent.minedResourceAsDomainPrimitive());
         robotRepository.save(robot);
-        logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robot.getRobotPlanet() + ". Mined new resource: " + robotResourceMinedEvent.getMinedResource()+ " with amount: " + robotResourceMinedEvent.getMinedAmount());
+        logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robot.getRobotPlanet() + ". Mined new resource: " + robotResourceMinedEvent.getMinedResource() + " with amount: " + robotResourceMinedEvent.getMinedAmount());
     }
 
     @EventListener(RobotMovedEvent.class)

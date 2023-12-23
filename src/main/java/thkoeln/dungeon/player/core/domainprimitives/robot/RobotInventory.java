@@ -53,10 +53,10 @@ public class RobotInventory {
     @Override
     public String toString() {
         return "RobotInventory{" +
-                "storageLevel=" + storageLevel +
-                ", usedStorage=" + usedStorage +
-                ", maxStorage=" + maxStorage +
-                ", resources=" + resources.toString() +
+                "storageLevel= " + storageLevel +
+                ", usedStorage= " + usedStorage +
+                ", maxStorage= " + maxStorage +
+                ", resources= " + resources.toString() +
                 '}';
     }
 }
