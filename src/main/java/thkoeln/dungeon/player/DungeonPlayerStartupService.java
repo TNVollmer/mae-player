@@ -1,6 +1,8 @@
 package thkoeln.dungeon.player;
 
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +16,11 @@ import thkoeln.dungeon.player.player.domain.Player;
 
 @Service
 @Profile("!dev")
+@Slf4j
+@RequiredArgsConstructor
 public class DungeonPlayerStartupService implements ApplicationListener<ApplicationReadyEvent> {
-    private Logger logger = LoggerFactory.getLogger( DungeonPlayerStartupService.class );
     private PlayerApplicationService playerApplicationService;
     private GameApplicationService gameApplicationService;
-
-    @Autowired
-    public DungeonPlayerStartupService( PlayerApplicationService playerApplicationService,
-                                        GameApplicationService gameApplicationService ) {
-        this.playerApplicationService = playerApplicationService;
-        this.gameApplicationService = gameApplicationService;
-    }
 
     /**
      * In this method, the player participation is prepared. If there are problems (connection
@@ -33,12 +29,12 @@ public class DungeonPlayerStartupService implements ApplicationListener<Applicat
      */
     @Override
     public void onApplicationEvent( ApplicationReadyEvent event ) {
-        Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
+        playerApplicationService.queryAndIfNeededCreatePlayer();
         try {
             gameApplicationService.fetchRemoteGame();
             playerApplicationService.pollForOpenGame();
         } catch ( DungeonPlayerRuntimeException exc ) {
-            logger.error( "Error when initializing player: " + exc.getMessage() );
+            log.error( "Error when initializing player: " + exc.getMessage() );
         }
     }
 }

@@ -2,7 +2,6 @@ package thkoeln.dungeon.player.dev;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PreDestroy;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +13,14 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.*;
+import thkoeln.dungeon.player.DungeonPlayerRuntimeException;
 import thkoeln.dungeon.player.core.restadapter.GameDto;
 import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.player.core.restadapter.RESTAdapterException;
 import thkoeln.dungeon.player.dev.dto.CreateGameRequestDto;
 import thkoeln.dungeon.player.dev.dto.CreateGameResponseDto;
 import thkoeln.dungeon.player.dev.dto.SetRoundDurationRequestDto;
+import thkoeln.dungeon.player.game.domain.GameStatus;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -36,6 +37,9 @@ import static org.springframework.http.HttpMethod.POST;
 @Slf4j
 public class DevGameAdminClient {
     public static final String DEV_PREFIX = "--- DEV MODE: ";
+    public static final int NUMBER_OF_ROUNDS = 10_000;
+    public static final int NUMBER_OF_PLAYERS = 10;
+    public static final int ROUND_DURATION = 10_000;
 
     // It is unbelievable how bad the RestTemplate APIs are
     private RestTemplate restTemplate;
@@ -51,7 +55,44 @@ public class DevGameAdminClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<GameDto> getAllGames() {
+
+    public void cleanUpAndCreateGame() {
+        log.info( DEV_PREFIX + "cleanUpAndCreateGame()" );
+        var gameDtos = getAllGames();
+
+        // End all existing games
+        for ( GameDto game : gameDtos ) {
+            if ( game.getGameStatus() == GameStatus.CREATED ) {
+                startGame( game.getGameId() );
+            }
+            endGame( game.getGameId() );
+        }
+        createGame( NUMBER_OF_ROUNDS, NUMBER_OF_PLAYERS );
+        log.info( DEV_PREFIX + "Clean game created - now start game ..." );
+
+        gameDtos = getAllGames();
+        if ( gameDtos.size() != 1 )
+            throw new DungeonPlayerRuntimeException( "Invalid number of games found. That should not happen" );
+        var game = gameDtos.get( 0 );
+        startGame( game.getGameId() );
+        setRoundDuration( game.getGameId(), ROUND_DURATION );
+        log.info( DEV_PREFIX + "Game started." );
+    }
+
+
+    public void endAllGames() {
+        log.info( DEV_PREFIX + "endAllGames()" );
+        var gameDtos = getAllGames();
+        for ( GameDto gameDto : gameDtos ) {
+            if ( gameDto.getGameStatus().isActive() ) {
+                endGame( gameDto.getGameId() );
+            }
+        }
+    }
+
+
+
+    private List<GameDto> getAllGames() {
         log.info( DEV_PREFIX + "getAllGames()" );
         var result = restTemplate.exchange( gameServiceUrlString + "/games", GET, null,
                 new ParameterizedTypeReference<List<GameDto>>() {
@@ -63,7 +104,7 @@ public class DevGameAdminClient {
         return result.getBody();
     }
 
-    public CreateGameResponseDto createGame( int maxRounds, int maxPlayers ) {
+    private CreateGameResponseDto createGame( int maxRounds, int maxPlayers ) {
         log.info( DEV_PREFIX + "createGame()" );
         var body = new CreateGameRequestDto( maxRounds, maxPlayers );
         var createGameResponseDto = restTemplate.postForObject(
@@ -72,7 +113,7 @@ public class DevGameAdminClient {
         return createGameResponseDto;
     }
 
-    public void endGame( UUID gameId ) {
+    private void endGame( UUID gameId ) {
         log.info( DEV_PREFIX + "endGame() " + gameId );
         var result = restTemplate.exchange( gameServiceUrlString + "/games/" + gameId + "/gameCommands/end", POST,
                 (HttpEntity<?>) null, String.class );
@@ -80,7 +121,7 @@ public class DevGameAdminClient {
             throw new RESTAdapterException( "Could not end game" );
     }
 
-    public void startGame( UUID gameId ) {
+    private void startGame( UUID gameId ) {
         log.info( DEV_PREFIX + "startGame()" );
         var result = restTemplate.exchange( gameServiceUrlString + "/games/" + gameId + "/gameCommands/start", POST,
                 (HttpEntity<?>) null, String.class );
@@ -89,7 +130,7 @@ public class DevGameAdminClient {
     }
 
     @SneakyThrows
-    public void setRoundDuration( UUID gameId, int duration ) {
+    private void setRoundDuration( UUID gameId, int duration ) {
         log.info( DEV_PREFIX + "setRoundDuration()" );
         var str = objectMapper.writeValueAsString( new SetRoundDurationRequestDto( duration ) );
         // RestTemplate uses deprecated HttpURLConnection, which doesn't support PATCH.
@@ -113,7 +154,7 @@ public class DevGameAdminClient {
     }
 
 
-    public PlayerRegistryDto sendGetRequestForPlayerId( String playerName, String email ) {
+    private PlayerRegistryDto sendGetRequestForPlayerId( String playerName, String email ) {
         log.info( DEV_PREFIX + "sendGetRequestForPlayerId()" );
         String urlString = gameServiceUrlString + "/players?name=" + playerName + "&mail=" + email;
         PlayerRegistryDto returnedPlayerRegistryDto;
