@@ -1,13 +1,11 @@
 package thkoeln.dungeon.player.core.domainprimitives.purchasing;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CapabilityTest {
     private Capability d0, d1, dmax, h1;
@@ -35,6 +33,7 @@ public class CapabilityTest {
             Capability.forTypeAndLevel( CapabilityType.DAMAGE, Capability.MAX_LEVEL+1 );
         });
     }
+
 
     @Test
     public void testNextLevel() {

@@ -26,26 +26,26 @@ public class MoneyTest {
     @Test
     public void testTwoMoneyEqualAndUnequal() {
         Assertions.assertEquals( m27_1, m27_2 );
-        assertNotEquals( m27_1, m28 );
+        Assertions.assertNotEquals( m27_1, m28 );
     }
 
     @Test
     public void testValidation() {
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             Money.from( null );
         });
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             Money.from( -1 );
         });
     }
 
     @Test
     public void testGreater() {
-        assertTrue( m3.greaterEqualThan(m3b) );
-        assertFalse( m3.greaterThan(m3) );
-        assertTrue( m3.greaterEqualThan(m0) );
-        assertFalse( m0.greaterThan(m3) );
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assertions.assertTrue( m3.greaterEqualThan(m3b) );
+        Assertions.assertFalse( m3.greaterThan(m3) );
+        Assertions.assertTrue( m3.greaterEqualThan(m0) );
+        Assertions.assertFalse( m0.greaterThan(m3) );
+        Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             m3.greaterEqualThan( null );
         });
     }
@@ -53,11 +53,11 @@ public class MoneyTest {
 
     @Test
     public void testDecrease() {
-        assertEquals( m3.decreaseBy(m0), m3b );
-        assertEquals( m3.decreaseBy(m17), m0 );
-        assertEquals( m3.decreaseBy(m3b), m0 );
-        assertEquals( m20.decreaseBy(m3), m17 );
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assertions.assertEquals( m3.decreaseBy(m0), m3b );
+        Assertions.assertEquals( m3.decreaseBy(m17), m0 );
+        Assertions.assertEquals( m3.decreaseBy(m3b), m0 );
+        Assertions.assertEquals( m20.decreaseBy(m3), m17 );
+        Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             m3.decreaseBy( null );
         });
     }
@@ -66,9 +66,9 @@ public class MoneyTest {
 
     @Test
     public void testIncrease() {
-        assertEquals( m3.increaseBy(m0), m3b );
-        assertEquals( m17.increaseBy(m3), m20 );
-        assertThrows( DomainPrimitiveException.class, () -> {
+        Assertions.assertEquals( m3.increaseBy(m0), m3b );
+        Assertions.assertEquals( m17.increaseBy(m3), m20 );
+        Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             m3.increaseBy( null );
         });
     }

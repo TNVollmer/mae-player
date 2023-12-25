@@ -1,6 +1,7 @@
 package thkoeln.dungeon.player.game.application;
 
 
+import org.junit.jupiter.api.Assertions;
 import thkoeln.dungeon.player.core.AbstractDungeonMockingIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,6 @@ import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @DirtiesContext
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
@@ -39,8 +39,8 @@ public class GameApplicationServiceIntegrationTest extends AbstractDungeonMockin
 
         // then
         Game game = gameApplicationService.queryActiveGame();
-        assertNotNull( game );
-        assertEquals( GameStatus.STARTED, game.getGameStatus() );
+        Assertions.assertNotNull( game );
+        Assertions.assertEquals( GameStatus.STARTED, game.getGameStatus() );
     }
 
     @Test
@@ -53,7 +53,7 @@ public class GameApplicationServiceIntegrationTest extends AbstractDungeonMockin
 
         // then
         Game game = gameApplicationService.queryActiveGame();
-        assertNotNull( game );
-        assertEquals( GameStatus.CREATED, game.getGameStatus() );
+        Assertions.assertNotNull( game );
+        Assertions.assertEquals( GameStatus.CREATED, game.getGameStatus() );
     }
 }

@@ -39,16 +39,16 @@ public class CommandTest {
 
     @Test
     public void testCreateMoveValidation() {
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createMove(null, planetId, gameId, playerId);
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createMove(robotId, null, gameId, playerId);
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createMove(robotId, planetId, null, playerId);
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createMove(robotId, planetId, gameId, null);
         });
     }
@@ -56,20 +56,20 @@ public class CommandTest {
 
     @Test
     public void testCreateItemPurchaseValidation() {
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createItemPurchase(null, numberOf, robotId, gameId, playerId);
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createItemPurchase(itemType, -1, robotId, gameId, playerId);
         });
-        assertNull(Command.createItemPurchase(itemType, 0, robotId, gameId, playerId));
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertNull(Command.createItemPurchase(itemType, 0, robotId, gameId, playerId));
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createItemPurchase(itemType, numberOf, null, gameId, playerId);
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createItemPurchase(itemType, numberOf, robotId, null, playerId);
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createItemPurchase(itemType, numberOf, robotId, gameId, null);
         });
     }
@@ -77,14 +77,14 @@ public class CommandTest {
 
     @Test
     public void testCreateRobotPurchaseValidation() {
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createRobotPurchase( -1, gameId, playerId );
         });
-        assertNull(Command.createRobotPurchase(0, gameId, playerId) );
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertNull(Command.createRobotPurchase(0, gameId, playerId) );
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createRobotPurchase( numberOf, null, playerId );
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createRobotPurchase( numberOf, gameId, null );
         });
     }
@@ -92,29 +92,29 @@ public class CommandTest {
 
     @Test
     public void testCreateUpgradeValidation() {
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createUpgrade( null, robotId, gameId, playerId );
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createUpgrade( capability, null, gameId, playerId );
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createUpgrade( capability, robotId, null, playerId );
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createUpgrade( capability, robotId, gameId, null );
         });
     }
 
     @Test
     public void testCreateRegenValidation() {
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createRegeneration( null, gameId, playerId );
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createRegeneration( robotId, null, playerId );
         });
-        assertThrows(DomainPrimitiveException.class, () -> {
+        Assertions.assertThrows(DomainPrimitiveException.class, () -> {
             Command.createRegeneration( robotId, gameId, null );
         });
     }
@@ -122,33 +122,33 @@ public class CommandTest {
     @Test
     public void testCommandType() {
         Assertions.assertEquals( CommandType.MOVEMENT, move.getCommandType() );
-        assertEquals( CommandType.BUYING, item.getCommandType() );
-        assertEquals( CommandType.BUYING, robot.getCommandType() );
-        assertEquals( CommandType.BUYING, upgrade.getCommandType() );
-        assertEquals( CommandType.REGENERATE, regen.getCommandType() );
+        Assertions.assertEquals( CommandType.BUYING, item.getCommandType() );
+        Assertions.assertEquals( CommandType.BUYING, robot.getCommandType() );
+        Assertions.assertEquals( CommandType.BUYING, upgrade.getCommandType() );
+        Assertions.assertEquals( CommandType.REGENERATE, regen.getCommandType() );
     }
 
     @Test
     public void testPlayerId() {
-        assertEquals( playerId, move.getPlayerId() );
-        assertEquals( playerId, item.getPlayerId() );
-        assertEquals( playerId, robot.getPlayerId() );
-        assertEquals( playerId, upgrade.getPlayerId() );
-        assertEquals( playerId, regen.getPlayerId() );
+        Assertions.assertEquals( playerId, move.getPlayerId() );
+        Assertions.assertEquals( playerId, item.getPlayerId() );
+        Assertions.assertEquals( playerId, robot.getPlayerId() );
+        Assertions.assertEquals( playerId, upgrade.getPlayerId() );
+        Assertions.assertEquals( playerId, regen.getPlayerId() );
     }
 
     @Test
     public void testRobotId() {
-        assertEquals( robotId, move.getCommandObject().getRobotId() );
-        assertEquals( robotId, item.getCommandObject().getRobotId() );
-        assertEquals( robotId, upgrade.getCommandObject().getRobotId() );
-        assertEquals( robotId, regen.getCommandObject().getRobotId() );
+        Assertions.assertEquals( robotId, move.getCommandObject().getRobotId() );
+        Assertions.assertEquals( robotId, item.getCommandObject().getRobotId() );
+        Assertions.assertEquals( robotId, upgrade.getCommandObject().getRobotId() );
+        Assertions.assertEquals( robotId, regen.getCommandObject().getRobotId() );
     }
 
     @Test
     public void testOtherProperties() {
-        assertEquals( itemType.name(), item.getCommandObject().getItemName() );
-        assertEquals( capability.toStringForCommand(), upgrade.getCommandObject().getItemName() );
+        Assertions.assertEquals( itemType.name(), item.getCommandObject().getItemName() );
+        Assertions.assertEquals( capability.toStringForCommand(), upgrade.getCommandObject().getItemName() );
     }
 
 

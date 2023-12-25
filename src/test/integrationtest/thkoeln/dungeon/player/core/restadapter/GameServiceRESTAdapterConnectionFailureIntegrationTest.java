@@ -2,6 +2,7 @@ package thkoeln.dungeon.player.core.restadapter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -20,7 +21,7 @@ import thkoeln.dungeon.player.DungeonPlayerConfiguration;
 import java.net.URI;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+
 
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
 public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
@@ -56,7 +57,7 @@ public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
                 .andRespond( MockRestResponseCreators.withStatus( HttpStatus.NOT_FOUND ) );
 
         // when/then
-        assertThrows( RESTAdapterException.class, () -> {
+        Assertions.assertThrows( RESTAdapterException.class, () -> {
             gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
         });
     }
@@ -74,7 +75,7 @@ public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
 
         // when/then
         GameDto[] gameDtos = gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
-        assertEquals( 0, gameDtos.length );
+        Assertions.assertEquals( 0, gameDtos.length );
     }
 
 
@@ -89,7 +90,7 @@ public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
                 .andRespond( MockRestResponseCreators.withStatus( HttpStatus.NOT_FOUND ) );
 
         // when/then
-        assertThrows( RESTAdapterException.class, () -> {
+        Assertions.assertThrows( RESTAdapterException.class, () -> {
             gameServiceRESTAdapter.sendPostRequestForPlayerId( playerRegistryDto.getName(), playerRegistryDto.getEmail() );
         });
     }
@@ -108,7 +109,7 @@ public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
                 .andRespond( MockRestResponseCreators.withStatus( HttpStatus.NOT_FOUND ) );
 
         // when/then
-        assertThrows( RESTAdapterException.class, () -> {
+        Assertions.assertThrows( RESTAdapterException.class, () -> {
             gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( gameId, playerToken );
         });
     }
@@ -128,7 +129,7 @@ public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
                 .andRespond( MockRestResponseCreators.withStatus( HttpStatus.BAD_REQUEST ) );
 
         // when/then
-        assertThrows( RESTAdapterException.class, () -> {
+        Assertions.assertThrows( RESTAdapterException.class, () -> {
             gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( gameId, playerToken );
         });
     }
@@ -146,7 +147,7 @@ public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
                 .andRespond( MockRestResponseCreators.withStatus( HttpStatus.BAD_REQUEST ) );
 
         // when/then
-        assertThrows( RESTAdapterException.class, () -> {
+        Assertions.assertThrows( RESTAdapterException.class, () -> {
             gameServiceRESTAdapter.sendPutRequestToLetPlayerJoinGame( gameId, playerToken );
         });
     }
