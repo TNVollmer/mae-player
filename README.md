@@ -61,17 +61,32 @@ instruct your IDE (e.g [IntelliJ](https://www.jetbrains.com/help/idea/run-debug-
 Easiest way is to right click on the main class `thkoeln.dungeon.player.DungeonPlayerMainApplication` 
 and select "Run DungeonPlayerMainApplication ..." in the context menu.
  
-![Create Spring Boot run configuration](https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode0.png)
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode0.png" alt="Create Spring Boot run configuration" style="width: 500px; box-shadow: 10px 10px 5px grey;">
+
 
 **2. Open the run configuration editor ...**
 
-![Open the run configuration editor](https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode1.png)
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode1.png" alt="Open the run configuration editor" style="width: 500px; box-shadow: 10px 10px 5px grey;">
+
+
 
 **3. ... and add the `dev` profile to the active profiles**
 
-![Add dev profile](https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode2.jpg)
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode2.jpg" alt="Add dev profile" style="width: 500px; box-shadow: 10px 10px 5px grey;">
 
 
 ## Tests
 
 The player skeleton contains a number of tests, which can be enhanced to test your own player implementation.
+The fall into two categories, "unit tests" and "integration tests". For the distinction between these two, 
+you can e.g. refer to [this video](https://www.youtube.com/watch?v=z0r5XqPk8jA). In short:
+
+- Unit tests are fast and test a single class or method in isolation. They are located in the `src/test/unittest` folder.
+- Integration tests are running the Spring framework, and mock the core services (i.e. the
+  [Microservice Dungeon Local Dev Env based on Docker Compose](https://gitlab.com/the-microservice-dungeon/devops-team/local-dev-environment)
+  **is not required** - and should also not run, since this would interfere with the test mocks.  
+  They are located in the `src/test/integrationtest` folder.
+
+This separation is important, since unit tests are fast and can be run on every change, while integration tests
+are slower and should only be run before a commit or push.
+

@@ -17,10 +17,16 @@ import thkoeln.dungeon.player.player.domain.Player;
 @Service
 @Profile("!dev")
 @Slf4j
-@RequiredArgsConstructor
 public class DungeonPlayerStartupService implements ApplicationListener<ApplicationReadyEvent> {
     private PlayerApplicationService playerApplicationService;
     private GameApplicationService gameApplicationService;
+
+    @Autowired
+    public DungeonPlayerStartupService( PlayerApplicationService playerApplicationService,
+                                        GameApplicationService gameApplicationService ) {
+        this.playerApplicationService = playerApplicationService;
+        this.gameApplicationService = gameApplicationService;
+    }
 
     /**
      * In this method, the player participation is prepared. If there are problems (connection
@@ -32,6 +38,7 @@ public class DungeonPlayerStartupService implements ApplicationListener<Applicat
         playerApplicationService.queryAndIfNeededCreatePlayer();
         try {
             gameApplicationService.fetchRemoteGame();
+            playerApplicationService.registerPlayer();
             playerApplicationService.pollForOpenGame();
         } catch ( DungeonPlayerRuntimeException exc ) {
             log.error( "Error when initializing player: " + exc.getMessage() );
