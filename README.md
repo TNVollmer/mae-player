@@ -61,18 +61,18 @@ instruct your IDE (e.g [IntelliJ](https://www.jetbrains.com/help/idea/run-debug-
 Easiest way is to right click on the main class `thkoeln.dungeon.player.DungeonPlayerMainApplication` 
 and select "Run DungeonPlayerMainApplication ..." in the context menu.
  
-<img src="https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode0.png" alt="Create Spring Boot run configuration" style="width: 500px; box-shadow: 10px 10px 5px grey;">
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/activate-dev-mode0.png" alt="Create Spring Boot run configuration" style="width: 500px; box-shadow: 10px 10px 5px grey;">
 
 
 **2. Open the run configuration editor ...**
 
-<img src="https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode1.png" alt="Open the run configuration editor" style="width: 500px; box-shadow: 10px 10px 5px grey;">
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/activate-dev-mode1.png" alt="Open the run configuration editor" style="width: 500px; box-shadow: 10px 10px 5px grey;">
 
 
 
 **3. ... and add the `dev` profile to the active profiles**
 
-<img src="https://the-microservice-dungeon.gitlab.io/docs/images/activate-dev-mode2.jpg" alt="Add dev profile" style="width: 500px; box-shadow: 10px 10px 5px grey;">
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/activate-dev-mode2.jpg" alt="Add dev profile" style="width: 500px; box-shadow: 10px 10px 5px grey;">
 
 
 ## Tests
@@ -90,3 +90,31 @@ you can e.g. refer to [this video](https://www.youtube.com/watch?v=z0r5XqPk8jA).
 This separation is important, since unit tests are fast and can be run on every change, while integration tests
 are slower and should only be run before a commit or push.
 
+### Configure the test roots in IntelliJ
+
+If you are using IntelliJ, you need to configure the test roots for the unit and integration tests.
+
+**1. No test roots defined**
+
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/test-setup1.png" alt="No test roots defined" style="box-shadow: 10px 10px 5px grey;">
+
+You can see that both the unit and integration test folders are not marked as test roots (the folder icons are grey, not green).
+
+**2. Open the project structure dialog**
+
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/test-setup2.png" alt="Open the project structure dialog" style="box-shadow: 10px 10px 5px grey;">
+
+
+**3. Select the "Modules" entry ...**
+
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/test-setup3.png" alt="Select the modules entry" style="box-shadow: 10px 10px 5px grey;">
+
+**4. Remove any old test root entry**
+
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/test-setup4.png" alt="Select the modules entry" style="box-shadow: 10px 10px 5px grey;">
+
+If there is an old test root entry like `src\test\java`, remove it by selecting it and clicking the "remove" icon.
+
+**5. Add the `integrationtest` and the `unittest` roots as test roots**
+
+<img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/test-setup5.png" alt="Select the modules entry" style="box-shadow: 10px 10px 5px grey;">
