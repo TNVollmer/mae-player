@@ -33,16 +33,18 @@ public class Robot {
 
     private boolean isAlive = true;
     @Embedded
+    @AttributeOverride(name = "healthAmount", column = @Column(name = "max_health"))
     private Health maxHealth;
     @Embedded
+    @AttributeOverride(name = "healthAmount", column = @Column(name = "cur_health"))
     private Health health;
 
     @Embedded
-    @AttributeOverride(name = "energy_amount", column = @Column(name = "max_energy_amount"))
+    @AttributeOverride(name = "energyAmount", column = @Column(name = "max_energy"))
     private Energy maxEnergy;
 
     @Embedded
-    @AttributeOverride(name = "energy_amount", column = @Column(name = "energy_amount"))
+    @AttributeOverride(name = "energyAmount", column = @Column(name = "cur_energy"))
     private Energy energy;
 
     private int energyRegen;
