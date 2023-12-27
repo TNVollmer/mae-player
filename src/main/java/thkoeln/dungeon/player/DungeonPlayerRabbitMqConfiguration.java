@@ -10,11 +10,11 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class DungeonPlayerRabbitMqConfiguration {
 
-  private final ConnectionFactory connectionFactory;
+    private final ConnectionFactory connectionFactory;
 
-  // We need a RabbitAdmin Bean to declare queues and bindings
-  @Bean
-  public RabbitAdmin rabbitAdmin() {
-    return new RabbitAdmin(connectionFactory);
-  }
+    // We need a RabbitAdmin Bean to declare queues and bindings
+    @Bean
+    public RabbitAdmin rabbitAdmin() {
+        return new RabbitAdmin( connectionFactory );
+    }
 }

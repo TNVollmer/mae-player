@@ -12,13 +12,13 @@ import thkoeln.dungeon.player.core.events.EventFactory;
 import thkoeln.dungeon.player.core.events.EventHeader;
 
 @Service
-public class PlayerEventListener {
-    private Logger logger = LoggerFactory.getLogger(PlayerEventListener.class);
+public class PlayerExternalEventListener {
+    private Logger logger = LoggerFactory.getLogger( PlayerExternalEventListener.class);
     private EventFactory eventFactory;
     private ApplicationEventPublisher applicationEventPublisher;
     @Autowired
-    public PlayerEventListener( EventFactory eventFactory,
-                                ApplicationEventPublisher applicationEventPublisher
+    public PlayerExternalEventListener( EventFactory eventFactory,
+                                        ApplicationEventPublisher applicationEventPublisher
     ) {
         this.eventFactory = eventFactory;
         this.applicationEventPublisher = applicationEventPublisher;

@@ -142,7 +142,7 @@ public class PlayerApplicationService {
 
 
     public void cleanupAfterFinishingGame() {
-        logger.info( "Cleaning up after finishing game ..." );
+        logger.info( "Cleaning up player ..." );
         Player player = queryAndIfNeededCreatePlayer();
         gameApplicationService.finishGame();
         player.setGameId( null );

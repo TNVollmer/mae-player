@@ -56,8 +56,8 @@ public class DevGameAdminClient {
     }
 
 
-    public void cleanUpAndCreateGame() {
-        log.info( DEV_PREFIX + "cleanUpAndCreateGame()" );
+    public void createGameInDevMode() {
+        log.info( DEV_PREFIX + "createGameInDevMode() ..." );
         var gameDtos = getAllGames();
 
         // End all existing games
@@ -68,16 +68,21 @@ public class DevGameAdminClient {
             endGame( game.getGameId() );
         }
         createGame( NUMBER_OF_ROUNDS, NUMBER_OF_PLAYERS );
-        log.info( DEV_PREFIX + "Clean game created - now start game ..." );
+        log.info( DEV_PREFIX + "Clean game created." );
+    }
 
-        gameDtos = getAllGames();
+
+    public void startGameInDevMode() {
+        log.info( DEV_PREFIX + "startGameInDevMode()" );
+        var gameDtos = getAllGames();
         if ( gameDtos.size() != 1 )
-            throw new DungeonPlayerRuntimeException( "Invalid number of games found. That should not happen" );
+            throw new DungeonPlayerRuntimeException( DEV_PREFIX + "Invalid number of games found. That should not happen" );
         var game = gameDtos.get( 0 );
         startGame( game.getGameId() );
         setRoundDuration( game.getGameId(), ROUND_DURATION );
         log.info( DEV_PREFIX + "Game started." );
     }
+
 
 
     public void endAllGames() {

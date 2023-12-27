@@ -21,7 +21,7 @@ import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 
 import java.net.URI;
 import java.util.UUID;
-import thkoeln.dungeon.player.player.application.PlayerEventListener;
+import thkoeln.dungeon.player.player.application.PlayerExternalEventListener;
 
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -59,7 +59,7 @@ public class AbstractDungeonMockingIntegrationTest {
     // Mock the listener away.
     // TODO: Start a testcontainer
     @MockBean
-    PlayerEventListener eventListener;
+    PlayerExternalEventListener eventListener;
 
     protected void setUp() throws Exception {
         String getExtension = "/players?name=" + playerName + "&mail=" + playerEmail;
