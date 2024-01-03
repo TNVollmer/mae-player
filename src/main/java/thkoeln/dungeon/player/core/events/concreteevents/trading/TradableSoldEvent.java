@@ -10,15 +10,20 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BankAccountClearedEvent extends AbstractEvent {
+public class TradableSoldEvent extends AbstractEvent {
 
     private UUID playerId;
-    private Integer balance;
+    private UUID robotId;
+    private String type;
+    private String name;
+    private Integer amount;
+    private Integer pricePerUnit;
+    private Integer totalPrice;
 
     @Override
     public boolean isValid() {
         if (eventHeader == null) return false;
-        return (playerId != null && balance != null);
+        return (playerId != null && type != null && name != null && amount != null && pricePerUnit != null && totalPrice != null);
     }
 
 }

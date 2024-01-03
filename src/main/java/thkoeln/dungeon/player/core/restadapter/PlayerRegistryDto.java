@@ -4,6 +4,7 @@ package thkoeln.dungeon.player.core.restadapter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Value;
+
 import java.util.UUID;
 
 @Setter
@@ -23,11 +24,11 @@ public class PlayerRegistryDto {
 
     public PlayerRegistryDto clone() {
         PlayerRegistryDto myClone = new PlayerRegistryDto();
-        myClone.setPlayerId( this.playerId );
-        myClone.setName( this.name );
-        myClone.setEmail( this.email );
-        myClone.setPlayerExchange( this.playerExchange );
-        myClone.setPlayerQueue( this.playerQueue );
+        myClone.setPlayerId(this.playerId);
+        myClone.setName(this.name);
+        myClone.setEmail(this.email);
+        myClone.setPlayerExchange(this.playerExchange);
+        myClone.setPlayerQueue(this.playerQueue);
         return myClone;
     }
 }

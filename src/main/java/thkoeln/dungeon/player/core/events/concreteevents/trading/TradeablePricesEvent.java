@@ -53,7 +53,7 @@ public class TradeablePricesEvent extends AbstractEvent {
             retVal += "\n\tNo tradablePriceDtos!";
         } else {
             retVal += "\n\t" + tradeableItems.get(0) +
-                    " (plus " + String.valueOf(tradeableItems.size() - 1) + " more)";
+                    " (plus " + (tradeableItems.size() - 1) + " more)";
         }
         return retVal;
     }

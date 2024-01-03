@@ -12,20 +12,20 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RobotResourceMinedEvent extends AbstractEvent {
+public class RobotResourceRemovedEvent extends AbstractEvent {
     private UUID robotId;
-    private int minedAmount = 0;
-    private String minedResource;
+    private String removedResource;
+    private int removedAmount = 0;
     private RobotResourceInventoryDto resourceInventory;
 
 
-    public MineableResource minedResourceAsDomainPrimitive() {
+    public MineableResource removedResourceAsDomainPrimitive() {
         MineableResource minedResourceAsDomainPrimitive = null;
         try {
             minedResourceAsDomainPrimitive = MineableResource.fromTypeAndAmount(
-                    MineableResourceType.valueOf(minedResource.toUpperCase()), minedAmount);
+                    MineableResourceType.valueOf(removedResource.toUpperCase()), removedAmount);
         } catch (Exception e) {
-            logger.debug("Could not convert minedResource to MineableResource: " + e.getMessage());
+            logger.debug("Could not convert removedResource to MineableResource: " + e.getMessage());
         }
         return minedResourceAsDomainPrimitive;
     }
@@ -34,8 +34,8 @@ public class RobotResourceMinedEvent extends AbstractEvent {
     @Override
     public boolean isValid() {
         if (robotId == null) return false;
-        if (minedAmount <= 0) return false;
-        if (minedResource == null) return false;
-        return minedResourceAsDomainPrimitive() != null;
+        if (removedAmount <= 0) return false;
+        if (removedResource == null) return false;
+        return removedResourceAsDomainPrimitive() != null;
     }
 }

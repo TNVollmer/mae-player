@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
-import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 
 import java.util.List;
 
@@ -26,12 +26,12 @@ import java.util.List;
  */
 @Service
 public class PlayerApplicationService {
-    private Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
-    private PlayerRepository playerRepository;
-    private GameApplicationService gameApplicationService;
-    private GameServiceRESTAdapter gameServiceRESTAdapter;
-    private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
-    private RabbitAdmin rabbitAdmin;
+    private final Logger logger = LoggerFactory.getLogger(PlayerApplicationService.class);
+    private final PlayerRepository playerRepository;
+    private final GameApplicationService gameApplicationService;
+    private final GameServiceRESTAdapter gameServiceRESTAdapter;
+    private final RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
+    private final RabbitAdmin rabbitAdmin;
 
 
     @Value("${dungeon.playerName}")
@@ -150,7 +150,7 @@ public class PlayerApplicationService {
         logger.info("Cleaned up after finishing game.");
     }
 
-    public void updateMoney(Money money){
+    public void updateMoney(Money money) {
         Player player = queryAndIfNeededCreatePlayer();
         if (player.getBalance().equals(money)) return;
         player.setBalance(money);

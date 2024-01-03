@@ -3,28 +3,29 @@ package thkoeln.dungeon.player.core.events;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.events.concreteevents.ErrorEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.UnknownEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.*;
-import thkoeln.dungeon.player.core.events.concreteevents.ErrorEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.UnknownEvent;
 
 @Service
 public class EventFactory {
-    private Logger logger = LoggerFactory.getLogger( EventFactory.class );
+    private final Logger logger = LoggerFactory.getLogger(EventFactory.class);
 
-    public AbstractEvent fromHeaderAndPayload( EventHeader eventHeader, String payload ) {
-        if ( eventHeader == null || payload == null )
-            throw new DungeonEventException( "eventHeader == null || payload == null" );
+    public AbstractEvent fromHeaderAndPayload(EventHeader eventHeader, String payload) {
+        if (eventHeader == null || payload == null)
+            throw new DungeonEventException("eventHeader == null || payload == null");
         AbstractEvent newEvent = null;
-        switch ( eventHeader.getEventType() ) {
+        switch (eventHeader.getEventType()) {
             case GAME_STATUS:
                 newEvent = new GameStatusEvent();
                 break;
@@ -40,7 +41,6 @@ public class EventFactory {
             case TRADABLE_PRICES:
                 newEvent = new TradeablePricesEvent();
                 break;
-
             case ROBOT_SPAWNED:
                 newEvent = new RobotSpawnedEvent();
                 break;
@@ -62,11 +62,17 @@ public class EventFactory {
             case TRADABLE_BOUGHT:
                 newEvent = new TradableBoughtEvent();
                 break;
+            case TRADABLE_SOLD:
+                newEvent = new TradableSoldEvent();
+                break;
             case BANK_ACCOUNT_CLEARED:
                 newEvent = new BankAccountClearedEvent();
                 break;
             case RESOURCE_MINED:
                 newEvent = new ResourceMinedEvent();
+                break;
+            case ROBOT_RESOURCE_REMOVED:
+                newEvent = new RobotResourceRemovedEvent();
                 break;
             case ERROR:
                 newEvent = new ErrorEvent();
@@ -74,9 +80,9 @@ public class EventFactory {
             default:
                 newEvent = new UnknownEvent();
         }
-        newEvent.setEventHeader( eventHeader );
-        newEvent.fillWithPayload( payload );
-        logger.debug( "Created event: " + newEvent );
+        newEvent.setEventHeader(eventHeader);
+        newEvent.fillWithPayload(payload);
+        logger.debug("Created event: " + newEvent);
         return newEvent;
     }
 

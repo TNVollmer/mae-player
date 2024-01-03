@@ -2,15 +2,10 @@ package thkoeln.dungeon.player.robot.domain;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
-import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetResourceDto;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +23,8 @@ public class RobotPlanet {
     private UUID east;
     private UUID south;
     private UUID west;
+
+    @Setter
     private int movementDifficulty;
 
     @Embedded
@@ -74,15 +71,23 @@ public class RobotPlanet {
         return new RobotPlanet(planetId, north, east, south, west, movementDifficulty, resourceType);
     }
 
-    public void updateMineableResource(PlanetResourceDto resource) {
+    public void updateMineableResource(MineableResource resource) {
         try {
-            this.mineableResource = MineableResource.fromTypeAndAmount(resource.getResourceType(), resource.getCurrentAmount());
-            log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource);
+            if (this.mineableResource.getType().equals(resource.getType())) {
+                this.mineableResource.subtractAmount(resource.getAmount());
+                log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
+            } else {
+                log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
+            }
+
         } catch (Exception e) {
             this.mineableResource = null;
-            log.info("RESSOURCE --> " + "No mineable resource on planet: " + this.planetId);
+            log.error("RESSOURCE --> " + "No mineable resource on planet: " + this.planetId);
         }
     }
 
 
+    public UUID[] getNeighbours() {
+        return new UUID[]{north, east, south, west};
+    }
 }

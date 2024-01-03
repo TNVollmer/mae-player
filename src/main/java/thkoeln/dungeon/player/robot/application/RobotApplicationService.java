@@ -5,12 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
-import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
+import thkoeln.dungeon.player.robot.domain.RobotException;
+
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
@@ -32,42 +35,54 @@ public class RobotApplicationService {
 
     public void buyRobot(int amount) {
         Command buyRobotCommand = Command.createRobotPurchase(amount, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Buying " + amount + " robots");
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
 
-    public void moveRobots() {
-        Player player = playerRepository.findAll().get(0);
-        for (Robot robot : player.getRobots()) {
-            UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
-            if (neighbourPlanetId == null) {
-                logger.info("Robot " + robot.getId() + " has no neighbours");
-                continue;
-            }
-            Command moveRobotCommand = Command.createMove(robot.getId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-            logger.info("Moving robot: " + robot.getId() + " to planet: " + neighbourPlanetId);
-            gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
+    public void letRobotMove(Robot robot) {
+        UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
+        if (neighbourPlanetId == null) {
+            logger.error("Robot " + robot.getRobotId() + " has no neighbours");
+            logger.info("Planets neighbours: " + Arrays.toString(robot.getRobotPlanet().getNeighbours()));
+            return;
         }
+        Command moveRobotCommand = Command.createMove(robot.getRobotId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Moving robot: " + robot.getRobotId() + " from planet: " + robot.getRobotPlanet().getPlanetId() + " to planet: " + neighbourPlanetId);
+        gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
     }
 
-    public void letRobotMine() {
-        UUID planetId = playerRepository.findAll().get(0).getRobots().get(0).getRobotPlanet().getPlanetId();
-        Player player = playerRepository.findAll().get(0);
-        for (Robot robot : player.getRobots()) {
-            Command mineCommand = Command.createMining(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-            logger.info("Robot " + robot.getId() + " is mining");
-            gameServiceRESTAdapter.sendPostRequestForCommand(mineCommand);
+    public void letRobotMine(Robot robot) {
+        if (robot.getRobotPlanet().getMineableResource() == null) {
+            logger.info("Robot " + robot.getRobotId() + " has no mineable resource");
+            return;
         }
+        Command mineCommand = Command.createMining(robot.getRobotId(), robot.getRobotPlanet().getPlanetId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getRobotId() + " is mining");
+        gameServiceRESTAdapter.sendPostRequestForCommand(mineCommand);
     }
 
-    // TODO: Command for fighting is not implemented yet - ask
-    public void letRobotFight() {
-        UUID planetId = playerRepository.findAll().get(0).getRobots().get(0).getRobotPlanet().getPlanetId();
-        Player player = playerRepository.findAll().get(0);
-        for (Robot robot : player.getRobots()) {
-            Command fightCommand = Command.createFight(robot.getId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-            logger.info("Robot " + robot.getId() + " is fighting");
-            gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
+    public void letRobotRegenerate(Robot robot) {
+        Command regenerateCommand = Command.createRegeneration(robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getRobotId() + " is regenerating");
+        gameServiceRESTAdapter.sendPostRequestForCommand(regenerateCommand);
+    }
+
+    public void letRobotSell(Robot robot) {
+        MineableResource resourceToSell = robot.getRobotInventory().getResources().getHighestMinedResource();
+        if (resourceToSell == null) {
+            logger.error("Robot " + robot.getRobotId() + " has no resources to sell");
+            throw new RobotException("Robot " + robot.getRobotId() + " has no resources to sell");
         }
+        Command sellCommand = Command.createSelling(robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1], resourceToSell);
+        logger.info("Robot " + robot.getRobotId() + " is selling: " + resourceToSell.getType() + " with amount: " + resourceToSell.getAmount());
+        gameServiceRESTAdapter.sendPostRequestForCommand(sellCommand);
+    }
+
+    public void letRobotFight(Robot robot) {
+        UUID planetId = robot.getRobotPlanet().getPlanetId();
+        Command fightCommand = Command.createFight(robot.getRobotId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getRobotId() + " is fighting");
+        gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
     }
 
     public UUID[] getGameAndPlayerId() {
@@ -75,5 +90,21 @@ public class RobotApplicationService {
         ids[0] = gameApplicationService.queryAndIfNeededFetchRemoteGame().getGameId();
         ids[1] = playerApplicationService.queryAndIfNeededCreatePlayer().getPlayerId();
         return ids;
+    }
+
+    public boolean checkIfRobotCanMine(Robot robot) {
+        switch (robot.getRobotPlanet().getMineableResource().getType()) {
+            case COAL:
+                return true;
+            case IRON:
+                return robot.getMiningLevel().getLevel() >= 1;
+            case GEM:
+                return robot.getMiningLevel().getLevel() >= 2;
+            case GOLD:
+                return robot.getMiningLevel().getLevel() >= 3;
+            case PLATIN:
+                return robot.getMiningLevel().getLevel() >= 4;
+        }
+        return false;
     }
 }

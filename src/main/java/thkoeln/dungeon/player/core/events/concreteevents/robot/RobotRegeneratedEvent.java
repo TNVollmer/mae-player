@@ -16,7 +16,7 @@ public class RobotRegeneratedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if ( eventHeader == null ) return false;
-        return ( robotId != null && availableEnergy != null );
+        if (eventHeader == null) return false;
+        return (robotId != null && availableEnergy != null);
     }
 }

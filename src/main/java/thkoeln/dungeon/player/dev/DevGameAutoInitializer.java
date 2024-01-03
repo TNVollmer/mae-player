@@ -26,7 +26,7 @@ public class DevGameAutoInitializer {
 
 
     @Autowired
-    public DevGameAutoInitializer( DevGameAdminClient devGameAdminClient ) {
+    public DevGameAutoInitializer(DevGameAdminClient devGameAdminClient) {
         this.devGameAdminClient = devGameAdminClient;
     }
 
@@ -41,13 +41,13 @@ public class DevGameAutoInitializer {
             var games = devGameAdminClient.getAllGames();
 
             // End all existing games
-            for ( GameDto game : games ) {
-                if ( game.getGameStatus() == GameStatus.CREATED ) {
-                    devGameAdminClient.startGame( game.getGameId() );
+            for (GameDto game : games) {
+                if (game.getGameStatus() == GameStatus.CREATED) {
+                    devGameAdminClient.startGame(game.getGameId());
                 }
-                devGameAdminClient.endGame( game.getGameId() );
+                devGameAdminClient.endGame(game.getGameId());
             }
-            devGameAdminClient.createGame( NUMBER_OF_ROUNDS, NUMBER_OF_PLAYERS );
+            devGameAdminClient.createGame(NUMBER_OF_ROUNDS, NUMBER_OF_PLAYERS);
         }
     }
 
@@ -57,13 +57,13 @@ public class DevGameAutoInitializer {
     @RequiredArgsConstructor
     public class GameAutoStarter implements ApplicationListener<ApplicationReadyEvent> {
         @Override
-        public void onApplicationEvent( ApplicationReadyEvent event ) {
+        public void onApplicationEvent(ApplicationReadyEvent event) {
             var games = devGameAdminClient.getAllGames();
-            if ( games.size() != 1 )
-                throw new RuntimeException( "Invalid number of games found. That should not happen" );
-            var game = games.get( 0 );
-            devGameAdminClient.startGame( game.getGameId() );
-            devGameAdminClient.setRoundDuration( game.getGameId(), ROUND_DURATION );
+            if (games.size() != 1)
+                throw new RuntimeException("Invalid number of games found. That should not happen");
+            var game = games.get(0);
+            devGameAdminClient.startGame(game.getGameId());
+            devGameAdminClient.setRoundDuration(game.getGameId(), ROUND_DURATION);
         }
     }
 
@@ -71,11 +71,11 @@ public class DevGameAutoInitializer {
     @PreDestroy
     public void onExit() {
         // Code here will be executed before the application shuts down
-        log.info( DEV_PREFIX + "Application is stopping. Executing onExit() to remove the end the running game." );
+        log.info(DEV_PREFIX + "Application is stopping. Executing onExit() to remove the end the running game.");
         var gameDtos = devGameAdminClient.getAllGames();
-        for ( GameDto gameDto : gameDtos ) {
-            if ( gameDto.getGameStatus().isActive() ) {
-                devGameAdminClient.endGame( gameDto.getGameId() );
+        for (GameDto gameDto : gameDtos) {
+            if (gameDto.getGameStatus().isActive()) {
+                devGameAdminClient.endGame(gameDto.getGameId());
             }
         }
     }

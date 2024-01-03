@@ -5,13 +5,19 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotInventory;
+import thkoeln.dungeon.player.core.domainprimitives.status.Energy;
+import thkoeln.dungeon.player.core.domainprimitives.status.Health;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 
 import java.util.UUID;
 
 @Entity
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Robot {
@@ -23,42 +29,114 @@ public class Robot {
 
     private UUID robotId;
     private String name = "Robot";
+    private Boolean playerOwned = false;
 
     private boolean isAlive = true;
-    private int maxHealth;
-    private int health;
+    @Embedded
+    @AttributeOverride(name = "healthAmount", column = @Column(name = "max_health"))
+    private Health maxHealth;
+    @Embedded
+    @AttributeOverride(name = "healthAmount", column = @Column(name = "cur_health"))
+    private Health health;
 
-    private int maxEnergy;
-    private int energy;
+    @Embedded
+    @AttributeOverride(name = "energyAmount", column = @Column(name = "max_energy"))
+    private Energy maxEnergy;
+
+    @Embedded
+    @AttributeOverride(name = "energyAmount", column = @Column(name = "cur_energy"))
+    private Energy energy;
+
     private int energyRegen;
 
-    private int healthLevel;
-    private int energyLevel;
-    private int energyRegenLevel;
+    @Embedded
+    @AttributeOverride(name = "type", column = @Column(name = "health_type"))
+    @AttributeOverride(name = "level", column = @Column(name = "health_level"))
+    private Capability healthLevel = Capability.baseForType(CapabilityType.HEALTH);
+    @Embedded
+    @AttributeOverride(name = "type", column = @Column(name = "energy_type"))
+    @AttributeOverride(name = "level", column = @Column(name = "energy_level"))
+    private Capability energyLevel = Capability.baseForType(CapabilityType.MAX_ENERGY);
+    @Embedded
+    @AttributeOverride(name = "type", column = @Column(name = "energy_regen_type"))
+    @AttributeOverride(name = "level", column = @Column(name = "energy_regen_level"))
+    private Capability energyRegenLevel = Capability.baseForType(CapabilityType.ENERGY_REGEN);
 
     private int attackDamage;
-    private int miningSpeed;
+    @Embedded
+    @AttributeOverride(name = "type", column = @Column(name = "damage_type"))
+    @AttributeOverride(name = "level", column = @Column(name = "damage_level"))
+    private Capability damageLevel = Capability.baseForType(CapabilityType.DAMAGE);
 
+    private int miningSpeed;
+    @Embedded
+    @AttributeOverride(name = "type", column = @Column(name = "mining_speed_type"))
+    @AttributeOverride(name = "level", column = @Column(name = "mining_speed_level"))
+    private Capability miningSpeedLevel = Capability.baseForType(CapabilityType.MINING_SPEED);
+    @Embedded
+    @AttributeOverride(name = "type", column = @Column(name = "mining_type"))
+    @AttributeOverride(name = "level", column = @Column(name = "mining_level"))
+    private Capability miningLevel = Capability.baseForType(CapabilityType.MINING);
+
+    private String strategyStatus = "idle";
+    @Embedded
+    @AttributeOverride(name = "type", column = @Column(name = "pending_upgrade_type"))
+    @AttributeOverride(name = "level", column = @Column(name = "pending_upgrade_level"))
+    private Capability pendingUpgrade = null;
 
     @Embedded
-    @Setter
     private RobotInventory robotInventory = RobotInventory.emptyInventory();
 
-
     @Embedded
-    @Setter
     private RobotPlanet robotPlanet = RobotPlanet.nullPlanet();
 
-    public Robot(UUID robotId, String name, UUID planetId) {
-        if (robotId == null || planetId == null) {
-            logger.error("Robot or planet id is null");
-            throw new IllegalArgumentException("Robot or planet id is null");
-        }
-        this.robotId = robotId;
-        this.robotPlanet = RobotPlanet.planetWithoutNeighbours(planetId);
+    public static Robot of(RobotDto robotDto, String name) {
+        Robot robot = new Robot();
+        robot.setRobotId(robotDto.getId());
+        robot.setName(name);
+        robot.setAlive(robotDto.getAlive());
+        robot.setMaxHealth(Health.from(robotDto.getMaxHealth()));
+        robot.setHealth(Health.from(robotDto.getHealth()));
+        robot.setMaxEnergy(Energy.from(robotDto.getMaxEnergy()));
+        robot.setEnergy(Energy.from(robotDto.getEnergy()));
+        robot.setEnergyRegen(robotDto.getEnergyRegen());
+        robot.setHealthLevel(Capability.forTypeAndLevel(CapabilityType.HEALTH, robotDto.getHealthLevel()));
+        robot.setEnergyLevel(Capability.forTypeAndLevel(CapabilityType.MAX_ENERGY, robotDto.getEnergyLevel()));
+        robot.setEnergyRegenLevel(Capability.forTypeAndLevel(CapabilityType.ENERGY_REGEN, robotDto.getEnergyRegenLevel()));
+        robot.setAttackDamage(robotDto.getAttackDamage());
+        robot.setDamageLevel(Capability.forTypeAndLevel(CapabilityType.DAMAGE, robotDto.getDamageLevel()));
+        robot.setMiningSpeed(robotDto.getMiningSpeed());
+        robot.setMiningSpeedLevel(Capability.forTypeAndLevel(CapabilityType.MINING_SPEED, robotDto.getMiningSpeedLevel()));
+        robot.setMiningLevel(Capability.forTypeAndLevel(CapabilityType.MINING, robotDto.getMiningLevel()));
+        robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotDto.getPlanet().getPlanetId()));
+        robot.setRobotInventory(RobotInventory.fromStorageLevelAndMaxStorage(robotDto.getInventory().getStorageLevel(), robotDto.getInventory().getMaxStorage()));
+        return robot;
     }
 
-    public static Robot of(UUID robotId, String name, UUID planetId) {
-        return new Robot(robotId, name, planetId);
+    public static Robot ofEnemy(RobotRevealedDto robotRevealedDto, String name) {
+        Robot robot = new Robot();
+        robot.setRobotId(robotRevealedDto.getRobotId());
+        robot.setName(name);
+        robot.setAlive(true);
+        robot.setHealth(Health.from(robotRevealedDto.getHealth()));
+        robot.setEnergy(Energy.from(robotRevealedDto.getEnergy()));
+        robot.setHealthLevel(Capability.forTypeAndLevel(CapabilityType.HEALTH, robotRevealedDto.getLevels().getHealthLevel()));
+        robot.setEnergyLevel(Capability.forTypeAndLevel(CapabilityType.MAX_ENERGY, robotRevealedDto.getLevels().getEnergyLevel()));
+        robot.setEnergyRegenLevel(Capability.forTypeAndLevel(CapabilityType.ENERGY_REGEN, robotRevealedDto.getLevels().getEnergyRegenLevel()));
+        robot.setDamageLevel(Capability.forTypeAndLevel(CapabilityType.DAMAGE, robotRevealedDto.getLevels().getDamageLevel()));
+        robot.setMiningSpeedLevel(Capability.forTypeAndLevel(CapabilityType.MINING_SPEED, robotRevealedDto.getLevels().getMiningSpeedLevel()));
+        robot.setMiningLevel(Capability.forTypeAndLevel(CapabilityType.MINING, robotRevealedDto.getLevels().getMiningLevel()));
+
+        robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
+        return robot;
+    }
+
+
+    @Override
+    public String toString() {
+        String result = ("Robot: " + name + " | RobotId: " + robotId + " | Strategy: " + strategyStatus + " | Health: " + health + "/" + maxHealth + " | Energy: " + energy + "/" + maxEnergy + " | Energy Regen: " + energyRegen + " | Attack Damage: " + attackDamage + " | Mining Speed: " + miningSpeed);
+        result += (" | Health Level: " + healthLevel + " | Energy Level: " + energyLevel + " | Energy Regen Level: " + energyRegenLevel + " | Damage Level: " + damageLevel + " | Mining Speed Level: " + miningSpeedLevel + " | Mining Level: " + miningLevel);
+        result += (" Robot Inventory: " + robotInventory.toString());
+        return result;
     }
 }

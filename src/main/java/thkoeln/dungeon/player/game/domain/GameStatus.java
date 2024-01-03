@@ -11,12 +11,14 @@ public enum GameStatus {
     ENDED;
 
     public boolean isActive() {
-        return ( this.equals( CREATED ) || this.equals( STARTED ) );
+        return (this.equals(CREATED) || this.equals(STARTED));
     }
+
     public boolean isOpenForJoining() {
-        return ( this.equals( CREATED ) );
+        return (this.equals(CREATED));
     }
+
     public boolean isRunning() {
-        return ( this.equals( STARTED ) );
+        return (this.equals(STARTED));
     }
 }
