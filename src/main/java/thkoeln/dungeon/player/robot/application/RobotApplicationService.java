@@ -97,13 +97,13 @@ public class RobotApplicationService {
             case COAL:
                 return true;
             case IRON:
-                return robot.getMiningLevel().getLevel() >= 1;
+                return robot.getMiningLevel() >= 1;
             case GEM:
-                return robot.getMiningLevel().getLevel() >= 2;
+                return robot.getMiningLevel() >= 2;
             case GOLD:
-                return robot.getMiningLevel().getLevel() >= 3;
+                return robot.getMiningLevel() >= 3;
             case PLATIN:
-                return robot.getMiningLevel().getLevel() >= 4;
+                return robot.getMiningLevel() >= 4;
         }
         return false;
     }
