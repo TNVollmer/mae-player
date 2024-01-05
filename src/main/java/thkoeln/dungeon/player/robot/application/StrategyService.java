@@ -24,6 +24,8 @@ public class StrategyService {
     private final RobotRepository robotRepository;
     private final Logger logger = LoggerFactory.getLogger(StrategyService.class);
 
+    private final String loggerName = "StrategyService --> ";
+
     Player player;
     Money hypotheticalPlayerBalance = Money.zero();
 
@@ -47,11 +49,17 @@ public class StrategyService {
             startOfGame();
         }
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
-        String loggerName = "StrategyService --> ";
+
         for (Robot robot : robots) {
             try {
                 //TODO: Periodically check if robot is still alive, Remove robot from database if not
                 //TODO: Periodically upgrade health, mining speed and damage, so Robots can survive longer and mine faster
+                if (robot.getEnergy() <= 3) {
+                    robotApplicationService.letRobotRegenerate(robot);
+                    robot.setStrategyStatus("regenerating");
+                    robotRepository.save(robot);
+                    break;
+                }
                 switch (robot.getStrategyStatus()) {
                     case "idle":
                         standardIdleStrategy(robot);
@@ -63,8 +71,12 @@ public class StrategyService {
                         //TODO: Fighting needs to be implemented
                         logger.info(loggerName + "Fighting not yet implemented");
                         break;
+                    case "regenerating":
+                        standardRegenerationStrategy(robot);
+                        break;
                     default:
-                        logger.info(loggerName + "No strategy found for robot: " + robot.getRobotId());
+                        logger.info(loggerName + "No strategy found for robot: " + robot.getRobotId() + " Setting strategy to idle.");
+                        robot.setStrategyStatus("idle");
                 }
             } catch (Exception e) {
                 logger.info(loggerName + "Exception: " + e);
@@ -78,6 +90,18 @@ public class StrategyService {
                 logger.info(loggerName + "Robot: " + robot.getRobotId() + " is " + robot.getStrategyStatus());
             }
         }
+    }
+
+    private void standardRegenerationStrategy(Robot robot) {
+        if (robot.getEnergy() >= robot.getMaxEnergy()) {
+            logger.info(loggerName + "Robot: " + robot.getRobotId() + " is fully regenerated: " + robot.getEnergy() + "/" + robot.getMaxEnergy() + " Setting strategy to idle.");
+            robotApplicationService.letRobotMove(robot);
+            robot.setStrategyStatus("idle");
+        } else {
+            robotApplicationService.letRobotRegenerate(robot);
+            robot.setStrategyStatus("regenerating");
+        }
+        robotRepository.save(robot);
     }
 
     private void startOfGame() {

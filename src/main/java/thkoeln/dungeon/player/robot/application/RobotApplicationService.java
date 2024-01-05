@@ -21,14 +21,12 @@ public class RobotApplicationService {
 
     private final Logger logger = LoggerFactory.getLogger(RobotApplicationService.class);
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
-    private final PlayerRepository playerRepository;
     private final PlayerApplicationService playerApplicationService;
     private final GameApplicationService gameApplicationService;
 
     @Autowired
-    public RobotApplicationService(GameServiceRESTAdapter gameServiceRESTAdapter, PlayerRepository playerRepository, PlayerApplicationService playerApplicationService, GameApplicationService gameApplicationService) {
+    public RobotApplicationService(GameServiceRESTAdapter gameServiceRESTAdapter, PlayerApplicationService playerApplicationService, GameApplicationService gameApplicationService) {
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
-        this.playerRepository = playerRepository;
         this.playerApplicationService = playerApplicationService;
         this.gameApplicationService = gameApplicationService;
     }

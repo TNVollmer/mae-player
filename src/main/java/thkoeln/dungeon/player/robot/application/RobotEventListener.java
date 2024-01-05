@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
@@ -34,12 +35,12 @@ public class RobotEventListener {
     }
 
     @EventListener(RobotsRevealedEvent.class)
-    public void displayRobotData(RobotsRevealedEvent robotsRevealedEvent) {
+    private void displayRobotData(RobotsRevealedEvent robotsRevealedEvent) {
         logger.info("Robots revealed: " + Arrays.asList(robotsRevealedEvent.getRobots()).size());
     }
 
     @EventListener(RobotSpawnedEvent.class)
-    public void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
+    private void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         RobotDto robotDto = robotSpawnedEvent.getRobotDto();
         Robot newRobot = Robot.of(robotDto, ("Robot" + (robotRepository.findAll().size() + 1)));
         newRobot.setPlayerOwned(true);
@@ -48,7 +49,7 @@ public class RobotEventListener {
     }
 
     @EventListener(RobotsRevealedEvent.class)
-    public void updateRobot(RobotsRevealedEvent robotsRevealedEvent) {
+    private void updateRobot(RobotsRevealedEvent robotsRevealedEvent) {
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
         for (RobotRevealedDto robotRevealedDto : robotsRevealedEvent.getRobots()) {
             boolean isEnemyRobot = true;
@@ -86,7 +87,7 @@ public class RobotEventListener {
     }
 
     @EventListener(PlanetDiscoveredEvent.class)
-    public void savePlanet(PlanetDiscoveredEvent planetDiscoveredEvent) {
+    private void savePlanet(PlanetDiscoveredEvent planetDiscoveredEvent) {
         List<Robot> robotsOnPlanet = robotRepository.findByRobotPlanetPlanetId(planetDiscoveredEvent.getPlanetId());
         if (robotsOnPlanet.isEmpty()) {
             logger.error("No robots on planet: " + planetDiscoveredEvent.getPlanetId());
@@ -119,7 +120,7 @@ public class RobotEventListener {
     }
 
     @EventListener(RobotResourceMinedEvent.class)
-    public void updatePlanetAndRobotResource(RobotResourceMinedEvent robotResourceMinedEvent) {
+    private void updatePlanetAndRobotResource(RobotResourceMinedEvent robotResourceMinedEvent) {
         Robot robot = robotRepository.findByRobotId(robotResourceMinedEvent.getRobotId());
         robot.getRobotPlanet().updateMineableResource(robotResourceMinedEvent.minedResourceAsDomainPrimitive());
         robot.getRobotInventory().updateResource(robotResourceMinedEvent.minedResourceAsDomainPrimitive());
@@ -128,7 +129,7 @@ public class RobotEventListener {
     }
 
     @EventListener(RobotMovedEvent.class)
-    public void updateRobotPlanet(RobotMovedEvent robotMovedEvent) {
+    private void updateRobotPlanet(RobotMovedEvent robotMovedEvent) {
         Robot robot = robotRepository.findByRobotId(robotMovedEvent.getRobotId());
         robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotMovedEvent.getToPlanet().getId()));
         robot.getRobotPlanet().setMovementDifficulty(robotMovedEvent.getToPlanet().getMovementDifficulty());
@@ -138,10 +139,18 @@ public class RobotEventListener {
     }
 
     @EventListener(RobotResourceRemovedEvent.class)
-    public void removeRobotResource(RobotResourceRemovedEvent robotResourceRemovedEvent) {
+    private void removeRobotResource(RobotResourceRemovedEvent robotResourceRemovedEvent) {
         Robot robot = robotRepository.findByRobotId(robotResourceRemovedEvent.getRobotId());
         robot.getRobotInventory().removeResource(robotResourceRemovedEvent.removedResourceAsDomainPrimitive());
         robotRepository.save(robot);
         logger.info("Removed resource from robot: " + robot.getRobotId() + " with resource: " + robotResourceRemovedEvent.getRemovedResource() + " with amount: " + robotResourceRemovedEvent.getRemovedAmount());
+    }
+
+    @EventListener(RobotRegeneratedEvent.class)
+    private void updateRobotEnergy(RobotRegeneratedEvent robotRegeneratedEvent) {
+        Robot robot = robotRepository.findByRobotId(robotRegeneratedEvent.getRobotId());
+        robot.setEnergy(robotRegeneratedEvent.getAvailableEnergy());
+        robotRepository.save(robot);
+        logger.info("Updated robot: " + robot.getRobotId() + " with energy: " + robotRegeneratedEvent.getAvailableEnergy());
     }
 }

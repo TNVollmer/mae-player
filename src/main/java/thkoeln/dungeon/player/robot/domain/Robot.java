@@ -35,9 +35,7 @@ public class Robot {
     private int health;
 
     private int maxEnergy;
-
     private int energy;
-
     private int energyRegen;
 
 
