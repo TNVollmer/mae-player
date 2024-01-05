@@ -2,12 +2,11 @@ package thkoeln.dungeon.player.player.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
@@ -30,8 +29,6 @@ public class PlayerApplicationService {
     private final PlayerRepository playerRepository;
     private final GameApplicationService gameApplicationService;
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
-    private final RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
-    private final RabbitAdmin rabbitAdmin;
 
 
     @Value("${dungeon.playerName}")
@@ -44,15 +41,11 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
-            GameServiceRESTAdapter gameServiceRESTAdapter,
-            RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry,
-            RabbitAdmin rabbitAdmin
+            GameServiceRESTAdapter gameServiceRESTAdapter
     ) {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
-        this.rabbitListenerEndpointRegistry = rabbitListenerEndpointRegistry;
-        this.rabbitAdmin = rabbitAdmin;
     }
 
     /**
@@ -154,6 +147,13 @@ public class PlayerApplicationService {
         Player player = queryAndIfNeededCreatePlayer();
         if (player.getBalance().equals(money)) return;
         player.setBalance(money);
+        playerRepository.save(player);
+    }
+
+    public void updatePrices(List<TradeableItem> prices) {
+        Player player = queryAndIfNeededCreatePlayer();
+        if (player.getPriceList().equals(prices)) return;
+        player.updatePriceList(prices);
         playerRepository.save(player);
     }
 

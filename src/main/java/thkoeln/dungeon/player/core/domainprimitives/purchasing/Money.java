@@ -33,9 +33,6 @@ public class Money {
 
     public Money decreaseBy(Money moneyDue) {
         if (moneyDue == null) throw new DomainPrimitiveException("amountDue == null");
-        if (moneyDue.greaterThan(this)) {
-            return zero();
-        }
         return Money.from(amount - moneyDue.amount);
     }
 

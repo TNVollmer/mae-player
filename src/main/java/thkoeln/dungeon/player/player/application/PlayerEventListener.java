@@ -140,4 +140,9 @@ public class PlayerEventListener {
         logger.info("Resources: " + resources);
         logger.info("Misc: " + misc);
     }
+
+    @EventListener(TradeablePricesEvent.class)
+    private void updatePrices(TradeablePricesEvent tradeablePricesEvent) {
+        playerApplicationService.updatePrices(tradeablePricesEvent.getTradeableItems());
+    }
 }

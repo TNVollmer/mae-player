@@ -51,7 +51,10 @@ public class Robot {
     private int miningLevel = 0;
 
     private String strategyStatus = "idle";
-    private String pendingUpgrade = null;
+    private String pendingUpgradeName = null;
+    private int pendingUpgradeLevel = 0;
+    private int pendingUpgradePriority = 0;
+    //Upgrade Priority Legend: 1 Urgent, 2 Important, 3 Normal, 4 Low
 
     @Embedded
     private RobotInventory robotInventory = RobotInventory.emptyInventory();

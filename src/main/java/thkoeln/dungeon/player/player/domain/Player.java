@@ -1,6 +1,7 @@
 package thkoeln.dungeon.player.player.domain;
 
 
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
@@ -11,7 +12,10 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -36,6 +40,9 @@ public class Player {
 
     @Setter(AccessLevel.PUBLIC)
     private Money balance = Money.zero();
+
+    @ElementCollection
+    private List<TradeableItem> priceList = new ArrayList<>();
 
     @Setter(AccessLevel.PUBLIC)
     private String playerExchange;
@@ -64,6 +71,10 @@ public class Player {
         this.playerExchange = "player-" + name;
     }
 
+    public void updatePriceList(List<TradeableItem> priceList) {
+        if (priceList == null) throw new PlayerException("priceList == null");
+        this.priceList = priceList;
+    }
 
     public boolean isRegistered() {
         return getPlayerId() != null;

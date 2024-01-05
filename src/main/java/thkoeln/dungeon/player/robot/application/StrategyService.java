@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
@@ -79,7 +80,7 @@ public class StrategyService {
                         robot.setStrategyStatus("idle");
                 }
             } catch (Exception e) {
-                logger.info(loggerName + "Exception: " + e);
+                logger.error(loggerName + "Exception: " + e);
             }
         }
         logger.info(loggerName + "Owned robots: " + robotRepository.findByPlayerOwned(true).size());
@@ -133,15 +134,62 @@ public class StrategyService {
             robot.setStrategyStatus("idle");
             robotRepository.save(robot);
         } else {
-            if (!robotApplicationService.checkIfRobotCanMine(robot)) {
-                robotApplicationService.letRobotMove(robot);
-                robot.setStrategyStatus("idle");
+            if (!checkIfRobotCanMine(robot)) {
+                if (checkReasonableMiningUpgrade(robot)) {
+                    robot.setPendingUpgradeName("MINING");
+                    robot.setPendingUpgradeLevel(robot.getMiningLevel() + 1);
+                    robot.setPendingUpgradePriority(1);
+                    robot.setStrategyStatus("mining");
+                    checkUpgradePossibility(robot);
+                } else {
+                    robotApplicationService.letRobotMove(robot);
+                    robot.setStrategyStatus("idle");
+                }
             } else {
                 robotApplicationService.letRobotMine(robot);
                 robot.setStrategyStatus("mining");
             }
             robotRepository.save(robot);
         }
+    }
+
+    private void checkUpgradePossibility(Robot robot) {
+        List<TradeableItem> priceList = player.getPriceList();
+        Money pendingUpgradePrice = Money.zero();
+        for (TradeableItem tradeableItem : priceList) {
+            if (tradeableItem.getName().equals(robot.getPendingUpgradeName() + "_" + robot.getPendingUpgradeLevel())) {
+                pendingUpgradePrice = tradeableItem.getPrice();
+                break;
+            }
+        }
+        List<Robot> robotsWithSameUpgradePriority = robotRepository.findByPendingUpgradePriority(robot.getPendingUpgradePriority());
+        if (robotsWithSameUpgradePriority.isEmpty() && hypotheticalPlayerBalance.decreaseBy(pendingUpgradePrice).greaterEqualThan(Money.zero())) {
+            robotApplicationService.letRobotUpgrade(robot);
+            robot.setPendingUpgradeName(null);
+            robot.setPendingUpgradeLevel(0);
+            robot.setPendingUpgradePriority(0);
+            robotRepository.save(robot);
+        }
+    }
+
+    private boolean checkIfRobotCanMine(Robot robot) {
+        return switch (robot.getRobotPlanet().getMineableResource().getType()) {
+            case COAL -> true;
+            case IRON -> robot.getMiningLevel() >= 1;
+            case GEM -> robot.getMiningLevel() >= 2;
+            case GOLD -> robot.getMiningLevel() >= 3;
+            case PLATIN -> robot.getMiningLevel() >= 4;
+        };
+    }
+
+    private boolean checkReasonableMiningUpgrade(Robot robot) {
+        return switch (robot.getRobotPlanet().getMineableResource().getType()) {
+            case COAL -> false;
+            case IRON -> robot.getMiningLevel() == 0;
+            case GEM -> robot.getMiningLevel() == 1;
+            case GOLD -> robot.getMiningLevel() == 2;
+            case PLATIN -> robot.getMiningLevel() == 3;
+        };
     }
 
 }

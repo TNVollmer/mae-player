@@ -6,10 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
-import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
 import thkoeln.dungeon.player.robot.domain.RobotException;
 
@@ -76,6 +77,12 @@ public class RobotApplicationService {
         gameServiceRESTAdapter.sendPostRequestForCommand(sellCommand);
     }
 
+    public void letRobotUpgrade(Robot robot) {
+        Command upgradeCommand = Command.createUpgrade(Capability.forTypeAndLevel(CapabilityType.valueOf(robot.getPendingUpgradeName()), robot.getPendingUpgradeLevel()), robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getRobotId() + " is upgrading: " + robot.getPendingUpgradeName() + " to level: " + robot.getPendingUpgradeLevel());
+        gameServiceRESTAdapter.sendPostRequestForCommand(upgradeCommand);
+    }
+
     public void letRobotFight(Robot robot) {
         UUID planetId = robot.getRobotPlanet().getPlanetId();
         Command fightCommand = Command.createFight(robot.getRobotId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
@@ -90,19 +97,5 @@ public class RobotApplicationService {
         return ids;
     }
 
-    public boolean checkIfRobotCanMine(Robot robot) {
-        switch (robot.getRobotPlanet().getMineableResource().getType()) {
-            case COAL:
-                return true;
-            case IRON:
-                return robot.getMiningLevel() >= 1;
-            case GEM:
-                return robot.getMiningLevel() >= 2;
-            case GOLD:
-                return robot.getMiningLevel() >= 3;
-            case PLATIN:
-                return robot.getMiningLevel() >= 4;
-        }
-        return false;
-    }
+
 }
