@@ -49,6 +49,16 @@ public class StrategyService {
         if (round == 2) {
             startOfGame();
         }
+
+        //Hier tritt immer der Fehler auf. Es wird versucht, die Liste der TradeableItems zu bekommen, aber es wird immer etwas zurückgegeben, dass das Programm crashen lässt.
+        /* Gerne das try-catch entfernen, um das Programm zu terminieren */
+        try {
+            List<TradeableItem> priceList = player.getPriceList();
+            logger.info(loggerName + "PriceList: " + priceList);
+        } catch (Exception e) {
+            logger.error(loggerName + "ERROR HERE: --> Exception: " + e);
+        }
+
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
 
         for (Robot robot : robots) {
