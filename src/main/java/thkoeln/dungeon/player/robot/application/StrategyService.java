@@ -7,6 +7,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableType;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
@@ -14,6 +15,7 @@ import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.robot.domain.Robot;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,7 +31,7 @@ public class StrategyService {
 
     Player player;
     Money hypotheticalPlayerBalance = Money.zero();
-
+    private List<TradeableItem> priceListTemp;
 
     @Autowired
     public StrategyService(PlayerApplicationService playerApplicationService, RobotApplicationService robotApplicationService, RobotRepository robotRepository) {
@@ -40,6 +42,7 @@ public class StrategyService {
 
     @EventListener(RoundStatusEvent.class)
     public void runCommands(RoundStatusEvent roundStatusEvent) {
+        fillPriceListTemp();
         if (!roundStatusEvent.getRoundStatus().equals(RoundStatusType.STARTED)) {
             return;
         }
@@ -190,6 +193,50 @@ public class StrategyService {
             case GOLD -> robot.getMiningLevel() == 2;
             case PLATIN -> robot.getMiningLevel() == 3;
         };
+    }
+
+    private void fillPriceListTemp() {
+        priceListTemp = new ArrayList<>();
+        logger.info(loggerName + "!!!!!!! Initializing priceListTemp !!!!!!!");
+        priceListTemp.add(new TradeableItem("MINING_SPEED_1", Money.from(50), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_SPEED_2", Money.from(300), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_SPEED_5", Money.from(15000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_SPEED_3", Money.from(1500), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_SPEED_4", Money.from(4000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_3", Money.from(1500), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_4", Money.from(4000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_5", Money.from(15000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_1", Money.from(50), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MINING_2", Money.from(300), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MAX_ENERGY_4", Money.from(4000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MAX_ENERGY_5", Money.from(15000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MAX_ENERGY_2", Money.from(300), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MAX_ENERGY_3", Money.from(1500), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("MAX_ENERGY_1", Money.from(50), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("ENERGY_REGEN_5", Money.from(15000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("ENERGY_REGEN_2", Money.from(300), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("ENERGY_REGEN_1", Money.from(50), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("ENERGY_REGEN_4", Money.from(4000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("ENERGY_REGEN_3", Money.from(1500), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("HEALTH_RESTORE", Money.from(50), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("HEALTH_2", Money.from(300), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("HEALTH_1", Money.from(50), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("HEALTH_5", Money.from(15000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("HEALTH_4", Money.from(4000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("HEALTH_3", Money.from(1500), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("STORAGE_1", Money.from(50), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("STORAGE_3", Money.from(1500), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("STORAGE_2", Money.from(300), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("STORAGE_5", Money.from(15000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("STORAGE_4", Money.from(4000), TradeableType.UPGRADE));
+        priceListTemp.add(new TradeableItem("GOLD", Money.from(50), TradeableType.RESOURCE));
+        priceListTemp.add(new TradeableItem("PLATIN", Money.from(60), TradeableType.RESOURCE));
+        priceListTemp.add(new TradeableItem("COAL", Money.from(5), TradeableType.RESOURCE));
+        priceListTemp.add(new TradeableItem("IRON", Money.from(15), TradeableType.RESOURCE));
+        priceListTemp.add(new TradeableItem("GEM", Money.from(30), TradeableType.RESOURCE));
+        priceListTemp.add(new TradeableItem("ROBOT", Money.from(100), TradeableType.MISCELLANEOUS));
+        priceListTemp.add(new TradeableItem("ENERGY_RESTORE", Money.from(75), TradeableType.MISCELLANEOUS));
+        logger.info(loggerName + "!!!!!!! Finished initializing priceListTemp " + priceListTemp.size() + " items added !!!!!!!");
     }
 
 }
