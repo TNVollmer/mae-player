@@ -41,7 +41,7 @@ public class Player {
     @Setter(AccessLevel.PUBLIC)
     private Money balance = Money.zero();
 
-    @ElementCollection
+    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
     private List<TradeableItem> priceList = new ArrayList<>();
 
     @Setter(AccessLevel.PUBLIC)

@@ -78,9 +78,12 @@ public class RobotApplicationService {
     }
 
     public void letRobotUpgrade(Robot robot) {
-        Command upgradeCommand = Command.createUpgrade(Capability.forTypeAndLevel(CapabilityType.valueOf(robot.getPendingUpgradeName()), robot.getPendingUpgradeLevel()), robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        //Capability capabilityToUpgrade = Capability.forTypeAndLevel(CapabilityType.valueOf(robot.getPendingUpgradeName()), robot.getPendingUpgradeLevel());
+        Capability capabilityToUpgrade = Capability.forTypeAndLevel(CapabilityType.MINING, 5);
+        Command upgradeCommand = Command.createUpgrade(capabilityToUpgrade, robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
         logger.info("Robot " + robot.getRobotId() + " is upgrading: " + robot.getPendingUpgradeName() + " to level: " + robot.getPendingUpgradeLevel());
-        gameServiceRESTAdapter.sendPostRequestForCommand(upgradeCommand);
+        UUID transactionId = gameServiceRESTAdapter.sendPostRequestForCommand(upgradeCommand);
+        logger.warn("Sent upgrade command: " + upgradeCommand + "Response: " + transactionId);
     }
 
     public void letRobotFight(Robot robot) {

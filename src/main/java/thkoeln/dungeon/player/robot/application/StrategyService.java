@@ -31,7 +31,6 @@ public class StrategyService {
 
     Player player;
     Money hypotheticalPlayerBalance = Money.zero();
-    private List<TradeableItem> priceListTemp;
 
     @Autowired
     public StrategyService(PlayerApplicationService playerApplicationService, RobotApplicationService robotApplicationService, RobotRepository robotRepository) {
@@ -42,7 +41,7 @@ public class StrategyService {
 
     @EventListener(RoundStatusEvent.class)
     public void runCommands(RoundStatusEvent roundStatusEvent) {
-        fillPriceListTemp();
+        //fillPriceListTemp(); Fix from Mario, from a time, when the player-list was broken
         if (!roundStatusEvent.getRoundStatus().equals(RoundStatusType.STARTED)) {
             return;
         }
@@ -52,22 +51,14 @@ public class StrategyService {
         if (round == 2) {
             startOfGame();
         }
-
-        //Hier tritt immer der Fehler auf. Es wird versucht, die Liste der TradeableItems zu bekommen, aber es wird immer etwas zurückgegeben, dass das Programm crashen lässt.
-        /* Gerne das try-catch entfernen, um das Programm zu terminieren */
-        try {
-            List<TradeableItem> priceList = player.getPriceList();
-            logger.info(loggerName + "PriceList: " + priceList);
-        } catch (Exception e) {
-            logger.error(loggerName + "ERROR HERE: --> Exception: " + e);
-        }
-
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
-
         for (Robot robot : robots) {
             try {
-                //TODO: Periodically check if robot is still alive, Remove robot from database if not
                 //TODO: Periodically upgrade health, mining speed and damage, so Robots can survive longer and mine faster
+                if (!robot.isAlive()) {
+                    robotRepository.delete(robot);
+                    break;
+                }
                 if (robot.getEnergy() <= 3) {
                     robotApplicationService.letRobotRegenerate(robot);
                     robot.setStrategyStatus("regenerating");
@@ -205,8 +196,9 @@ public class StrategyService {
         };
     }
 
-    private void fillPriceListTemp() {
-        priceListTemp = new ArrayList<>();
+    //Not in Use, since Bente provided fix for player-list
+    private List<TradeableItem> fillPriceListTemp() {
+        List<TradeableItem> priceListTemp = new ArrayList<>();
         logger.info(loggerName + "!!!!!!! Initializing priceListTemp !!!!!!!");
         priceListTemp.add(new TradeableItem("MINING_SPEED_1", Money.from(50), TradeableType.UPGRADE));
         priceListTemp.add(new TradeableItem("MINING_SPEED_2", Money.from(300), TradeableType.UPGRADE));
@@ -247,6 +239,7 @@ public class StrategyService {
         priceListTemp.add(new TradeableItem("ROBOT", Money.from(100), TradeableType.MISCELLANEOUS));
         priceListTemp.add(new TradeableItem("ENERGY_RESTORE", Money.from(75), TradeableType.MISCELLANEOUS));
         logger.info(loggerName + "!!!!!!! Finished initializing priceListTemp " + priceListTemp.size() + " items added !!!!!!!");
+        return priceListTemp;
     }
 
 }

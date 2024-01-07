@@ -61,6 +61,12 @@ public class RobotEventListener {
                     }
                     robot.setEnergy(robotRevealedDto.getEnergy());
                     robot.setHealth(robotRevealedDto.getHealth());
+                    robot.setDamageLevel(robotRevealedDto.getLevels().getDamageLevel());
+                    robot.setMiningLevel(robotRevealedDto.getLevels().getMiningLevel());
+                    robot.setMiningSpeedLevel(robotRevealedDto.getLevels().getMiningSpeedLevel());
+                    robot.setEnergyLevel(robotRevealedDto.getLevels().getEnergyLevel());
+                    robot.setEnergyRegenLevel(robotRevealedDto.getLevels().getEnergyRegenLevel());
+                    robot.setHealthLevel(robotRevealedDto.getLevels().getHealthLevel());
                     isEnemyRobot = false;
                     robotRepository.save(robot);
                 }
