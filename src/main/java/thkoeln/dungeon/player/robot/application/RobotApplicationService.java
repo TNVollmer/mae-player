@@ -33,7 +33,9 @@ public class RobotApplicationService {
     }
 
     public void buyRobot(int amount) {
-        Command buyRobotCommand = Command.createRobotPurchase(amount, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        UUID[] ids = getGameAndPlayerId();
+        logger.info("Found game id: " + ids[0] + " and player id: " + ids[1]);
+        Command buyRobotCommand = Command.createRobotPurchase(amount, ids[0], ids[1]);
         logger.info("Buying " + amount + " robots");
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
