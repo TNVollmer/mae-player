@@ -17,4 +17,6 @@ public interface RobotRepository extends CrudRepository<Robot, UUID> {
     List<Robot> findByPlayerOwned(Boolean playerOwned);
 
     List<Robot> findByPendingUpgradePriority(int pendingUpgradePriority);
+
+    List<Robot> findByPlayerOwnedAndRobotPlanetPlanetId(Boolean playerOwned, UUID planetId);
 }

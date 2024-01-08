@@ -8,6 +8,7 @@ import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
@@ -88,11 +89,16 @@ public class RobotApplicationService {
         logger.warn("Sent upgrade command: " + upgradeCommand + "Response: " + transactionId);
     }
 
-    public void letRobotFight(Robot robot) {
-        UUID planetId = robot.getRobotPlanet().getPlanetId();
-        Command fightCommand = Command.createFight(robot.getRobotId(), planetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+    public void letRobotFight(Robot robot, Robot target) {
+        Command fightCommand = Command.createFight(robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1], target.getRobotId());
         logger.info("Robot " + robot.getRobotId() + " is fighting");
         gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
+    }
+
+    public void letRobotBuyHealthRestoration(Robot robot) {
+        Command buyHealthRestorationCommand = Command.createItemPurchase(ItemType.HEALTH_RESTORE, 1, robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
+        logger.info("Robot " + robot.getRobotId() + " is buying health restore");
+        gameServiceRESTAdapter.sendPostRequestForCommand(buyHealthRestorationCommand);
     }
 
     public UUID[] getGameAndPlayerId() {

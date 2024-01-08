@@ -54,11 +54,12 @@ public class StrategyService {
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
         for (Robot robot : robots) {
             try {
-                //TODO: Periodically upgrade health, mining speed and damage, so Robots can survive longer and mine faster
+                //TODO: Periodically upgrade health, mining speed and damage, so Robots can survive longer and mine faster (currently upgrades are not possible)
                 if (!robot.isAlive()) {
                     robotRepository.delete(robot);
                     break;
                 }
+                checkForIntruders(robot);
                 if (robot.getEnergy() <= 3) {
                     robotApplicationService.letRobotRegenerate(robot);
                     robot.setStrategyStatus("regenerating");
@@ -73,8 +74,7 @@ public class StrategyService {
                         standardMinerStrategy(robot);
                         break;
                     case "fighting":
-                        //TODO: Fighting needs to be implemented
-                        logger.info(loggerName + "Fighting not yet implemented");
+                        standardFighterStrategy(robot);
                         break;
                     case "regenerating":
                         standardRegenerationStrategy(robot);
@@ -96,6 +96,8 @@ public class StrategyService {
             }
         }
     }
+
+
 
     private void standardRegenerationStrategy(Robot robot) {
         if (robot.getEnergy() >= robot.getMaxEnergy()) {
@@ -131,24 +133,24 @@ public class StrategyService {
     }
 
     private void standardMinerStrategy(Robot robot) {
-        //TODO: Miner needs to check, if he is able to mine resource. If not, he either needs to move to another planet or upgrade his mining level
-        //TODO: Therefore a prioritization of upgrades is needed, as a way to determine which upgrade is the most important or which robot needs to move to another planet
+        //TODO: Miner needs to check, if he is able to mine resource. If not, he either needs to move to another planet or upgrade his mining level (if upgrading is possible)
+        //TODO: Therefore a prioritization of upgrades is needed, as a way to determine which upgrade is the most important or which robot needs to move to another planet (currently upgrades are not possible)
         if (robot.getRobotInventory().getIsCapped()) {
             robotApplicationService.letRobotSell(robot);
             robot.setStrategyStatus("idle");
             robotRepository.save(robot);
         } else {
             if (!checkIfRobotCanMine(robot)) {
-                if (checkReasonableMiningUpgrade(robot)) {
+                /*if (checkReasonableMiningUpgrade(robot)) {
                     robot.setPendingUpgradeName("MINING");
                     robot.setPendingUpgradeLevel(robot.getMiningLevel() + 1);
                     robot.setPendingUpgradePriority(1);
                     robot.setStrategyStatus("mining");
                     checkUpgradePossibility(robot);
-                } else {
-                    robotApplicationService.letRobotMove(robot);
-                    robot.setStrategyStatus("idle");
-                }
+                } else {*/
+                robotApplicationService.letRobotMove(robot);
+                robot.setStrategyStatus("idle");
+                //}
             } else {
                 robotApplicationService.letRobotMine(robot);
                 robot.setStrategyStatus("mining");
@@ -157,6 +159,49 @@ public class StrategyService {
         }
     }
 
+    private void standardFighterStrategy(Robot robot) {
+        List<Robot> targetsOnPlanet = robotRepository.findByPlayerOwnedAndRobotPlanetPlanetId(false, robot.getRobotPlanet().getPlanetId());
+        if (targetsOnPlanet.isEmpty() && robot.getHealth() == robot.getMaxHealth()) {
+            standardMinerStrategy(robot);
+            return;
+        } else if (targetsOnPlanet.isEmpty() && robot.getHealth() < robot.getMaxHealth()) {
+            robotApplicationService.letRobotBuyHealthRestoration(robot);
+            robot.setStrategyStatus("fighting");
+        } else {
+            if (robot.getHealth() <= 2) {
+                robotApplicationService.letRobotBuyHealthRestoration(robot);
+                robot.setStrategyStatus("fighting");
+                robotRepository.save(robot);
+                return;
+            }
+            robotApplicationService.letRobotFight(robot, getTargetWithLowestHealth(targetsOnPlanet));
+            robot.setStrategyStatus("fighting");
+        }
+        robotRepository.save(robot);
+    }
+
+    private Robot getTargetWithLowestHealth(List<Robot> targetsOnPlanet) {
+        Robot target = targetsOnPlanet.get(0);
+        for (Robot robot : targetsOnPlanet) {
+            if (robot.getHealth() < target.getHealth()) {
+                target = robot;
+            }
+        }
+        return target;
+    }
+
+    private void checkForIntruders(Robot robot) {
+        if (robotRepository.findByPlayerOwned(false).isEmpty()) {
+            return;
+        }
+        List<Robot> targetsOnPlanet = robotRepository.findByPlayerOwnedAndRobotPlanetPlanetId(false, robot.getRobotPlanet().getPlanetId());
+        if (!targetsOnPlanet.isEmpty()) {
+            robot.setStrategyStatus("fighting");
+            robotRepository.save(robot);
+        }
+    }
+
+    //Only useful, if upgrades work
     private void checkUpgradePossibility(Robot robot) {
         List<TradeableItem> priceList = player.getPriceList();
         Money pendingUpgradePrice = Money.zero();
