@@ -13,7 +13,7 @@ import thkoeln.dungeon.player.core.events.EventHeader;
 
 @Service
 public class PlayerExternalEventListener {
-    private Logger logger = LoggerFactory.getLogger( PlayerExternalEventListener.class);
+    private final Logger logger = LoggerFactory.getLogger( PlayerExternalEventListener.class);
     private EventFactory eventFactory;
     private ApplicationEventPublisher applicationEventPublisher;
     @Autowired
