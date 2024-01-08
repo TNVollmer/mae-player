@@ -15,6 +15,6 @@ public class DungeonPlayerRabbitMqConfiguration {
     // We need a RabbitAdmin Bean to declare queues and bindings
     @Bean
     public RabbitAdmin rabbitAdmin() {
-        return new RabbitAdmin(connectionFactory);
+        return new RabbitAdmin( connectionFactory );
     }
 }

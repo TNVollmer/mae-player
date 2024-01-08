@@ -17,7 +17,7 @@ variables:
 
 stages:
   - build
-  - docker
+  - build_container_image
   - helm
 
 maven-build:
@@ -29,11 +29,18 @@ maven-build:
       - target/*.jar
 
 docker-build:
-  stage: docker
+  stage: build_container_image
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+  services:
+    - docker:dind
   script:
-    - docker login "$CI_REGISTRY" --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD"
-    - docker build -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "$IMAGE_TAG"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
 
 helm-package-publish:
   rules:
