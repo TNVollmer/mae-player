@@ -4,21 +4,26 @@ import java.util.Arrays;
 
 public enum EventType {
     GAME_STATUS("GameStatus"),
+    ROUND_STATUS("RoundStatus"),
     BANK_INITIALIZED("BankAccountInitialized"),
     BANK_ACCOUNT_TRANSACTION_BOOKED("BankAccountTransactionBooked"),
-    ROUND_STATUS("RoundStatus"),
-    TRADABLE_PRICES("TradablePrices"),
+    BANK_ACCOUNT_CLEARED("BankAccountCleared"),
     ROBOT_SPAWNED("RobotSpawned"),
     ROBOT_MOVED("RobotMoved"),
     ROBOT_REGENERATED("RobotRegenerated"),
     ROBOT_REVEALED("RobotsRevealed"),
     ROBOT_RESOURCE_MINED("RobotResourceMined"),
+    ROBOT_RESOURCE_REMOVED("RobotResourceRemoved"),
+    ROBOT_UPGRADED("RobotUpgraded"),
+    ROBOT_ATTACKED("RobotAttacked"),
+    ROBOT_RESTORED_ATTRIBUTES("RobotRestoredAttributes"),
     PLANET_DISCOVERED("PlanetDiscovered"),
     TRADABLE_BOUGHT("TradableBought"),
     TRADABLE_SOLD("TradableSold"),
-    BANK_ACCOUNT_CLEARED("BankAccountCleared"),
+    TRADABLE_PRICES("TradablePrices"),
     RESOURCE_MINED("ResourceMined"),
-    ROBOT_RESOURCE_REMOVED("RobotResourceRemoved"),
+
+
     ERROR("error"),
     UNKNOWN("UNKNOWN");
 

@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.RobotRegeneratedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRestoredAttributesEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotUpgradedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.fight.RobotAttackedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
@@ -158,5 +161,51 @@ public class RobotEventListener {
         robot.setEnergy(robotRegeneratedEvent.getAvailableEnergy());
         robotRepository.save(robot);
         logger.info("Updated robot: " + robot.getRobotId() + " with energy: " + robotRegeneratedEvent.getAvailableEnergy());
+    }
+
+    @EventListener(RobotAttackedEvent.class)
+    private void updateRobotFight(RobotAttackedEvent robotAttackedEvent) {
+        Robot attacker = robotRepository.findByRobotId(robotAttackedEvent.getAttacker().getRobotId());
+        Robot target = robotRepository.findByRobotId(robotAttackedEvent.getTarget().getRobotId());
+        attacker.setEnergy(robotAttackedEvent.getAttacker().getAvailableEnergy());
+        attacker.setHealth(robotAttackedEvent.getAttacker().getAvailableHealth());
+        target.setEnergy(robotAttackedEvent.getTarget().getAvailableEnergy());
+        target.setHealth(robotAttackedEvent.getTarget().getAvailableHealth());
+       if (!attacker.isAlive()){
+           robotRepository.delete(attacker);
+           logger.info("Robot: " + attacker.getRobotId() + " died. Player-owned: " + attacker.getPlayerOwned());
+       } else {
+           robotRepository.save(attacker);
+           logger.info("Updated robot: " + attacker.getRobotId() + " with energy: " + robotAttackedEvent.getAttacker().getAvailableEnergy() + " and health: " + robotAttackedEvent.getAttacker().getAvailableHealth());
+       }
+        if (!target.isAlive()){
+            robotRepository.delete(target);
+            logger.info("Robot: " + target.getRobotId() + " died. Player-owned: " + attacker.getPlayerOwned());
+        } else {
+            robotRepository.save(target);
+            logger.info("Updated robot: " + target.getRobotId() + " with energy: " + robotAttackedEvent.getTarget().getAvailableEnergy() + " and health: " + robotAttackedEvent.getTarget().getAvailableHealth());
+       }
+    }
+
+    @EventListener(RobotRestoredAttributesEvent.class)
+    private void updateRobotAttributes(RobotRestoredAttributesEvent robotRestoredAttributesEvent) {
+        Robot robot = robotRepository.findByRobotId(robotRestoredAttributesEvent.getRobotId());
+        robot.setEnergy(robotRestoredAttributesEvent.getAvailableEnergy());
+        robot.setHealth(robotRestoredAttributesEvent.getAvailableHealth());
+        robotRepository.save(robot);
+        logger.info("Updated robot: " + robot.getRobotId() + " with energy: " + robotRestoredAttributesEvent.getAvailableEnergy() + " and health: " + robotRestoredAttributesEvent.getAvailableHealth());
+    }
+
+    @EventListener(RobotUpgradedEvent.class)
+    private void updateRobotUpgrades(RobotUpgradedEvent robotUpgradedEvent) {
+        Robot robot = robotRepository.findByRobotId(robotUpgradedEvent.getRobotId());
+        robot.setDamageLevel(robotUpgradedEvent.getRobotDto().getDamageLevel());
+        robot.setMiningLevel(robotUpgradedEvent.getRobotDto().getMiningLevel());
+        robot.setMiningSpeedLevel(robotUpgradedEvent.getRobotDto().getMiningSpeedLevel());
+        robot.setEnergyLevel(robotUpgradedEvent.getRobotDto().getEnergyLevel());
+        robot.setEnergyRegenLevel(robotUpgradedEvent.getRobotDto().getEnergyRegenLevel());
+        robot.setHealthLevel(robotUpgradedEvent.getRobotDto().getHealthLevel());
+        robotRepository.save(robot);
+        logger.info("Updated robot: " + robot.getRobotId() + " with upgrade " + robotUpgradedEvent.getUpgrade() + " to level: " + robotUpgradedEvent.getLevel());
     }
 }
