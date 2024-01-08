@@ -135,7 +135,7 @@ public class PlayerApplicationService {
 
 
     public void cleanupAfterFinishingGame() {
-        logger.info( "Cleaning up player ..." );
+        logger.info("Cleaning up player ...");
         Player player = queryAndIfNeededCreatePlayer();
         gameApplicationService.finishGame();
         player.setGameId(null);
@@ -156,3 +156,4 @@ public class PlayerApplicationService {
         player.updatePriceList(prices);
         playerRepository.save(player);
     }
+}
