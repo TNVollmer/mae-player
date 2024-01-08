@@ -2,6 +2,7 @@ package thkoeln.dungeon.player.game.application;
 
 
 import org.junit.jupiter.api.Assertions;
+import org.springframework.context.annotation.Import;
 import thkoeln.dungeon.player.core.AbstractDungeonMockingIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,13 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import thkoeln.dungeon.player.DungeonPlayerConfiguration;
+import thkoeln.dungeon.player.core.IntegrationTestConfig;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
 
 
 @DirtiesContext
-@SpringBootTest( classes = DungeonPlayerConfiguration.class )
+@SpringBootTest(classes = DungeonPlayerConfiguration.class)
+@Import(IntegrationTestConfig.class)
 public class GameApplicationServiceIntegrationTest extends AbstractDungeonMockingIntegrationTest {
     @Autowired
     private GameRepository gameRepository;
