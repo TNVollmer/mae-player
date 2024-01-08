@@ -18,6 +18,9 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
 public class RobotPlanet {
+
+    private final String loggerName = "PlanetUpdate --> ";
+
     private UUID planetId;
     private UUID north;
     private UUID east;
@@ -75,9 +78,9 @@ public class RobotPlanet {
         try {
             if (this.mineableResource.getType().equals(resource.getType())) {
                 this.mineableResource.subtractAmount(resource.getAmount());
-                log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
+                log.info(loggerName + "RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
             } else {
-                log.info("RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
+                log.info(loggerName + "RESSOURCE --> " + "Updated mineable resource: " + this.mineableResource.getType() + " with amount: " + this.mineableResource.getAmount());
             }
 
         } catch (Exception e) {

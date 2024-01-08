@@ -30,6 +30,7 @@ import java.util.List;
 public class RobotEventListener {
 
     private final Logger logger = LoggerFactory.getLogger(RobotApplicationService.class);
+    private final String loggerName = "RobotApplicationService --> ";
     private final RobotRepository robotRepository;
 
     @Autowired
@@ -39,16 +40,16 @@ public class RobotEventListener {
 
     @EventListener(RobotsRevealedEvent.class)
     private void displayRobotData(RobotsRevealedEvent robotsRevealedEvent) {
-        logger.info("Robots revealed: " + Arrays.asList(robotsRevealedEvent.getRobots()).size());
+        logger.info(loggerName + "Robots revealed: " + Arrays.asList(robotsRevealedEvent.getRobots()).size());
     }
 
     @EventListener(RobotSpawnedEvent.class)
     private void saveNewRobot(RobotSpawnedEvent robotSpawnedEvent) {
         RobotDto robotDto = robotSpawnedEvent.getRobotDto();
-        Robot newRobot = Robot.of(robotDto, ("Robot" + (robotRepository.findAll().size() + 1)));
+        Robot newRobot = Robot.of(robotDto, ("Robot-" + (robotRepository.findAll().size() + 1)));
         newRobot.setPlayerOwned(true);
         robotRepository.save(newRobot);
-        logger.info("Robot spawned: " + newRobot.getRobotId());
+        logger.info(loggerName + "Robot spawned: " + newRobot.getRobotId() + "named: " + newRobot.getName());
     }
 
     @EventListener(RobotsRevealedEvent.class)
@@ -60,7 +61,8 @@ public class RobotEventListener {
                 if (robot.getRobotId().equals(robotRevealedDto.getRobotId())) {
                     if (!robot.getRobotPlanet().getPlanetId().equals(robotRevealedDto.getPlanetId())) {
                         robot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
-                        logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
+                        logger.info(loggerName + "Updated robot: " + robot.getName() + " with planet: " + robotRevealedDto.getPlanetId());
+                        logger.debug(loggerName + "Updated robot: " + robot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
                     }
                     robot.setEnergy(robotRevealedDto.getEnergy());
                     robot.setHealth(robotRevealedDto.getHealth());
@@ -80,14 +82,16 @@ public class RobotEventListener {
                     if (enemyRobot.getRobotId().equals(robotRevealedDto.getRobotId())) {
                         if (!enemyRobot.getRobotPlanet().getPlanetId().equals(robotRevealedDto.getPlanetId())) {
                             enemyRobot.setRobotPlanet(RobotPlanet.planetWithoutNeighbours(robotRevealedDto.getPlanetId()));
-                            logger.info("Updated enemy robot: " + enemyRobot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
+                            logger.info(loggerName + "Updated enemy robot: " + enemyRobot.getName() + " with planet: " + robotRevealedDto.getPlanetId());
+                            logger.debug(loggerName + "Updated enemy robot: " + enemyRobot.getRobotId() + " with planet: " + robotRevealedDto.getPlanetId());
                         }
                         enemyRobot.setEnergy(robotRevealedDto.getEnergy());
                         enemyRobot.setHealth(robotRevealedDto.getHealth());
                         robotRepository.save(enemyRobot);
                     } else {
-                        logger.error("WARNING --> ENEMY ROBOT DETECTED: " + robotRevealedDto.getRobotId() + " on planet: " + robotRevealedDto.getPlanetId());
                         Robot newEnemyRobot = Robot.ofEnemy(robotRevealedDto, "Enemy Robot");
+                        logger.info("WARNING --> ENEMY ROBOT DETECTED: " + newEnemyRobot.getName() + " on planet: " + newEnemyRobot.getRobotPlanet().getPlanetId());
+                        logger.debug("WARNING --> ENEMY ROBOT DETECTED: " + newEnemyRobot.getRobotId() + " on planet: " + newEnemyRobot.getRobotPlanet().getPlanetId());
                         robotRepository.save(newEnemyRobot);
                     }
                 }
@@ -112,9 +116,9 @@ public class RobotEventListener {
                         planetDiscoveredEvent.getMovementDifficulty(),
                         MineableResource.fromTypeAndAmount(planetDiscoveredEvent.getResource().getResourceType(), planetDiscoveredEvent.getResource().getCurrentAmount())
                 );
-                logger.info("RESOURCE --> Mineable resource found: " + updatedRobotPlanet.getMineableResource().getType() + " with amount: " + updatedRobotPlanet.getMineableResource().getAmount());
+                logger.info(loggerName + "RESOURCE --> Mineable resource found: " + updatedRobotPlanet.getMineableResource().getType() + " with amount: " + updatedRobotPlanet.getMineableResource().getAmount());
             } catch (NullPointerException e) {
-                logger.info("RESOURCE --> No mineable resource on planet: " + planetDiscoveredEvent.getPlanetId());
+                logger.info(loggerName + "RESOURCE --> No mineable resource on planet: " + planetDiscoveredEvent.getPlanetId());
                 updatedRobotPlanet = RobotPlanet.planetWithNeighbours(
                         planetDiscoveredEvent.getPlanetId(),
                         planetNeighbours,
@@ -124,7 +128,8 @@ public class RobotEventListener {
             }
             robot.setRobotPlanet(updatedRobotPlanet);
             robotRepository.save(robot);
-            logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + updatedRobotPlanet.getPlanetId());
+            logger.info(loggerName + "Updated robot: " + robot.getName() + " with planet: " + updatedRobotPlanet.getPlanetId());
+            logger.debug(loggerName + "Updated robot: " + robot.getRobotId() + " with planet: " + updatedRobotPlanet.getPlanetId());
         }
     }
 
@@ -134,7 +139,8 @@ public class RobotEventListener {
         robot.getRobotPlanet().updateMineableResource(robotResourceMinedEvent.minedResourceAsDomainPrimitive());
         robot.getRobotInventory().updateResource(robotResourceMinedEvent.minedResourceAsDomainPrimitive());
         robotRepository.save(robot);
-        logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robot.getRobotPlanet() + ". Mined new resource: " + robotResourceMinedEvent.getMinedResource() + " with amount: " + robotResourceMinedEvent.getMinedAmount());
+        logger.info(loggerName + "Updated robot: " + robot.getName() + " with planet: " + robot.getRobotPlanet() + ". Mined new resource: " + robotResourceMinedEvent.getMinedResource() + " with amount: " + robotResourceMinedEvent.getMinedAmount());
+        logger.debug(loggerName + "Updated robot: " + robot.getRobotId() + " with planet: " + robot.getRobotPlanet() + ". Mined new resource: " + robotResourceMinedEvent.getMinedResource() + " with amount: " + robotResourceMinedEvent.getMinedAmount());
     }
 
     @EventListener(RobotMovedEvent.class)
@@ -144,7 +150,8 @@ public class RobotEventListener {
         robot.getRobotPlanet().setMovementDifficulty(robotMovedEvent.getToPlanet().getMovementDifficulty());
         robot.setEnergy(robotMovedEvent.getRemainingEnergy());
         robotRepository.save(robot);
-        logger.info("Updated robot: " + robot.getRobotId() + " with planet: " + robotMovedEvent.getToPlanet().getId());
+        logger.info(loggerName + "Updated robot: " + robot.getName() + " with planet: " + robotMovedEvent.getToPlanet().getId());
+        logger.debug(loggerName + "Updated robot: " + robot.getRobotId() + " with planet: " + robotMovedEvent.getToPlanet().getId());
     }
 
     @EventListener(RobotResourceRemovedEvent.class)
@@ -152,7 +159,8 @@ public class RobotEventListener {
         Robot robot = robotRepository.findByRobotId(robotResourceRemovedEvent.getRobotId());
         robot.getRobotInventory().removeResource(robotResourceRemovedEvent.removedResourceAsDomainPrimitive());
         robotRepository.save(robot);
-        logger.info("Removed resource from robot: " + robot.getRobotId() + " with resource: " + robotResourceRemovedEvent.getRemovedResource() + " with amount: " + robotResourceRemovedEvent.getRemovedAmount());
+        logger.info(loggerName + "Removed resource from robot: " + robot.getName() + " with resource: " + robotResourceRemovedEvent.getRemovedResource() + " with amount: " + robotResourceRemovedEvent.getRemovedAmount());
+        logger.debug(loggerName + "Removed resource from robot: " + robot.getRobotId() + " with resource: " + robotResourceRemovedEvent.getRemovedResource() + " with amount: " + robotResourceRemovedEvent.getRemovedAmount());
     }
 
     @EventListener(RobotRegeneratedEvent.class)
@@ -160,7 +168,8 @@ public class RobotEventListener {
         Robot robot = robotRepository.findByRobotId(robotRegeneratedEvent.getRobotId());
         robot.setEnergy(robotRegeneratedEvent.getAvailableEnergy());
         robotRepository.save(robot);
-        logger.info("Updated robot: " + robot.getRobotId() + " with energy: " + robotRegeneratedEvent.getAvailableEnergy());
+        logger.info(loggerName + "Updated robot: " + robot.getName() + " with energy: " + robotRegeneratedEvent.getAvailableEnergy());
+        logger.debug(loggerName + "Updated robot: " + robot.getRobotId() + " with energy: " + robotRegeneratedEvent.getAvailableEnergy());
     }
 
     @EventListener(RobotAttackedEvent.class)
@@ -171,20 +180,24 @@ public class RobotEventListener {
         attacker.setHealth(robotAttackedEvent.getAttacker().getAvailableHealth());
         target.setEnergy(robotAttackedEvent.getTarget().getAvailableEnergy());
         target.setHealth(robotAttackedEvent.getTarget().getAvailableHealth());
-       if (!attacker.isAlive()){
-           robotRepository.delete(attacker);
-           logger.info("Robot: " + attacker.getRobotId() + " died. Player-owned: " + attacker.getPlayerOwned());
-       } else {
-           robotRepository.save(attacker);
-           logger.info("Updated robot: " + attacker.getRobotId() + " with energy: " + robotAttackedEvent.getAttacker().getAvailableEnergy() + " and health: " + robotAttackedEvent.getAttacker().getAvailableHealth());
-       }
-        if (!target.isAlive()){
+        if (!attacker.isAlive()) {
+            robotRepository.delete(attacker);
+            logger.info(loggerName + "Robot: " + attacker.getName() + " died. Player-owned: " + attacker.getPlayerOwned());
+            logger.debug(loggerName + "Robot: " + attacker.getRobotId() + " died. Player-owned: " + attacker.getPlayerOwned());
+        } else {
+            robotRepository.save(attacker);
+            logger.info(loggerName + "Updated robot: " + attacker.getName() + " with energy: " + robotAttackedEvent.getAttacker().getAvailableEnergy() + " and health: " + robotAttackedEvent.getAttacker().getAvailableHealth());
+            logger.debug(loggerName + "Updated robot: " + attacker.getRobotId() + " with energy: " + robotAttackedEvent.getAttacker().getAvailableEnergy() + " and health: " + robotAttackedEvent.getAttacker().getAvailableHealth());
+        }
+        if (!target.isAlive()) {
             robotRepository.delete(target);
-            logger.info("Robot: " + target.getRobotId() + " died. Player-owned: " + attacker.getPlayerOwned());
+            logger.info(loggerName + "Robot: " + target.getName() + " died. Player-owned: " + attacker.getPlayerOwned());
+            logger.debug(loggerName + "Robot: " + target.getRobotId() + " died. Player-owned: " + attacker.getPlayerOwned());
         } else {
             robotRepository.save(target);
-            logger.info("Updated robot: " + target.getRobotId() + " with energy: " + robotAttackedEvent.getTarget().getAvailableEnergy() + " and health: " + robotAttackedEvent.getTarget().getAvailableHealth());
-       }
+            logger.info(loggerName + "Updated robot: " + target.getName() + " with energy: " + robotAttackedEvent.getTarget().getAvailableEnergy() + " and health: " + robotAttackedEvent.getTarget().getAvailableHealth());
+            logger.debug(loggerName + "Updated robot: " + target.getRobotId() + " with energy: " + robotAttackedEvent.getTarget().getAvailableEnergy() + " and health: " + robotAttackedEvent.getTarget().getAvailableHealth());
+        }
     }
 
     @EventListener(RobotRestoredAttributesEvent.class)
@@ -193,7 +206,8 @@ public class RobotEventListener {
         robot.setEnergy(robotRestoredAttributesEvent.getAvailableEnergy());
         robot.setHealth(robotRestoredAttributesEvent.getAvailableHealth());
         robotRepository.save(robot);
-        logger.info("Updated robot: " + robot.getRobotId() + " with energy: " + robotRestoredAttributesEvent.getAvailableEnergy() + " and health: " + robotRestoredAttributesEvent.getAvailableHealth());
+        logger.info(loggerName + "Updated robot: " + robot.getName() + " with energy: " + robotRestoredAttributesEvent.getAvailableEnergy() + " and health: " + robotRestoredAttributesEvent.getAvailableHealth());
+        logger.debug(loggerName + "Updated robot: " + robot.getRobotId() + " with energy: " + robotRestoredAttributesEvent.getAvailableEnergy() + " and health: " + robotRestoredAttributesEvent.getAvailableHealth());
     }
 
     @EventListener(RobotUpgradedEvent.class)
@@ -206,6 +220,7 @@ public class RobotEventListener {
         robot.setEnergyRegenLevel(robotUpgradedEvent.getRobotDto().getEnergyRegenLevel());
         robot.setHealthLevel(robotUpgradedEvent.getRobotDto().getHealthLevel());
         robotRepository.save(robot);
-        logger.info("Updated robot: " + robot.getRobotId() + " with upgrade " + robotUpgradedEvent.getUpgrade() + " to level: " + robotUpgradedEvent.getLevel());
+        logger.info(loggerName + "Updated robot: " + robot.getName() + " with upgrade " + robotUpgradedEvent.getUpgrade() + " to level: " + robotUpgradedEvent.getLevel());
+        logger.debug(loggerName + "Updated robot: " + robot.getRobotId() + " with upgrade " + robotUpgradedEvent.getUpgrade() + " to level: " + robotUpgradedEvent.getLevel());
     }
 }

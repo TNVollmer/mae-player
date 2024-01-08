@@ -29,6 +29,8 @@ public class StrategyService {
 
     private final String loggerName = "StrategyService --> ";
 
+    private Money minimumBalance = Money.from(100);
+
     Player player;
     Money hypotheticalPlayerBalance = Money.zero();
 
@@ -46,10 +48,12 @@ public class StrategyService {
             return;
         }
         player = playerApplicationService.queryAndIfNeededCreatePlayer();
+        minimumBalance = Money.from(robotRepository.findByPlayerOwned(true).size() * 100 / 2);
         hypotheticalPlayerBalance = player.getBalance();
         int round = roundStatusEvent.getRoundNumber();
         if (round == 2) {
             startOfGame();
+            return;
         }
         List<Robot> robots = robotRepository.findByPlayerOwned(true);
         for (Robot robot : robots) {
@@ -87,16 +91,28 @@ public class StrategyService {
                 logger.error(loggerName + "Exception: " + e);
             }
         }
+        try {
+            int amount = hypotheticalPlayerBalance.decreaseBy(minimumBalance).canBuyThatManyFor(Money.from(100));
+            //If upgrades are possible, this will be needed again
+            if (/*robotRepository.findByPlayerOwned(true).size() < 10 && */ amount > 0) {
+                robotApplicationService.buyRobot(amount);
+                logger.info(loggerName + "Buying " + amount + " new robots");
+                hypotheticalPlayerBalance.decreaseBy(Money.from(100 * amount));
+            }
+        } catch (Exception e) {
+            logger.debug(loggerName + "Exception: " + e);
+            logger.info(loggerName + "Not enough money to buy new robots");
+        }
         logger.info(loggerName + "Owned robots: " + robotRepository.findByPlayerOwned(true).size());
         for (Robot robot : robots) {
             if (roundStatusEvent.getRoundNumber() % 4 == 0) {
                 logger.info(loggerName + "Detailed Robot Analysis: " + robot);
             } else {
-                logger.info(loggerName + "Robot: " + robot.getRobotId() + " is " + robot.getStrategyStatus());
+                logger.info(loggerName + robot.getName() + " is " + robot.getStrategyStatus());
+                logger.debug(loggerName + "Robot: " + robot.getRobotId() + " Name: " + robot.getName() + " is " + robot.getStrategyStatus());
             }
         }
     }
-
 
 
     private void standardRegenerationStrategy(Robot robot) {

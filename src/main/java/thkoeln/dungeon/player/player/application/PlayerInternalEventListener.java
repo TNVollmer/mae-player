@@ -28,6 +28,7 @@ public class PlayerInternalEventListener {
     private final PlayerApplicationService playerApplicationService;
     private final PlayerGameAutoStarter playerGameAutoStarter;
     private final Logger logger = LoggerFactory.getLogger( PlayerExternalEventListener.class);
+    private final String loggerName = "PlayerInternalEventListener --> ";
 
     @EventListener( GameStatusEvent.class )
     void handleGameStatusEvent( GameStatusEvent gameStatusEvent ) {
@@ -55,7 +56,7 @@ public class PlayerInternalEventListener {
     @EventListener(RoundStatusEvent.class)
     private void displayBalance(RoundStatusEvent roundStatusEvent) {
         if (roundStatusEvent.getRoundStatus().equals(RoundStatusType.STARTED)) {
-            logger.info("Current balance: " + playerApplicationService.queryAndIfNeededCreatePlayer().getBalance());
+            logger.info(loggerName + "Current balance: " + playerApplicationService.queryAndIfNeededCreatePlayer().getBalance());
         }
     }
 
@@ -92,15 +93,15 @@ public class PlayerInternalEventListener {
                 misc.append(item.getName()).append(": ").append(item.getPrice()).append(" | ");
             }
         }
-        logger.info("Current prices:");
-        logger.info("Mining speed upgrades: " + miningSpeedUpgrades);
-        logger.info("Mining upgrades: " + miningUpgrades);
-        logger.info("Max energy upgrades: " + maxEnergyUpgrades);
-        logger.info("Energy regeneration upgrades: " + energyRegenerationUpgrades);
-        logger.info("Health upgrades: " + healthUpgrades);
-        logger.info("Storage upgrades: " + storageUpgrades);
-        logger.info("Resources: " + resources);
-        logger.info("Misc: " + misc);
+        logger.info(loggerName + "Current prices:");
+        logger.info(loggerName + "Mining speed upgrades: " + miningSpeedUpgrades);
+        logger.info(loggerName + "Mining upgrades: " + miningUpgrades);
+        logger.info(loggerName + "Max energy upgrades: " + maxEnergyUpgrades);
+        logger.info(loggerName + "Energy regeneration upgrades: " + energyRegenerationUpgrades);
+        logger.info(loggerName + "Health upgrades: " + healthUpgrades);
+        logger.info(loggerName + "Storage upgrades: " + storageUpgrades);
+        logger.info(loggerName + "Resources: " + resources);
+        logger.info(loggerName + "Misc: " + misc);
     }
 
     @EventListener(TradeablePricesEvent.class)

@@ -22,6 +22,7 @@ import java.util.UUID;
 public class RobotApplicationService {
 
     private final Logger logger = LoggerFactory.getLogger(RobotApplicationService.class);
+    private final String loggerName = "RobotApplicationService --> ";
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
     private final PlayerApplicationService playerApplicationService;
     private final GameApplicationService gameApplicationService;
@@ -35,48 +36,52 @@ public class RobotApplicationService {
 
     public void buyRobot(int amount) {
         UUID[] ids = getGameAndPlayerId();
-        logger.info("Found game id: " + ids[0] + " and player id: " + ids[1]);
+        logger.info(loggerName + "Found game id: " + ids[0] + " and player id: " + ids[1]);
         Command buyRobotCommand = Command.createRobotPurchase(amount, ids[0], ids[1]);
-        logger.info("Buying " + amount + " robots");
+        logger.info(loggerName + "Buying " + amount + " robots");
         gameServiceRESTAdapter.sendPostRequestForCommand(buyRobotCommand);
     }
 
     public void letRobotMove(Robot robot) {
         UUID neighbourPlanetId = robot.getRobotPlanet().randomNonNullNeighbourId();
         if (neighbourPlanetId == null) {
-            logger.error("Robot " + robot.getRobotId() + " has no neighbours");
-            logger.info("Planets neighbours: " + Arrays.toString(robot.getRobotPlanet().getNeighbours()));
+            logger.error("Robot " + robot.getName() + " (" + robot.getRobotId() + ") has no neighbours");
+            logger.info(loggerName + "Planets neighbours: " + Arrays.toString(robot.getRobotPlanet().getNeighbours()));
             return;
         }
         Command moveRobotCommand = Command.createMove(robot.getRobotId(), neighbourPlanetId, getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Moving robot: " + robot.getRobotId() + " from planet: " + robot.getRobotPlanet().getPlanetId() + " to planet: " + neighbourPlanetId);
+        logger.info(loggerName + "Moving " + robot.getName() + " from planet: " + robot.getRobotPlanet().getPlanetId() + " to planet: " + neighbourPlanetId);
+        logger.debug(loggerName + "Moving robot: " + robot.getRobotId() + " from planet: " + robot.getRobotPlanet().getPlanetId() + " to planet: " + neighbourPlanetId);
         gameServiceRESTAdapter.sendPostRequestForCommand(moveRobotCommand);
     }
 
     public void letRobotMine(Robot robot) {
         if (robot.getRobotPlanet().getMineableResource() == null) {
-            logger.info("Robot " + robot.getRobotId() + " has no mineable resource");
+            logger.info(loggerName + "Robot " + robot.getName() + " (" + robot.getRobotId() + ") has no mineable resource");
             return;
         }
         Command mineCommand = Command.createMining(robot.getRobotId(), robot.getRobotPlanet().getPlanetId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Robot " + robot.getRobotId() + " is mining");
+        logger.info(loggerName + robot.getName() + " is mining");
+        logger.debug(loggerName + "Robot " + robot.getRobotId() + " is mining");
         gameServiceRESTAdapter.sendPostRequestForCommand(mineCommand);
     }
 
     public void letRobotRegenerate(Robot robot) {
         Command regenerateCommand = Command.createRegeneration(robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Robot " + robot.getRobotId() + " is regenerating");
+        logger.info(loggerName + robot.getName() + " is regenerating");
+        logger.debug(loggerName + "Robot " + robot.getRobotId() + " is regenerating");
         gameServiceRESTAdapter.sendPostRequestForCommand(regenerateCommand);
     }
 
     public void letRobotSell(Robot robot) {
         MineableResource resourceToSell = robot.getRobotInventory().getResources().getHighestMinedResource();
         if (resourceToSell == null) {
-            logger.error("Robot " + robot.getRobotId() + " has no resources to sell");
+            logger.error("Robot " + robot.getName() + " (" + robot.getRobotId() + ") has no resources to sell");
             throw new RobotException("Robot " + robot.getRobotId() + " has no resources to sell");
         }
         Command sellCommand = Command.createSelling(robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1], resourceToSell);
-        logger.info("Robot " + robot.getRobotId() + " is selling: " + resourceToSell.getType() + " with amount: " + resourceToSell.getAmount());
+        logger.info(loggerName + "Robot " + robot.getName() + " is selling: " + resourceToSell.getType() + " with amount: " + resourceToSell.getAmount());
+        logger.debug(loggerName + "Robot " + robot.getRobotId() + " is selling: " + resourceToSell.getType() + " with amount: " + resourceToSell.getAmount());
         gameServiceRESTAdapter.sendPostRequestForCommand(sellCommand);
     }
 
@@ -84,20 +89,22 @@ public class RobotApplicationService {
         //Capability capabilityToUpgrade = Capability.forTypeAndLevel(CapabilityType.valueOf(robot.getPendingUpgradeName()), robot.getPendingUpgradeLevel());
         Capability capabilityToUpgrade = Capability.forTypeAndLevel(CapabilityType.MINING, 5);
         Command upgradeCommand = Command.createUpgrade(capabilityToUpgrade, robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Robot " + robot.getRobotId() + " is upgrading: " + robot.getPendingUpgradeName() + " to level: " + robot.getPendingUpgradeLevel());
+        logger.info(loggerName + robot.getName() + " is upgrading: " + robot.getPendingUpgradeName() + " to level: " + robot.getPendingUpgradeLevel());
+        logger.debug(loggerName + "Robot " + robot.getRobotId() + " is upgrading: " + robot.getPendingUpgradeName() + " to level: " + robot.getPendingUpgradeLevel());
         UUID transactionId = gameServiceRESTAdapter.sendPostRequestForCommand(upgradeCommand);
-        logger.warn("Sent upgrade command: " + upgradeCommand + "Response: " + transactionId);
     }
 
     public void letRobotFight(Robot robot, Robot target) {
         Command fightCommand = Command.createFight(robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1], target.getRobotId());
-        logger.info("Robot " + robot.getRobotId() + " is fighting");
+        logger.info(loggerName + robot.getName() + " is fighting");
+        logger.debug(loggerName + "Robot " + robot.getRobotId() + " is fighting");
         gameServiceRESTAdapter.sendPostRequestForCommand(fightCommand);
     }
 
     public void letRobotBuyHealthRestoration(Robot robot) {
         Command buyHealthRestorationCommand = Command.createItemPurchase(ItemType.HEALTH_RESTORE, 1, robot.getRobotId(), getGameAndPlayerId()[0], getGameAndPlayerId()[1]);
-        logger.info("Robot " + robot.getRobotId() + " is buying health restore");
+        logger.info(loggerName + robot.getName() + " is buying health restore");
+        logger.debug(loggerName + "Robot " + robot.getRobotId() + " is buying health restore");
         gameServiceRESTAdapter.sendPostRequestForCommand(buyHealthRestorationCommand);
     }
 
