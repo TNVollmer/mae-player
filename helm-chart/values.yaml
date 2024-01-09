@@ -1,13 +1,13 @@
-name: player-skeleton-java-springboot # ! TODO: Update to your player name
+name: big_baba_bubu_player
 replicas: 1
 
 loadBalancerNodePort: 31090
 
 image:
-  name: "registry.gitlab.com/the-microservice-dungeon/player-teams/skeletons/player-skeleton-java-springboot" #TODO: Change this to your image path
+  name: "registry.gitlab.com/24coding/team-one-java-springboot"
   tag: "latest"
   imagePullPolicy: "Always"
-serviceName: "Player-Skeleton-Java-Springboot" #TODO: Change this to the name of your Player Application
+serviceName: "24coding/team-one-java-springboot"
 
 lbTargetPort: 8090
 port: 8080
@@ -21,13 +21,13 @@ env:
   RABBITMQ_PASSWORD: "admin"
   RABBITMQ_HOST: "rabbitmq-service.rabbitmq"
   RABBITMQ_PORT: "5672"
-  PLAYER_NAME: "Player-Skeleton-Java-Springboot" #TODO: Substitute with correct player name
-  PLAYER_EMAIL: "Player-Skeleton-Java-Springboot@test.com" #TODO: Substitute with correct player email
+  PLAYER_NAME: "big_baba_bubu_player"
+  PLAYER_EMAIL: "big_baba_bubu_player@example.com"
   DEV_MODE: "false"
 
 ingress:
   enabled: true # True if you run the player on the cluster, false if you run it locally in minikube
-  hostname: player-skeleton-java-springboot.goedel.debuas.de #TODO: Change this to your ingress hostname
+  hostname: big_baba_bubu_player.goedel.debuas.de
   path: /
   classname: traefik
 
