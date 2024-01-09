@@ -9,8 +9,8 @@ image:
   imagePullPolicy: "Always"
 serviceName: "big_baba_bubu_player"
 
-targetPort: 8080
-port: 8090
+lbTargetPort: 8090
+port: 8080
 lbNodePort: 31090
 
 env:
