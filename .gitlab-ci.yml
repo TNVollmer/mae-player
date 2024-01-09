@@ -3,7 +3,7 @@ services:
   - docker:20.10.16-dind
 
 include:
-  - project: "24coding/team-one-java-springboot"
+  - project: "the-microservice-dungeon/devops-team/common-ci-cd"
     ref: "main"
     file: "helm/package-publish.yaml"
 
