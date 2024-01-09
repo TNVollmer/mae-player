@@ -62,17 +62,18 @@ Easiest way is to right click on the main class `thkoeln.dungeon.player.DungeonP
 and select "Run DungeonPlayerMainApplication ..." in the context menu.
  
 <img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/activate-dev-mode0.png" alt="Create Spring Boot run configuration" style="width: 500px; box-shadow: 10px 10px 5px grey;">
-
+<p/>
 
 **2. Open the run configuration editor ...**
 
 <img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/activate-dev-mode1.png" alt="Open the run configuration editor" style="width: 500px; box-shadow: 10px 10px 5px grey;">
-
+<p/>
 
 
 **3. ... and add the `dev` profile to the active profiles**
 
 <img src="https://the-microservice-dungeon.gitlab.io/docs/images/JavaSkeleton/activate-dev-mode2.jpg" alt="Add dev profile" style="width: 500px; box-shadow: 10px 10px 5px grey;">
+<p/>
 
 
 ## Tests
