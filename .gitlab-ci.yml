@@ -13,7 +13,7 @@ variables:
   DOCKER_TLS_CERTDIR: "/certs"
   IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
   PATH_TO_CHART: "helm-chart"
-  CHART_NAME: "big_baba_bubu_player"
+  CHART_NAME: "big-baba-bubu-player"
 
 stages:
   - build

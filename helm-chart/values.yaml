@@ -1,4 +1,4 @@
-name: big_baba_bubu_player
+name: big-baba-bubu-player
 replicas: 1
 
 loadBalancerNodePort: 31090
@@ -7,7 +7,7 @@ image:
   name: "registry.gitlab.com/24coding/team-one-java-springboot"
   tag: "latest"
   imagePullPolicy: "Always"
-serviceName: "big_baba_bubu_player"
+serviceName: "big-baba-bubu-player"
 
 lbTargetPort: 8090
 port: 8080
@@ -21,13 +21,13 @@ env:
   RABBITMQ_PASSWORD: "admin"
   RABBITMQ_HOST: "rabbitmq-service.rabbitmq"
   RABBITMQ_PORT: "5672"
-  PLAYER_NAME: "big_baba_bubu_player"
-  PLAYER_EMAIL: "big_baba_bubu_player@example.com"
+  PLAYER_NAME: "big-baba-bubu-player"
+  PLAYER_EMAIL: "big-baba-bubu-player@example.com"
   DEV_MODE: "false"
 
 ingress:
   enabled: true # True if you run the player on the cluster, false if you run it locally in minikube
-  hostname: big_baba_bubu_player.goedel.debuas.de
+  hostname: big-baba-bubu-player.goedel.debuas.de
   path: /
   classname: traefik
 
