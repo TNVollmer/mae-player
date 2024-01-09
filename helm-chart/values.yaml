@@ -7,7 +7,7 @@ image:
   name: "registry.gitlab.com/24coding/team-one-java-springboot"
   tag: "latest"
   imagePullPolicy: "Always"
-serviceName: "24coding/team-one-java-springboot"
+serviceName: "big_baba_bubu_player"
 
 lbTargetPort: 8090
 port: 8080
