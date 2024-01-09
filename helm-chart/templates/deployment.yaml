@@ -23,6 +23,10 @@ spec:
           image: {{ .Values.image.name }}:latest
           {{- end }}
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.env.DATA_ENDPOINT_PORT | int }}
+              protocol: TCP
+              name: {{ .Values.serviceName }}
           env:
             - name: GAME_HOST
               value: {{ .Values.env.GAME_HOST }}
