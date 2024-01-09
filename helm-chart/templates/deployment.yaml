@@ -1,33 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}-deployment
-  namespace: {{ .Chart.Name }}
+  name: {{ .Values.name }}-deployment
+  namespace: {{ .Values.name }}
   labels:
-    app: {{ .Chart.Name }}
+    app: {{ .Values.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}
+      app: {{ .Values.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Chart.Name }}
+        app: {{ .Values.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: registry.gitlab.com/the-microservice-dungeon/player-teams/{{ .Chart.Name }}:latest
-          imagePullPolicy: Always
+        - name: {{ .Values.Name }}
+          {{- if .Values.image.tag }}
+          image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+          {{- else }}
+          image: {{ .Values.image.name }}:latest
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           env:
             - name: GAME_HOST
-              value: http://game-service.game:8080
+              value: {{ .Values.env.GAME_HOST }}
+            - name: GAME_PORT
+              value: {{ .Values.env.GAME_PORT }}
             - name: RABBITMQ_HOST
-              value: rabbitmq-service.rabbitmq
-            - name: PLAYER_SERVER_PORT
-              value: "8999"
+              value: {{ .Values.env.RABBITMQ_HOST }}
+            - name: RABBITMQ_PORT
+              value: {{ .Values.env.RABBITMQ_PORT }}
+            - name: RABBITMQ_USERNAME
+              value: {{ .Values.env.RABBITMQ_USERNAME }}
+            - name: RABBITMQ_PASSWORD
+              value: {{ .Values.env.RABBITMQ_PASSWORD }}
+            - name: DATA_ENDPOINT_PORT
+              value: {{ .Values.env.DATA_ENDPOINT_PORT  }}
             - name: LOGGING_LEVEL
-              value: debug
+              value: {{ .Values.env.LOGGING_LEVEL }}
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume

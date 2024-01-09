@@ -1,17 +1,20 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Chart.Name }}-ingress
+  name: {{ .Values.name }}-ingress
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingress.classname }}
   rules:
-    - host: {{ .Chart.Name }}.dungeon-space.de
+    - host: {{ .Values.ingress.hostname }}
       http:
         paths:
           - pathType: Prefix
-            path: /
+            path: {{ .Values.ingress.path }}
             backend:
               service:
-                name: {{ .Chart.Name }}-service
+                name: {{ .Values.serviceName }}
                 port:
-                  number: 8999
+                  number: {{ .Values.env.DATA_ENDPOINT_PORT | int }}
+ {{- end }}
+
