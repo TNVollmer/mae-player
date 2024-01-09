@@ -9,14 +9,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.Name }}
+      app: {{ .Values.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.Name }}
+        app: {{ .Values.name }}
     spec:
       containers:
-        - name: {{ .Values.Name }}
+        - name: {{ .Values.name }}
           {{- if .Values.image.tag }}
           image: {{ .Values.image.name }}:{{ .Values.image.tag }}
           {{- else }}
@@ -38,8 +38,6 @@ spec:
               value: {{ .Values.env.RABBITMQ_PASSWORD }}
             - name: DATA_ENDPOINT_PORT
               value: {{ .Values.env.DATA_ENDPOINT_PORT  }}
-            - name: LOGGING_LEVEL
-              value: {{ .Values.env.LOGGING_LEVEL }}
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume
