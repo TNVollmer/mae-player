@@ -4,9 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.player.core.events.AbstractEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
-
-import java.util.UUID;
 
 @Getter
 @Setter

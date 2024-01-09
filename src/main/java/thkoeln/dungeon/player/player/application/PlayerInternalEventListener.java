@@ -27,22 +27,23 @@ public class PlayerInternalEventListener {
     private final GameApplicationService gameApplicationService;
     private final PlayerApplicationService playerApplicationService;
     private final PlayerGameAutoStarter playerGameAutoStarter;
-    private final Logger logger = LoggerFactory.getLogger( PlayerExternalEventListener.class);
+    private final Logger logger = LoggerFactory.getLogger(PlayerExternalEventListener.class);
     private final String loggerName = "PlayerInternalEventListener --> ";
 
-    @EventListener( GameStatusEvent.class )
-    void handleGameStatusEvent( GameStatusEvent gameStatusEvent ) {
-        if ( GameStatus.CREATED.equals( gameStatusEvent.getStatus() ) ) {
+    @EventListener(GameStatusEvent.class)
+    void handleGameStatusEvent(GameStatusEvent gameStatusEvent) {
+        if (GameStatus.CREATED.equals(gameStatusEvent.getStatus())) {
             gameApplicationService.fetchRemoteGame();
             playerApplicationService.letPlayerJoinOpenGame();
             // this is relevant for the dev profile only - in production, the game will be started
             // by the game admin, and this interface is just an empty method call.
             playerGameAutoStarter.startGame();
         }
-        if ( GameStatus.ENDED.equals( gameStatusEvent.getStatus() ) ) {
+        if (GameStatus.ENDED.equals(gameStatusEvent.getStatus())) {
             playerApplicationService.cleanupAfterFinishingGame();
         }
     }
+
     @EventListener(BankInitializedEvent.class)
     private void initialiseMoney(BankInitializedEvent bankInitializedEvent) {
         playerApplicationService.updateMoney(Money.from(bankInitializedEvent.getBalance()));
