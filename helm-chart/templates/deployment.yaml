@@ -29,19 +29,19 @@ spec:
               name: {{ .Values.serviceName }}
           env:
             - name: GAME_HOST
-              value: {{ .Values.env.GAME_HOST }}
+              value: "{{ .Values.env.GAME_HOST }}"
             - name: GAME_PORT
-              value: {{ .Values.env.GAME_PORT }}
+              value: "{{ .Values.env.GAME_PORT }}"
             - name: RABBITMQ_HOST
-              value: {{ .Values.env.RABBITMQ_HOST }}
+              value: "{{ .Values.env.RABBITMQ_HOST }}"
             - name: RABBITMQ_PORT
-              value: {{ .Values.env.RABBITMQ_PORT }}
+              value: "{{ .Values.env.RABBITMQ_PORT }}"
             - name: RABBITMQ_USERNAME
-              value: {{ .Values.env.RABBITMQ_USERNAME }}
+              value: "{{ .Values.env.RABBITMQ_USERNAME }}"
             - name: RABBITMQ_PASSWORD
-              value: {{ .Values.env.RABBITMQ_PASSWORD }}
+              value: "{{ .Values.env.RABBITMQ_PASSWORD }}"
             - name: DATA_ENDPOINT_PORT
-              value: {{ .Values.env.DATA_ENDPOINT_PORT  }}
+              value: "{{ .Values.env.DATA_ENDPOINT_PORT }}"
           volumeMounts:
             - mountPath: /app/logs
               name: logs-volume

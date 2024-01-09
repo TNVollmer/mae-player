@@ -7,6 +7,7 @@ image:
   name: "registry.gitlab.com/24coding/team-one-java-springboot"
   tag: "latest"
   imagePullPolicy: "Always"
+
 serviceName: "big-baba-bubu-player"
 
 lbTargetPort: 8090
@@ -24,11 +25,10 @@ env:
   RABBITMQ_PORT: "5672"
   PLAYER_NAME: "big-baba-bubu-player"
   PLAYER_EMAIL: "big-baba-bubu-player@example.com"
-  DEV_MODE: "false"
+  DEV_MODE: false  # Assuming this is meant to be a boolean value, not a string.
 
 ingress:
   enabled: true # True if you run the player on the cluster, false if you run it locally in minikube
   hostname: big-baba-bubu-player.goedel.debuas.de
   path: /
   classname: traefik
-
