@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>th-koeln.dungeon</groupId>
-    <artifactId>player-skeleton-java-springboot</artifactId> <!-- ! TODO: Update to your player name -->
+    <artifactId>baba-player</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>player-monte</name>
     <description>player-monte</description>

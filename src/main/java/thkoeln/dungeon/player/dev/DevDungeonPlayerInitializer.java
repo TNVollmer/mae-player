@@ -4,8 +4,6 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -25,19 +23,19 @@ public class DevDungeonPlayerInitializer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        log.info( DEV_PREFIX + "Initializer: Register player." );
+        log.info(DEV_PREFIX + "Initializer: Register player.");
         playerApplicationService.registerPlayer();
 
-        log.info( DEV_PREFIX + "Initializer: Create a game." );
+        log.info(DEV_PREFIX + "Initializer: Create a game.");
         devGameAdminClient.createGameInDevMode();
 
-        log.info( DEV_PREFIX + "Initializer: Game created. Player will join as reaction to CREATED event." );
+        log.info(DEV_PREFIX + "Initializer: Game created. Player will join as reaction to CREATED event.");
     }
 
     @PreDestroy
     public void onExit() {
         // Code here will be executed before the application shuts down
-        log.info( DEV_PREFIX + "Application is stopping. Executing onExit() to remove the end the running game." );
+        log.info(DEV_PREFIX + "Application is stopping. Executing onExit() to remove the end the running game.");
         devGameAdminClient.endAllGames();
     }
 
@@ -51,7 +49,7 @@ public class DevDungeonPlayerInitializer implements InitializingBean {
 
         @Override
         public void startGame() {
-            log.info( DEV_PREFIX + "DevPlayerGameAutoStarter: start a game." );
+            log.info(DEV_PREFIX + "DevPlayerGameAutoStarter: start a game.");
             devGameAdminClient.startGameInDevMode();
         }
     }

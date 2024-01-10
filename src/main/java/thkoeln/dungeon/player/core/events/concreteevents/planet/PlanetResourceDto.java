@@ -16,12 +16,11 @@ public class PlanetResourceDto {
     private Integer currentAmount;
 
     boolean isValid() {
-        if ( resourceType == null ) return false;
-        if ( maxAmount == null ) return false;
-        if ( maxAmount < 0 ) return false;
-        if ( currentAmount == null ) return false;
-        if ( currentAmount < 0 ) return false;
-        if ( maxAmount < currentAmount ) return false;
-        return true;
+        if (resourceType == null) return false;
+        if (maxAmount == null) return false;
+        if (maxAmount < 0) return false;
+        if (currentAmount == null) return false;
+        if (currentAmount < 0) return false;
+        return maxAmount >= currentAmount;
     }
 }

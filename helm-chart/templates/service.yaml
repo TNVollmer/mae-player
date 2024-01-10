@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.Name }}-service
+  name: {{ .Values.serviceName }}-service
 spec:
   selector:
-    app: {{ .Values.Name }}
+    app: {{ .Values.name }}
   ports:
     - protocol: TCP
       port: {{ .Values.env.DATA_ENDPOINT_PORT  | int }}
-      targetPort: {{ .Values.env.DATA_ENDPOINT_PORT  | int }}
+      targetPort: {{ .Values.env.DATA_ENDPOINT_SECONDARY_PORT  | int }}
 

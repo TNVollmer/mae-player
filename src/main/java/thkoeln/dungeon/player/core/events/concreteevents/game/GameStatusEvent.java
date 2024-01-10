@@ -20,11 +20,11 @@ public class GameStatusEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        return ( gameId != null && status != null );
+        return (gameId != null && status != null);
     }
 
     @Override
     public String toStringShort() {
-        return super.toStringShort() + " (" + String.valueOf( status ) + ")";
+        return super.toStringShort() + " (" + status + ")";
     }
 }

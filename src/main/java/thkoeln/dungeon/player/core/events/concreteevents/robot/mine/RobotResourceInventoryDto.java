@@ -14,29 +14,29 @@ import static thkoeln.dungeon.player.core.domainprimitives.location.MineableReso
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RobotResourceInventoryDto {
-    @JsonProperty( "COAL" )
+    @JsonProperty("COAL")
     private int coal = 0;
-    @JsonProperty( "IRON" )
+    @JsonProperty("IRON")
     private int iron = 0;
-    @JsonProperty( "GEM" )
+    @JsonProperty("GEM")
     private int gem = 0;
-    @JsonProperty( "GOLD" )
+    @JsonProperty("GOLD")
     private int gold = 0;
-    @JsonProperty( "PLATIN" )
+    @JsonProperty("PLATIN")
     private int platin = 0;
 
 
     public MineableResource getResource() {
-        if ( coal > 0 ) return MineableResource.fromTypeAndAmount( COAL, coal );
-        if ( iron > 0 ) return MineableResource.fromTypeAndAmount( IRON, iron );
-        if ( gem > 0 ) return MineableResource.fromTypeAndAmount( GEM, gem );
-        if ( gold > 0 ) return MineableResource.fromTypeAndAmount( GOLD, gold );
-        if ( platin > 0 ) return MineableResource.fromTypeAndAmount( PLATIN, platin );
+        if (coal > 0) return MineableResource.fromTypeAndAmount(COAL, coal);
+        if (iron > 0) return MineableResource.fromTypeAndAmount(IRON, iron);
+        if (gem > 0) return MineableResource.fromTypeAndAmount(GEM, gem);
+        if (gold > 0) return MineableResource.fromTypeAndAmount(GOLD, gold);
+        if (platin > 0) return MineableResource.fromTypeAndAmount(PLATIN, platin);
         return null;
     }
 
 
     public boolean isValid() {
-        return ( coal >= 0 && iron >= 0 && gem >= 0 && gold >= 0 && platin >= 0 );
+        return (coal >= 0 && iron >= 0 && gem >= 0 && gold >= 0 && platin >= 0);
     }
 }

@@ -1,4 +1,4 @@
-package thkoeln.dungeon.player.core.events.concreteevents.robot;
+package thkoeln.dungeon.player.core.events.concreteevents.robot.change;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class RobotRegeneratedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if ( eventHeader == null ) return false;
-        return ( robotId != null && availableEnergy != null );
+        if (eventHeader == null) return false;
+        return (robotId != null && availableEnergy != null);
     }
 }
