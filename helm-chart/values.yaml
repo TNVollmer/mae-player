@@ -3,6 +3,9 @@ replicas: 1
 
 loadBalancerNodePort: 31090
 
+registry:
+  secretName: baba-player-secret
+
 image:
   name: "registry.gitlab.com/24coding/team-one-java-springboot"
   tag: "latest"
