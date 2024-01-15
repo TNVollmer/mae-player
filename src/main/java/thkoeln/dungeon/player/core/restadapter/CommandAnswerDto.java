@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties( ignoreUnknown = true )
+@JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
 public class CommandAnswerDto {
     private UUID transactionId;

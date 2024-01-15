@@ -1,16 +1,16 @@
 package thkoeln.dungeon.player.core.domainprimitives.purchasing;
 
+import jakarta.persistence.Embeddable;
 import lombok.*;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
 
-import jakarta.persistence.Embeddable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@NoArgsConstructor( access = AccessLevel.PROTECTED )
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Setter( AccessLevel.PROTECTED )
+@Setter(AccessLevel.PROTECTED)
 @EqualsAndHashCode
 @Embeddable
 public class Capability {
@@ -24,8 +24,8 @@ public class Capability {
      * @param type
      * @return Base capability for the given type
      */
-    public static Capability baseForType( CapabilityType type ) {
-        return forTypeAndLevel( type, MIN_LEVEL );
+    public static Capability baseForType(CapabilityType type) {
+        return forTypeAndLevel(type, MIN_LEVEL);
     }
 
     /**
@@ -33,12 +33,13 @@ public class Capability {
      * @param level
      * @return Capability for given type and level
      */
-    public static Capability forTypeAndLevel( CapabilityType type, Integer level ) {
-        if ( type == null || level == null ) throw new DomainPrimitiveException( "type == null || level == null" );
-        if ( level < MIN_LEVEL || level > MAX_LEVEL ) throw new DomainPrimitiveException( "level < MIN_LEVEL || level > MAX_LEVEL" );
+    public static Capability forTypeAndLevel(CapabilityType type, Integer level) {
+        if (type == null || level == null) throw new DomainPrimitiveException("type == null || level == null");
+        if (level < MIN_LEVEL || level > MAX_LEVEL)
+            throw new DomainPrimitiveException("level < MIN_LEVEL || level > MAX_LEVEL");
         Capability capability = new Capability();
-        capability.setLevel( level );
-        capability.setType( type );
+        capability.setLevel(level);
+        capability.setType(type);
         return capability;
     }
 
@@ -48,8 +49,8 @@ public class Capability {
      */
     public static List<Capability> allBaseCapabilities() {
         List<Capability> allBaseCapabilities = new ArrayList<>();
-        for ( CapabilityType capabilityType : CapabilityType.values() ) {
-            allBaseCapabilities.add( Capability.baseForType( capabilityType) );
+        for (CapabilityType capabilityType : CapabilityType.values()) {
+            allBaseCapabilities.add(Capability.baseForType(capabilityType));
         }
         return allBaseCapabilities;
     }
@@ -59,7 +60,7 @@ public class Capability {
      * @return Same capability, one level higher, in case the max is not yet reached. Otherwise null is returned.
      */
     public Capability nextLevel() {
-        if ( level < MAX_LEVEL ) return forTypeAndLevel( this.type, this.level + 1 );
+        if (level < MAX_LEVEL) return forTypeAndLevel(this.type, this.level + 1);
         else return null;
     }
 

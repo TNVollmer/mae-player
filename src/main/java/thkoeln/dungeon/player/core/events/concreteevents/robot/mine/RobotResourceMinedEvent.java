@@ -24,9 +24,8 @@ public class RobotResourceMinedEvent extends AbstractEvent {
         try {
             minedResourceAsDomainPrimitive = MineableResource.fromTypeAndAmount(
                     MineableResourceType.valueOf(minedResource.toUpperCase()), minedAmount);
-        }
-        catch ( Exception e ) {
-            logger.debug( "Could not convert minedResource to MineableResource: " + e.getMessage() );
+        } catch (Exception e) {
+            logger.debug("Could not convert minedResource to MineableResource: " + e.getMessage());
         }
         return minedResourceAsDomainPrimitive;
     }
@@ -34,10 +33,9 @@ public class RobotResourceMinedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if ( robotId == null ) return false;
-        if ( minedAmount <= 0 ) return false;
-        if ( minedResource == null ) return false;
-        if ( minedResourceAsDomainPrimitive() == null ) return false;
-        return true;
+        if (robotId == null) return false;
+        if (minedAmount <= 0) return false;
+        if (minedResource == null) return false;
+        return minedResourceAsDomainPrimitive() != null;
     }
 }
