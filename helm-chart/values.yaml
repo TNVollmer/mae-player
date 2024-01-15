@@ -9,14 +9,13 @@ image:
   imagePullPolicy: "Always"
 serviceName: "Player-Skeleton-Java-Springboot" #TODO: Change this to the name of your Player Application
 
-lbTargetPort: 8090
 port: 8080
-lbNodePort: 31090
+targetPort: 8080
 
 env:
-  DATA_ENDPOINT_PORT: "8090"
-  GAME_HOST: "http://game-service.game"
-  GAME_PORT: "8080"
+  INTERNAL_ENDPOINT_PORT: "8080"  #TODO: Substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port
+  EXTERNAL_ENDPOINT_PORT: "8080"
+  GAME_HOST: "http://game-service.game:8080"
   RABBITMQ_USERNAME: "admin"
   RABBITMQ_PASSWORD: "admin"
   RABBITMQ_HOST: "rabbitmq-service.rabbitmq"
@@ -27,7 +26,7 @@ env:
 
 ingress:
   enabled: true # True if you run the player on the cluster, false if you run it locally in minikube
-  hostname: player-skeleton-java-springboot.goedel.debuas.de #TODO: Change this to your ingress hostname
+  hostname: player-skeleton-java-springboot.goedel.debuas.de #TODO: Change this to your ingress hostname, if you need one
   path: /
   classname: traefik
 

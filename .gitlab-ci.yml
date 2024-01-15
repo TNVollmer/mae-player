@@ -28,6 +28,11 @@ maven-build:
     paths:
       - target/*.jar
 
+
+#---------------------------------------------------------------------------------------------------------
+# This version of the docker build requires that the Gitlab Runner on the TH Köln High Performance Cluster
+# is configured be used. See FIXME for more details.
+#---------------------------------------------------------------------------------------------------------
 docker-build:
   stage: build_container_image
   image:
@@ -41,6 +46,18 @@ docker-build:
       --destination "$IMAGE_TAG"
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+
+#---------------------------------------------------------------------------------------------------------
+# This version of the docker build can be run with any Gitlab Runner, also with the Shared Runner
+# See FIXME for more details.
+#---------------------------------------------------------------------------------------------------------
+# docker-build:
+#   stage: build_container_image
+#  script:
+#    - docker login "$CI_REGISTRY" --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD"
+#    - docker build -t $IMAGE_TAG .
+#    - docker push $IMAGE_TAG
+
 
 helm-package-publish:
   rules:

@@ -15,6 +15,6 @@ spec:
               service:
                 name: {{ .Values.serviceName }}
                 port:
-                  number: {{ .Values.env.DATA_ENDPOINT_PORT | int }}
- {{- end }}
+                  number: {{ .Values.env.EXTERNAL_ENDPOINT_PORT | int }}
+  {{- end }}
 
