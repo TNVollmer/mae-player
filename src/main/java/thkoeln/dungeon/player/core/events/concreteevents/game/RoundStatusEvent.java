@@ -20,7 +20,7 @@ public class RoundStatusEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        return (roundStatus != null && roundNumber != null && gameId != null);
+        return ( roundStatus != null && roundNumber != null && gameId != null );
     }
 
     @Override

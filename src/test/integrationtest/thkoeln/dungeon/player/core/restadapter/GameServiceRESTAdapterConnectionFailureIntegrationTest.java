@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -24,6 +25,7 @@ import java.util.UUID;
 
 
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
+@ActiveProfiles( "test" )
 public class GameServiceRESTAdapterConnectionFailureIntegrationTest {
     @Value("${GAME_SERVICE:http://localhost:8080}")
     private String gameServiceURIString;

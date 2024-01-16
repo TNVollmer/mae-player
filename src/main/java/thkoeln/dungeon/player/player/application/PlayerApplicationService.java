@@ -4,9 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
+import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
@@ -14,6 +17,8 @@ import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 
 import java.util.List;
+
+import static thkoeln.dungeon.player.game.domain.GameStatus.CREATED;
 
 /**
  * This game class encapsulates the game tactics for a simple autonomous controlling of a robot
@@ -29,6 +34,7 @@ public class PlayerApplicationService {
     private final PlayerRepository playerRepository;
     private final GameApplicationService gameApplicationService;
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
+    PlayerGameAutoStarter playerGameAutoStarter;
 
 
     @Value("${dungeon.playerName}")
@@ -41,11 +47,25 @@ public class PlayerApplicationService {
     public PlayerApplicationService(
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
-            GameServiceRESTAdapter gameServiceRESTAdapter
-    ) {
+            GameServiceRESTAdapter gameServiceRESTAdapter,
+            PlayerGameAutoStarter playerGameAutoStarter )
+    {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
+        this.playerGameAutoStarter = playerGameAutoStarter;
+    }
+
+
+    @EventListener( GameStatusEvent.class )
+    @Order(1)
+    void joinNewlyCreatedGame( GameStatusEvent gameStatusEvent ) {
+        if ( !CREATED.equals( gameStatusEvent.getStatus() ) ) return;
+        gameApplicationService.fetchRemoteGame();
+        letPlayerJoinOpenGame();
+        // this is relevant for the dev profile only - in production, the game will be started
+        // by the game admin, and this interface is just an empty method call.
+        playerGameAutoStarter.startGame();
     }
 
     /**
@@ -141,19 +161,5 @@ public class PlayerApplicationService {
         player.setGameId(null);
         playerRepository.save(player);
         logger.info("Cleaned up after finishing game.");
-    }
-
-    public void updateMoney(Money money) {
-        Player player = queryAndIfNeededCreatePlayer();
-        if (player.getBalance().equals(money)) return;
-        player.setBalance(money);
-        playerRepository.save(player);
-    }
-
-    public void updatePrices(List<TradeableItem> prices) {
-        Player player = queryAndIfNeededCreatePlayer();
-        if (player.getPriceList().equals(prices)) return;
-        player.updatePriceList(prices);
-        playerRepository.save(player);
     }
 }

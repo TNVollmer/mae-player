@@ -18,7 +18,7 @@ public class RobotRestoredAttributesEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if (eventHeader == null) return false;
-        return (robotId != null && availableEnergy != null && availableHealth != null && restorationType != null);
+        if ( eventHeader == null ) return false;
+        return ( robotId != null && availableEnergy != null && availableHealth != null && restorationType != null );
     }
 }

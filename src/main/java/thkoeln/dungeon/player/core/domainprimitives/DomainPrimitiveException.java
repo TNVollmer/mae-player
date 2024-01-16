@@ -6,7 +6,7 @@ import thkoeln.dungeon.player.DungeonPlayerRuntimeException;
 
 @ResponseStatus(code = HttpStatus.UNPROCESSABLE_ENTITY, reason = "Invalid domain primitive")
 public class DomainPrimitiveException extends DungeonPlayerRuntimeException {
-    public DomainPrimitiveException(String message) {
-        super(message);
+    public DomainPrimitiveException( String message ) {
+        super( message );
     }
 }

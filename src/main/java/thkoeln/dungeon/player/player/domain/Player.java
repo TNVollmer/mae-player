@@ -25,7 +25,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Player {
     @Transient
-    private Logger logger = LoggerFactory.getLogger(Player.class);
+    private Logger logger = LoggerFactory.getLogger( Player.class );
 
     @Id
     private final UUID id = UUID.randomUUID();
@@ -39,26 +39,20 @@ public class Player {
     private UUID playerId;
 
     @Setter(AccessLevel.PUBLIC)
-    private Money balance = Money.zero();
-
-    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
-    private List<TradeableItem> priceList = new ArrayList<>();
-
-    @Setter(AccessLevel.PUBLIC)
     private String playerExchange;
 
     @Setter(AccessLevel.PUBLIC)
     private String playerQueue;
 
-    public static Player ownPlayer(String name, String email) {
+    public static Player ownPlayer( String name, String email ) {
         Player player = new Player();
-        player.setName(name);
-        player.setEmail(email);
+        player.setName( name );
+        player.setEmail( email );
         return player;
     }
 
-    public void assignPlayerId(UUID playerId) {
-        if (playerId == null) throw new PlayerException("playerId == null");
+    public void assignPlayerId( UUID playerId ) {
+        if ( playerId == null ) throw new PlayerException( "playerId == null" );
         this.playerId = playerId;
 
         // this we do in order to register the queue early - before joining the game
@@ -67,13 +61,8 @@ public class Player {
 
 
     public void resetToDefaultPlayerExchange() {
-        if (name == null) throw new PlayerException("name == null");
+        if ( name == null ) throw new PlayerException( "name == null" );
         this.playerExchange = "player-" + name;
-    }
-
-    public void updatePriceList(List<TradeableItem> priceList) {
-        if (priceList == null) throw new PlayerException("priceList == null");
-        this.priceList = priceList;
     }
 
     public boolean isRegistered() {
@@ -86,23 +75,23 @@ public class Player {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals( Object o ) {
+        if ( this == o ) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if ( o == null || getClass() != o.getClass() ) {
             return false;
         }
         Player player = (Player) o;
-        return Objects.equals(id, player.id) && Objects.equals(gameId, player.gameId)
-                && Objects.equals(name, player.name) && Objects.equals(email,
-                player.email) && Objects.equals(playerId, player.playerId)
-                && Objects.equals(playerExchange, player.playerExchange);
+        return Objects.equals( id, player.id ) && Objects.equals( gameId, player.gameId )
+                && Objects.equals( name, player.name ) && Objects.equals( email,
+                player.email ) && Objects.equals( playerId, player.playerId )
+                && Objects.equals( playerExchange, player.playerExchange );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, gameId, name, email, playerId, playerExchange);
+        return Objects.hash( id, gameId, name, email, playerId, playerExchange );
     }
 
 }

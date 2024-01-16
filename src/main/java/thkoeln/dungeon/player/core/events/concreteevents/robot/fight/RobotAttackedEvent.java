@@ -14,7 +14,7 @@ public class RobotAttackedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if (eventHeader == null) return false;
-        return (attacker != null && target != null);
+        if ( eventHeader == null ) return false;
+        return ( attacker != null && target != null );
     }
 }

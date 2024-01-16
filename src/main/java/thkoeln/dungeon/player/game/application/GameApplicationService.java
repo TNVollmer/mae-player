@@ -25,9 +25,9 @@ public class GameApplicationService {
     ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
-    public GameApplicationService(GameRepository gameRepository,
-                                  GameServiceRESTAdapter gameServiceRESTAdapter,
-                                  Environment environment) {
+    public GameApplicationService( GameRepository gameRepository,
+                                   GameServiceRESTAdapter gameServiceRESTAdapter,
+                                   Environment environment ) {
         this.gameRepository = gameRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.environment = environment;
@@ -40,14 +40,14 @@ public class GameApplicationService {
     public Game fetchRemoteGame() {
         gameRepository.deleteAll();
         GameDto[] openGameDtos = gameServiceRESTAdapter.sendGetRequestForAllActiveGames();
-        if (openGameDtos.length > 0) {
+        if ( openGameDtos.length > 0 ) {
             Game game = new Game();
-            modelMapper.map(openGameDtos[0], game);
+            modelMapper.map( openGameDtos[0], game );
             game.checkIfOurPlayerHasJoined(
-                    openGameDtos[0].getParticipatingPlayers(), environment.getProperty("dungeon.playerName"));
-            gameRepository.save(game);
-            log.info("Open game found: " + game);
-            if (openGameDtos.length > 1) log.warn("More than one open game found!");
+                    openGameDtos[0].getParticipatingPlayers(), environment.getProperty( "dungeon.playerName" ) );
+            gameRepository.save( game );
+            log.info( "Open game found: " + game );
+            if ( openGameDtos.length > 1 ) log.warn( "More than one open game found!" );
             return game;
         }
         return null;
@@ -57,17 +57,17 @@ public class GameApplicationService {
      * @return The currently available active (CREATED or RUNNING) game, or null if there is no such game
      */
     public Game queryActiveGame() {
-        log.debug("queryActiveGame() ...");
+        log.debug( "queryActiveGame() ..." );
         List<Game> foundGames = gameRepository.findAll();
-        if (foundGames.size() > 1) {
-            log.error("More than one game found!");
-            for (Game game : foundGames) {
-                log.error("Game: " + game.getGameId() + ", " + game.getGameStatus() + ", internal ID: " + game.getId());
+        if ( foundGames.size() > 1 ) {
+            log.error( "More than one game found!" );
+            for ( Game game : foundGames ) {
+                log.error( "Game: " + game.getGameId() + ", " + game.getGameStatus() + ", internal ID: " + game.getId() );
             }
-            throw new GameException("More than one game!");
+            throw new GameException( "More than one game!" );
         }
-        if (foundGames.size() == 1) {
-            return foundGames.get(0);
+        if ( foundGames.size() == 1 ) {
+            return foundGames.get( 0 );
         } else {
             return null;
         }
@@ -80,7 +80,7 @@ public class GameApplicationService {
      */
     public Game queryAndIfNeededFetchRemoteGame() {
         Game game = queryActiveGame();
-        if (game == null) {
+        if ( game == null ) {
             game = fetchRemoteGame();
         }
         return game;
@@ -92,8 +92,8 @@ public class GameApplicationService {
      * In that case, we simply assume that there is only ONE game currently running, and that it is THIS
      * game.
      */
-    public void startGame(UUID gameId) {
-        changeGameStatus(gameId, GameStatus.STARTED);
+    public void startGame( UUID gameId ) {
+        changeGameStatus( gameId, GameStatus.STARTED );
     }
 
 
@@ -101,14 +101,14 @@ public class GameApplicationService {
      * We received notice (by event) that the current game has finished.
      */
     public void finishGame() {
-        log.info("Finish game");
+        log.info( "Finish game" );
         Game game = queryActiveGame();
-        if (game == null) {
-            log.error("No active game found!");
+        if ( game == null ) {
+            log.error( "No active game found!" );
             return;
         }
-        game.setGameStatus(GameStatus.ENDED);
-        gameRepository.save(game);
+        game.setGameStatus( GameStatus.ENDED );
+        gameRepository.save( game );
     }
 
 
@@ -117,24 +117,24 @@ public class GameApplicationService {
      *
      * @param gameId
      */
-    public void changeGameStatus(UUID gameId, GameStatus gameStatus) {
-        log.info("Change status for game with gameId " + gameId + " to " + gameStatus);
-        if (gameId == null) throw new GameException("gameId == null");
+    public void changeGameStatus( UUID gameId, GameStatus gameStatus ) {
+        log.info( "Change status for game with gameId " + gameId + " to " + gameStatus );
+        if ( gameId == null ) throw new GameException( "gameId == null" );
 
         Game game = queryActiveGame();
-        if (game == null) {
-            log.error("No game with id " + gameId + " found!");
+        if ( game == null ) {
+            log.error( "No game with id " + gameId + " found!" );
             return;
         }
-        game.setGameStatus(gameStatus);
-        gameRepository.save(game);
+        game.setGameStatus( gameStatus );
+        gameRepository.save( game );
     }
 
 
-    public void roundStarted(Integer roundNumber) {
+    public void roundStarted( Integer roundNumber ) {
         Game game = queryActiveGame();
-        if (game == null) throw new GameException("No active game!");
-        game.setCurrentRoundNumber(roundNumber);
-        gameRepository.save(game);
+        if ( game == null ) throw new GameException( "No active game!" );
+        game.setCurrentRoundNumber( roundNumber );
+        gameRepository.save( game );
     }
 }

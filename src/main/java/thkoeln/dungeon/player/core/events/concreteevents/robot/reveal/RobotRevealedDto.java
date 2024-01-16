@@ -23,6 +23,6 @@ public class RobotRevealedDto {
 
 
     public boolean isValid() {
-        return (robotId != null && planetId != null && playerNotion != null);
+        return ( robotId != null && planetId != null && playerNotion != null );
     }
 }

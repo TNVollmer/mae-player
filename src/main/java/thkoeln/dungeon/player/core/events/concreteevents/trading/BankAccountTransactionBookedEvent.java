@@ -17,6 +17,6 @@ public class BankAccountTransactionBookedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        return (playerId != null && balance != null);
+        return ( playerId != null && balance != null );
     }
 }

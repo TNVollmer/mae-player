@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum RoundStatusType {
     @JsonProperty("started")
-    STARTED("started"),
+    STARTED( "started" ),
 
     @JsonProperty("command input ended")
-    COMMAND_INPUT_ENDED("command input ended"),
+    COMMAND_INPUT_ENDED( "command input ended" ),
 
     @JsonProperty("ended")
-    ENDED("ended");
+    ENDED( "ended" );
 
     private final String stringValue;
 
-    RoundStatusType(String s) {
+    RoundStatusType( String s ) {
         stringValue = s;
     }
 }

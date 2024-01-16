@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>th-koeln.dungeon</groupId>
-    <artifactId>baba-player</artifactId>
+    <artifactId>player-java-springboot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>player-monte</name>
-    <description>player-monte</description>
+    <name>player-java-springboot</name>
+    <description>Player Skeleton based on Spring Boot and Java</description>
     <properties>
         <java.version>17</java.version>
     </properties>

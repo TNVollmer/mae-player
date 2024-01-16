@@ -16,16 +16,16 @@ public class GameEventListener {
     private final GameApplicationService gameApplicationService;
 
     @EventListener(GameStatusEvent.class)
-    void handleGameStatusEvent(GameStatusEvent gameStatusEvent) {
-        if (GameStatus.STARTED.equals(gameStatusEvent.getStatus())) {
-            gameApplicationService.startGame(gameStatusEvent.getGameId());
+    void handleGameStatusEvent( GameStatusEvent gameStatusEvent ) {
+        if ( GameStatus.STARTED.equals( gameStatusEvent.getStatus() ) ) {
+            gameApplicationService.startGame( gameStatusEvent.getGameId() );
         }
     }
 
     @EventListener(RoundStatusEvent.class)
-    void handleRoundStatusEvent(RoundStatusEvent event) {
-        if (event.getRoundStatus() == RoundStatusType.STARTED) {
-            gameApplicationService.roundStarted(event.getRoundNumber());
+    void handleRoundStatusEvent( RoundStatusEvent event ) {
+        if ( event.getRoundStatus() == RoundStatusType.STARTED ) {
+            gameApplicationService.roundStarted( event.getRoundNumber() );
         }
     }
 }

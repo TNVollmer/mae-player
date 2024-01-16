@@ -37,23 +37,23 @@ public class RobotDto {
     private Integer attackDamage;
 
     public boolean isValid() {
-        if (getId() == null) return false;
-        if (getHealth() == null) return false;
-        if (getHealth() <= 0) return false;
-        if (getMaxHealth() == null) return false;
-        if (getMaxHealth() <= 0) return false;
-        if (getEnergy() == null) return false;
-        if (getEnergy() <= 0) return false;
-        if (getMiningSpeed() == null) return false;
-        if (getMiningSpeed() <= 0) return false;
-        if (getMaxEnergy() == null) return false;
-        if (getMaxEnergy() <= 0) return false;
-        if (getEnergyRegen() == null) return false;
-        if (getEnergyRegen() <= 0) return false;
-        if (getAttackDamage() == null) return false;
-        if (getAttackDamage() <= 0) return false;
+        if ( getId() == null ) return false;
+        if ( getHealth() == null ) return false;
+        if ( getHealth() <= 0 ) return false;
+        if ( getMaxHealth() == null ) return false;
+        if ( getMaxHealth() <= 0 ) return false;
+        if ( getEnergy() == null ) return false;
+        if ( getEnergy() <= 0 ) return false;
+        if ( getMiningSpeed() == null ) return false;
+        if ( getMiningSpeed() <= 0 ) return false;
+        if ( getMaxEnergy() == null ) return false;
+        if ( getMaxEnergy() <= 0 ) return false;
+        if ( getEnergyRegen() == null ) return false;
+        if ( getEnergyRegen() <= 0 ) return false;
+        if ( getAttackDamage() == null ) return false;
+        if ( getAttackDamage() <= 0 ) return false;
 
-        if (inventory == null || !inventory.isValid()) return false;
+        if ( inventory == null || !inventory.isValid() ) return false;
         return planet != null && planet.isValid();
     }
 }

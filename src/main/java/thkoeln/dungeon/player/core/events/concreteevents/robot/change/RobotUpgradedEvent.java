@@ -19,7 +19,7 @@ public class RobotUpgradedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if (eventHeader == null) return false;
-        return (robotId != null && level != null && upgrade != null && robotDto != null);
+        if ( eventHeader == null ) return false;
+        return ( robotId != null && level != null && upgrade != null && robotDto != null );
     }
 }

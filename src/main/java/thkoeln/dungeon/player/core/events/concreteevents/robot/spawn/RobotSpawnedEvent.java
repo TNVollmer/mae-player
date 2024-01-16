@@ -18,8 +18,8 @@ public class RobotSpawnedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if (eventHeader == null) return false;
-        if (robotDto == null) return false;
+        if ( eventHeader == null ) return false;
+        if ( robotDto == null ) return false;
         return robotDto.isValid();
     }
 }

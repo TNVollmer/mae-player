@@ -19,23 +19,11 @@ public class RobotResourceMinedEvent extends AbstractEvent {
     private RobotResourceInventoryDto resourceInventory;
 
 
-    public MineableResource minedResourceAsDomainPrimitive() {
-        MineableResource minedResourceAsDomainPrimitive = null;
-        try {
-            minedResourceAsDomainPrimitive = MineableResource.fromTypeAndAmount(
-                    MineableResourceType.valueOf(minedResource.toUpperCase()), minedAmount);
-        } catch (Exception e) {
-            logger.debug("Could not convert minedResource to MineableResource: " + e.getMessage());
-        }
-        return minedResourceAsDomainPrimitive;
-    }
-
-
     @Override
     public boolean isValid() {
-        if (robotId == null) return false;
-        if (minedAmount <= 0) return false;
-        if (minedResource == null) return false;
-        return minedResourceAsDomainPrimitive() != null;
+        if ( robotId == null ) return false;
+        if ( minedAmount <= 0 ) return false;
+        if ( minedResource == null ) return false;
+        return true;
     }
 }

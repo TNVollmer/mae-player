@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
-import thkoeln.dungeon.player.player.application.PlayerGameAutoStarter;
 
 @Component
-@Profile("!dev")
+@Profile( "!test & !dev" )
 @RequiredArgsConstructor
 @Slf4j
 public class DungeonPlayerInitializer implements InitializingBean {
@@ -26,17 +24,5 @@ public class DungeonPlayerInitializer implements InitializingBean {
         // listening to the GameStatus event (with status CREATED). This active joining is only
         // necessary if the game has already been created, and is waiting for players to join.
         playerApplicationService.letPlayerJoinOpenGame();
-    }
-
-    @Component
-    @Profile("!dev")
-    @Order
-    @RequiredArgsConstructor
-    public class DummyPlayerGameAutoStarter implements PlayerGameAutoStarter {
-
-        @Override
-        public void startGame() {
-            log.info("DummyPlayerGameAutoStarter: empty starter method called.");
-        }
     }
 }

@@ -33,44 +33,43 @@ public class MoneyTest {
     public void testValidation() {
         Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             Money.from( null );
-        });
+        } );
         Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             Money.from( -1 );
-        });
+        } );
     }
 
     @Test
     public void testGreater() {
-        Assertions.assertTrue( m3.greaterEqualThan(m3b) );
-        Assertions.assertFalse( m3.greaterThan(m3) );
-        Assertions.assertTrue( m3.greaterEqualThan(m0) );
-        Assertions.assertFalse( m0.greaterThan(m3) );
+        Assertions.assertTrue( m3.greaterEqualThan( m3b ) );
+        Assertions.assertFalse( m3.greaterThan( m3 ) );
+        Assertions.assertTrue( m3.greaterEqualThan( m0 ) );
+        Assertions.assertFalse( m0.greaterThan( m3 ) );
         Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             m3.greaterEqualThan( null );
-        });
+        } );
     }
 
 
     @Test
     public void testDecrease() {
-        Assertions.assertEquals( m3.decreaseBy(m0), m3b );
-        Assertions.assertEquals( m3.decreaseBy(m17), m0 );
-        Assertions.assertEquals( m3.decreaseBy(m3b), m0 );
-        Assertions.assertEquals( m20.decreaseBy(m3), m17 );
+        Assertions.assertEquals( m3.decreaseBy( m0 ), m3b );
+        Assertions.assertEquals( m3.decreaseBy( m17 ), m0 );
+        Assertions.assertEquals( m3.decreaseBy( m3b ), m0 );
+        Assertions.assertEquals( m20.decreaseBy( m3 ), m17 );
         Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             m3.decreaseBy( null );
-        });
+        } );
     }
-
 
 
     @Test
     public void testIncrease() {
-        Assertions.assertEquals( m3.increaseBy(m0), m3b );
-        Assertions.assertEquals( m17.increaseBy(m3), m20 );
+        Assertions.assertEquals( m3.increaseBy( m0 ), m3b );
+        Assertions.assertEquals( m17.increaseBy( m3 ), m20 );
         Assertions.assertThrows( DomainPrimitiveException.class, () -> {
             m3.increaseBy( null );
-        });
+        } );
     }
 
 }

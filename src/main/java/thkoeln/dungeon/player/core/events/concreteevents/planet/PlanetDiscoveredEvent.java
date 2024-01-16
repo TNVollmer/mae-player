@@ -24,13 +24,13 @@ public class PlanetDiscoveredEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if (eventHeader == null) return false;
-        if (planetId == null) return false;
-        if (movementDifficulty == null) return false;
-        if (movementDifficulty < 0) return false;
-        if (neighbours == null) return false;
-        for (PlanetNeighboursDto neighbour : neighbours) {
-            if (!neighbour.isValid()) return false;
+        if ( eventHeader == null ) return false;
+        if ( planetId == null ) return false;
+        if ( movementDifficulty == null ) return false;
+        if ( movementDifficulty < 0 ) return false;
+        if ( neighbours == null ) return false;
+        for ( PlanetNeighboursDto neighbour : neighbours ) {
+            if ( !neighbour.isValid() ) return false;
         }
         return resource == null || resource.isValid();
     }

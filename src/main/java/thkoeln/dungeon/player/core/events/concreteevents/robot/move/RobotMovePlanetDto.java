@@ -16,6 +16,6 @@ public class RobotMovePlanetDto {
     private Integer movementDifficulty;
 
     public boolean isValid() {
-        return (id != null && movementDifficulty != null && movementDifficulty >= 0);
+        return ( id != null && movementDifficulty != null && movementDifficulty >= 0 );
     }
 }

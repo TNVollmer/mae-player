@@ -18,6 +18,6 @@ public class RobotFightResultDto {
     private Integer availableHealth;
 
     public boolean isValid() {
-        return (robotId != null && alive != null && availableEnergy != null && availableHealth != null);
+        return ( robotId != null && alive != null && availableEnergy != null && availableHealth != null );
     }
 }

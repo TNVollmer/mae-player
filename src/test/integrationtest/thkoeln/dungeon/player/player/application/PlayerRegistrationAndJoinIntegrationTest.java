@@ -4,15 +4,13 @@ package thkoeln.dungeon.player.player.application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import thkoeln.dungeon.player.DungeonPlayerConfiguration;
 import thkoeln.dungeon.player.core.AbstractDungeonMockingIntegrationTest;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
-import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
@@ -21,10 +19,8 @@ import thkoeln.dungeon.player.player.domain.PlayerRepository;
 
 @DirtiesContext
 @SpringBootTest( classes = DungeonPlayerConfiguration.class )
-public class PlayerRegistrationAndJoinIntegrationTest extends
-    AbstractDungeonMockingIntegrationTest {
-
-
+@ActiveProfiles( "test" )
+public class PlayerRegistrationAndJoinIntegrationTest extends AbstractDungeonMockingIntegrationTest {
     @Autowired
     private GameRepository gameRepository;
     @Autowired
@@ -33,12 +29,6 @@ public class PlayerRegistrationAndJoinIntegrationTest extends
     private PlayerRepository playerRepository;
     @Autowired
     private PlayerApplicationService playerApplicationService;
-
-    @MockBean
-    private RabbitAdmin rabbitAdmin;
-
-    private Game game;
-
 
     @BeforeEach
     public void setUp() throws Exception {

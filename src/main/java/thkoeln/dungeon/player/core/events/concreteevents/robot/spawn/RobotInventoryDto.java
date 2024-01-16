@@ -18,7 +18,7 @@ public class RobotInventoryDto {
 
 
     public boolean isValid() {
-        if (maxStorage == null) return false;
+        if ( maxStorage == null ) return false;
         return maxStorage > 0;
     }
 }

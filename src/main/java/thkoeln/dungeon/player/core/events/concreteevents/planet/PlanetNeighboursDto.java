@@ -17,7 +17,7 @@ public class PlanetNeighboursDto {
     private CompassDirection direction;
 
     public boolean isValid() {
-        if (id == null) return false;
+        if ( id == null ) return false;
         return direction != null;
     }
 }

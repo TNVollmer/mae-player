@@ -19,5 +19,4 @@ public enum CapabilityType {
     public String toString() {
         return stringValue;
     }
-
 }

@@ -13,9 +13,9 @@ public class RobotsRevealedEvent extends AbstractEvent {
 
     @Override
     public boolean isValid() {
-        if (robots == null) return true;
-        for (RobotRevealedDto robotRevealedDto : robots) {
-            if (!robotRevealedDto.isValid()) return false;
+        if ( robots == null ) return true;
+        for ( RobotRevealedDto robotRevealedDto : robots ) {
+            if ( !robotRevealedDto.isValid() ) return false;
         }
         return true;
     }

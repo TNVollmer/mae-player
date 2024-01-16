@@ -82,5 +82,4 @@ public enum CompassDirection {
     public String toStringShort() {
         return toString().substring(0, 1);
     }
-
 }

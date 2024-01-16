@@ -27,16 +27,16 @@ public class RobotResourceInventoryDto {
 
 
     public MineableResource getResource() {
-        if (coal > 0) return MineableResource.fromTypeAndAmount(COAL, coal);
-        if (iron > 0) return MineableResource.fromTypeAndAmount(IRON, iron);
-        if (gem > 0) return MineableResource.fromTypeAndAmount(GEM, gem);
-        if (gold > 0) return MineableResource.fromTypeAndAmount(GOLD, gold);
-        if (platin > 0) return MineableResource.fromTypeAndAmount(PLATIN, platin);
+        if ( coal > 0 ) return MineableResource.fromTypeAndAmount( COAL, coal );
+        if ( iron > 0 ) return MineableResource.fromTypeAndAmount( IRON, iron );
+        if ( gem > 0 ) return MineableResource.fromTypeAndAmount( GEM, gem );
+        if ( gold > 0 ) return MineableResource.fromTypeAndAmount( GOLD, gold );
+        if ( platin > 0 ) return MineableResource.fromTypeAndAmount( PLATIN, platin );
         return null;
     }
 
 
     public boolean isValid() {
-        return (coal >= 0 && iron >= 0 && gem >= 0 && gold >= 0 && platin >= 0);
+        return ( coal >= 0 && iron >= 0 && gem >= 0 && gold >= 0 && platin >= 0 );
     }
 }

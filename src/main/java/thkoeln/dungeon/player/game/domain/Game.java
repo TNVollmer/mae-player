@@ -37,18 +37,18 @@ public class Game {
     private Boolean ourPlayerHasJoined;
 
     @Transient
-    private Logger logger = LoggerFactory.getLogger(Game.class);
+    private Logger logger = LoggerFactory.getLogger( Game.class );
 
     public void resetToNewlyCreated() {
-        setGameStatus(GameStatus.CREATED);
-        setCurrentRoundNumber(0);
-        setOurPlayerHasJoined(FALSE);
-        logger.warn("Reset game " + this + " to CREATED!");
+        setGameStatus( GameStatus.CREATED );
+        setCurrentRoundNumber( 0 );
+        setOurPlayerHasJoined( FALSE );
+        logger.warn( "Reset game " + this + " to CREATED!" );
     }
 
-    public static Game newlyCreatedGame(UUID gameId) {
+    public static Game newlyCreatedGame( UUID gameId ) {
         Game game = new Game();
-        game.setGameId(gameId);
+        game.setGameId( gameId );
         game.resetToNewlyCreated();
         return game;
     }
@@ -58,25 +58,25 @@ public class Game {
      *
      * @param namesOfJoinedPlayers
      */
-    public void checkIfOurPlayerHasJoined(String[] namesOfJoinedPlayers, String playerName) {
-        if (namesOfJoinedPlayers == null || playerName == null)
-            throw new GameException("namesOfJoinedPlayers == null || playerName == null");
-        Boolean found = Arrays.stream(namesOfJoinedPlayers).anyMatch(s -> s.equals(playerName));
-        setOurPlayerHasJoined(found);
+    public void checkIfOurPlayerHasJoined( String[] namesOfJoinedPlayers, String playerName ) {
+        if ( namesOfJoinedPlayers == null || playerName == null )
+            throw new GameException( "namesOfJoinedPlayers == null || playerName == null" );
+        Boolean found = Arrays.stream( namesOfJoinedPlayers ).anyMatch( s -> s.equals( playerName ) );
+        setOurPlayerHasJoined( found );
     }
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals( Object o ) {
+        if ( this == o ) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
         Game game = (Game) o;
-        return id.equals(game.id);
+        return id.equals( game.id );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash( id );
     }
 
     @Override

@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
-import thkoeln.dungeon.player.player.application.PlayerGameAutoStarter;
+
+import java.util.Map;
 
 import static thkoeln.dungeon.player.dev.DevGameAdminClient.DEV_PREFIX;
 
@@ -23,34 +24,25 @@ public class DevDungeonPlayerInitializer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        log.info(DEV_PREFIX + "Initializer: Register player.");
+        log.debug( DEV_PREFIX + "Initializer: This is my environment." );
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            log.debug(DEV_PREFIX + "   -- Environment variable: " + envName + " = " + env.get(envName));
+        }
+
+        log.info( DEV_PREFIX + "Initializer: Register player." );
         playerApplicationService.registerPlayer();
 
-        log.info(DEV_PREFIX + "Initializer: Create a game.");
+        log.info( DEV_PREFIX + "Initializer: Create a game." );
         devGameAdminClient.createGameInDevMode();
 
-        log.info(DEV_PREFIX + "Initializer: Game created. Player will join as reaction to CREATED event.");
+        log.info( DEV_PREFIX + "Initializer: Game created. Player will join as reaction to CREATED event." );
     }
 
     @PreDestroy
     public void onExit() {
         // Code here will be executed before the application shuts down
-        log.info(DEV_PREFIX + "Application is stopping. Executing onExit() to remove the end the running game.");
+        log.info( DEV_PREFIX + "Application is stopping. Executing onExit() to remove the end the running game." );
         devGameAdminClient.endAllGames();
-    }
-
-
-    @Component
-    @Profile("dev")
-    @Order
-    @RequiredArgsConstructor
-    public class DevPlayerGameAutoStarter implements PlayerGameAutoStarter {
-        private final DevGameAdminClient devGameAdminClient;
-
-        @Override
-        public void startGame() {
-            log.info(DEV_PREFIX + "DevPlayerGameAutoStarter: start a game.");
-            devGameAdminClient.startGameInDevMode();
-        }
     }
 }
