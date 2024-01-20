@@ -1,6 +1,7 @@
 package thkoeln.dungeon.player.core.events;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Id;
@@ -48,6 +49,7 @@ public abstract class AbstractEvent {
         messageBodyAsJson = jsonString;
         try {
             ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+            objectMapper.configure( MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
             objectMapper.readerForUpdating(this).readValue(jsonString);
         } catch (JsonProcessingException conversionFailed) {
             logger.warn("Cannot convert payload for event with jsonString " + jsonString);
