@@ -15,10 +15,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
+import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.events.AbstractEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetResourceDto;
 import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
@@ -147,6 +152,69 @@ public class EventHandlingTests {
         assertNotNull(game);
         assertEquals(RoundStatusType.STARTED, domainFacade.getRoundStatusForCurrentRound(game));
         assertEquals(2, game.getCurrentRoundNumber());
+    }
+
+    @Test
+    public void testPlanetDiscoveredEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        PlanetDiscoveredEvent planetDiscoveredEvent = new PlanetDiscoveredEvent();
+        UUID planetId = UUID.randomUUID();
+        planetDiscoveredEvent.setPlanetId(planetId);
+        planetDiscoveredEvent.setMovementDifficulty(3);
+
+        PlanetNeighboursDto planetNeighboursDto1 = new PlanetNeighboursDto();
+        UUID northernNeighbourId = UUID.randomUUID();
+        planetNeighboursDto1.setId(northernNeighbourId);
+        planetNeighboursDto1.setDirection(CompassDirection.NORTH);
+
+        PlanetNeighboursDto planetNeighboursDto2 = new PlanetNeighboursDto();
+        UUID southernNeighbourId = UUID.randomUUID();
+        planetNeighboursDto2.setId(southernNeighbourId);
+        planetNeighboursDto2.setDirection(CompassDirection.SOUTH);
+
+        PlanetNeighboursDto[] planetNeighboursDtos = { planetNeighboursDto1, planetNeighboursDto2 };
+        planetDiscoveredEvent.setNeighbours(planetNeighboursDtos);
+
+        PlanetResourceDto planetResourceDto = new PlanetResourceDto();
+        planetResourceDto.setResourceType(MineableResourceType.COAL);
+        planetResourceDto.setCurrentAmount(10000);
+        planetResourceDto.setMaxAmount(10000);
+
+        planetDiscoveredEvent.setResource(planetResourceDto);
+
+        this.requestEventFromMockService(planetDiscoveredEvent, "/map/events/PlanetDiscovered");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        var planet = domainFacade.getPlanetByPlanetId(planetId);
+        var northernNeighbour = domainFacade.getPlanetByPlanetId(northernNeighbourId);
+        var southernNeighbour = domainFacade.getPlanetByPlanetId(southernNeighbourId);
+
+        assertNotNull(planet);
+        assertNotNull(northernNeighbour);
+        assertNotNull(southernNeighbour);
+
+        var neighbours = domainFacade.getNeighboursOfPlanet(planet);
+
+        assertEquals(northernNeighbour, neighbours.get(CompassDirection.NORTH));
+        assertEquals(southernNeighbour, neighbours.get(CompassDirection.SOUTH));
+        assertEquals(2, neighbours.size());
+
+        assertEquals(3, domainFacade.getMovementDifficultyForPlanet(planet));
+        assertNotNull(domainFacade.getResourceTypeOfPlanet(planet));
+        assertEquals(MineableResourceType.COAL, domainFacade.getResourceTypeOfPlanet(planet));
+        assertNotNull(domainFacade.getCurrentResourceAmountOfPlanet(planet));
+        assertEquals(10000, domainFacade.getCurrentResourceAmountOfPlanet(planet));
+        assertNotNull(domainFacade.getMaxResourceAmountOfPlanet(planet));
+        assertEquals(10000, domainFacade.getMaxResourceAmountOfPlanet(planet));
     }
 
     private void requestEventFromMockService(AbstractEvent event, String url) throws JsonProcessingException {
