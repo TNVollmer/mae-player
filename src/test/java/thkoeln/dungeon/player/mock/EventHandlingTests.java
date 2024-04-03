@@ -2,10 +2,7 @@ package thkoeln.dungeon.player.mock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -24,6 +21,8 @@ import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetResourceDto;
+import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
@@ -97,7 +96,13 @@ public class EventHandlingTests {
     }
 
     @BeforeEach
+    public void removeGame() {
+        gameRepository.deleteAll();
+    }
+
+    @AfterAll
     public void cleanup() {
+        playerRepository.deleteAll();
         gameRepository.deleteAll();
     }
 
@@ -215,6 +220,78 @@ public class EventHandlingTests {
         assertEquals(10000, domainFacade.getCurrentResourceAmountOfPlanet(planet));
         assertNotNull(domainFacade.getMaxResourceAmountOfPlanet(planet));
         assertEquals(10000, domainFacade.getMaxResourceAmountOfPlanet(planet));
+    }
+
+    @Test
+    public void testResourceMinedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var planet = domainFacade.createNewPlanet();
+        UUID planetId = UUID.randomUUID();
+        domainFacade.setPlanetIdForPlanet(planet, planetId);
+        domainFacade.setResourceTypeForPlanet(planet, MineableResourceType.COAL);
+        domainFacade.setCurrentResourceAmountForPlanet(planet, 10000);
+        domainFacade.setMaxResourceAmountForPlanet(planet, 10000);
+        domainFacade.savePlanet(planet);
+
+        ResourceMinedEvent resourceMinedEvent = new ResourceMinedEvent();
+        resourceMinedEvent.setPlanetId(planetId);
+        resourceMinedEvent.setMinedAmount(5);
+
+        PlanetResourceDto planetResourceDto = new PlanetResourceDto();
+        planetResourceDto.setResourceType(MineableResourceType.COAL);
+        planetResourceDto.setCurrentAmount(9995);
+        planetResourceDto.setMaxAmount(10000);
+        resourceMinedEvent.setResource(planetResourceDto);
+
+        this.requestEventFromMockService(resourceMinedEvent, "/map/events/ResourceMined");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        planet = domainFacade.getPlanetByPlanetId(resourceMinedEvent.getPlanetId());
+
+        assertNotNull(planet);
+        assertEquals(resourceMinedEvent.getResource().getResourceType(), domainFacade.getResourceTypeOfPlanet(planet));
+        assertEquals(resourceMinedEvent.getResource().getCurrentAmount(), domainFacade.getCurrentResourceAmountOfPlanet(planet));
+        assertEquals(resourceMinedEvent.getResource().getMaxAmount(), domainFacade.getMaxResourceAmountOfPlanet(planet));
+    }
+
+    @Test
+    public void testRobotRegeneratedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var robot = domainFacade.createNewRobot();
+        UUID robotId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot, robotId);
+        domainFacade.setEnergyForRobot(robot, 15);
+        domainFacade.saveRobot(robot);
+
+        RobotRegeneratedEvent robotRegeneratedEvent = new RobotRegeneratedEvent();
+        robotRegeneratedEvent.setRobotId(UUID.randomUUID());
+        robotRegeneratedEvent.setAvailableEnergy(20);
+
+        this.requestEventFromMockService(robotRegeneratedEvent, "/robot/events/RobotRegenerated");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        robot = domainFacade.getRobotByRobotId(robotRegeneratedEvent.getRobotId());
+
+        assertNotNull(robot);
+        assertEquals(robotRegeneratedEvent.getAvailableEnergy(), domainFacade.getEnergyOfRobot(robot));
     }
 
     private void requestEventFromMockService(AbstractEvent event, String url) throws JsonProcessingException {
