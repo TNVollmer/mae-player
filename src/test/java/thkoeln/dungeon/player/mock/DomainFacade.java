@@ -124,6 +124,13 @@ public interface DomainFacade {
     /**
      * @param robot
      * @param <T>
+     * @return the remaining health of the given robot
+     */
+    public <T> Integer getHealthOfRobot(T robot);
+
+    /**
+     * @param robot
+     * @param <T>
      * @return the remaining energy of the given robot
      */
     public <T> Integer getEnergyOfRobot(T robot);
@@ -143,6 +150,14 @@ public interface DomainFacade {
     public <T> void setRobotIdForRobot(T robot, UUID robotId);
 
     /**
+     * Set the remaining health for the given robot
+     * @param robot
+     * @param health
+     * @param <T>
+     */
+    public <T> void setHealthForRobot(T robot, int health);
+
+    /**
      * Set the remaining energy for the given robot
      * @param robot
      * @param energy
@@ -156,5 +171,20 @@ public interface DomainFacade {
      * @param <T>
      */
     public <T> void saveRobot(T robot);
+
+    /**
+     * @param robot
+     * @param <T>
+     * @return the health level of the given robot
+     */
+    public <T> Integer getHealthLevelOfRobot(T robot);
+
+    /**
+     * Set the health level for the given robot
+     * @param robot
+     * @param healthLevel
+     * @param <T>
+     */
+    public <T> void setHealthLevelForRobot(T robot, int healthLevel);
 
 }

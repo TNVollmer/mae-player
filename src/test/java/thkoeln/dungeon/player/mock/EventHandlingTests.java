@@ -23,6 +23,12 @@ import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighbours
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetResourceDto;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRestoredAttributesEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotUpgradedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryResourcesDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotPlanetDto;
 import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
@@ -280,7 +286,7 @@ public class EventHandlingTests {
         domainFacade.saveRobot(robot);
 
         RobotRegeneratedEvent robotRegeneratedEvent = new RobotRegeneratedEvent();
-        robotRegeneratedEvent.setRobotId(UUID.randomUUID());
+        robotRegeneratedEvent.setRobotId(robotId);
         robotRegeneratedEvent.setAvailableEnergy(20);
 
         this.requestEventFromMockService(robotRegeneratedEvent, "/robot/events/RobotRegenerated");
@@ -288,10 +294,109 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot = domainFacade.getRobotByRobotId(robotRegeneratedEvent.getRobotId());
+        robot = domainFacade.getRobotByRobotId(robotId);
 
         assertNotNull(robot);
         assertEquals(robotRegeneratedEvent.getAvailableEnergy(), domainFacade.getEnergyOfRobot(robot));
+    }
+
+    @Test
+    public void testRobotRestoredAttributesEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var robot = domainFacade.createNewRobot();
+        UUID robotId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot, robotId);
+        domainFacade.setHealthForRobot(robot, 7);
+        domainFacade.setEnergyForRobot(robot, 15);
+        domainFacade.saveRobot(robot);
+
+        RobotRestoredAttributesEvent robotRestoredAttributesEvent = new RobotRestoredAttributesEvent();
+        robotRestoredAttributesEvent.setRobotId(UUID.randomUUID());
+        robotRestoredAttributesEvent.setRestorationType("HEALTH");
+        robotRestoredAttributesEvent.setAvailableHealth(10);
+        robotRestoredAttributesEvent.setAvailableEnergy(15);
+
+        this.requestEventFromMockService(robotRestoredAttributesEvent, "/robot/events/RobotRestoredAttributes");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        robot = domainFacade.getRobotByRobotId(robotId);
+
+        assertNotNull(robot);
+        assertEquals(robotRestoredAttributesEvent.getAvailableHealth(), domainFacade.getHealthOfRobot(robot));
+    }
+
+    @Test
+    public void testRobotUpgradedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var robot = domainFacade.createNewRobot();
+        UUID robotId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot, robotId);
+        domainFacade.setHealthForRobot(robot, 10);
+        domainFacade.setEnergyForRobot(robot, 20);
+        domainFacade.setHealthLevelForRobot(robot, 0);
+        domainFacade.saveRobot(robot);
+
+        RobotUpgradedEvent robotUpgradedEvent = new RobotUpgradedEvent();
+        robotUpgradedEvent.setRobotId(UUID.randomUUID());
+        robotUpgradedEvent.setLevel(1);
+        robotUpgradedEvent.setUpgrade("HEALTH");
+
+        RobotDto robotDto = new RobotDto();
+        robotDto.setId(robotId);
+        robotDto.setPlayer(UUID.randomUUID());
+        robotDto.setHealth(10);
+        robotDto.setEnergy(20);
+        robotDto.setHealthLevel(0);
+        robotDto.setMiningSpeed(2);
+        robotDto.setMaxHealth(10);
+        robotDto.setMaxEnergy(20);
+        robotDto.setEnergyRegen(3);
+        robotDto.setAttackDamage(1);
+
+        RobotPlanetDto robotPlanetDto = new RobotPlanetDto();
+        robotPlanetDto.setPlanetId(UUID.randomUUID());
+        robotPlanetDto.setResourceType("COAL");
+        robotPlanetDto.setMovementDifficulty(2);
+        robotPlanetDto.setGameWorldId(UUID.randomUUID());
+        robotDto.setPlanet(robotPlanetDto);
+
+        RobotInventoryDto robotInventoryDto = new RobotInventoryDto();
+        robotInventoryDto.setFull(false);
+        robotInventoryDto.setStorageLevel(0);
+        robotInventoryDto.setUsedStorage(0);
+        robotInventoryDto.setMaxStorage(10);
+
+        RobotInventoryResourcesDto robotInventoryResourcesDto = new RobotInventoryResourcesDto();
+        robotInventoryDto.setResources(robotInventoryResourcesDto);
+        robotDto.setInventory(robotInventoryDto);
+
+        robotUpgradedEvent.setRobotDto(robotDto);
+
+        this.requestEventFromMockService(robotUpgradedEvent, "/robot/events/RobotUpgraded");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        robot = domainFacade.getRobotByRobotId(robotId);
+
+        assertNotNull(robot);
+        assertEquals(robotUpgradedEvent.getLevel(), domainFacade.getHealthLevelOfRobot(robot));
     }
 
     private void requestEventFromMockService(AbstractEvent event, String url) throws JsonProcessingException {
