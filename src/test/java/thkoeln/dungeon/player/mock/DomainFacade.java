@@ -180,11 +180,81 @@ public interface DomainFacade {
     public <T> Integer getHealthLevelOfRobot(T robot);
 
     /**
+     * @param robot
+     * @param <T>
+     * @return the damage level of the given robot
+     */
+    public <T> Integer getDamageLevelOfRobot(T robot);
+
+    /**
+     * @param robot
+     * @param <T>
+     * @return the mining speed level of the given robot
+     */
+    public <T> Integer getMiningSpeedLevelOfRobot(T robot);
+
+    /**
+     * @param robot
+     * @param <T>
+     * @return the mining level of the given robot
+     */
+    public <T> Integer getMiningLevelOfRobot(T robot);
+
+    /**
+     * @param robot
+     * @param <T>
+     * @return the energy level of the given robot
+     */
+    public <T> Integer getEnergyLevelOfRobot(T robot);
+
+    /**
+     * @param robot
+     * @param <T>
+     * @return the energy regen level of the given robot
+     */
+    public <T> Integer getEnergyRegenLevelOfRobot(T robot);
+
+    /**
+     * @param robot
+     * @param <T>
+     * @return the storage level of the given robot
+     */
+    public <T> Integer getStorageLevelOfRobot(T robot);
+
+    /**
      * Set the health level for the given robot
      * @param robot
      * @param healthLevel
      * @param <T>
      */
     public <T> void setHealthLevelForRobot(T robot, int healthLevel);
+
+    public <T> boolean getAliveStatusOfRobot(T robot);
+
+    public <T> void setCoalAmountForRobot(T robot, int coalAmount);
+
+    public <T> Integer getCoalAmountOfRobot(T robot);
+
+    public <T, E> void setPlanetLocationForRobot(T robot, E planet);
+
+    public <T, E> E getPlanetLocationOfRobot(T robot);
+
+    public <T> UUID getPlanetIdOfPlanet(T planet);
+
+    public <T> Integer getMiningSpeedOfRobot(T robot);
+
+    public <T> Integer getMaxHealthOfRobot(T robot);
+
+    public <T> Integer getMaxEnergyOfRobot(T robot);
+
+    public <T> Integer getEnergyRegenOfRobot(T robot);
+
+    public <T> Integer getAttackDamageOfRobot(T robot);
+
+    public <T> boolean getInventoryFullStateOfRobot(T robot);
+
+    public <T> Integer getInventoryUsedStorageOfRobot(T robot);
+
+    public <T> Integer getInventoryMaxStorageOfRobot(T robot);
 
 }

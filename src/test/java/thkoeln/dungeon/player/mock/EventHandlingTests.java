@@ -25,16 +25,23 @@ import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEve
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRestoredAttributesEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotUpgradedEvent;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryDto;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotInventoryResourcesDto;
-import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotPlanetDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.fight.RobotAttackedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.fight.RobotFightResultDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceInventoryDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovePlanetDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.*;
 import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedLevelDto;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -397,6 +404,357 @@ public class EventHandlingTests {
 
         assertNotNull(robot);
         assertEquals(robotUpgradedEvent.getLevel(), domainFacade.getHealthLevelOfRobot(robot));
+    }
+
+    @Test
+    public void testRobotAttackedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var attacker = domainFacade.createNewRobot();
+        UUID attackedId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(attacker, attackedId);
+        domainFacade.setHealthForRobot(attacker, 10);
+        domainFacade.setEnergyForRobot(attacker, 20);
+        domainFacade.saveRobot(attacker);
+
+        var target = domainFacade.createNewRobot();
+        UUID targetId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(target, targetId);
+        domainFacade.setHealthForRobot(target, 10);
+        domainFacade.setEnergyForRobot(target, 20);
+        domainFacade.saveRobot(target);
+
+        RobotAttackedEvent robotAttackedEvent = new RobotAttackedEvent();
+
+        RobotFightResultDto attackerDto = new RobotFightResultDto();
+        attackerDto.setRobotId(attackedId);
+        attackerDto.setAlive(true);
+        attackerDto.setAvailableHealth(10);
+        attackerDto.setAvailableEnergy(18);
+
+        RobotFightResultDto targetDto = new RobotFightResultDto();
+        targetDto.setRobotId(targetId);
+        targetDto.setAlive(true);
+        targetDto.setAvailableHealth(9);
+        targetDto.setAvailableEnergy(20);
+
+        robotAttackedEvent.setAttacker(attackerDto);
+        robotAttackedEvent.setTarget(targetDto);
+
+        this.requestEventFromMockService(robotAttackedEvent, "/robot/events/RobotAttacked");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        attacker = domainFacade.getRobotByRobotId(attackedId);
+        target = domainFacade.getRobotByRobotId(targetId);
+
+        assertNotNull(attacker);
+        assertNotNull(target);
+
+        assertEquals(10, domainFacade.getHealthOfRobot(attacker));
+        assertEquals(18, domainFacade.getEnergyOfRobot(attacker));
+        assertTrue(domainFacade.getAliveStatusOfRobot(attacker));
+
+        assertEquals(9, domainFacade.getHealthOfRobot(target));
+        assertEquals(20, domainFacade.getEnergyOfRobot(target));
+        assertTrue(domainFacade.getAliveStatusOfRobot(target));
+    }
+
+    @Test
+    public void testRobotResourceMinedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var robot = domainFacade.createNewRobot();
+        UUID robotId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot, robotId);
+        domainFacade.setHealthForRobot(robot, 10);
+        domainFacade.setEnergyForRobot(robot, 20);
+        domainFacade.setCoalAmountForRobot(robot, 2);
+        domainFacade.saveRobot(robot);
+
+        RobotResourceMinedEvent robotResourceMinedEvent = new RobotResourceMinedEvent();
+        robotResourceMinedEvent.setRobotId(robotId);
+        robotResourceMinedEvent.setMinedResource("COAL");
+        robotResourceMinedEvent.setMinedAmount(2);
+
+        RobotResourceInventoryDto robotResourceInventoryDto = new RobotResourceInventoryDto();
+        robotResourceInventoryDto.setCoal(4);
+
+        robotResourceMinedEvent.setResourceInventory(robotResourceInventoryDto);
+
+        this.requestEventFromMockService(robotResourceMinedEvent, "/robot/events/RobotResourceMined");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        robot = domainFacade.getRobotByRobotId(robotId);
+
+        assertNotNull(robot);
+        assertEquals(4, domainFacade.getCoalAmountOfRobot(robot));
+    }
+
+    @Test
+    public void testRobotResourceRemovedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var robot = domainFacade.createNewRobot();
+        UUID robotId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot, robotId);
+        domainFacade.setHealthForRobot(robot, 10);
+        domainFacade.setEnergyForRobot(robot, 20);
+        domainFacade.setCoalAmountForRobot(robot, 2);
+        domainFacade.saveRobot(robot);
+
+        RobotResourceRemovedEvent robotResourceRemovedEvent = new RobotResourceRemovedEvent();
+        robotResourceRemovedEvent.setRobotId(robotId);
+        robotResourceRemovedEvent.setRemovedResource("COAL");
+        robotResourceRemovedEvent.setRemovedAmount(2);
+
+        RobotResourceInventoryDto robotResourceInventoryDto = new RobotResourceInventoryDto();
+        robotResourceInventoryDto.setCoal(0);
+
+        robotResourceRemovedEvent.setResourceInventory(robotResourceInventoryDto);
+
+        this.requestEventFromMockService(robotResourceRemovedEvent, "/robot/events/RobotResourceRemoved");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        robot = domainFacade.getRobotByRobotId(robotId);
+
+        assertNotNull(robot);
+        assertEquals(0, domainFacade.getCoalAmountOfRobot(robot));
+    }
+
+    @Test
+    public void testRobotMovedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var planet = domainFacade.createNewPlanet();
+        UUID planetId = UUID.randomUUID();
+        domainFacade.setPlanetIdForPlanet(planet, planetId);
+        domainFacade.setResourceTypeForPlanet(planet, MineableResourceType.COAL);
+        domainFacade.setCurrentResourceAmountForPlanet(planet, 10000);
+        domainFacade.setMaxResourceAmountForPlanet(planet, 10000);
+        domainFacade.savePlanet(planet);
+
+        var robot = domainFacade.createNewRobot();
+        UUID robotId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot, robotId);
+        domainFacade.setHealthForRobot(robot, 10);
+        domainFacade.setEnergyForRobot(robot, 20);
+        domainFacade.setPlanetLocationForRobot(robot, planet);
+        domainFacade.saveRobot(robot);
+
+        RobotMovedEvent robotMovedEvent = new RobotMovedEvent();
+        robotMovedEvent.setRobotId(robotId);
+        robotMovedEvent.setRemainingEnergy(18);
+
+        RobotMovePlanetDto fromPlanetDto = new RobotMovePlanetDto();
+        fromPlanetDto.setId(planetId);
+        fromPlanetDto.setMovementDifficulty(2);
+
+        RobotMovePlanetDto toPlanetDto = new RobotMovePlanetDto();
+        UUID targetId = UUID.randomUUID();
+        toPlanetDto.setId(targetId);
+        toPlanetDto.setMovementDifficulty(3);
+
+        robotMovedEvent.setFromPlanet(fromPlanetDto);
+        robotMovedEvent.setFromPlanet(toPlanetDto);
+
+        this.requestEventFromMockService(robotMovedEvent, "/robot/events/RobotMoved");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        robot = domainFacade.getRobotByRobotId(robotId);
+
+        assertNotNull(robot);
+        assertEquals(targetId, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot)));
+        assertEquals(18, domainFacade.getEnergyOfRobot(robot));
+    }
+
+    @Test
+    public void testRobotsRevealedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        var robot1 = domainFacade.createNewRobot();
+        UUID robot1Id = UUID.randomUUID();
+        UUID planet1Id = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot1, robot1Id);
+        domainFacade.setHealthForRobot(robot1, 10);
+        domainFacade.setEnergyForRobot(robot1, 20);
+        domainFacade.saveRobot(robot1);
+
+        var robot2 = domainFacade.createNewRobot();
+        UUID robot2Id = UUID.randomUUID();
+        UUID planet2Id = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot2, robot2Id);
+        domainFacade.setHealthForRobot(robot2, 10);
+        domainFacade.setEnergyForRobot(robot2, 15);
+        domainFacade.saveRobot(robot2);
+
+        var robot3 = domainFacade.createNewRobot();
+        UUID robot3Id = UUID.randomUUID();
+        UUID planet3Id = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot3, robot3Id);
+        domainFacade.setHealthForRobot(robot3, 8);
+        domainFacade.setEnergyForRobot(robot3, 13);
+        domainFacade.saveRobot(robot3);
+
+        RobotsRevealedEvent robotsRevealedEvent = new RobotsRevealedEvent();
+
+        RobotRevealedDto robot1Dto = new RobotRevealedDto();
+        robot1Dto.setRobotId(robot1Id);
+        robot1Dto.setHealth(10);
+        robot1Dto.setEnergy(20);
+        robot1Dto.setPlayerNotion(robot1Id.toString().substring(0, 8));
+        robot1Dto.setPlanetId(planet1Id);
+        robot1Dto.setLevels(RobotRevealedLevelDto.defaults());
+
+        RobotRevealedDto robot2Dto = new RobotRevealedDto();
+        robot2Dto.setRobotId(robot1Id);
+        robot2Dto.setHealth(10);
+        robot2Dto.setEnergy(15);
+        robot2Dto.setPlayerNotion(robot2Id.toString().substring(0, 8));
+        robot2Dto.setPlanetId(planet2Id);
+        robot2Dto.setLevels(RobotRevealedLevelDto.defaults());
+
+        RobotRevealedDto robot3Dto = new RobotRevealedDto();
+        robot3Dto.setRobotId(robot1Id);
+        robot3Dto.setHealth(8);
+        robot3Dto.setEnergy(13);
+        robot3Dto.setPlayerNotion(robot3Id.toString().substring(0, 8));
+        robot3Dto.setPlanetId(planet3Id);
+        robot3Dto.setLevels(RobotRevealedLevelDto.defaults());
+
+        RobotRevealedDto[] robots = { robot1Dto, robot2Dto, robot3Dto };
+
+        robotsRevealedEvent.setRobots(robots);
+
+        this.requestEventFromMockService(robotsRevealedEvent, "/robot/events/RobotsRevealed");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        robot1 = domainFacade.getRobotByRobotId(robot1Id);
+        robot2 = domainFacade.getRobotByRobotId(robot2Id);
+        robot3 = domainFacade.getRobotByRobotId(robot3Id);
+
+        assertNotNull(robot1);
+        assertNotNull(robot2);
+        assertNotNull(robot3);
+
+        assertEquals(planet1Id, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot1)));
+        assertEquals(planet2Id, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot2)));
+        assertEquals(planet3Id, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot3)));
+    }
+
+    @Test
+    public void testRobotSpawnedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        UUID robotId = UUID.randomUUID();
+
+        RobotSpawnedEvent robotSpawnedEvent = new RobotSpawnedEvent();
+        robotSpawnedEvent.setPlayerId(playerRepository.findAll().get(0).getPlayerId());
+
+        RobotDto robotDto = new RobotDto();
+        robotDto.setId(robotId);
+        robotDto.setPlayer(UUID.randomUUID());
+        robotDto.setHealth(10);
+        robotDto.setEnergy(20);
+        robotDto.setMiningSpeed(2);
+        robotDto.setMaxHealth(10);
+        robotDto.setMaxEnergy(20);
+        robotDto.setEnergyRegen(3);
+        robotDto.setAttackDamage(1);
+
+        RobotPlanetDto robotPlanetDto = new RobotPlanetDto();
+        UUID planetId = UUID.randomUUID();
+        robotPlanetDto.setPlanetId(planetId);
+        robotPlanetDto.setResourceType("COAL");
+        robotPlanetDto.setMovementDifficulty(2);
+        robotPlanetDto.setGameWorldId(UUID.randomUUID());
+        robotDto.setPlanet(robotPlanetDto);
+
+        RobotInventoryDto robotInventoryDto = new RobotInventoryDto();
+        robotInventoryDto.setFull(false);
+        robotInventoryDto.setStorageLevel(0);
+        robotInventoryDto.setUsedStorage(0);
+        robotInventoryDto.setMaxStorage(10);
+
+        RobotInventoryResourcesDto robotInventoryResourcesDto = new RobotInventoryResourcesDto();
+        robotInventoryDto.setResources(robotInventoryResourcesDto);
+        robotDto.setInventory(robotInventoryDto);
+
+        robotSpawnedEvent.setRobotDto(robotDto);
+
+        this.requestEventFromMockService(robotSpawnedEvent, "/robot/events/RobotSpawned");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        var robot = domainFacade.getRobotByRobotId(robotId);
+
+        assertNotNull(robot);
+        assertEquals(10, domainFacade.getHealthLevelOfRobot(robot));
+        assertEquals(20, domainFacade.getEnergyOfRobot(robot));
+        assertEquals(0, domainFacade.getHealthLevelOfRobot(robot));
+        assertEquals(0, domainFacade.getEnergyLevelOfRobot(robot));
+        assertEquals(0, domainFacade.getDamageLevelOfRobot(robot));
+        assertEquals(0, domainFacade.getMiningSpeedLevelOfRobot(robot));
+        assertEquals(0, domainFacade.getMiningLevelOfRobot(robot));
+        assertEquals(0, domainFacade.getEnergyRegenLevelOfRobot(robot));
+        assertEquals(2, domainFacade.getMiningSpeedOfRobot(robot));
+        assertEquals(10, domainFacade.getMaxHealthOfRobot(robot));
+        assertEquals(20, domainFacade.getMaxEnergyOfRobot(robot));
+        assertEquals(3, domainFacade.getEnergyRegenOfRobot(robot));
+        assertEquals(1, domainFacade.getAttackDamageOfRobot(robot));
+
+        assertEquals(planetId, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot)));
+
+        assertFalse(domainFacade.getInventoryFullStateOfRobot(robot));
+        assertEquals(0, domainFacade.getStorageLevelOfRobot(robot));
+        assertEquals(0, domainFacade.getInventoryUsedStorageOfRobot(robot));
+        assertEquals(10, domainFacade.getInventoryMaxStorageOfRobot(robot));
     }
 
     private void requestEventFromMockService(AbstractEvent event, String url) throws JsonProcessingException {
