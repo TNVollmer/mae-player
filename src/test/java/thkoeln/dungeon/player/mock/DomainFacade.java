@@ -2,6 +2,7 @@ package thkoeln.dungeon.player.mock;
 
 import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableType;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.game.domain.Game;
 
@@ -256,5 +257,19 @@ public interface DomainFacade {
     public <T> Integer getInventoryUsedStorageOfRobot(T robot);
 
     public <T> Integer getInventoryMaxStorageOfRobot(T robot);
+
+    public <T> void setBalanceForPlayer(T player, int balance);
+
+    public <T> Integer getBalanceOfPlayer(T player);
+
+    public <T> List<T> getAllRobots();
+
+    public <T> List<T> getAllTradableItems();
+
+    public <T> T getTradableItemByName(String name);
+
+    public <T> Integer getPriceOfTradableItem(T tradableItem);
+
+    public <T> TradeableType getTradableTypeOfTradableItem(T tradableItem);
 
 }

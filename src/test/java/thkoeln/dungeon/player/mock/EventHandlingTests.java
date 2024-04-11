@@ -14,6 +14,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableType;
 import thkoeln.dungeon.player.core.events.AbstractEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
@@ -35,6 +38,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEv
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.*;
+import thkoeln.dungeon.player.core.events.concreteevents.trading.*;
 import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
@@ -44,6 +48,7 @@ import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedLevelDto;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -755,6 +760,216 @@ public class EventHandlingTests {
         assertEquals(0, domainFacade.getStorageLevelOfRobot(robot));
         assertEquals(0, domainFacade.getInventoryUsedStorageOfRobot(robot));
         assertEquals(10, domainFacade.getInventoryMaxStorageOfRobot(robot));
+    }
+
+    @Test
+    public void testBankAccountClearedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        Player player = playerRepository.findAll().get(0);
+        domainFacade.setBalanceForPlayer(player, 500);
+        playerRepository.save(player);
+
+        BankAccountClearedEvent bankAccountClearedEvent = new BankAccountClearedEvent();
+        bankAccountClearedEvent.setPlayerId(player.getPlayerId());
+        bankAccountClearedEvent.setBalance(0);
+
+        this.requestEventFromMockService(bankAccountClearedEvent, "/trading/events/BankAccountCleared");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        player = playerRepository.findAll().get(0);
+
+        assertNotNull(player);
+        assertEquals(0, domainFacade.getBalanceOfPlayer(player));
+    }
+
+    @Test
+    public void testBankAccountTransactionBookedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        Player player = playerRepository.findAll().get(0);
+        domainFacade.setBalanceForPlayer(player, 500);
+        playerRepository.save(player);
+
+        BankAccountTransactionBookedEvent bankAccountTransactionBookedEvent = new BankAccountTransactionBookedEvent();
+        bankAccountTransactionBookedEvent.setPlayerId(player.getPlayerId());
+        bankAccountTransactionBookedEvent.setBalance(400);
+        bankAccountTransactionBookedEvent.setTransactionAmount(-100);
+
+        this.requestEventFromMockService(bankAccountTransactionBookedEvent, "/trading/events/BankAccountTransactionBooked");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        player = playerRepository.findAll().get(0);
+
+        assertNotNull(player);
+        assertEquals(400, domainFacade.getBalanceOfPlayer(player));
+    }
+
+    @Test
+    public void testBankAccountInitializedEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        Player player = playerRepository.findAll().get(0);
+        domainFacade.setBalanceForPlayer(player, 0);
+        playerRepository.save(player);
+
+        BankInitializedEvent bankInitializedEvent = new BankInitializedEvent();
+        bankInitializedEvent.setPlayerId(player.getPlayerId());
+        bankInitializedEvent.setBalance(500);
+
+        this.requestEventFromMockService(bankInitializedEvent, "/trading/events/BankAccountInitialized");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        player = playerRepository.findAll().get(0);
+
+        assertNotNull(player);
+        assertEquals(500, domainFacade.getBalanceOfPlayer(player));
+    }
+
+    @Test
+    public void testTradableBoughtEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        Player player = playerRepository.findAll().get(0);
+        domainFacade.setBalanceForPlayer(player, 500);
+        playerRepository.save(player);
+
+        TradableBoughtEvent tradableBoughtEvent = new TradableBoughtEvent();
+        tradableBoughtEvent.setPlayerId(player.getPlayerId());
+        tradableBoughtEvent.setRobotId(null);
+        tradableBoughtEvent.setType("ITEM");
+        tradableBoughtEvent.setName("ROBOT");
+        tradableBoughtEvent.setAmount(3);
+        tradableBoughtEvent.setPricePerUnit(100);
+        tradableBoughtEvent.setTotalPrice(300);
+
+        this.requestEventFromMockService(tradableBoughtEvent, "/trading/events/TradableBought");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        player = playerRepository.findAll().get(0);
+        List<Object> robots = domainFacade.getAllRobots();
+
+        assertNotNull(player);
+        assertEquals(3, robots.size());
+        assertEquals(200, domainFacade.getBalanceOfPlayer(player));
+    }
+
+    @Test
+    public void testTradablePricesEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        TradablePricesEvent tradablePricesEvent = new TradablePricesEvent();
+        tradablePricesEvent.setTradeableItems(List.of(
+                new TradeableItem("STORAGE_1", Money.from(50), TradeableType.UPGRADE),
+                new TradeableItem("HEALTH_1", Money.from(50), TradeableType.UPGRADE),
+                new TradeableItem("HEALTH_2", Money.from(300), TradeableType.UPGRADE),
+                new TradeableItem("HEALTH_RESTORE", Money.from(50), TradeableType.RESTORATION),
+                new TradeableItem("ENERGY_RESTORE", Money.from(75), TradeableType.RESTORATION)
+        ));
+
+        this.requestEventFromMockService(tradablePricesEvent, "/trading/events/TradablePrices");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        List<Object> tradableItems = domainFacade.getAllTradableItems();
+
+        assertEquals(5, tradableItems.size());
+
+        assertEquals(50, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("STORAGE_1")));
+        assertEquals(50, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("HEALTH_1")));
+        assertEquals(300, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("HEALTH_2")));
+        assertEquals(50, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("HEALTH_RESTORE")));
+        assertEquals(75, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("ENERGY_RESTORE")));
+
+        assertEquals(TradeableType.UPGRADE, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("STORAGE_1")));
+        assertEquals(TradeableType.UPGRADE, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("HEALTH_1")));
+        assertEquals(TradeableType.UPGRADE, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("HEALTH_2")));
+        assertEquals(TradeableType.RESTORATION, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("HEALTH_RESTORE")));
+        assertEquals(TradeableType.RESTORATION, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("ENERGY_RESTORE")));
+    }
+
+    @Test
+    public void testTradableSoldEventHandling() throws JsonProcessingException, InterruptedException {
+        UUID gameId = UUID.randomUUID();
+        Game game = Game.newlyCreatedGame(gameId);
+        game.setGameStatus(GameStatus.STARTED);
+        game.setCurrentRoundNumber(1);
+        gameRepository.save(game);
+
+        UUID domainId = game.getId();
+
+        Player player = playerRepository.findAll().get(0);
+        domainFacade.setBalanceForPlayer(player, 500);
+        playerRepository.save(player);
+
+        var robot = domainFacade.createNewRobot();
+        UUID robotId = UUID.randomUUID();
+        domainFacade.setRobotIdForRobot(robot, robotId);
+        domainFacade.setHealthForRobot(robot, 10);
+        domainFacade.setEnergyForRobot(robot, 20);
+        domainFacade.setCoalAmountForRobot(robot, 10);
+        domainFacade.saveRobot(robot);
+
+        TradableSoldEvent tradableSoldEvent = new TradableSoldEvent();
+        tradableSoldEvent.setPlayerId(player.getPlayerId());
+        tradableSoldEvent.setRobotId(robotId);
+        tradableSoldEvent.setType("RESOURCE");
+        tradableSoldEvent.setName("COAL");
+        tradableSoldEvent.setAmount(10);
+        tradableSoldEvent.setPricePerUnit(5);
+        tradableSoldEvent.setTotalPrice(50);
+
+        this.requestEventFromMockService(tradableSoldEvent, "/trading/events/TradableSold");
+
+        //waiting for generated event to be consumed and processed by the player service
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        player = playerRepository.findAll().get(0);
+        robot = domainFacade.getRobotByRobotId(robotId);
+
+        assertNotNull(player);
+        assertNotNull(robot);
+
+        assertEquals(550, domainFacade.getBalanceOfPlayer(player));
     }
 
     private void requestEventFromMockService(AbstractEvent event, String url) throws JsonProcessingException {
