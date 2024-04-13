@@ -83,7 +83,9 @@ public class EventHandlingTests {
     }
 
     @BeforeAll
-    public void setupPlayerRegistration() throws JsonProcessingException {
+    public void setupCleanStateAndPerformPlayerRegistration() throws JsonProcessingException {
+        domainFacade.resetEverything();
+
         Player player = Player.ownPlayer("name", "email");
         playerRepository.save(player);
 
@@ -114,14 +116,13 @@ public class EventHandlingTests {
     }
 
     @BeforeEach
-    public void removeGame() {
-        gameRepository.deleteAll();
+    public void cleanUpEverythingExceptPlayer() {
+        domainFacade.resetEverythingExceptPlayer();
     }
 
     @AfterAll
-    public void cleanup() {
-        playerRepository.deleteAll();
-        gameRepository.deleteAll();
+    public void cleanupEverything() {
+        domainFacade.resetEverything();
     }
 
     @Test

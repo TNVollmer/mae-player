@@ -272,4 +272,8 @@ public interface DomainFacade {
 
     public <T> TradeableType getTradableTypeOfTradableItem(T tradableItem);
 
+    public void resetEverything();
+
+    public void resetEverythingExceptPlayer();
+
 }
