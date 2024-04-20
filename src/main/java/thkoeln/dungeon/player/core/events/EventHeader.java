@@ -23,6 +23,7 @@ public class EventHeader {
     // Player can be the string "public" instead of a real player ID; this means that the event goes to
     // all players (a broadcast), instead of just to one specific player.
     public static final String BROADCAST_EVENT_KEY = "public";
+    @Getter
     public static final String TYPE_KEY = "type";
     public static final String VERSION_KEY = "version";
     public static final String TIMESTAMP_KEY = "timestamp";
