@@ -33,7 +33,6 @@ import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
@@ -59,6 +58,8 @@ public class FightTestScenarioTests {
 
     private final String gameStatusEventQueue = "only_game_status_events";
     private final String roundStatusEventQueue = "only_round_status_events";
+
+    private final String allEventsQueue = "all_events";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -98,7 +99,7 @@ public class FightTestScenarioTests {
 
     @Test
     @Order(1)
-    public void testPlayerRegistration() {
+    public void testPlayerRegistrationAndCustomQueueCreation() {
         Player player = playerApplicationService.queryAndIfNeededCreatePlayer();
         playerId = player.getPlayerId();
         playerApplicationService.registerPlayer();
@@ -106,8 +107,23 @@ public class FightTestScenarioTests {
 
         this.rabbitAdmin.purgeQueue(player.getPlayerQueue());
 
-        this.createNewEventQueue(roundStatusEventQueue, player.getPlayerExchange(), EventType.ROUND_STATUS);
-        this.createNewEventQueue(gameStatusEventQueue, player.getPlayerExchange(), EventType.GAME_STATUS);
+        this.createNewEventQueueWithEventTypeBinding(roundStatusEventQueue, player.getPlayerExchange(), EventType.ROUND_STATUS);
+        this.createNewEventQueueWithEventTypeBinding(gameStatusEventQueue, player.getPlayerExchange(), EventType.GAME_STATUS);
+
+        Queue allQueue = QueueBuilder
+                .durable(allEventsQueue)
+                .build();
+
+        this.createNewEventQueueWithBinding(
+                allQueue,
+                BindingBuilder
+                        .bind(allQueue)
+                        .to((Exchange) ExchangeBuilder
+                                .topicExchange(player.getPlayerExchange())
+                                .build())
+                        .with("#")
+                        .noargs()
+        );
 
         assertTrue(player.isRegistered());
     }
@@ -318,42 +334,175 @@ public class FightTestScenarioTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         boolean sendOut = false;
+        RoundStatusEvent roundStatusEvent = null;
 
         while (!sendOut) {
-            RoundStatusEvent roundStatusEvent = (RoundStatusEvent) this.consumeNextEventInEventQueue(roundStatusEventQueue, RoundStatusEvent.class);
+            roundStatusEvent = (RoundStatusEvent) this.consumeNextEventOfTypeInEventQueue(roundStatusEventQueue, RoundStatusEvent.class);
 
             if (roundStatusEvent != null && roundStatusEvent.getRoundNumber() >= 3 && roundStatusEvent.getRoundStatus() == RoundStatusType.STARTED) {
                 Command command = Command.createFight(friendlyRobotId, gameId, playerId, enemyRobotId);
                 this.sendCommand(command);
 
                 sendOut = true;
+            } else {
+                Thread.sleep(Duration.ofSeconds(5).toMillis());
             }
-            Thread.sleep(Duration.ofSeconds(5).toMillis());
         }
     }
 
+    @Test
+    @Order(7)
+    public void testGamePlayingOutCorrectly() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, InterruptedException {
+        // the first round is skipped during game execution, which means the game begins in round 2
+        // why? because that is how the code of the game service is...
 
+        boolean gameEnded = false;
+        GameStatusEvent gameStatusEvent = null;
 
-    private void consumeAllMessagesInQueue(Player player, Map<String, List<String>> forwardedEvents) {
+        while (!gameEnded) {
+            gameStatusEvent = (GameStatusEvent) this.consumeNextEventOfTypeInEventQueue(gameStatusEventQueue, GameStatusEvent.class);
+
+            if (gameStatusEvent != null && gameStatusEvent.getStatus() == GameStatus.ENDED) {
+                gameEnded = true;
+            } else {
+                Thread.sleep(Duration.ofSeconds(5).toMillis());
+            }
+        }
+
+        Game game = this.gameRepository.findById(this.gameId).orElseThrow();
+
+        Player player = this.playerRepository.findById(this.playerId).orElseThrow();
+        Player enemy = this.playerRepository.findById(this.enemyId).orElseThrow();
+
+        var friendlyRobot = this.domainFacade.getRobotByRobotId(friendlyRobotId);
+        var enemyRobot = this.domainFacade.getRobotByRobotId(enemyRobotId);
+
+        assertNotNull(game);
+
+        assertNotNull(player);
+        assertNotNull(enemy);
+
+        assertNotNull(friendlyRobot);
+        assertNotNull(enemyRobot);
+
+        assertEquals(GameStatus.ENDED, game.getGameStatus());
+        assertEquals(7, game.getCurrentRoundNumber());
+
+        assertEquals(0, domainFacade.getXCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(friendlyRobot)));
+        assertEquals(0, domainFacade.getYCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(friendlyRobot)));
+
+        assertEquals(0, domainFacade.getXCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(enemyRobot)));
+        assertEquals(0, domainFacade.getYCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(enemyRobot)));
+
+        assertEquals(15, domainFacade.getHealthOfRobot(friendlyRobot));
+        assertEquals(28, domainFacade.getEnergyOfRobot(friendlyRobot));
+
+        assertEquals(25, domainFacade.getHealthOfRobot(enemyRobot));
+        assertEquals(27, domainFacade.getEnergyOfRobot(enemyRobot));
+    }
+
+    @Test
+    @Order(8)
+    public void testReceivingAllConsumableEvents() throws InterruptedException {
+        Thread.sleep(Duration.ofSeconds(5).toMillis());
+
+        Player player = this.playerRepository.findById(this.playerId).orElseThrow();
+        Player enemy = this.playerRepository.findById(this.enemyId).orElseThrow();
+
+        assertNotNull(player);
+        assertNotNull(enemy);
+
+        Map<String, List<String>> allEventsConsumedThroughoutTheGame = new HashMap<>();
+
+        this.setupEventMap(allEventsConsumedThroughoutTheGame);
+        this.consumeAllMessagesInQueue(allEventsQueue, allEventsConsumedThroughoutTheGame);
+
+        logger.info("{}Forwarded events to player throughout game: ", System.lineSeparator());
+        allEventsConsumedThroughoutTheGame.forEach((eventType, events) -> {
+            logger.info("{}{}Events for: " + eventType + " -> ", System.lineSeparator(), System.lineSeparator());
+            events.forEach(it -> {
+                logger.info("{}" + it, System.lineSeparator());
+            });
+        });
+        logger.info("Count: " + allEventsConsumedThroughoutTheGame.values().stream().map(List::size).reduce(0, Math::addExact));
+
+        assertEquals(3, allEventsConsumedThroughoutTheGame.get(EventType.GAME_STATUS.getStringValue()).size());
+        assertEquals(18, allEventsConsumedThroughoutTheGame.get(EventType.ROUND_STATUS.getStringValue()).size());
+
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.PLANET_DISCOVERED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.RESOURCE_MINED.getStringValue()).size());
+
+        assertEquals(3, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_ATTACKED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_MOVED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_REGENERATED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_RESOURCE_MINED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_RESOURCE_REMOVED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_RESTORED_ATTRIBUTES.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_SPAWNED.getStringValue()).size());
+        assertEquals(6, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_REVEALED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ROBOT_UPGRADED.getStringValue()).size());
+
+        assertEquals(1, allEventsConsumedThroughoutTheGame.get(EventType.BANK_ACCOUNT_CLEARED.getStringValue()).size());
+        assertEquals(1, allEventsConsumedThroughoutTheGame.get(EventType.BANK_INITIALIZED.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.BANK_ACCOUNT_TRANSACTION_BOOKED.getStringValue()).size());
+
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.TRADABLE_BOUGHT.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.TRADABLE_PRICES.getStringValue()).size());
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.TRADABLE_SOLD.getStringValue()).size());
+
+        assertEquals(0, allEventsConsumedThroughoutTheGame.get(EventType.ERROR.getStringValue()).size());
+
+        assertEquals(32, allEventsConsumedThroughoutTheGame.values().stream().map(List::size).reduce(0, Math::addExact));
+    }
+
+    private void setupEventMap(Map<String, List<String>> forwardedEvents) {
+        forwardedEvents.put(EventType.GAME_STATUS.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROUND_STATUS.getStringValue(), new ArrayList<>());
+
+        forwardedEvents.put(EventType.PLANET_DISCOVERED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.RESOURCE_MINED.getStringValue(), new ArrayList<>());
+
+        forwardedEvents.put(EventType.ROBOT_ATTACKED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_MOVED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_REGENERATED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_RESOURCE_MINED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_RESOURCE_REMOVED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_RESTORED_ATTRIBUTES.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_SPAWNED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_REVEALED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.ROBOT_UPGRADED.getStringValue(), new ArrayList<>());
+
+        forwardedEvents.put(EventType.BANK_ACCOUNT_CLEARED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.BANK_INITIALIZED.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.BANK_ACCOUNT_TRANSACTION_BOOKED.getStringValue(), new ArrayList<>());
+
+        forwardedEvents.put(EventType.TRADABLE_BOUGHT.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.TRADABLE_PRICES.getStringValue(), new ArrayList<>());
+        forwardedEvents.put(EventType.TRADABLE_SOLD.getStringValue(), new ArrayList<>());
+
+        forwardedEvents.put(EventType.ERROR.getStringValue(), new ArrayList<>());
+    }
+
+    private void consumeAllMessagesInQueue(String queue, Map<String, List<String>> events) {
         boolean queueStillFull = true;
         while (queueStillFull) {
-            Message message = this.rabbitAdmin.getRabbitTemplate().receive(player.getPlayerQueue());
+            Message message = this.rabbitAdmin.getRabbitTemplate().receive(queue);
             if (message != null) {
-                String eventType = new String(message.getMessageProperties().getHeader("type"), StandardCharsets.UTF_8);
+                String eventType = new String(message.getMessageProperties().getHeader(EventHeader.getTYPE_KEY()), StandardCharsets.UTF_8);
                 String eventBody = new String(message.getBody(), StandardCharsets.UTF_8);
 
-                forwardedEvents.get(eventType).add(eventBody);
+                events.get(eventType).add(eventBody);
             } else {
                 queueStillFull = false;
             }
         }
     }
 
-    private List<AbstractEvent> consumeAllEventsInEventQueue(String queue, Class<? extends AbstractEvent> eventClass) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    private List<AbstractEvent> consumeAllEventsOfTypeInEventQueue(String queue, Class<? extends AbstractEvent> eventClass) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<AbstractEvent> events = new ArrayList<>();
         boolean queueStillFull = true;
         while (queueStillFull) {
-            AbstractEvent event = this.consumeNextEventInEventQueue(queue, eventClass);
+            AbstractEvent event = this.consumeNextEventOfTypeInEventQueue(queue, eventClass);
             if (event != null) {
                 events.add(event);
             } else {
@@ -363,7 +512,7 @@ public class FightTestScenarioTests {
         return events;
     }
 
-    private AbstractEvent consumeNextEventInEventQueue(String queue, Class<? extends AbstractEvent> eventClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private AbstractEvent consumeNextEventOfTypeInEventQueue(String queue, Class<? extends AbstractEvent> eventClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Message message = this.rabbitAdmin.getRabbitTemplate().receive(queue);
         if (message != null) {
             String eventBody = new String(message.getBody(), StandardCharsets.UTF_8);
@@ -393,7 +542,7 @@ public class FightTestScenarioTests {
         logger.info("Http response: " + postResponse.getBody());
     }
 
-    private void createNewEventQueue(String newEventQueueName, String playerExchange, EventType eventType) {
+    private void createNewEventQueueWithEventTypeBinding(String newEventQueueName, String playerExchange, EventType eventType) {
         Queue newEventQueue = QueueBuilder
                 .durable(newEventQueueName)
                 .build();
@@ -408,11 +557,14 @@ public class FightTestScenarioTests {
                 .and(Map.of("x-match", "all",
                         EventHeader.getTYPE_KEY(), eventType.getStringValue())
                 );
+         this.createNewEventQueueWithBinding(newEventQueue, newEventTypeBinding);
+    }
 
-        this.rabbitAdmin.declareQueue(newEventQueue);
-        this.rabbitAdmin.declareBinding(newEventTypeBinding);
+    private void createNewEventQueueWithBinding(Queue eventQueue, Binding binding) {
+        this.rabbitAdmin.declareQueue(eventQueue);
+        this.rabbitAdmin.declareBinding(binding);
 
-        this.rabbitAdmin.purgeQueue(newEventQueue.getName());
+        this.rabbitAdmin.purgeQueue(eventQueue.getName());
     }
 
 }
