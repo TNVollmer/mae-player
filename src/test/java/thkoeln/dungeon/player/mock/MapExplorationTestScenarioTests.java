@@ -15,9 +15,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
-import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
-import thkoeln.dungeon.player.core.events.AbstractEvent;
-import thkoeln.dungeon.player.core.events.EventHeader;
 import thkoeln.dungeon.player.core.events.EventType;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
@@ -27,13 +24,14 @@ import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
+import thkoeln.dungeon.player.mock.domain.DomainFacade;
 import thkoeln.dungeon.player.mock.dto.*;
+import thkoeln.dungeon.player.mock.util.TestHelper;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 
@@ -74,10 +72,12 @@ public class MapExplorationTestScenarioTests {
 
     private final DevGameAdminClient devGameAdminClient;
 
+    private final TestHelper testHelper;
+
     @Autowired
     public MapExplorationTestScenarioTests(
             @Value("${dungeon.mock.host}") String mockHost,
-            DomainFacade domainFacade, GameRepository gameRepository, PlayerRepository playerRepository, PlayerApplicationService playerApplicationService, GameApplicationService gameApplicationService, DevGameAdminClient devGameAdminClient) {
+            DomainFacade domainFacade, GameRepository gameRepository, PlayerRepository playerRepository, PlayerApplicationService playerApplicationService, GameApplicationService gameApplicationService, DevGameAdminClient devGameAdminClient, TestHelper testHelper) {
         this.mockHost = mockHost;
         this.domainFacade = domainFacade;
         this.gameRepository = gameRepository;
@@ -85,6 +85,7 @@ public class MapExplorationTestScenarioTests {
         this.playerApplicationService = playerApplicationService;
         this.gameApplicationService = gameApplicationService;
         this.devGameAdminClient = devGameAdminClient;
+        this.testHelper = testHelper;
     }
 
     @BeforeAll
@@ -103,14 +104,14 @@ public class MapExplorationTestScenarioTests {
 
         this.rabbitAdmin.purgeQueue(player.getPlayerQueue());
 
-        this.createNewEventQueueWithEventTypeBinding(roundStatusEventQueue, player.getPlayerExchange(), EventType.ROUND_STATUS);
-        this.createNewEventQueueWithEventTypeBinding(gameStatusEventQueue, player.getPlayerExchange(), EventType.GAME_STATUS);
+        testHelper.createNewEventQueueWithEventTypeBinding(roundStatusEventQueue, player.getPlayerExchange(), EventType.ROUND_STATUS);
+        testHelper.createNewEventQueueWithEventTypeBinding(gameStatusEventQueue, player.getPlayerExchange(), EventType.GAME_STATUS);
 
         Queue allQueue = QueueBuilder
                 .durable(allEventsQueue)
                 .build();
 
-        this.createNewEventQueueWithBinding(
+        testHelper.createNewEventQueueWithBinding(
                 allQueue,
                 BindingBuilder
                         .bind(allQueue)
@@ -192,7 +193,7 @@ public class MapExplorationTestScenarioTests {
         RoundStatusEvent roundStatusEvent = null;
 
         while (!sendOut) {
-            roundStatusEvent = (RoundStatusEvent) this.consumeNextEventOfTypeInEventQueue(roundStatusEventQueue, RoundStatusEvent.class);
+            roundStatusEvent = (RoundStatusEvent) testHelper.consumeNextEventOfTypeInEventQueue(roundStatusEventQueue, RoundStatusEvent.class);
 
             if (roundStatusEvent != null && roundStatusEvent.getRoundNumber() >= 3 && roundStatusEvent.getRoundStatus() == RoundStatusType.STARTED) {
                 List<Object> robots = domainFacade.getAllRobots();
@@ -203,7 +204,7 @@ public class MapExplorationTestScenarioTests {
 
                     Command command = Command.createMove(domainFacade.getRobotIdOfRobot(it), domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(it)), gameId, playerId);
                     try {
-                        this.sendCommand(command);
+                        testHelper.sendCommand(command);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                         fail();
@@ -227,7 +228,7 @@ public class MapExplorationTestScenarioTests {
         GameStatusEvent gameStatusEvent = null;
 
         while (!gameEnded) {
-            gameStatusEvent = (GameStatusEvent) this.consumeNextEventOfTypeInEventQueue(gameStatusEventQueue, GameStatusEvent.class);
+            gameStatusEvent = (GameStatusEvent) testHelper.consumeNextEventOfTypeInEventQueue(gameStatusEventQueue, GameStatusEvent.class);
 
             if (gameStatusEvent != null && gameStatusEvent.getStatus() == GameStatus.ENDED) {
                 gameEnded = true;
@@ -269,8 +270,8 @@ public class MapExplorationTestScenarioTests {
 
         Map<String, List<String>> allEventsConsumedThroughoutTheGame = new HashMap<>();
 
-        this.setupEventMap(allEventsConsumedThroughoutTheGame);
-        this.consumeAllMessagesInQueue(allEventsQueue, allEventsConsumedThroughoutTheGame);
+        testHelper.setupEventMap(allEventsConsumedThroughoutTheGame);
+        testHelper.consumeAllMessagesInQueue(allEventsQueue, allEventsConsumedThroughoutTheGame);
 
         logger.info("{}Forwarded events to player throughout game: ", System.lineSeparator());
         allEventsConsumedThroughoutTheGame.forEach((eventType, events) -> {
@@ -310,115 +311,4 @@ public class MapExplorationTestScenarioTests {
         assertEquals(41, allEventsConsumedThroughoutTheGame.values().stream().map(List::size).reduce(0, Math::addExact));
     }
 
-    private void setupEventMap(Map<String, List<String>> forwardedEvents) {
-        forwardedEvents.put(EventType.GAME_STATUS.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROUND_STATUS.getStringValue(), new ArrayList<>());
-
-        forwardedEvents.put(EventType.PLANET_DISCOVERED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.RESOURCE_MINED.getStringValue(), new ArrayList<>());
-
-        forwardedEvents.put(EventType.ROBOT_ATTACKED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_MOVED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_REGENERATED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_RESOURCE_MINED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_RESOURCE_REMOVED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_RESTORED_ATTRIBUTES.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_SPAWNED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_REVEALED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.ROBOT_UPGRADED.getStringValue(), new ArrayList<>());
-
-        forwardedEvents.put(EventType.BANK_ACCOUNT_CLEARED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.BANK_INITIALIZED.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.BANK_ACCOUNT_TRANSACTION_BOOKED.getStringValue(), new ArrayList<>());
-
-        forwardedEvents.put(EventType.TRADABLE_BOUGHT.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.TRADABLE_PRICES.getStringValue(), new ArrayList<>());
-        forwardedEvents.put(EventType.TRADABLE_SOLD.getStringValue(), new ArrayList<>());
-
-        forwardedEvents.put(EventType.ERROR.getStringValue(), new ArrayList<>());
-    }
-
-    private void consumeAllMessagesInQueue(String queue, Map<String, List<String>> events) {
-        boolean queueStillFull = true;
-        while (queueStillFull) {
-            Message message = this.rabbitAdmin.getRabbitTemplate().receive(queue);
-            if (message != null) {
-                String eventType = new String(message.getMessageProperties().getHeader(EventHeader.getTYPE_KEY()), StandardCharsets.UTF_8);
-                String eventBody = new String(message.getBody(), StandardCharsets.UTF_8);
-
-                events.get(eventType).add(eventBody);
-            } else {
-                queueStillFull = false;
-            }
-        }
-    }
-
-    private List<AbstractEvent> consumeAllEventsOfTypeInEventQueue(String queue, Class<? extends AbstractEvent> eventClass) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        List<AbstractEvent> events = new ArrayList<>();
-        boolean queueStillFull = true;
-        while (queueStillFull) {
-            AbstractEvent event = this.consumeNextEventOfTypeInEventQueue(queue, eventClass);
-            if (event != null) {
-                events.add(event);
-            } else {
-                queueStillFull = false;
-            }
-        }
-        return events;
-    }
-
-    private AbstractEvent consumeNextEventOfTypeInEventQueue(String queue, Class<? extends AbstractEvent> eventClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Message message = this.rabbitAdmin.getRabbitTemplate().receive(queue);
-        if (message != null) {
-            String eventBody = new String(message.getBody(), StandardCharsets.UTF_8);
-            AbstractEvent event = eventClass.getDeclaredConstructor().newInstance();
-
-            event.setEventHeader(null);
-            event.fillWithPayload(eventBody);
-
-            return event;
-        } else {
-            return null;
-        }
-    }
-
-    private void sendCommand(Command command) throws JsonProcessingException {
-        String jsonRequest = objectMapper.writeValueAsString(command);
-        logger.info("Requested command: " + jsonRequest);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ResponseEntity<String> postResponse = restTemplate.postForEntity(
-                mockHost + "/commands",
-                new HttpEntity<>(jsonRequest, headers), String.class
-        );
-
-        logger.info("Http response: " + postResponse.getBody());
-    }
-
-    private void createNewEventQueueWithEventTypeBinding(String newEventQueueName, String playerExchange, EventType eventType) {
-        Queue newEventQueue = QueueBuilder
-                .durable(newEventQueueName)
-                .build();
-
-        Binding newEventTypeBinding = BindingBuilder
-                .bind(newEventQueue)
-                .to((Exchange) ExchangeBuilder
-                        .topicExchange(playerExchange)
-                        .build()
-                )
-                .with("IGNORED-NEW-EVENT-TYPE-BINDING")
-                .and(Map.of("x-match", "all",
-                        EventHeader.getTYPE_KEY(), eventType.getStringValue())
-                );
-        this.createNewEventQueueWithBinding(newEventQueue, newEventTypeBinding);
-    }
-
-    private void createNewEventQueueWithBinding(Queue eventQueue, Binding binding) {
-        this.rabbitAdmin.declareQueue(eventQueue);
-        this.rabbitAdmin.declareBinding(binding);
-
-        this.rabbitAdmin.purgeQueue(eventQueue.getName());
-    }
 }

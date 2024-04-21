@@ -43,6 +43,7 @@ import thkoeln.dungeon.player.core.restadapter.PlayerRegistryDto;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
+import thkoeln.dungeon.player.mock.domain.DomainFacade;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedLevelDto;

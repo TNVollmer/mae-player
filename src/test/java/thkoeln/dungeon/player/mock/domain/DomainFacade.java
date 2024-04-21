@@ -1,4 +1,4 @@
-package thkoeln.dungeon.player.mock;
+package thkoeln.dungeon.player.mock.domain;
 
 import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
@@ -230,6 +230,46 @@ public interface DomainFacade {
      */
     public <T> void setHealthLevelForRobot(T robot, int healthLevel);
 
+    /**
+     * Set the energy level for the given robot
+     * @param robot
+     * @param energyLevel
+     * @param <T>
+     */
+    public <T> void setEnergyLevelForRobot(T robot, int energyLevel);
+
+    /**
+     * Set the energy regen level for the given robot
+     * @param robot
+     * @param energyRegenLevel
+     * @param <T>
+     */
+    public <T> void setEnergyRegenLevelForRobot(T robot, int energyRegenLevel);
+
+    /**
+     * Set the damage level for the given robot
+     * @param robot
+     * @param damageLevel
+     * @param <T>
+     */
+    public <T> void setDamageLevelForRobot(T robot, int damageLevel);
+
+    /**
+     * Set the mining level for the given robot
+     * @param robot
+     * @param miningLevel
+     * @param <T>
+     */
+    public <T> void setMiningLevelForRobot(T robot, int miningLevel);
+
+    /**
+     * Set the mining speed level for the given robot
+     * @param robot
+     * @param miningSpeedLevel
+     * @param <T>
+     */
+    public <T> void setMiningSpeedLevelForRobot(T robot, int miningSpeedLevel);
+
     public <T> boolean getAliveStatusOfRobot(T robot);
 
     public <T> void setCoalAmountForRobot(T robot, int coalAmount);
@@ -275,5 +315,17 @@ public interface DomainFacade {
     public void resetEverything();
 
     public void resetEverythingExceptPlayer();
+
+    public <T> int getXCoordOfPlanet(T planet);
+
+    public <T> int getYCoordOfPlanet(T planet);
+
+    public <T> void setCoordinatesForPlanet(T planet, int xCoord, int yCoord);
+
+    public <T> void setMovementDifficultyForPlanet(T planet, int movementDifficulty);
+
+    public <T> T getRandomNeighbourOfPlanet(T planet);
+
+    public <T> UUID getRobotIdOfRobot(T robot);
 
 }
