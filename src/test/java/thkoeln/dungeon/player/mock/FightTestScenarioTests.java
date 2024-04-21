@@ -49,9 +49,7 @@ public class FightTestScenarioTests {
     private static final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     private UUID gameId = null;
-
     private UUID playerId = null;
-    private UUID enemyId = null;
 
     private UUID friendlyRobotId = null;
     private UUID enemyRobotId = null;
@@ -161,12 +159,10 @@ public class FightTestScenarioTests {
         this.domainFacade.setBalanceForPlayer(player, playerBalance);
         playerRepository.save(player);
 
-        enemyId = UUID.randomUUID();
+        UUID enemyId = UUID.randomUUID();
+        String enemyName = "enemy-name";
+        String enemyEmail = "enemy-mail";
         int enemyBalance = 400;
-        Player enemy = Player.ownPlayer("enemy-name", "enemy-mail");
-        enemy.assignPlayerId(enemyId);
-        this.domainFacade.setBalanceForPlayer(enemy, enemyBalance);
-        playerRepository.save(enemy);
 
         var planet1 = domainFacade.createNewPlanet();
         UUID planet1Id = UUID.randomUUID();
@@ -252,7 +248,7 @@ public class FightTestScenarioTests {
         domainFacade.saveRobot(enemyRobot);
 
         PlayerConfigDto friendlyPlayerConfigDto = new PlayerConfigDto(player.getPlayerId(), player.getName(), player.getEmail(), (double) playerBalance);
-        PlayerConfigDto enemyPlayerConfigDto = new PlayerConfigDto(enemy.getPlayerId(), enemy.getName(), enemy.getEmail(), (double) enemyBalance);
+        PlayerConfigDto enemyPlayerConfigDto = new PlayerConfigDto(enemyId, enemyName, enemyEmail, (double) enemyBalance);
 
         PlanetConfigDto planet1Dto = new PlanetConfigDto(planet1Id, planet1XCoord, planet1YCoord, planet1MovementDifficulty);
         PlanetConfigDto planet2Dto = new PlanetConfigDto(planet2Id, planet2XCoord, planet2YCoord, planet2MovementDifficulty);
@@ -370,17 +366,13 @@ public class FightTestScenarioTests {
         }
 
         Game game = this.gameRepository.findById(this.gameId).orElseThrow();
-
         Player player = this.playerRepository.findById(this.playerId).orElseThrow();
-        Player enemy = this.playerRepository.findById(this.enemyId).orElseThrow();
 
         var friendlyRobot = this.domainFacade.getRobotByRobotId(friendlyRobotId);
         var enemyRobot = this.domainFacade.getRobotByRobotId(enemyRobotId);
 
         assertNotNull(game);
-
         assertNotNull(player);
-        assertNotNull(enemy);
 
         assertNotNull(friendlyRobot);
         assertNotNull(enemyRobot);
@@ -407,10 +399,7 @@ public class FightTestScenarioTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         Player player = this.playerRepository.findById(this.playerId).orElseThrow();
-        Player enemy = this.playerRepository.findById(this.enemyId).orElseThrow();
-
         assertNotNull(player);
-        assertNotNull(enemy);
 
         Map<String, List<String>> allEventsConsumedThroughoutTheGame = new HashMap<>();
 
