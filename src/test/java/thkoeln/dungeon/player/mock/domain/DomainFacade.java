@@ -270,62 +270,231 @@ public interface DomainFacade {
      */
     public <T> void setMiningSpeedLevelForRobot(T robot, int miningSpeedLevel);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the living status of the given robot, signifying whether the robot is still alive or already destroyed
+     */
     public <T> boolean getAliveStatusOfRobot(T robot);
 
+    /**
+     * Set the coal amount for the given robot
+     * @param robot
+     * @param coalAmount
+     * @param <T>
+     */
     public <T> void setCoalAmountForRobot(T robot, int coalAmount);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the coal amount of the given robot
+     */
     public <T> Integer getCoalAmountOfRobot(T robot);
 
+    /**
+     * Set the planet the robot is located at for the given robot
+     * @param robot
+     * @param planet
+     * @param <T>
+     */
     public <T, E> void setPlanetLocationForRobot(T robot, E planet);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the planet the robot is located at of the given robot
+     */
     public <T, E> E getPlanetLocationOfRobot(T robot);
 
+    /**
+     * @param planet
+     * @param <T>
+     * @return the planet id of the given planet
+     */
     public <T> UUID getPlanetIdOfPlanet(T planet);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the mining speed of the given robot
+     */
     public <T> Integer getMiningSpeedOfRobot(T robot);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the health cap of the given robot
+     */
     public <T> Integer getMaxHealthOfRobot(T robot);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the energy cap of the given robot
+     */
     public <T> Integer getMaxEnergyOfRobot(T robot);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the energy regeneration speed of the given robot
+     */
     public <T> Integer getEnergyRegenOfRobot(T robot);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the attack damage of the given robot
+     */
     public <T> Integer getAttackDamageOfRobot(T robot);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the full status of the resource inventory of the given robot, whether it is completely full or not
+     */
     public <T> boolean getInventoryFullStateOfRobot(T robot);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the unit amount of resources currently being held inside the robots inventory of the given robot
+     */
     public <T> Integer getInventoryUsedStorageOfRobot(T robot);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the resource carrying cap of the inventory of the given robot
+     */
     public <T> Integer getInventoryMaxStorageOfRobot(T robot);
 
+    /**
+     * Set the money balance for the given player
+     * @param player
+     * @param balance
+     * @param <T>
+     */
     public <T> void setBalanceForPlayer(T player, int balance);
 
+    /**
+     * @param player
+     * @param <T>
+     * @return the money balance of the given player
+     */
     public <T> Integer getBalanceOfPlayer(T player);
 
+    /**
+     * @param <T>
+     * @return a list of all robots
+     */
     public <T> List<T> getAllRobots();
 
+    /**
+     * @param <T>
+     * @return a list of all tradable items (usually obtained at the beginning of a game through the tradable prices event)
+     */
     public <T> List<T> getAllTradableItems();
 
+    /**
+     * @param name
+     * @param <T>
+     * @return the tradable item having the given name, or null if you dont find any
+     */
     public <T> T getTradableItemByName(String name);
 
+    /**
+     * @param tradableItem
+     * @param <T>
+     * @return the money price of the given tradable
+     */
     public <T> Integer getPriceOfTradableItem(T tradableItem);
 
+    /**
+     * @param tradableItem
+     * @param <T>
+     * @return the tradable type of the given tradable
+     */
     public <T> TradeableType getTradableTypeOfTradableItem(T tradableItem);
 
+    /**
+     * Bring the application into a clean state. Remove all entities in the database. Reset all state variables to their
+     * original state (if there are any). Basically, perform a cleanup.
+     */
     public void resetEverything();
 
+    /**
+     * The same as the above, just without cleaning up the player entity / entities inside the player table
+     * of the database.
+     */
     public void resetEverythingExceptPlayer();
 
+    /**
+     * @param planet
+     * @param <T>
+     * @return the x coordinate of the given planet
+     */
     public <T> int getXCoordOfPlanet(T planet);
 
+    /**
+     * @param planet
+     * @param <T>
+     * @return the y coordinate of the given planet
+     */
     public <T> int getYCoordOfPlanet(T planet);
 
+    /**
+     * Set the coordinates for the given planet
+     *
+     *
+     *     0     1     2     3     4     5
+     *
+     *     1     *     *     *     *     *
+     *
+     *     2     *     *     *     *     *
+     *
+     *     3     *     +     *     *     *
+     *
+     *     4     *     *     *     *     *
+     *
+     *     5     *     *     *     *     *
+     *
+     *
+     * The map is structured as visualized above. The coordinate origin is in the top left corner.
+     * You need to assign the coordinates of the planet accordingly.
+     *
+     * As an example, the planet symbolized as +
+     * would have the coordinates (2, 3), while its northern neighbour would have the coordinates (2, 2).
+     *
+     *
+     * @param planet
+     * @param xCoord
+     * @param yCoord
+     * @param <T>
+     */
     public <T> void setCoordinatesForPlanet(T planet, int xCoord, int yCoord);
 
+    /**
+     * Set the movement difficulty for the given planet
+     * @param planet
+     * @param movementDifficulty
+     * @param <T>
+     */
     public <T> void setMovementDifficultyForPlanet(T planet, int movementDifficulty);
 
+    /**
+     * @param planet
+     * @param <T>
+     * @return the any random existing neighbour planet of the given planet
+     */
     public <T> T getRandomNeighbourOfPlanet(T planet);
 
+    /**
+     * @param robot
+     * @param <T>
+     * @return the robot id of the given robot
+     */
     public <T> UUID getRobotIdOfRobot(T robot);
 
 }

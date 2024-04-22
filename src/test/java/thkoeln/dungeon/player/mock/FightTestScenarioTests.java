@@ -247,7 +247,9 @@ public class FightTestScenarioTests {
         domainFacade.setHealthForRobot(enemyRobot, enemyRobotHealth);
         domainFacade.setEnergyForRobot(enemyRobot, enemyRobotEnergy);
         domainFacade.setPlanetLocationForRobot(enemyRobot, planet2);
-        domainFacade.saveRobot(enemyRobot);
+        // domainFacade.saveRobot(enemyRobot);
+        // the enemy robot is not saved here, as it is expected to be created and persisted by the player service while
+        // handling the robots revealed events
 
         PlayerConfigDto friendlyPlayerConfigDto = new PlayerConfigDto(player.getPlayerId(), player.getName(), player.getEmail(), (double) playerBalance);
         PlayerConfigDto enemyPlayerConfigDto = new PlayerConfigDto(enemyId, enemyName, enemyEmail, (double) enemyBalance);
