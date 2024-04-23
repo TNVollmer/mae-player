@@ -26,7 +26,7 @@ public class PlayerTest {
         assertFalse( player.isRegistered() );
 
         // when / then
-        player.setPlayerId( UUID.randomUUID() );
+        player.assignPlayerId( UUID.randomUUID() );
         assertTrue( player.isRegistered() );
 
         // when / then

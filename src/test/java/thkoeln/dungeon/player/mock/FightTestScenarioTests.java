@@ -94,7 +94,7 @@ public class FightTestScenarioTests {
     @BeforeAll
     @AfterAll
     public void reset() {
-        domainFacade.resetEverything();
+        domainFacade.resetDomainFacade().resetEverything();
     }
 
     @Test
@@ -158,7 +158,7 @@ public class FightTestScenarioTests {
 
         int playerBalance = 400;
         Player player = this.playerRepository.findById(this.playerId).orElseThrow();
-        this.domainFacade.setBalanceForPlayer(player, playerBalance);
+        this.domainFacade.playerDomainFacade().setBalanceForPlayer(player, playerBalance);
         playerRepository.save(player);
 
         UUID enemyId = UUID.randomUUID();
@@ -166,46 +166,46 @@ public class FightTestScenarioTests {
         String enemyEmail = "enemy-mail";
         int enemyBalance = 400;
 
-        var planet1 = domainFacade.createNewPlanet();
+        var planet1 = domainFacade.planetDomainFacade().createNewPlanet();
         UUID planet1Id = UUID.randomUUID();
         int planet1XCoord = 0;
         int planet1YCoord = 0;
         int planet1MovementDifficulty = 2;
-        domainFacade.setPlanetIdForPlanet(planet1, planet1Id);
-        domainFacade.setCoordinatesForPlanet(planet1, planet1XCoord, planet1YCoord);
-        domainFacade.setMovementDifficultyForPlanet(planet1, planet1MovementDifficulty);
-        domainFacade.setResourceTypeForPlanet(planet1, MineableResourceType.COAL);
-        domainFacade.setCurrentResourceAmountForPlanet(planet1, 10000);
-        domainFacade.setMaxResourceAmountForPlanet(planet1, 10000);
-        domainFacade.savePlanet(planet1);
+        domainFacade.planetDomainFacade().setPlanetIdForPlanet(planet1, planet1Id);
+        domainFacade.planetDomainFacade().setCoordinatesForPlanet(planet1, planet1XCoord, planet1YCoord);
+        domainFacade.planetDomainFacade().setMovementDifficultyForPlanet(planet1, planet1MovementDifficulty);
+        domainFacade.planetDomainFacade().setResourceTypeForPlanet(planet1, MineableResourceType.COAL);
+        domainFacade.planetDomainFacade().setCurrentResourceAmountForPlanet(planet1, 10000);
+        domainFacade.planetDomainFacade().setMaxResourceAmountForPlanet(planet1, 10000);
+        domainFacade.planetDomainFacade().savePlanet(planet1);
 
-        var planet2 = domainFacade.createNewPlanet();
+        var planet2 = domainFacade.planetDomainFacade().createNewPlanet();
         UUID planet2Id = UUID.randomUUID();
         int planet2XCoord = 0;
         int planet2YCoord = 1;
         int planet2MovementDifficulty = 1;
-        domainFacade.setPlanetIdForPlanet(planet2, planet2Id);
-        domainFacade.setCoordinatesForPlanet(planet2, planet2XCoord, planet2YCoord);
-        domainFacade.setMovementDifficultyForPlanet(planet2, planet2MovementDifficulty);
-        domainFacade.setResourceTypeForPlanet(planet2, MineableResourceType.COAL);
-        domainFacade.setCurrentResourceAmountForPlanet(planet2, 10000);
-        domainFacade.setMaxResourceAmountForPlanet(planet2, 10000);
-        domainFacade.savePlanet(planet2);
+        domainFacade.planetDomainFacade().setPlanetIdForPlanet(planet2, planet2Id);
+        domainFacade.planetDomainFacade().setCoordinatesForPlanet(planet2, planet2XCoord, planet2YCoord);
+        domainFacade.planetDomainFacade().setMovementDifficultyForPlanet(planet2, planet2MovementDifficulty);
+        domainFacade.planetDomainFacade().setResourceTypeForPlanet(planet2, MineableResourceType.COAL);
+        domainFacade.planetDomainFacade().setCurrentResourceAmountForPlanet(planet2, 10000);
+        domainFacade.planetDomainFacade().setMaxResourceAmountForPlanet(planet2, 10000);
+        domainFacade.planetDomainFacade().savePlanet(planet2);
 
-        var planet3 = domainFacade.createNewPlanet();
+        var planet3 = domainFacade.planetDomainFacade().createNewPlanet();
         UUID planet3Id = UUID.randomUUID();
         int planet3XCoord = 1;
         int planet3YCoord = 0;
         int planet3MovementDifficulty = 1;
-        domainFacade.setPlanetIdForPlanet(planet3, planet3Id);
-        domainFacade.setCoordinatesForPlanet(planet3, planet3XCoord, planet3YCoord);
-        domainFacade.setMovementDifficultyForPlanet(planet3, planet3MovementDifficulty);
-        domainFacade.setResourceTypeForPlanet(planet3, MineableResourceType.COAL);
-        domainFacade.setCurrentResourceAmountForPlanet(planet3, 10000);
-        domainFacade.setMaxResourceAmountForPlanet(planet3, 10000);
-        domainFacade.savePlanet(planet3);
+        domainFacade.planetDomainFacade().setPlanetIdForPlanet(planet3, planet3Id);
+        domainFacade.planetDomainFacade().setCoordinatesForPlanet(planet3, planet3XCoord, planet3YCoord);
+        domainFacade.planetDomainFacade().setMovementDifficultyForPlanet(planet3, planet3MovementDifficulty);
+        domainFacade.planetDomainFacade().setResourceTypeForPlanet(planet3, MineableResourceType.COAL);
+        domainFacade.planetDomainFacade().setCurrentResourceAmountForPlanet(planet3, 10000);
+        domainFacade.planetDomainFacade().setMaxResourceAmountForPlanet(planet3, 10000);
+        domainFacade.planetDomainFacade().savePlanet(planet3);
 
-        var friendlyRobot = domainFacade.createNewRobot();
+        var friendlyRobot = domainFacade.robotDomainFacade().createNewRobot();
         friendlyRobotId = UUID.randomUUID();
         int friendlyRobotHealthLevel = 1;
         int friendlyRobotEnergyLevel = 1;
@@ -215,19 +215,19 @@ public class FightTestScenarioTests {
         int friendlyRobotMiningSpeedLevel = 2;
         int friendlyRobotHealth = 25;
         int friendlyRobotEnergy = 30;
-        domainFacade.setRobotIdForRobot(friendlyRobot, friendlyRobotId);
-        domainFacade.setHealthLevelForRobot(friendlyRobot, friendlyRobotHealthLevel);
-        domainFacade.setEnergyLevelForRobot(friendlyRobot, friendlyRobotEnergyLevel);
-        domainFacade.setEnergyRegenLevelForRobot(friendlyRobot, friendlyRobotEnergyRegenLevel);
-        domainFacade.setDamageLevelForRobot(friendlyRobot, friendlyRobotDamageLevel);
-        domainFacade.setMiningLevelForRobot(friendlyRobot, friendlyRobotMiningLevel);
-        domainFacade.setMiningSpeedLevelForRobot(friendlyRobot, friendlyRobotMiningSpeedLevel);
-        domainFacade.setHealthForRobot(friendlyRobot, friendlyRobotHealth);
-        domainFacade.setEnergyForRobot(friendlyRobot, friendlyRobotEnergy);
-        domainFacade.setPlanetLocationForRobot(friendlyRobot, planet1);
-        domainFacade.saveRobot(friendlyRobot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(friendlyRobot, friendlyRobotId);
+        domainFacade.robotDomainFacade().setHealthLevelForRobot(friendlyRobot, friendlyRobotHealthLevel);
+        domainFacade.robotDomainFacade().setEnergyLevelForRobot(friendlyRobot, friendlyRobotEnergyLevel);
+        domainFacade.robotDomainFacade().setEnergyRegenLevelForRobot(friendlyRobot, friendlyRobotEnergyRegenLevel);
+        domainFacade.robotDomainFacade().setDamageLevelForRobot(friendlyRobot, friendlyRobotDamageLevel);
+        domainFacade.robotDomainFacade().setMiningLevelForRobot(friendlyRobot, friendlyRobotMiningLevel);
+        domainFacade.robotDomainFacade().setMiningSpeedLevelForRobot(friendlyRobot, friendlyRobotMiningSpeedLevel);
+        domainFacade.robotDomainFacade().setHealthForRobot(friendlyRobot, friendlyRobotHealth);
+        domainFacade.robotDomainFacade().setEnergyForRobot(friendlyRobot, friendlyRobotEnergy);
+        domainFacade.robotDomainFacade().setPlanetLocationForRobot(friendlyRobot, planet1);
+        domainFacade.robotDomainFacade().saveRobot(friendlyRobot);
 
-        var enemyRobot = domainFacade.createNewRobot();
+        var enemyRobot = domainFacade.robotDomainFacade().createNewRobot();
         enemyRobotId = UUID.randomUUID();
         int enemyRobotHealthLevel = 1;
         int enemyRobotEnergyLevel = 1;
@@ -237,16 +237,16 @@ public class FightTestScenarioTests {
         int enemyRobotMiningSpeedLevel = 2;
         int enemyRobotHealth = 25;
         int enemyRobotEnergy = 30;
-        domainFacade.setRobotIdForRobot(enemyRobot, enemyRobotId);
-        domainFacade.setHealthLevelForRobot(enemyRobot, enemyRobotHealthLevel);
-        domainFacade.setEnergyLevelForRobot(enemyRobot, enemyRobotEnergyLevel);
-        domainFacade.setEnergyRegenLevelForRobot(enemyRobot, enemyRobotEnergyRegenLevel);
-        domainFacade.setDamageLevelForRobot(enemyRobot, enemyRobotDamageLevel);
-        domainFacade.setMiningLevelForRobot(enemyRobot, enemyRobotMiningLevel);
-        domainFacade.setMiningSpeedLevelForRobot(enemyRobot, enemyRobotMiningSpeedLevel);
-        domainFacade.setHealthForRobot(enemyRobot, enemyRobotHealth);
-        domainFacade.setEnergyForRobot(enemyRobot, enemyRobotEnergy);
-        domainFacade.setPlanetLocationForRobot(enemyRobot, planet2);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(enemyRobot, enemyRobotId);
+        domainFacade.robotDomainFacade().setHealthLevelForRobot(enemyRobot, enemyRobotHealthLevel);
+        domainFacade.robotDomainFacade().setEnergyLevelForRobot(enemyRobot, enemyRobotEnergyLevel);
+        domainFacade.robotDomainFacade().setEnergyRegenLevelForRobot(enemyRobot, enemyRobotEnergyRegenLevel);
+        domainFacade.robotDomainFacade().setDamageLevelForRobot(enemyRobot, enemyRobotDamageLevel);
+        domainFacade.robotDomainFacade().setMiningLevelForRobot(enemyRobot, enemyRobotMiningLevel);
+        domainFacade.robotDomainFacade().setMiningSpeedLevelForRobot(enemyRobot, enemyRobotMiningSpeedLevel);
+        domainFacade.robotDomainFacade().setHealthForRobot(enemyRobot, enemyRobotHealth);
+        domainFacade.robotDomainFacade().setEnergyForRobot(enemyRobot, enemyRobotEnergy);
+        domainFacade.robotDomainFacade().setPlanetLocationForRobot(enemyRobot, planet2);
         // domainFacade.saveRobot(enemyRobot);
         // the enemy robot is not saved here, as it is expected to be created and persisted by the player service while
         // handling the robots revealed events
@@ -372,8 +372,8 @@ public class FightTestScenarioTests {
         Game game = this.gameRepository.findById(this.gameId).orElseThrow();
         Player player = this.playerRepository.findById(this.playerId).orElseThrow();
 
-        var friendlyRobot = this.domainFacade.getRobotByRobotId(friendlyRobotId);
-        var enemyRobot = this.domainFacade.getRobotByRobotId(enemyRobotId);
+        var friendlyRobot = this.domainFacade.robotDomainFacade().getRobotByRobotId(friendlyRobotId);
+        var enemyRobot = this.domainFacade.robotDomainFacade().getRobotByRobotId(enemyRobotId);
 
         assertNotNull(game);
         assertNotNull(player);
@@ -384,17 +384,17 @@ public class FightTestScenarioTests {
         assertEquals(GameStatus.ENDED, game.getGameStatus());
         assertEquals(7, game.getCurrentRoundNumber());
 
-        assertEquals(0, domainFacade.getXCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(friendlyRobot)));
-        assertEquals(0, domainFacade.getYCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(friendlyRobot)));
+        assertEquals(0, domainFacade.planetDomainFacade().getXCoordOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(friendlyRobot)));
+        assertEquals(0, domainFacade.planetDomainFacade().getYCoordOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(friendlyRobot)));
 
-        assertEquals(0, domainFacade.getXCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(enemyRobot)));
-        assertEquals(0, domainFacade.getYCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(enemyRobot)));
+        assertEquals(0, domainFacade.planetDomainFacade().getXCoordOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(enemyRobot)));
+        assertEquals(0, domainFacade.planetDomainFacade().getYCoordOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(enemyRobot)));
 
-        assertEquals(15, domainFacade.getHealthOfRobot(friendlyRobot));
-        assertEquals(28, domainFacade.getEnergyOfRobot(friendlyRobot));
+        assertEquals(15, domainFacade.robotDomainFacade().getHealthOfRobot(friendlyRobot));
+        assertEquals(28, domainFacade.robotDomainFacade().getEnergyOfRobot(friendlyRobot));
 
-        assertEquals(25, domainFacade.getHealthOfRobot(enemyRobot));
-        assertEquals(27, domainFacade.getEnergyOfRobot(enemyRobot));
+        assertEquals(25, domainFacade.robotDomainFacade().getHealthOfRobot(enemyRobot));
+        assertEquals(27, domainFacade.robotDomainFacade().getEnergyOfRobot(enemyRobot));
     }
 
     @Test

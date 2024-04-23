@@ -91,7 +91,7 @@ public class MapExplorationTestScenarioTests {
     @BeforeAll
     @AfterAll
     public void reset() {
-        domainFacade.resetEverything();
+        domainFacade.resetDomainFacade().resetEverything();
     }
 
     @Test
@@ -196,13 +196,13 @@ public class MapExplorationTestScenarioTests {
             roundStatusEvent = (RoundStatusEvent) testHelper.consumeNextEventOfTypeInEventQueue(roundStatusEventQueue, RoundStatusEvent.class);
 
             if (roundStatusEvent != null && roundStatusEvent.getRoundNumber() >= 3 && roundStatusEvent.getRoundStatus() == RoundStatusType.STARTED) {
-                List<Object> robots = domainFacade.getAllRobots();
+                List<Object> robots = domainFacade.robotDomainFacade().getAllRobots();
 
                 robots.forEach(it -> {
-                    var targetPlanet = domainFacade.getRandomNeighbourOfPlanet(domainFacade.getPlanetLocationOfRobot(it));
-                    moveLog.put(domainFacade.getRobotIdOfRobot(it), targetPlanet);
+                    var targetPlanet = domainFacade.planetDomainFacade().getRandomNeighbourOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(it));
+                    moveLog.put(domainFacade.robotDomainFacade().getRobotIdOfRobot(it), targetPlanet);
 
-                    Command command = Command.createMove(domainFacade.getRobotIdOfRobot(it), domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(it)), gameId, playerId);
+                    Command command = Command.createMove(domainFacade.robotDomainFacade().getRobotIdOfRobot(it), domainFacade.planetDomainFacade().getPlanetIdOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(it)), gameId, playerId);
                     try {
                         testHelper.sendCommand(command);
                     } catch (JsonProcessingException e) {
@@ -240,7 +240,7 @@ public class MapExplorationTestScenarioTests {
         Game game = this.gameRepository.findById(this.gameId).orElseThrow();
         Player player = this.playerRepository.findById(this.playerId).orElseThrow();
 
-        List<Object> robots = domainFacade.getAllRobots();
+        List<Object> robots = domainFacade.robotDomainFacade().getAllRobots();
 
         assertNotNull(game);
         assertNotNull(player);
@@ -251,13 +251,13 @@ public class MapExplorationTestScenarioTests {
         assertEquals(7, game.getCurrentRoundNumber());
 
         robots.forEach(it -> {
-            logger.info("Landed on planet {} for robot {}", domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(it)), domainFacade.getRobotIdOfRobot(it));
+            logger.info("Landed on planet {} for robot {}", domainFacade.planetDomainFacade().getPlanetIdOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(it)), domainFacade.robotDomainFacade().getRobotIdOfRobot(it));
 
-            assertEquals(domainFacade.getXCoordOfPlanet(moveLog.get(domainFacade.getRobotIdOfRobot(it))), domainFacade.getXCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(it)));
-            assertEquals(domainFacade.getYCoordOfPlanet(moveLog.get(domainFacade.getRobotIdOfRobot(it))), domainFacade.getYCoordOfPlanet(domainFacade.getPlanetLocationOfRobot(it)));
+            assertEquals(domainFacade.planetDomainFacade().getXCoordOfPlanet(moveLog.get(domainFacade.robotDomainFacade().getRobotIdOfRobot(it))), domainFacade.planetDomainFacade().getXCoordOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(it)));
+            assertEquals(domainFacade.planetDomainFacade().getYCoordOfPlanet(moveLog.get(domainFacade.robotDomainFacade().getRobotIdOfRobot(it))), domainFacade.planetDomainFacade().getYCoordOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(it)));
         });
 
-        assertTrue(robots.stream().allMatch(it -> domainFacade.getEnergyOfRobot(it) < 20));
+        assertTrue(robots.stream().allMatch(it -> domainFacade.robotDomainFacade().getEnergyOfRobot(it) < 20));
     }
 
     @Test

@@ -85,7 +85,7 @@ public class EventHandlingTests {
 
     @BeforeAll
     public void setupCleanStateAndPerformPlayerRegistration() throws JsonProcessingException {
-        domainFacade.resetEverything();
+        domainFacade.resetDomainFacade().resetEverything();
 
         Player player = Player.ownPlayer("name", "email");
         playerRepository.save(player);
@@ -118,12 +118,12 @@ public class EventHandlingTests {
 
     @BeforeEach
     public void cleanUpEverythingExceptPlayer() {
-        domainFacade.resetEverythingExceptPlayer();
+        domainFacade.resetDomainFacade().resetEverythingExceptPlayer();
     }
 
     @AfterAll
     public void cleanupEverything() {
-        domainFacade.resetEverything();
+        domainFacade.resetDomainFacade().resetEverything();
     }
 
     @Test
@@ -175,7 +175,7 @@ public class EventHandlingTests {
         game = gameRepository.findById(domainId).orElse(null);
 
         assertNotNull(game);
-        assertEquals(RoundStatusType.STARTED, domainFacade.getRoundStatusForCurrentRound(game));
+        assertEquals(RoundStatusType.STARTED, domainFacade.gameDomainFacade().getRoundStatusForCurrentRound(game));
         assertEquals(2, game.getCurrentRoundNumber());
     }
 
@@ -219,27 +219,27 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        var planet = domainFacade.getPlanetByPlanetId(planetId);
-        var northernNeighbour = domainFacade.getPlanetByPlanetId(northernNeighbourId);
-        var southernNeighbour = domainFacade.getPlanetByPlanetId(southernNeighbourId);
+        var planet = domainFacade.planetDomainFacade().getPlanetByPlanetId(planetId);
+        var northernNeighbour = domainFacade.planetDomainFacade().getPlanetByPlanetId(northernNeighbourId);
+        var southernNeighbour = domainFacade.planetDomainFacade().getPlanetByPlanetId(southernNeighbourId);
 
         assertNotNull(planet);
         assertNotNull(northernNeighbour);
         assertNotNull(southernNeighbour);
 
-        var neighbours = domainFacade.getNeighboursOfPlanet(planet);
+        var neighbours = domainFacade.planetDomainFacade().getNeighboursOfPlanet(planet);
 
         assertEquals(northernNeighbour, neighbours.get(CompassDirection.NORTH));
         assertEquals(southernNeighbour, neighbours.get(CompassDirection.SOUTH));
         assertEquals(2, neighbours.size());
 
-        assertEquals(3, domainFacade.getMovementDifficultyForPlanet(planet));
-        assertNotNull(domainFacade.getResourceTypeOfPlanet(planet));
-        assertEquals(MineableResourceType.COAL, domainFacade.getResourceTypeOfPlanet(planet));
-        assertNotNull(domainFacade.getCurrentResourceAmountOfPlanet(planet));
-        assertEquals(10000, domainFacade.getCurrentResourceAmountOfPlanet(planet));
-        assertNotNull(domainFacade.getMaxResourceAmountOfPlanet(planet));
-        assertEquals(10000, domainFacade.getMaxResourceAmountOfPlanet(planet));
+        assertEquals(3, domainFacade.planetDomainFacade().getMovementDifficultyForPlanet(planet));
+        assertNotNull(domainFacade.planetDomainFacade().getResourceTypeOfPlanet(planet));
+        assertEquals(MineableResourceType.COAL, domainFacade.planetDomainFacade().getResourceTypeOfPlanet(planet));
+        assertNotNull(domainFacade.planetDomainFacade().getCurrentResourceAmountOfPlanet(planet));
+        assertEquals(10000, domainFacade.planetDomainFacade().getCurrentResourceAmountOfPlanet(planet));
+        assertNotNull(domainFacade.planetDomainFacade().getMaxResourceAmountOfPlanet(planet));
+        assertEquals(10000, domainFacade.planetDomainFacade().getMaxResourceAmountOfPlanet(planet));
     }
 
     @Test
@@ -252,13 +252,13 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var planet = domainFacade.createNewPlanet();
+        var planet = domainFacade.planetDomainFacade().createNewPlanet();
         UUID planetId = UUID.randomUUID();
-        domainFacade.setPlanetIdForPlanet(planet, planetId);
-        domainFacade.setResourceTypeForPlanet(planet, MineableResourceType.COAL);
-        domainFacade.setCurrentResourceAmountForPlanet(planet, 10000);
-        domainFacade.setMaxResourceAmountForPlanet(planet, 10000);
-        domainFacade.savePlanet(planet);
+        domainFacade.planetDomainFacade().setPlanetIdForPlanet(planet, planetId);
+        domainFacade.planetDomainFacade().setResourceTypeForPlanet(planet, MineableResourceType.COAL);
+        domainFacade.planetDomainFacade().setCurrentResourceAmountForPlanet(planet, 10000);
+        domainFacade.planetDomainFacade().setMaxResourceAmountForPlanet(planet, 10000);
+        domainFacade.planetDomainFacade().savePlanet(planet);
 
         ResourceMinedEvent resourceMinedEvent = new ResourceMinedEvent();
         resourceMinedEvent.setPlanetId(planetId);
@@ -275,12 +275,12 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        planet = domainFacade.getPlanetByPlanetId(resourceMinedEvent.getPlanetId());
+        planet = domainFacade.planetDomainFacade().getPlanetByPlanetId(resourceMinedEvent.getPlanetId());
 
         assertNotNull(planet);
-        assertEquals(resourceMinedEvent.getResource().getResourceType(), domainFacade.getResourceTypeOfPlanet(planet));
-        assertEquals(resourceMinedEvent.getResource().getCurrentAmount(), domainFacade.getCurrentResourceAmountOfPlanet(planet));
-        assertEquals(resourceMinedEvent.getResource().getMaxAmount(), domainFacade.getMaxResourceAmountOfPlanet(planet));
+        assertEquals(resourceMinedEvent.getResource().getResourceType(), domainFacade.planetDomainFacade().getResourceTypeOfPlanet(planet));
+        assertEquals(resourceMinedEvent.getResource().getCurrentAmount(), domainFacade.planetDomainFacade().getCurrentResourceAmountOfPlanet(planet));
+        assertEquals(resourceMinedEvent.getResource().getMaxAmount(), domainFacade.planetDomainFacade().getMaxResourceAmountOfPlanet(planet));
     }
 
     @Test
@@ -293,11 +293,11 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var robot = domainFacade.createNewRobot();
+        var robot = domainFacade.robotDomainFacade().createNewRobot();
         UUID robotId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot, robotId);
-        domainFacade.setEnergyForRobot(robot, 15);
-        domainFacade.saveRobot(robot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot, robotId);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot, 15);
+        domainFacade.robotDomainFacade().saveRobot(robot);
 
         RobotRegeneratedEvent robotRegeneratedEvent = new RobotRegeneratedEvent();
         robotRegeneratedEvent.setRobotId(robotId);
@@ -308,10 +308,10 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot = domainFacade.getRobotByRobotId(robotId);
+        robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(robot);
-        assertEquals(robotRegeneratedEvent.getAvailableEnergy(), domainFacade.getEnergyOfRobot(robot));
+        assertEquals(robotRegeneratedEvent.getAvailableEnergy(), domainFacade.robotDomainFacade().getEnergyOfRobot(robot));
     }
 
     @Test
@@ -324,12 +324,12 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var robot = domainFacade.createNewRobot();
+        var robot = domainFacade.robotDomainFacade().createNewRobot();
         UUID robotId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot, robotId);
-        domainFacade.setHealthForRobot(robot, 7);
-        domainFacade.setEnergyForRobot(robot, 15);
-        domainFacade.saveRobot(robot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot, robotId);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot, 7);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot, 15);
+        domainFacade.robotDomainFacade().saveRobot(robot);
 
         RobotRestoredAttributesEvent robotRestoredAttributesEvent = new RobotRestoredAttributesEvent();
         robotRestoredAttributesEvent.setRobotId(UUID.randomUUID());
@@ -342,10 +342,10 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot = domainFacade.getRobotByRobotId(robotId);
+        robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(robot);
-        assertEquals(robotRestoredAttributesEvent.getAvailableHealth(), domainFacade.getHealthOfRobot(robot));
+        assertEquals(robotRestoredAttributesEvent.getAvailableHealth(), domainFacade.robotDomainFacade().getHealthOfRobot(robot));
     }
 
     @Test
@@ -358,13 +358,13 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var robot = domainFacade.createNewRobot();
+        var robot = domainFacade.robotDomainFacade().createNewRobot();
         UUID robotId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot, robotId);
-        domainFacade.setHealthForRobot(robot, 10);
-        domainFacade.setEnergyForRobot(robot, 20);
-        domainFacade.setHealthLevelForRobot(robot, 0);
-        domainFacade.saveRobot(robot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot, robotId);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot, 20);
+        domainFacade.robotDomainFacade().setHealthLevelForRobot(robot, 0);
+        domainFacade.robotDomainFacade().saveRobot(robot);
 
         RobotUpgradedEvent robotUpgradedEvent = new RobotUpgradedEvent();
         robotUpgradedEvent.setRobotId(UUID.randomUUID());
@@ -407,10 +407,10 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot = domainFacade.getRobotByRobotId(robotId);
+        robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(robot);
-        assertEquals(robotUpgradedEvent.getLevel(), domainFacade.getHealthLevelOfRobot(robot));
+        assertEquals(robotUpgradedEvent.getLevel(), domainFacade.robotDomainFacade().getHealthLevelOfRobot(robot));
     }
 
     @Test
@@ -423,19 +423,19 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var attacker = domainFacade.createNewRobot();
+        var attacker = domainFacade.robotDomainFacade().createNewRobot();
         UUID attackedId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(attacker, attackedId);
-        domainFacade.setHealthForRobot(attacker, 10);
-        domainFacade.setEnergyForRobot(attacker, 20);
-        domainFacade.saveRobot(attacker);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(attacker, attackedId);
+        domainFacade.robotDomainFacade().setHealthForRobot(attacker, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(attacker, 20);
+        domainFacade.robotDomainFacade().saveRobot(attacker);
 
-        var target = domainFacade.createNewRobot();
+        var target = domainFacade.robotDomainFacade().createNewRobot();
         UUID targetId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(target, targetId);
-        domainFacade.setHealthForRobot(target, 10);
-        domainFacade.setEnergyForRobot(target, 20);
-        domainFacade.saveRobot(target);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(target, targetId);
+        domainFacade.robotDomainFacade().setHealthForRobot(target, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(target, 20);
+        domainFacade.robotDomainFacade().saveRobot(target);
 
         RobotAttackedEvent robotAttackedEvent = new RobotAttackedEvent();
 
@@ -459,19 +459,19 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        attacker = domainFacade.getRobotByRobotId(attackedId);
-        target = domainFacade.getRobotByRobotId(targetId);
+        attacker = domainFacade.robotDomainFacade().getRobotByRobotId(attackedId);
+        target = domainFacade.robotDomainFacade().getRobotByRobotId(targetId);
 
         assertNotNull(attacker);
         assertNotNull(target);
 
-        assertEquals(10, domainFacade.getHealthOfRobot(attacker));
-        assertEquals(18, domainFacade.getEnergyOfRobot(attacker));
-        assertTrue(domainFacade.getAliveStatusOfRobot(attacker));
+        assertEquals(10, domainFacade.robotDomainFacade().getHealthOfRobot(attacker));
+        assertEquals(18, domainFacade.robotDomainFacade().getEnergyOfRobot(attacker));
+        assertTrue(domainFacade.robotDomainFacade().getAliveStatusOfRobot(attacker));
 
-        assertEquals(9, domainFacade.getHealthOfRobot(target));
-        assertEquals(20, domainFacade.getEnergyOfRobot(target));
-        assertTrue(domainFacade.getAliveStatusOfRobot(target));
+        assertEquals(9, domainFacade.robotDomainFacade().getHealthOfRobot(target));
+        assertEquals(20, domainFacade.robotDomainFacade().getEnergyOfRobot(target));
+        assertTrue(domainFacade.robotDomainFacade().getAliveStatusOfRobot(target));
     }
 
     @Test
@@ -484,13 +484,13 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var robot = domainFacade.createNewRobot();
+        var robot = domainFacade.robotDomainFacade().createNewRobot();
         UUID robotId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot, robotId);
-        domainFacade.setHealthForRobot(robot, 10);
-        domainFacade.setEnergyForRobot(robot, 20);
-        domainFacade.setCoalAmountForRobot(robot, 2);
-        domainFacade.saveRobot(robot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot, robotId);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot, 20);
+        domainFacade.robotDomainFacade().setCoalAmountForRobot(robot, 2);
+        domainFacade.robotDomainFacade().saveRobot(robot);
 
         RobotResourceMinedEvent robotResourceMinedEvent = new RobotResourceMinedEvent();
         robotResourceMinedEvent.setRobotId(robotId);
@@ -507,10 +507,10 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot = domainFacade.getRobotByRobotId(robotId);
+        robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(robot);
-        assertEquals(4, domainFacade.getCoalAmountOfRobot(robot));
+        assertEquals(4, domainFacade.robotDomainFacade().getCoalAmountOfRobot(robot));
     }
 
     @Test
@@ -523,13 +523,13 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var robot = domainFacade.createNewRobot();
+        var robot = domainFacade.robotDomainFacade().createNewRobot();
         UUID robotId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot, robotId);
-        domainFacade.setHealthForRobot(robot, 10);
-        domainFacade.setEnergyForRobot(robot, 20);
-        domainFacade.setCoalAmountForRobot(robot, 2);
-        domainFacade.saveRobot(robot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot, robotId);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot, 20);
+        domainFacade.robotDomainFacade().setCoalAmountForRobot(robot, 2);
+        domainFacade.robotDomainFacade().saveRobot(robot);
 
         RobotResourceRemovedEvent robotResourceRemovedEvent = new RobotResourceRemovedEvent();
         robotResourceRemovedEvent.setRobotId(robotId);
@@ -546,10 +546,10 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot = domainFacade.getRobotByRobotId(robotId);
+        robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(robot);
-        assertEquals(0, domainFacade.getCoalAmountOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getCoalAmountOfRobot(robot));
     }
 
     @Test
@@ -562,21 +562,21 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var planet = domainFacade.createNewPlanet();
+        var planet = domainFacade.planetDomainFacade().createNewPlanet();
         UUID planetId = UUID.randomUUID();
-        domainFacade.setPlanetIdForPlanet(planet, planetId);
-        domainFacade.setResourceTypeForPlanet(planet, MineableResourceType.COAL);
-        domainFacade.setCurrentResourceAmountForPlanet(planet, 10000);
-        domainFacade.setMaxResourceAmountForPlanet(planet, 10000);
-        domainFacade.savePlanet(planet);
+        domainFacade.planetDomainFacade().setPlanetIdForPlanet(planet, planetId);
+        domainFacade.planetDomainFacade().setResourceTypeForPlanet(planet, MineableResourceType.COAL);
+        domainFacade.planetDomainFacade().setCurrentResourceAmountForPlanet(planet, 10000);
+        domainFacade.planetDomainFacade().setMaxResourceAmountForPlanet(planet, 10000);
+        domainFacade.planetDomainFacade().savePlanet(planet);
 
-        var robot = domainFacade.createNewRobot();
+        var robot = domainFacade.robotDomainFacade().createNewRobot();
         UUID robotId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot, robotId);
-        domainFacade.setHealthForRobot(robot, 10);
-        domainFacade.setEnergyForRobot(robot, 20);
-        domainFacade.setPlanetLocationForRobot(robot, planet);
-        domainFacade.saveRobot(robot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot, robotId);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot, 20);
+        domainFacade.robotDomainFacade().setPlanetLocationForRobot(robot, planet);
+        domainFacade.robotDomainFacade().saveRobot(robot);
 
         RobotMovedEvent robotMovedEvent = new RobotMovedEvent();
         robotMovedEvent.setRobotId(robotId);
@@ -599,11 +599,11 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot = domainFacade.getRobotByRobotId(robotId);
+        robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(robot);
-        assertEquals(targetId, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot)));
-        assertEquals(18, domainFacade.getEnergyOfRobot(robot));
+        assertEquals(targetId, domainFacade.planetDomainFacade().getPlanetIdOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(robot)));
+        assertEquals(18, domainFacade.robotDomainFacade().getEnergyOfRobot(robot));
     }
 
     @Test
@@ -616,29 +616,29 @@ public class EventHandlingTests {
 
         UUID domainId = game.getId();
 
-        var robot1 = domainFacade.createNewRobot();
+        var robot1 = domainFacade.robotDomainFacade().createNewRobot();
         UUID robot1Id = UUID.randomUUID();
         UUID planet1Id = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot1, robot1Id);
-        domainFacade.setHealthForRobot(robot1, 10);
-        domainFacade.setEnergyForRobot(robot1, 20);
-        domainFacade.saveRobot(robot1);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot1, robot1Id);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot1, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot1, 20);
+        domainFacade.robotDomainFacade().saveRobot(robot1);
 
-        var robot2 = domainFacade.createNewRobot();
+        var robot2 = domainFacade.robotDomainFacade().createNewRobot();
         UUID robot2Id = UUID.randomUUID();
         UUID planet2Id = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot2, robot2Id);
-        domainFacade.setHealthForRobot(robot2, 10);
-        domainFacade.setEnergyForRobot(robot2, 15);
-        domainFacade.saveRobot(robot2);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot2, robot2Id);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot2, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot2, 15);
+        domainFacade.robotDomainFacade().saveRobot(robot2);
 
-        var robot3 = domainFacade.createNewRobot();
+        var robot3 = domainFacade.robotDomainFacade().createNewRobot();
         UUID robot3Id = UUID.randomUUID();
         UUID planet3Id = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot3, robot3Id);
-        domainFacade.setHealthForRobot(robot3, 8);
-        domainFacade.setEnergyForRobot(robot3, 13);
-        domainFacade.saveRobot(robot3);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot3, robot3Id);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot3, 8);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot3, 13);
+        domainFacade.robotDomainFacade().saveRobot(robot3);
 
         RobotsRevealedEvent robotsRevealedEvent = new RobotsRevealedEvent();
 
@@ -675,17 +675,17 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        robot1 = domainFacade.getRobotByRobotId(robot1Id);
-        robot2 = domainFacade.getRobotByRobotId(robot2Id);
-        robot3 = domainFacade.getRobotByRobotId(robot3Id);
+        robot1 = domainFacade.robotDomainFacade().getRobotByRobotId(robot1Id);
+        robot2 = domainFacade.robotDomainFacade().getRobotByRobotId(robot2Id);
+        robot3 = domainFacade.robotDomainFacade().getRobotByRobotId(robot3Id);
 
         assertNotNull(robot1);
         assertNotNull(robot2);
         assertNotNull(robot3);
 
-        assertEquals(planet1Id, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot1)));
-        assertEquals(planet2Id, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot2)));
-        assertEquals(planet3Id, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot3)));
+        assertEquals(planet1Id, domainFacade.planetDomainFacade().getPlanetIdOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(robot1)));
+        assertEquals(planet2Id, domainFacade.planetDomainFacade().getPlanetIdOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(robot2)));
+        assertEquals(planet3Id, domainFacade.planetDomainFacade().getPlanetIdOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(robot3)));
     }
 
     @Test
@@ -739,29 +739,29 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        var robot = domainFacade.getRobotByRobotId(robotId);
+        var robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(robot);
-        assertEquals(10, domainFacade.getHealthLevelOfRobot(robot));
-        assertEquals(20, domainFacade.getEnergyOfRobot(robot));
-        assertEquals(0, domainFacade.getHealthLevelOfRobot(robot));
-        assertEquals(0, domainFacade.getEnergyLevelOfRobot(robot));
-        assertEquals(0, domainFacade.getDamageLevelOfRobot(robot));
-        assertEquals(0, domainFacade.getMiningSpeedLevelOfRobot(robot));
-        assertEquals(0, domainFacade.getMiningLevelOfRobot(robot));
-        assertEquals(0, domainFacade.getEnergyRegenLevelOfRobot(robot));
-        assertEquals(2, domainFacade.getMiningSpeedOfRobot(robot));
-        assertEquals(10, domainFacade.getMaxHealthOfRobot(robot));
-        assertEquals(20, domainFacade.getMaxEnergyOfRobot(robot));
-        assertEquals(3, domainFacade.getEnergyRegenOfRobot(robot));
-        assertEquals(1, domainFacade.getAttackDamageOfRobot(robot));
+        assertEquals(10, domainFacade.robotDomainFacade().getHealthLevelOfRobot(robot));
+        assertEquals(20, domainFacade.robotDomainFacade().getEnergyOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getHealthLevelOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getEnergyLevelOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getDamageLevelOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getMiningSpeedLevelOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getMiningLevelOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getEnergyRegenLevelOfRobot(robot));
+        assertEquals(2, domainFacade.robotDomainFacade().getMiningSpeedOfRobot(robot));
+        assertEquals(10, domainFacade.robotDomainFacade().getMaxHealthOfRobot(robot));
+        assertEquals(20, domainFacade.robotDomainFacade().getMaxEnergyOfRobot(robot));
+        assertEquals(3, domainFacade.robotDomainFacade().getEnergyRegenOfRobot(robot));
+        assertEquals(1, domainFacade.robotDomainFacade().getAttackDamageOfRobot(robot));
 
-        assertEquals(planetId, domainFacade.getPlanetIdOfPlanet(domainFacade.getPlanetLocationOfRobot(robot)));
+        assertEquals(planetId, domainFacade.planetDomainFacade().getPlanetIdOfPlanet(domainFacade.robotDomainFacade().getPlanetLocationOfRobot(robot)));
 
-        assertFalse(domainFacade.getInventoryFullStateOfRobot(robot));
-        assertEquals(0, domainFacade.getStorageLevelOfRobot(robot));
-        assertEquals(0, domainFacade.getInventoryUsedStorageOfRobot(robot));
-        assertEquals(10, domainFacade.getInventoryMaxStorageOfRobot(robot));
+        assertFalse(domainFacade.robotDomainFacade().getInventoryFullStateOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getStorageLevelOfRobot(robot));
+        assertEquals(0, domainFacade.robotDomainFacade().getInventoryUsedStorageOfRobot(robot));
+        assertEquals(10, domainFacade.robotDomainFacade().getInventoryMaxStorageOfRobot(robot));
     }
 
     @Test
@@ -775,7 +775,7 @@ public class EventHandlingTests {
         UUID domainId = game.getId();
 
         Player player = playerRepository.findAll().get(0);
-        domainFacade.setBalanceForPlayer(player, 500);
+        domainFacade.playerDomainFacade().setBalanceForPlayer(player, 500);
         playerRepository.save(player);
 
         BankAccountClearedEvent bankAccountClearedEvent = new BankAccountClearedEvent();
@@ -790,7 +790,7 @@ public class EventHandlingTests {
         player = playerRepository.findAll().get(0);
 
         assertNotNull(player);
-        assertEquals(0, domainFacade.getBalanceOfPlayer(player));
+        assertEquals(0, domainFacade.playerDomainFacade().getBalanceOfPlayer(player));
     }
 
     @Test
@@ -804,7 +804,7 @@ public class EventHandlingTests {
         UUID domainId = game.getId();
 
         Player player = playerRepository.findAll().get(0);
-        domainFacade.setBalanceForPlayer(player, 500);
+        domainFacade.playerDomainFacade().setBalanceForPlayer(player, 500);
         playerRepository.save(player);
 
         BankAccountTransactionBookedEvent bankAccountTransactionBookedEvent = new BankAccountTransactionBookedEvent();
@@ -820,7 +820,7 @@ public class EventHandlingTests {
         player = playerRepository.findAll().get(0);
 
         assertNotNull(player);
-        assertEquals(400, domainFacade.getBalanceOfPlayer(player));
+        assertEquals(400, domainFacade.playerDomainFacade().getBalanceOfPlayer(player));
     }
 
     @Test
@@ -834,7 +834,7 @@ public class EventHandlingTests {
         UUID domainId = game.getId();
 
         Player player = playerRepository.findAll().get(0);
-        domainFacade.setBalanceForPlayer(player, 0);
+        domainFacade.playerDomainFacade().setBalanceForPlayer(player, 0);
         playerRepository.save(player);
 
         BankInitializedEvent bankInitializedEvent = new BankInitializedEvent();
@@ -849,7 +849,7 @@ public class EventHandlingTests {
         player = playerRepository.findAll().get(0);
 
         assertNotNull(player);
-        assertEquals(500, domainFacade.getBalanceOfPlayer(player));
+        assertEquals(500, domainFacade.playerDomainFacade().getBalanceOfPlayer(player));
     }
 
     @Test
@@ -863,7 +863,7 @@ public class EventHandlingTests {
         UUID domainId = game.getId();
 
         Player player = playerRepository.findAll().get(0);
-        domainFacade.setBalanceForPlayer(player, 500);
+        domainFacade.playerDomainFacade().setBalanceForPlayer(player, 500);
         playerRepository.save(player);
 
         TradableBoughtEvent tradableBoughtEvent = new TradableBoughtEvent();
@@ -881,11 +881,11 @@ public class EventHandlingTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         player = playerRepository.findAll().get(0);
-        List<Object> robots = domainFacade.getAllRobots();
+        List<Object> robots = domainFacade.robotDomainFacade().getAllRobots();
 
         assertNotNull(player);
         assertEquals(3, robots.size());
-        assertEquals(200, domainFacade.getBalanceOfPlayer(player));
+        assertEquals(200, domainFacade.playerDomainFacade().getBalanceOfPlayer(player));
     }
 
     @Test
@@ -912,21 +912,21 @@ public class EventHandlingTests {
         //waiting for generated event to be consumed and processed by the player service
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
-        List<Object> tradableItems = domainFacade.getAllTradableItems();
+        List<Object> tradableItems = domainFacade.tradableDomainFacade().getAllTradableItems();
 
         assertEquals(5, tradableItems.size());
 
-        assertEquals(50, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("STORAGE_1")));
-        assertEquals(50, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("HEALTH_1")));
-        assertEquals(300, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("HEALTH_2")));
-        assertEquals(50, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("HEALTH_RESTORE")));
-        assertEquals(75, domainFacade.getPriceOfTradableItem(domainFacade.getTradableItemByName("ENERGY_RESTORE")));
+        assertEquals(50, domainFacade.tradableDomainFacade().getPriceOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("STORAGE_1")));
+        assertEquals(50, domainFacade.tradableDomainFacade().getPriceOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("HEALTH_1")));
+        assertEquals(300, domainFacade.tradableDomainFacade().getPriceOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("HEALTH_2")));
+        assertEquals(50, domainFacade.tradableDomainFacade().getPriceOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("HEALTH_RESTORE")));
+        assertEquals(75, domainFacade.tradableDomainFacade().getPriceOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("ENERGY_RESTORE")));
 
-        assertEquals(TradeableType.UPGRADE, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("STORAGE_1")));
-        assertEquals(TradeableType.UPGRADE, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("HEALTH_1")));
-        assertEquals(TradeableType.UPGRADE, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("HEALTH_2")));
-        assertEquals(TradeableType.RESTORATION, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("HEALTH_RESTORE")));
-        assertEquals(TradeableType.RESTORATION, domainFacade.getTradableTypeOfTradableItem(domainFacade.getTradableItemByName("ENERGY_RESTORE")));
+        assertEquals(TradeableType.UPGRADE, domainFacade.tradableDomainFacade().getTradableTypeOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("STORAGE_1")));
+        assertEquals(TradeableType.UPGRADE, domainFacade.tradableDomainFacade().getTradableTypeOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("HEALTH_1")));
+        assertEquals(TradeableType.UPGRADE, domainFacade.tradableDomainFacade().getTradableTypeOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("HEALTH_2")));
+        assertEquals(TradeableType.RESTORATION, domainFacade.tradableDomainFacade().getTradableTypeOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("HEALTH_RESTORE")));
+        assertEquals(TradeableType.RESTORATION, domainFacade.tradableDomainFacade().getTradableTypeOfTradableItem(domainFacade.tradableDomainFacade().getTradableItemByName("ENERGY_RESTORE")));
     }
 
     @Test
@@ -940,16 +940,16 @@ public class EventHandlingTests {
         UUID domainId = game.getId();
 
         Player player = playerRepository.findAll().get(0);
-        domainFacade.setBalanceForPlayer(player, 500);
+        domainFacade.playerDomainFacade().setBalanceForPlayer(player, 500);
         playerRepository.save(player);
 
-        var robot = domainFacade.createNewRobot();
+        var robot = domainFacade.robotDomainFacade().createNewRobot();
         UUID robotId = UUID.randomUUID();
-        domainFacade.setRobotIdForRobot(robot, robotId);
-        domainFacade.setHealthForRobot(robot, 10);
-        domainFacade.setEnergyForRobot(robot, 20);
-        domainFacade.setCoalAmountForRobot(robot, 10);
-        domainFacade.saveRobot(robot);
+        domainFacade.robotDomainFacade().setRobotIdForRobot(robot, robotId);
+        domainFacade.robotDomainFacade().setHealthForRobot(robot, 10);
+        domainFacade.robotDomainFacade().setEnergyForRobot(robot, 20);
+        domainFacade.robotDomainFacade().setCoalAmountForRobot(robot, 10);
+        domainFacade.robotDomainFacade().saveRobot(robot);
 
         TradableSoldEvent tradableSoldEvent = new TradableSoldEvent();
         tradableSoldEvent.setPlayerId(player.getPlayerId());
@@ -966,12 +966,12 @@ public class EventHandlingTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         player = playerRepository.findAll().get(0);
-        robot = domainFacade.getRobotByRobotId(robotId);
+        robot = domainFacade.robotDomainFacade().getRobotByRobotId(robotId);
 
         assertNotNull(player);
         assertNotNull(robot);
 
-        assertEquals(550, domainFacade.getBalanceOfPlayer(player));
+        assertEquals(550, domainFacade.playerDomainFacade().getBalanceOfPlayer(player));
     }
 
     private void requestEventFromMockService(AbstractEvent event, String url) throws JsonProcessingException {

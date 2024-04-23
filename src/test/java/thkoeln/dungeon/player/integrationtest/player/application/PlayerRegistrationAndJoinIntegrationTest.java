@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import thkoeln.dungeon.player.DungeonPlayerConfiguration;
-import thkoeln.dungeon.player.core.AbstractDungeonMockingIntegrationTest;
+import thkoeln.dungeon.player.integrationtest.core.AbstractDungeonMockingIntegrationTest;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.player.application.PlayerApplicationService;

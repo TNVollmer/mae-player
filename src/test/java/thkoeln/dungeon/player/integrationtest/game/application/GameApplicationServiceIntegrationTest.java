@@ -4,7 +4,7 @@ package thkoeln.dungeon.player.integrationtest.game.application;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import thkoeln.dungeon.player.core.AbstractDungeonMockingIntegrationTest;
+import thkoeln.dungeon.player.integrationtest.core.AbstractDungeonMockingIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
