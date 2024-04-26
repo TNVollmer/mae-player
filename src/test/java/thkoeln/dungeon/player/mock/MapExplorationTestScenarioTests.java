@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
 public class MapExplorationTestScenarioTests {
-    private static final Logger logger = LoggerFactory.getLogger(FightTestScenarioTests.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapExplorationTestScenarioTests.class);
     private static final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     private UUID gameId = null;
@@ -92,6 +92,7 @@ public class MapExplorationTestScenarioTests {
     @AfterAll
     public void reset() {
         domainFacade.resetDomainFacade().resetEverything();
+        logger.info("Resetting application...");
     }
 
     @Test
@@ -103,6 +104,7 @@ public class MapExplorationTestScenarioTests {
         logger.info("Player created and registered");
 
         this.rabbitAdmin.purgeQueue(player.getPlayerQueue());
+        logger.info("Player queue ready");
 
         testHelper.createNewEventQueueWithEventTypeBinding(roundStatusEventQueue, player.getPlayerExchange(), EventType.ROUND_STATUS);
         testHelper.createNewEventQueueWithEventTypeBinding(gameStatusEventQueue, player.getPlayerExchange(), EventType.GAME_STATUS);
@@ -121,6 +123,8 @@ public class MapExplorationTestScenarioTests {
                         .with("#")
                         .noargs()
         );
+
+        logger.info("Custom queues created and ready");
 
         assertTrue(player.isRegistered());
     }
@@ -144,6 +148,7 @@ public class MapExplorationTestScenarioTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         boolean playerJoinOpenGame = playerApplicationService.letPlayerJoinOpenGame();
+        logger.info("Player joined the game");
 
         assertTrue(playerJoinOpenGame);
     }
@@ -172,6 +177,7 @@ public class MapExplorationTestScenarioTests {
                 new HttpEntity<>(jsonRequest, headers), String.class);
 
         logger.info("Http response: " + postResponse.getBody());
+        logger.info("Test scenario is configured");
 
         assertEquals(HttpStatus.CREATED, postResponse.getStatusCode());
     }
@@ -182,6 +188,7 @@ public class MapExplorationTestScenarioTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         devGameAdminClient.startGameInDevMode();
+        logger.info("Game started");
     }
 
     @Test

@@ -95,6 +95,7 @@ public class FightTestScenarioTests {
     @AfterAll
     public void reset() {
         domainFacade.resetDomainFacade().resetEverything();
+        logger.info("Resetting application...");
     }
 
     @Test
@@ -106,6 +107,7 @@ public class FightTestScenarioTests {
         logger.info("Player created and registered");
 
         this.rabbitAdmin.purgeQueue(player.getPlayerQueue());
+        logger.info("Player queue ready");
 
         testHelper.createNewEventQueueWithEventTypeBinding(roundStatusEventQueue, player.getPlayerExchange(), EventType.ROUND_STATUS);
         testHelper.createNewEventQueueWithEventTypeBinding(gameStatusEventQueue, player.getPlayerExchange(), EventType.GAME_STATUS);
@@ -124,6 +126,8 @@ public class FightTestScenarioTests {
                         .with("#")
                         .noargs()
         );
+
+        logger.info("Custom queues created and ready");
 
         assertTrue(player.isRegistered());
     }
@@ -147,6 +151,7 @@ public class FightTestScenarioTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         boolean playerJoinOpenGame = playerApplicationService.letPlayerJoinOpenGame();
+        logger.info("Player joined the game");
 
         assertTrue(playerJoinOpenGame);
     }
@@ -316,6 +321,7 @@ public class FightTestScenarioTests {
                 new HttpEntity<>(jsonRequest, headers), String.class);
 
         logger.info("Http response: " + postResponse.getBody());
+        logger.info("Test scenario is configured");
 
         assertEquals(HttpStatus.CREATED, postResponse.getStatusCode());
     }
@@ -326,6 +332,7 @@ public class FightTestScenarioTests {
         Thread.sleep(Duration.ofSeconds(5).toMillis());
 
         devGameAdminClient.startGameInDevMode();
+        logger.info("Game started");
     }
 
     @Test
