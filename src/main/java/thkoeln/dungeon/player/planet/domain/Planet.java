@@ -1,5 +1,6 @@
 package thkoeln.dungeon.player.planet.domain;
 
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 
 import java.util.UUID;
 
@@ -23,7 +25,8 @@ public class Planet {
 
     private Integer movementDifficulty;
 
-    //TODO: add resource
+    @Embedded
+    private MineableResource resources;
 
     @OneToOne
     private Planet northNeighbor;
@@ -34,8 +37,9 @@ public class Planet {
     @OneToOne
     private Planet westNeighbor;
 
-    public Planet(UUID planetId) {
+    public Planet(UUID planetId, MineableResource resources) {
         this.planetId = planetId;
+        this.resources = resources;
     }
 
     public Planet getNeighbor(CompassDirection direction) {
@@ -45,5 +49,9 @@ public class Planet {
             case SOUTH -> southNeighbor;
             case WEST -> westNeighbor;
         };
+    }
+
+    public boolean hasResources() {
+        return !resources.isEmpty();
     }
 }

@@ -183,7 +183,6 @@ public class PlayerApplicationService {
         playerRepository.save(player);
     }
 
-
     @EventListener(BankAccountTransactionBookedEvent.class)
     public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
         logger.info("Bank account updated to {} money.", event.getBalance());
@@ -207,14 +206,14 @@ public class PlayerApplicationService {
         } else {
             List<Robot> idleRobots = robotRepository.findByCurrentActivity(Activity.IDLE);
             for (Robot robot : idleRobots) {
-                //TODO: check if can mine else move to next planet
-
-                Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
-                gameServiceRESTAdapter.sendPostRequestForCommand(command);
-                robot.setCurrentActivity(Activity.MINING);
+                if (robot.canMine()) {
+                    Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
+                    gameServiceRESTAdapter.sendPostRequestForCommand(command);
+                    robot.setCurrentActivity(Activity.MINING);
+                } else {
+                    logger.info("{} cannot mine", robot.getId());
+                }
             }
-
         }
-
     }
 }
