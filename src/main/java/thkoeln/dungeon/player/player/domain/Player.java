@@ -1,10 +1,7 @@
 package thkoeln.dungeon.player.player.domain;
 
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +9,7 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
-import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -37,6 +31,10 @@ public class Player {
     private String name;
     private String email;
     private UUID playerId;
+
+    @Embedded
+    @Setter(AccessLevel.PUBLIC)
+    private Money bankAccount = Money.zero();
 
     @Setter(AccessLevel.PUBLIC)
     private String playerExchange;

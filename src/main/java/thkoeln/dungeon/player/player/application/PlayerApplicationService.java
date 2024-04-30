@@ -7,14 +7,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
-import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;
+import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
+import thkoeln.dungeon.player.core.events.concreteevents.trading.BankAccountTransactionBookedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
+import thkoeln.dungeon.player.planet.domain.PlanetRepository;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
+import thkoeln.dungeon.player.robot.domain.Robot;
+import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
 import java.util.List;
 
@@ -34,6 +42,8 @@ public class PlayerApplicationService {
     private final PlayerRepository playerRepository;
     private final GameApplicationService gameApplicationService;
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
+    private final PlanetRepository planetRepository;
+    private final RobotRepository robotRepository;
     PlayerGameAutoStarter playerGameAutoStarter;
 
 
@@ -48,12 +58,14 @@ public class PlayerApplicationService {
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
-            PlayerGameAutoStarter playerGameAutoStarter )
+            PlayerGameAutoStarter playerGameAutoStarter, PlanetRepository planetRepository, RobotRepository robotRepository)
     {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
         this.playerGameAutoStarter = playerGameAutoStarter;
+        this.planetRepository = planetRepository;
+        this.robotRepository = robotRepository;
     }
 
 
@@ -161,5 +173,48 @@ public class PlayerApplicationService {
         player.setGameId(null);
         playerRepository.save(player);
         logger.info("Cleaned up after finishing game.");
+    }
+
+    @EventListener(BankInitializedEvent.class)
+    public void bankInitialized( BankInitializedEvent event ) {
+        logger.info("Bank initialized with {} money.", event.getBalance());
+        Player player = queryAndIfNeededCreatePlayer();
+        player.setBankAccount(Money.from(event.getBalance()));
+        playerRepository.save(player);
+    }
+
+
+    @EventListener(BankAccountTransactionBookedEvent.class)
+    public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
+        logger.info("Bank account updated to {} money.", event.getBalance());
+        Player player = queryAndIfNeededCreatePlayer();
+        player.setBankAccount(Money.from(event.getBalance()));
+        playerRepository.save(player);
+    }
+
+    @EventListener(RoundStatusEvent.class)
+    public void updateRoundStatus( RoundStatusEvent event ) {
+        if (!event.getRoundStatus().equals(RoundStatusType.STARTED)) return;
+
+        Player player = queryAndIfNeededCreatePlayer();
+
+        if (event.getRoundNumber() == 2) {
+            int count = player.getBankAccount().canBuyThatManyFor(Money.from(100));
+            if (count > 0) {
+                Command command = Command.createRobotPurchase(1, event.getGameId(), player.getPlayerId());
+                gameServiceRESTAdapter.sendPostRequestForCommand(command);
+            }
+        } else {
+            List<Robot> idleRobots = robotRepository.findByCurrentActivity(Activity.IDLE);
+            for (Robot robot : idleRobots) {
+                //TODO: check if can mine else move to next planet
+
+                Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
+                gameServiceRESTAdapter.sendPostRequestForCommand(command);
+                robot.setCurrentActivity(Activity.MINING);
+            }
+
+        }
+
     }
 }
