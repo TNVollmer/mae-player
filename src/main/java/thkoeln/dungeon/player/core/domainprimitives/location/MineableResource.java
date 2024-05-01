@@ -40,7 +40,18 @@ public class MineableResource {
         return ( amount == 0 );
     }
 
-    public void subtractAmount( Integer amount ) {
-        this.amount -= amount;
+
+    public MineableResource subtract( MineableResource removedResource ) {
+        if ( removedResource == null ) throw new DomainPrimitiveException( "removedResource cannot be null!" );
+        if ( removedResource.isEmpty() ) return this;
+        //if ( this. ) throw new DomainPrimitiveException("cannot remove from nothing");
+        if ( this.type != removedResource.type )
+            throw new DomainPrimitiveException( "Cannot remove resources of different types!" );
+        return new MineableResource(this.type, this.amount - removedResource.amount);
+    }
+
+    @Override
+    public String toString() {
+        return amount + " " + type.toString();
     }
 }

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotPlanetDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
@@ -37,6 +36,7 @@ public class RobotApplicationService {
         Player player = playerRepository.findAll().get(0);
         Planet planet = getPlanet(event.getRobotDto().getPlanet());
         Robot robot = new Robot(event.getRobotDto().getId(), player, planet);
+        robot.changeInventorySize(event.getRobotDto().getInventory().getMaxStorage());
         planetRepository.save(robot.getPlanet());
         robotRepository.save(robot);
         log.info("Robot {} spawned!", robot.getId());
@@ -47,8 +47,12 @@ public class RobotApplicationService {
         Robot robot = getRobot(event.getRobotId());
 
         MineableResource minedResource = event.getResourceInventory().getResource();
-        robot.setInventory(robot.getInventory().addMineableResource(minedResource));
+        robot.storeResources(minedResource);
         log.info("Robot {} mined: {} {}", robot.getId(), event.getMinedAmount(), event.getMinedResource());
+
+        if (robot.isFull()) {
+            //TODO: Sell inventory
+        }
 
         robotRepository.save(robot);
     }
@@ -58,7 +62,6 @@ public class RobotApplicationService {
     }
 
     private Planet getPlanet(RobotPlanetDto planetDto) {
-        return planetRepository.findByPlanetId(planetDto.getPlanetId()).orElse(
-                new Planet(planetDto.getPlanetId(), MineableResource.empty(MineableResourceType.valueOf(planetDto.getResourceType()))));
+        return planetRepository.findByPlanetId(planetDto.getPlanetId()).orElse(new Planet(planetDto.getPlanetId()));
     }
 }
