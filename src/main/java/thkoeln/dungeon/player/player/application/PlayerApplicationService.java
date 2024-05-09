@@ -8,6 +8,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
@@ -200,19 +202,50 @@ public class PlayerApplicationService {
         if (event.getRoundNumber() == 2) {
             int count = player.getBankAccount().canBuyThatManyFor(Money.from(100));
             if (count > 0) {
-                Command command = Command.createRobotPurchase(1, event.getGameId(), player.getPlayerId());
+                Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
                 gameServiceRESTAdapter.sendPostRequestForCommand(command);
             }
         } else {
-            List<Robot> idleRobots = robotRepository.findByCurrentActivity(Activity.IDLE);
-            for (Robot robot : idleRobots) {
-                if (robot.canMine()) {
-                    Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
-                    gameServiceRESTAdapter.sendPostRequestForCommand(command);
-                    robot.setCurrentActivity(Activity.MINING);
-                } else {
-                    logger.info("{} cannot mine", robot.getId());
+            //TODO: move decision logic to robot
+            for (Robot robot : robotRepository.findAll()) {
+                switch (robot.getCurrentActivity()) {
+                    case IDLE:
+                        if (robot.canMine()) {
+                            robot.mine();
+                            Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
+                            gameServiceRESTAdapter.sendPostRequestForCommand(command);
+                        } else {
+                            if (robot.canMove()) {
+                                robot.moveToNextUnexploredPlanet();
+                                Command command = Command.createMove(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), player.getPlayerId());
+                                gameServiceRESTAdapter.sendPostRequestForCommand(command);
+                            } else {
+                                gameServiceRESTAdapter.sendPostRequestForCommand(
+                                        Command.createRegeneration(robot.getRobotId(), player.getGameId(), robot.getPlayer().getPlayerId())
+                                );
+                            }
+                        }
+                        break;
+                    case MINING:
+                        if (robot.isFull()) {
+                            for (MineableResource resource: robot.getInventory().getResources()) {
+                                if (!resource.isEmpty()) {
+                                    gameServiceRESTAdapter.sendPostRequestForCommand(
+                                            Command.createSelling(robot.getRobotId(), player.getGameId(),robot.getPlayer().getPlayerId(), resource)
+                                    );
+                                    logger.info("Selling: {} {}", resource.getAmount(), resource.getType());
+                                }
+                            }
+                        } else {
+                            Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
+                            gameServiceRESTAdapter.sendPostRequestForCommand(command);
+                        }
+                        break;
+                    default:
+                        //TODO: robot moves or level mining skill if resources available
+                        break;
                 }
+                robotRepository.save(robot);
             }
         }
     }

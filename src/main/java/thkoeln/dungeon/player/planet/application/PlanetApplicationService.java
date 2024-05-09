@@ -35,6 +35,7 @@ public class PlanetApplicationService {
     public void onPlanetDiscovered(PlanetDiscoveredEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());
         planet.explore();
+        planet.setMovementDifficulty(event.getMovementDifficulty());
         if (event.getResource() != null) {
             MineableResource resource = MineableResource.fromTypeAndAmount(event.getResource().getResourceType(), event.getResource().getCurrentAmount());
             if (planet.getResources() != resource) planet.setResources(resource);

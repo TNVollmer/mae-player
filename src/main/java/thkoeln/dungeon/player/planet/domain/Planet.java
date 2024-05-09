@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
+import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +83,7 @@ public class Planet {
         List<Planet> neighbors = new ArrayList<>();
         for (CompassDirection direction : CompassDirection.values()) {
             Planet neighbor = getNeighbor(direction);
-            if (!neighbor.isExplored()) neighbors.add(neighbor);
+            if (neighbor != null && !neighbor.isExplored()) neighbors.add(neighbor);
         }
         return neighbors;
     }
@@ -93,6 +94,10 @@ public class Planet {
 
     public boolean isExplored() {
         return isExplored;
+    }
+
+    public boolean hasResource(MineableResourceType resourceType) {
+        return hasResources() && resources.getType() == resourceType;
     }
 
     public boolean hasResources() {
