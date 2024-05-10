@@ -1,32 +1,101 @@
-name: player-skeleton-java-springboot # ! TODO: Update to your player name
+
+
+nameOverride: ""  # ! TODO: update to your player name (otherwise templated default is loaded: see Chart.name)
+fullnameOverride: ""
 replicas: 1
 
-loadBalancerNodePort: 31090
-
 image:
-  name: "registry.gitlab.com/the-microservice-dungeon/player-teams/skeletons/player-skeleton-java-springboot" #TODO: Change this to your image path
-  tag: "latest"
-  imagePullPolicy: "Always"
-serviceName: "Player-Skeleton-Java-Springboot" #TODO: Change this to the name of your Player Application
+  registry: "registry.gitlab.com/the-microservice-dungeon/devops-team/msd-image-registry"
+  name: "player-java-springboot"  # ! TODO: change this to your image name
+  # set for specific version, if not set, value is Chart.version
+  tag: latest
+  pullPolicy: Always
 
-port: 8080
-targetPort: 8080
 
-env:
-  INTERNAL_ENDPOINT_PORT: "8080"  #TODO: Substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port
-  EXTERNAL_ENDPOINT_PORT: "8080"
-  GAME_HOST: "http://game-service.game:8080"
-  RABBITMQ_USERNAME: "admin"
-  RABBITMQ_PASSWORD: "admin"
-  RABBITMQ_HOST: "rabbitmq-service.rabbitmq"
-  RABBITMQ_PORT: "5672"
-  PLAYER_NAME: "Player-Skeleton-Java-Springboot" #TODO: Substitute with correct player name
-  PLAYER_EMAIL: "Player-Skeleton-Java-Springboot@test.com" #TODO: Substitute with correct player email
-  DEV_MODE: "false"
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  ports:
+    - name: http
+      port: 8080 # ! TODO: change container port, this port is for access across services (and ingress)
+      targetPort: 8999 # ! TODO: change target port to port your application/service runs on
+      protocol: TCP
+      type: ClusterIP
+
+  lb:
+    enabled: true
+    ports:
+      - port: 31090 # same as lbPort
+        targetPort: 8080 # same as service.ports.port
+        lbPort: 31090
+        protocol: TCP
+        type: LoadBalancer
 
 ingress:
-  enabled: true # True if you run the player on the cluster, false if you run it locally in minikube
-  hostname: player-skeleton-java-springboot.goedel.debuas.de #TODO: Change this to your ingress hostname, if you need one
-  path: /
-  classname: traefik
+  enabled: false # ! TODO: enable if needed, on local use loadbalancer service.lb
+  hosts:
+    - hostname: player-skeleton-java-springboot.msd.dungeon-space.de  # ! TODO: Change this to your ingress hostname, if you need one
+      path: /
+      classname: nginx
+      port: 8080 # same as service.ports.port
+      pathType: Prefix
+
+
+# ! TODO: Readiness Probe remove '{}' and uncomment, if you use an health check endpoint
+readinessProbe: {}
+#  httpGet:
+#    path: /actuator/health # ! TODO: change to health check endpoint
+#    port: http
+#  initialDelaySeconds: 10
+#  periodSeconds: 10
+#  failureThreshold: 3
+#  successThreshold: 1
+
+# ! TODO: Liveness Probe remove '{}' and uncomment, if you use an health check endpoint
+livenessProbe: {}
+#  httpGet:
+#    path: /actuator/health # ! TODO: change to health check endpoint
+#    port: http
+#  initialDelaySeconds: 40
+#  periodSeconds: 10
+#  failureThreshold: 3
+#  successThreshold: 1
+
+# ! TODO: Tweak resources to your needs
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "1G"
+    cpu: "2"
+
+configmap:
+  data:
+    RABBITMQ_HOST: "rabbitmq-service.rabbitmq.svc.cluster.local"
+    RABBITMQ_PORT: "5672"
+    RABBITMQ_USER: "admin"
+    RABBITMQ_PASSWORD: "admin"
+    GAME_SERVICE: "game.game.svc.cluster.local:8080"
+
+# ! TODO: change/update env values to your player environment variables
+env:
+  - name: INTERNAL_ENDPOINT_PORT
+    value: 8999  # ! TODO: substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port (port of internal application same as service.ports.targetPort)
+  - name: EXTERNAL_ENDPOINT_PORT
+    value: 8080 # ! TODO: change when needed (port of internal cluster communication same as service.ports.port)
+  - name: PLAYER_NAME
+    value: "player-skeleton-java-springboot"  # ! TODO: substitute with correct player name
+  - name: PLAYER_EMAIL
+    value: "player-skeleton-java-springboot@msd.com"  # ! TODO: substitute with correct player email
+  - name: DEV_MODE
+    value: false
+
 
