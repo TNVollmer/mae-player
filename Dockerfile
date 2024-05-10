@@ -1,11 +1,10 @@
-FROM maven:latest
+FROM maven:3-eclipse-temurin-22 as build
+ENV HOME=/app
+RUN mkdir -p $HOME
+WORKDIR $HOME
+ADD . $HOME
+RUN mvn clean package
 
-# Set the working directory
-WORKDIR /app
-
-RUN mvn package
-
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} /app/player.jar
-
-ENTRYPOINT ["java", "-jar", "/app/player.jar"]
+FROM openjdk:23-jdk
+COPY --from=build app/target/*.jar app/player-skeleton-java-springboot.jar
+ENTRYPOINT java -jar /app/player-skeleton-java-springboot.jar
