@@ -77,6 +77,12 @@ resources:
     memory: "1G"
     cpu: "2"
 
+# temp volume for logs
+logVol:
+  name: logs-volume
+  mountPath: /app/logs
+  sizeLimit: 500Mi
+
 configmap:
   data:
     RABBITMQ_HOST: "rabbitmq-service.rabbitmq.svc.cluster.local"

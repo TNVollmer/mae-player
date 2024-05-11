@@ -44,3 +44,11 @@ spec:
           env:
           {{- toYaml .Values.env | nindent 12 }}
           {{- end }}
+          volumeMounts:
+            - mountPath: {{ .Values.logVol.mountPath }}
+              name: {{ .Values.logVol.name }}
+      volumes:
+        - name: {{ .Values.logVol.name }}
+          emptyDir:
+            sizeLimit: {{ .Values.logVol.sizeLimit }}
+
