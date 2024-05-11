@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  {{ include "player-skeleton-java-springboot.fullname" . }}
+  name: {{ include "player-skeleton-java-springboot.fullname" . }}
   labels:
     {{- include "player-skeleton-java-springboot.labels" . | nindent 4 }}
 spec:

@@ -3,9 +3,9 @@
 
 In helm-chart/Chart.yaml `name` to your player-name
 
-In helm-chart/templates/_helper.tpl replace all occurs of `player` with your player-name
+In helm-chart/templates/_helper.tpl replace all occurs of `player-skeleton-java-springboot` with your player-name
 
-In /helm-chart/templates/* replace all occurs of `player` in `include-block` with your player-name 
+In /helm-chart/templates/* replace all occurs of `player-skeleton-java-springboot` in `include-block` with your player-name 
 
 Update in helm-chart/Chart.yaml the `version` everytime you edit your helm chart
 
@@ -29,4 +29,4 @@ or in root DIR
 4. install `helm -n my-namespace install player-skeleton-java-springboot helm-chart --create-namespace`
 
 ---
-Delete Release: `helm -n my-namespace delete player-skeleton-java-springboot helm-chart`
+Delete Release: `helm -n my-namespace delete player-skeleton-java-springboot`
