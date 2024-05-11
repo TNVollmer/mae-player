@@ -6,7 +6,7 @@ replicas: 1
 
 image:
   registry: "registry.gitlab.com/the-microservice-dungeon/devops-team/msd-image-registry"
-  name: "player-java-springboot"  # ! TODO: change this to your image name
+  name: "player-skeleton-java-springboot"  # ! TODO: change this to your image name
   # set for specific version, if not set, value is Chart.version
   tag: latest
   pullPolicy: Always
