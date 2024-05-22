@@ -198,55 +198,20 @@ public class PlayerApplicationService {
         if (!event.getRoundStatus().equals(RoundStatusType.STARTED)) return;
 
         Player player = queryAndIfNeededCreatePlayer();
-
-        if (event.getRoundNumber() == 2) {
-            int count = player.getBankAccount().canBuyThatManyFor(Money.from(100));
-            if (count > 0) {
-                Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
-                gameServiceRESTAdapter.sendPostRequestForCommand(command);
-            }
-        } else {
-            //TODO: move decision logic to robot
-            for (Robot robot : robotRepository.findAll()) {
-                switch (robot.getCurrentActivity()) {
-                    case IDLE:
-                        if (robot.canMine()) {
-                            robot.mine();
-                            Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
-                            gameServiceRESTAdapter.sendPostRequestForCommand(command);
-                        } else {
-                            if (robot.canMove()) {
-                                robot.moveToNextUnexploredPlanet();
-                                Command command = Command.createMove(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), player.getPlayerId());
-                                gameServiceRESTAdapter.sendPostRequestForCommand(command);
-                            } else {
-                                gameServiceRESTAdapter.sendPostRequestForCommand(
-                                        Command.createRegeneration(robot.getRobotId(), player.getGameId(), robot.getPlayer().getPlayerId())
-                                );
-                            }
-                        }
-                        break;
-                    case MINING:
-                        if (robot.isFull()) {
-                            for (MineableResource resource: robot.getInventory().getResources()) {
-                                if (!resource.isEmpty()) {
-                                    gameServiceRESTAdapter.sendPostRequestForCommand(
-                                            Command.createSelling(robot.getRobotId(), player.getGameId(),robot.getPlayer().getPlayerId(), resource)
-                                    );
-                                    logger.info("Selling: {} {}", resource.getAmount(), resource.getType());
-                                }
-                            }
-                        } else {
-                            Command command = Command.createMining(robot.getRobotId(), robot.getPlanet().getPlanetId(), player.getGameId(), robot.getPlayer().getPlayerId());
-                            gameServiceRESTAdapter.sendPostRequestForCommand(command);
-                        }
-                        break;
-                    default:
-                        //TODO: robot moves or level mining skill if resources available
-                        break;
-                }
-                robotRepository.save(robot);
-            }
+        int count = player.getBankAccount().canBuyThatManyFor(Money.from(100));
+        if (count > 0) {
+            Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
+            gameServiceRESTAdapter.sendPostRequestForCommand(command);
         }
+        Integer robotCount = 0;
+        //TODO: only get your own robots instead of all
+        for (Robot robot : robotRepository.findAll()) {
+            Command command = robot.fetchNextCommand();
+            //TODO: possibility check
+
+            gameServiceRESTAdapter.sendPostRequestForCommand(command);
+        }
+        logger.info("Robot Count: {}", robotCount);
+        logger.info("Commands send!");
     }
 }

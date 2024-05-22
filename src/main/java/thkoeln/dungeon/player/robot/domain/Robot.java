@@ -5,19 +5,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
+import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
 import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
+import thkoeln.dungeon.player.core.domainprimitives.robot.CommandQueue;
 import thkoeln.dungeon.player.core.domainprimitives.robot.Inventory;
-import thkoeln.dungeon.player.core.domainprimitives.robot.TaskQueue;
 import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.player.domain.Player;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -39,7 +39,9 @@ public class Robot {
     private Integer energy;
     private Integer health;
 
-    //TODO: add inventory and stats
+    @Embedded
+    private CommandQueue queue = CommandQueue.emptyQueue();
+
     @Embedded
     private Inventory inventory = Inventory.fromCapacity(0);
 
@@ -68,25 +70,42 @@ public class Robot {
         this.inventory = inventory.removeMineableResource(resource);
     }
 
-    public CommandType choseNextCommand() {
-        if (canMine()) return mine();
+    public boolean hasEmptyQueue() {
+        return queue.isEmpty();
+    }
 
-        //TODO : buy upgrade for mining check
-        //TODO : move to next mineable planet
-        //TODO : move to next unexplored planet
+    public CommandType getNextCommandType() {
+        return queue.getNextType();
+    }
 
-        return null;
+    public Command fetchNextCommand() {
+        Command command = queue.getCommand();
+        this.queue = queue.getPolledQueue();
+        return command;
+    }
+
+    public void queueCommand(Command command) {
+        this.queue = queue.queueCommand(command);
+    }
+
+    public void queueAsFirstCommand(Command command) {
+        this.queue = queue.queueAsFirstCommand(command);
     }
 
     public void moveToNextUnexploredPlanet() {
-        List<Planet> planets = planet.getUnexploredNeighbors();
-        if (!planets.isEmpty()) {
-            planet = planets.get(0);
+        for (Planet p : planet.getPathToNearestUnexploredPlanet()) {
+            queueCommand(Command.createMove(robotId, p.getPlanetId(), player.getGameId(), player.getPlayerId()));
         }
     }
 
     public boolean canMove() {
         return energy >= planet.getMovementDifficulty();
+    }
+
+    public void escape() {
+        List<Planet> planets = planet.getNeighbors();
+        Planet random = planets.get(new Random().nextInt(planets.size()));
+        queueAsFirstCommand(Command.createMove(this.getRobotId(), random.getPlanetId(), this.player.getGameId(), this.player.getPlayerId()));
     }
 
     public void move(CompassDirection direction) {
@@ -97,13 +116,16 @@ public class Robot {
         this.planet = planet;
     }
 
-    public boolean canMine() {
-        return planet.hasResources() && planet.getResources().getType().getNeededMiningLevel().equals(getLevel(CapabilityType.MINING));
+    public void mine() {
+        if (isFull()) {
+            queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
+        }
+        //TODO cancel condition for higher value resources?
+        queueCommand(Command.createMining(robotId, planet.getPlanetId(), player.getGameId(), player.getPlayerId()));
     }
 
-    public CommandType mine() {
-        this.currentActivity = Activity.MINING;
-        return CommandType.MINING;
+    public boolean canMine() {
+        return planet.hasResources() && planet.getResources().getType().getNeededMiningLevel().equals(getLevel(CapabilityType.MINING));
     }
 
     public boolean isFull() {
