@@ -89,19 +89,19 @@ configmap:
     RABBITMQ_PORT: "5672"
     RABBITMQ_USER: "admin"
     RABBITMQ_PASSWORD: "admin"
-    GAME_SERVICE: "game.game.svc.cluster.local:8080"
+    GAME_HOST: "http://game.game.svc.cluster.local:8080"
 
 # ! TODO: change/update env values to your player environment variables
 env:
   - name: INTERNAL_ENDPOINT_PORT
-    value: 8999  # ! TODO: substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port (port of internal application same as service.ports.targetPort)
+    value: "8999"  # ! TODO: substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port (port of internal application same as service.ports.targetPort)
   - name: EXTERNAL_ENDPOINT_PORT
-    value: 8080 # ! TODO: change when needed (port of internal cluster communication same as service.ports.port)
+    value: "8080" # ! TODO: change when needed (port of internal cluster communication same as service.ports.port)
   - name: PLAYER_NAME
     value: "player-skeleton-java-springboot"  # ! TODO: substitute with correct player name
   - name: PLAYER_EMAIL
     value: "player-skeleton-java-springboot@msd.com"  # ! TODO: substitute with correct player email
   - name: DEV_MODE
-    value: false
+    value: "false"
 
 
