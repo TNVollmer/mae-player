@@ -1,5 +1,6 @@
 package thkoeln.dungeon.player.core.events.concreteevents.robot.change;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ public class RobotUpgradedEvent extends AbstractEvent {
     private UUID robotId;
     private Integer level;
     private String upgrade;
+    @JsonProperty("robot")
     private RobotDto robotDto;
 
     @Override

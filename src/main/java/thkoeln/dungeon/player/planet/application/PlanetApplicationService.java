@@ -3,16 +3,14 @@ package thkoeln.dungeon.player.planet.application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.planet.domain.PlanetRepository;
-import thkoeln.dungeon.player.robot.domain.Robot;
-import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +21,13 @@ import java.util.UUID;
 public class PlanetApplicationService {
 
     private final PlanetRepository planetRepository;
-    private final RobotRepository robotRepository;
 
     @Autowired
-    public PlanetApplicationService(PlanetRepository planetRepository, RobotRepository robotRepository) {
+    public PlanetApplicationService(PlanetRepository planetRepository) {
         this.planetRepository = planetRepository;
-        this.robotRepository = robotRepository;
     }
 
+    @Async
     @EventListener(PlanetDiscoveredEvent.class)
     public void onPlanetDiscovered(PlanetDiscoveredEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());
@@ -52,21 +49,16 @@ public class PlanetApplicationService {
         planetRepository.saveAll(neighbours);
         planetRepository.save(planet);
 
-        log.info("Discovered Planet {} with {}", planet.getId(), planet.getResources());
+        log.info("Discovered Planet {} with {}", planet.getPlanetId(), planet.getResources());
     }
 
+    @Async
     @EventListener(ResourceMinedEvent.class)
     public void onResourceMined(ResourceMinedEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());
         planet.minedResource(MineableResource.fromTypeAndAmount(planet.getResources().getType(), event.getMinedAmount()));
 
         planetRepository.save(planet);
-
-        if (!planet.hasResources()) {
-            List<Robot> robots = robotRepository.findByPlanet(planet);
-            robots.forEach(robot -> robot.setCurrentActivity(Activity.IDLE));
-            robotRepository.saveAll(robots);
-        }
     }
 
     private Planet getPlanetOrCreate(UUID planetId) {

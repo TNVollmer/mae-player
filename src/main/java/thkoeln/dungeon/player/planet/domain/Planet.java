@@ -4,7 +4,6 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -73,29 +72,23 @@ public class Planet {
     }
 
     public List<Planet> getNeighbors() {
-        List<Planet> neighbors = new ArrayList<>();
-        for (CompassDirection direction : CompassDirection.values()) {
-            Planet neighbor = getNeighbor(direction);
-            if (neighbor != null)
-                neighbors.add(neighbor);
-        }
-        return neighbors;
+        return getNeighborConditioned((Planet planet) -> true);
     }
 
     public List<Planet> getNeighborWithResources() {
-        List<Planet> neighbors = new ArrayList<>();
-        for (CompassDirection direction : CompassDirection.values()) {
-            Planet neighbor = getNeighbor(direction);
-            if (neighbor.hasResources()) neighbors.add(neighbor);
-        }
-        return neighbors;
+        return getNeighborConditioned(Planet::hasResources);
     }
 
     public List<Planet> getUnexploredNeighbors() {
+        return getNeighborConditioned((Planet planet) -> !planet.isExplored);
+    }
+
+    private List<Planet> getNeighborConditioned(Predicate<Planet> condition) {
         List<Planet> neighbors = new ArrayList<>();
         for (CompassDirection direction : CompassDirection.values()) {
             Planet neighbor = getNeighbor(direction);
-            if (neighbor != null && !neighbor.isExplored()) neighbors.add(neighbor);
+            if (neighbor != null && condition.test(neighbor))
+                neighbors.add(neighbor);
         }
         return neighbors;
     }
@@ -109,11 +102,11 @@ public class Planet {
     }
 
     public List<Planet> getPathToNearestUnexploredPlanet() {
-        return searchInMap((Planet planet)  -> !planet.isExplored);
+        return searchInMap((Planet planet) -> !planet.isExplored);
     }
 
     public List<Planet> getPathToPlanet(Planet endPoint) {
-        return searchInMap((Planet planet)  -> planet == endPoint);
+        return searchInMap((Planet planet) -> planet == endPoint);
     }
 
     private List<Planet> searchInMap(Predicate<Planet> condition) {
@@ -124,20 +117,20 @@ public class Planet {
 
         while (!graph.isEmpty()) {
             Planet current = graph.keySet().iterator().next();
-            graph.remove(current);
 
             for (Planet planet : current.getNeighbors()) {
                 if (visited.contains(planet)) continue;
                 visited.add(planet);
 
                 List<Planet> directions = new ArrayList<>(graph.get(current));
-                directions.add(current);
+                directions.add(planet);
                 graph.put(planet, directions);
 
                 if (condition.test(planet)) return graph.get(planet);
             }
+            graph.remove(current);
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public void explore() {

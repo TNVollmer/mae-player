@@ -19,8 +19,7 @@ public class RobotTest {
 
     @BeforeEach
     public void setup() {
-        robot = new Robot(UUID.randomUUID(), Player.ownPlayer("test", "test@test.test"), new Planet(UUID.randomUUID()));
-        robot.changeInventorySize(20);
+        robot = new Robot(UUID.randomUUID(), Player.ownPlayer("test", "test@test.test"), new Planet(UUID.randomUUID()), 20, 100);
     }
 
     @Test

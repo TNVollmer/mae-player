@@ -3,14 +3,18 @@ package thkoeln.dungeon.player.robot.application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotUpgradedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.fight.RobotAttackedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.planet.domain.PlanetRepository;
@@ -35,62 +39,60 @@ public class RobotApplicationService {
         this.playerRepository = playerRepository;
     }
 
+    @Async
     @EventListener(RobotSpawnedEvent.class)
     public void onRobotSpawned(RobotSpawnedEvent event) {
-        Player player = playerRepository.findAll().get(0);
-        Planet planet = getPlanet(event.getRobotDto().getPlanet().getPlanetId());
-        if (planet.getResources() == null && event.getRobotDto().getPlanet().getResourceType() != null)
-            planet.setResources(MineableResource.empty(MineableResourceType.valueOf(event.getRobotDto().getPlanet().getResourceType())));
-        Robot robot = new Robot(event.getRobotDto().getId(), player, planet);
-        robot.setEnergy(event.getRobotDto().getEnergy());
-        robot.setHealth(event.getRobotDto().getHealth());
-        robot.changeInventorySize(event.getRobotDto().getInventory().getMaxStorage());
-
-        //TODO: assign robot type
-        if (planet.getResources() != null) {
-            robot.mine();
-        }
-
+        Robot robot = createFromDto(event.getRobotDto());
         planetRepository.save(robot.getPlanet());
-        robotRepository.save(robot);
-        log.info("Robot {} spawned!", robot.getId());
+        //TODO: assign robot type
+        choseNextTask(robot);
+        log.info("Robot {} spawned!", robot.getRobotId());
     }
 
+    @Async
     @EventListener(RobotMovedEvent.class)
     public void onRobotMoved(RobotMovedEvent event) {
         Robot robot = getRobot(event.getRobotId());
-        robot.move(getPlanet(event.getToPlanet().getId()));
+        Planet planet = getPlanet(event.getToPlanet().getId());
+        if (planet.getMovementDifficulty() == null) {
+            planet.setMovementDifficulty(event.getToPlanet().getMovementDifficulty());
+            planetRepository.save(planet);
+        }
+        robot.move(planet);
         robot.setEnergy(event.getRemainingEnergy());
-        robotRepository.save(robot);
+        choseNextTask(robot);
     }
 
+    @Async
     @EventListener(RobotRegeneratedEvent.class)
     public void onRobotRegenerated(RobotRegeneratedEvent event) {
         Robot robot = getRobot(event.getRobotId());
         robot.setEnergy(event.getAvailableEnergy());
-        robotRepository.save(robot);
+        choseNextTask(robot);
     }
 
+    @Async
     @EventListener(RobotResourceMinedEvent.class)
     public void onRobotResourceMined(RobotResourceMinedEvent event) {
         Robot robot = getRobot(event.getRobotId());
 
         MineableResource minedResource = MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getMinedResource()), event.getMinedAmount());
         robot.storeResources(minedResource);
-        robot.mine();
         log.info("Robot {} mined: {} {}", robot.getId(), event.getMinedAmount(), event.getMinedResource());
         log.info("Inventory: {}", robot.getInventory().getUsedCapacity());
 
-        robotRepository.save(robot);
+        choseNextTask(robot);
     }
 
+    @Async
     @EventListener(RobotResourceRemovedEvent.class)
     public void onResourceRemoved(RobotResourceRemovedEvent event) {
         Robot robot = getRobot(event.getRobotId());
         robot.removeResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getRemovedResource()), event.getRemovedAmount()));
-        robotRepository.save(robot);
+        choseNextTask(robot);
     }
 
+    @Async
     @EventListener(RobotAttackedEvent.class)
     public void onRobotAttacked(RobotAttackedEvent event) {
         Robot attacker = getRobot(event.getAttacker().getRobotId());
@@ -100,6 +102,33 @@ public class RobotApplicationService {
         //TODO: get player and check if target is once own robot
         //if (target.getPlayer() == )
         target.escape();
+    }
+
+    @EventListener(RobotUpgradedEvent.class)
+    public void onRobotUpgrade(RobotUpgradedEvent event) {
+        Robot robot = getRobot(event.getRobotId());
+        //TODO: better upgrading
+        robot.upgradeCapability(CapabilityType.valueOf(event.getUpgrade()));
+        log.info("Upgrading {}: {}", robot.getRobotId(), event.getUpgrade());
+        choseNextTask(robot);
+    }
+
+    private Robot createFromDto(RobotDto dto) {
+        UUID id = dto.getId();
+        Player player = playerRepository.findByPlayerId(dto.getPlayer()).get();
+        Planet planet = getPlanet(dto.getPlanet().getPlanetId());
+        planet.setMovementDifficulty(dto.getPlanet().getMovementDifficulty());
+        if (planet.getResources() == null && dto.getPlanet().getResourceType() != null)
+            planet.setResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(dto.getPlanet().getResourceType()), 1));
+        log.info("Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
+
+        return new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getEnergy());
+    }
+
+    private void choseNextTask(Robot robot) {
+        if (!robot.hasCommand()) robot.chooseNextCommand();
+        robotRepository.save(robot);
+        log.info("Next Command for {}: {}", robot.getRobotId(), robot.getCommandType());
     }
 
     private Robot getRobot(UUID robotId) {

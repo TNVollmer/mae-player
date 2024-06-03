@@ -71,6 +71,7 @@ public class Command {
             throw new DomainPrimitiveException( "robotId == null || capability == null" );
         Command command = new Command( CommandType.BUYING, gameId, playerId );
         command.getCommandObject().setRobotId( robotId );
+        command.getCommandObject().setItemQuantity(1);
         command.getCommandObject().setItemName( capability.toStringForCommand() );
         return command;
     }

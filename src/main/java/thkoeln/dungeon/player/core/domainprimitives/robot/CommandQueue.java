@@ -1,6 +1,10 @@
 package thkoeln.dungeon.player.core.domainprimitives.robot;
 
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
@@ -8,10 +12,15 @@ import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-@NoArgsConstructor
+@Embeddable
 public class CommandQueue {
 
-    private Queue<Command> queue;
+    @ElementCollection(targetClass = Command.class, fetch = FetchType.EAGER)
+    private final Queue<Command> queue;
+
+    protected CommandQueue() {
+        this.queue = new PriorityQueue<>();
+    }
 
     protected CommandQueue(Queue<Command> queue) {
         this.queue = new PriorityQueue<>(queue);

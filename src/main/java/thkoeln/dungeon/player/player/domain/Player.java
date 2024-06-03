@@ -33,8 +33,16 @@ public class Player {
     private UUID playerId;
 
     @Embedded
-    @Setter(AccessLevel.PUBLIC)
     private Money bankAccount = Money.zero();
+    @Setter(AccessLevel.PUBLIC)
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "upgrade_amount"))
+    private Money upgradeBudget = Money.zero();
+    @Setter(AccessLevel.PUBLIC)
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "robot_amount"))
+    private Money newRobotsBudget = Money.zero();
+
 
     @Setter(AccessLevel.PUBLIC)
     private String playerExchange;
@@ -65,6 +73,25 @@ public class Player {
 
     public boolean isRegistered() {
         return getPlayerId() != null;
+    }
+
+    public void initBank(Integer balance) {
+        Money money = Money.from(balance);
+        bankAccount = bankAccount.increaseBy(money);
+        newRobotsBudget = newRobotsBudget.increaseBy(money);
+    }
+
+    public void depositInBank(Integer balance) {
+        bankAccount = bankAccount.increaseBy(Money.from(balance));
+
+        Integer split = balance / 3;
+
+        upgradeBudget = upgradeBudget.increaseBy(Money.from(split));
+        newRobotsBudget = newRobotsBudget.increaseBy(Money.from(split));
+    }
+
+    public void withdrawFromBank(Integer balance) {
+        bankAccount = bankAccount.decreaseBy(Money.from(balance * -1));
     }
 
     @Override

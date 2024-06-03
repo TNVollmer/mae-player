@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
-import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
-import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
-import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
@@ -20,7 +19,6 @@ import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitialized
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
-import thkoeln.dungeon.player.planet.domain.PlanetRepository;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
@@ -44,7 +42,6 @@ public class PlayerApplicationService {
     private final PlayerRepository playerRepository;
     private final GameApplicationService gameApplicationService;
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
-    private final PlanetRepository planetRepository;
     private final RobotRepository robotRepository;
     PlayerGameAutoStarter playerGameAutoStarter;
 
@@ -60,13 +57,12 @@ public class PlayerApplicationService {
             PlayerRepository playerRepository,
             GameApplicationService gameApplicationService,
             GameServiceRESTAdapter gameServiceRESTAdapter,
-            PlayerGameAutoStarter playerGameAutoStarter, PlanetRepository planetRepository, RobotRepository robotRepository)
+            PlayerGameAutoStarter playerGameAutoStarter, RobotRepository robotRepository)
     {
         this.playerRepository = playerRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.gameApplicationService = gameApplicationService;
         this.playerGameAutoStarter = playerGameAutoStarter;
-        this.planetRepository = planetRepository;
         this.robotRepository = robotRepository;
     }
 
@@ -177,40 +173,68 @@ public class PlayerApplicationService {
         logger.info("Cleaned up after finishing game.");
     }
 
+    @Async
     @EventListener(BankInitializedEvent.class)
     public void bankInitialized( BankInitializedEvent event ) {
         logger.info("Bank initialized with {} money.", event.getBalance());
         Player player = queryAndIfNeededCreatePlayer();
-        player.setBankAccount(Money.from(event.getBalance()));
+        player.initBank(event.getBalance());
         playerRepository.save(player);
     }
 
+    @Async
     @EventListener(BankAccountTransactionBookedEvent.class)
     public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
-        logger.info("Bank account updated to {} money.", event.getBalance());
         Player player = queryAndIfNeededCreatePlayer();
-        player.setBankAccount(Money.from(event.getBalance()));
+        Integer transaction = event.getTransactionAmount();
+
+        if (transaction > 0)
+            player.depositInBank(transaction);
+        else
+            player.withdrawFromBank(transaction);
+
         playerRepository.save(player);
+        logger.info("Bank account updated to {} money.", event.getBalance());
+        logger.info("Upgrade Budget: {}", player.getUpgradeBudget());
+        logger.info("New Robots Budget: {}", player.getNewRobotsBudget());
     }
 
+    @Async
     @EventListener(RoundStatusEvent.class)
     public void updateRoundStatus( RoundStatusEvent event ) {
         if (!event.getRoundStatus().equals(RoundStatusType.STARTED)) return;
 
         Player player = queryAndIfNeededCreatePlayer();
-        int count = player.getBankAccount().canBuyThatManyFor(Money.from(100));
+        int count = player.getNewRobotsBudget().canBuyThatManyFor(Money.from(100));
         if (count > 0) {
             Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
             gameServiceRESTAdapter.sendPostRequestForCommand(command);
+            player.setNewRobotsBudget(player.getNewRobotsBudget().decreaseBy(Money.from(100 * count)));
         }
-        Integer robotCount = 0;
         //TODO: only get your own robots instead of all
-        for (Robot robot : robotRepository.findAll()) {
-            Command command = robot.fetchNextCommand();
-            //TODO: possibility check
-
-            gameServiceRESTAdapter.sendPostRequestForCommand(command);
+        Iterable<Robot> robots = robotRepository.findAll();
+        Integer robotCount = 0;
+        for (Robot robot : robots) {
+            robotCount++;
+            Money budget = player.getUpgradeBudget();
+            if (robot.canBuyUpgrade(budget)) {
+                Capability upgrade = robot.buyUpgrade();
+                Command command = Command.createUpgrade(upgrade, robot.getRobotId(), player.getGameId(), player.getPlayerId());
+                player.setUpgradeBudget(budget.decreaseBy(upgrade.getUpgradePrice()));
+                gameServiceRESTAdapter.sendPostRequestForCommand(command);
+            } else {
+                if (!robot.hasCommand()) {
+                    logger.info("chose command for {}", robot.getRobotId());
+                    robot.chooseNextCommand();
+                }
+                if (robot.hasCommand())
+                    gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
+                else logger.info("{} is idle", robot.getRobotId());
+            }
         }
+
+        robotRepository.saveAll(robots);
+        playerRepository.save(player);
         logger.info("Robot Count: {}", robotCount);
         logger.info("Commands send!");
     }
