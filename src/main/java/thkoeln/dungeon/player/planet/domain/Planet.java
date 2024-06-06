@@ -48,11 +48,6 @@ public class Planet {
         this.planetId = planetId;
     }
 
-    public Planet(UUID planetId, MineableResource resources) {
-        this.planetId = planetId;
-        this.resources = resources;
-    }
-
     public void addNeighbor(Planet neighbor, CompassDirection direction) {
         switch (direction) {
             case NORTH -> northNeighbor = neighbor;
@@ -75,14 +70,6 @@ public class Planet {
         return getNeighborConditioned((Planet planet) -> true);
     }
 
-    public List<Planet> getNeighborWithResources() {
-        return getNeighborConditioned(Planet::hasResources);
-    }
-
-    public List<Planet> getUnexploredNeighbors() {
-        return getNeighborConditioned((Planet planet) -> !planet.isExplored);
-    }
-
     private List<Planet> getNeighborConditioned(Predicate<Planet> condition) {
         List<Planet> neighbors = new ArrayList<>();
         for (CompassDirection direction : CompassDirection.values()) {
@@ -93,16 +80,12 @@ public class Planet {
         return neighbors;
     }
 
-    public List<Planet> getPathToNearestPlanetWithResources() {
-        return searchInMap(Planet::hasResources);
-    }
-
     public List<Planet> getPathToNearestPlanetWithResource(MineableResourceType resourceType) {
-        return searchInMap((Planet planet) -> planet.hasResources() && planet.getResources().getType() == resourceType);
+        return searchInMap((Planet planet) -> planet.hasResource(resourceType));
     }
 
     public List<Planet> getPathToNearestUnexploredPlanet() {
-        return searchInMap((Planet planet) -> !planet.isExplored);
+        return searchInMap((Planet planet) -> !planet.isExplored());
     }
 
     public List<Planet> getPathToPlanet(Planet endPoint) {

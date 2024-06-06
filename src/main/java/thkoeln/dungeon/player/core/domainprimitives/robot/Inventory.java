@@ -42,6 +42,10 @@ public class Inventory {
         return new Inventory(capacity, resources);
     }
 
+    public boolean isEmpty() {
+        return getUsedCapacity() == 0;
+    }
+
     public boolean isFull() {
         return this.capacity.equals(getUsedCapacity());
     }

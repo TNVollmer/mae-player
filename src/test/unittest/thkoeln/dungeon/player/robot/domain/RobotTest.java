@@ -25,20 +25,22 @@ public class RobotTest {
     @Test
     public void testAddResources() {
         MineableResource emptyResource = MineableResource.empty(MineableResourceType.COAL);
-        MineableResource resourceAdd = MineableResource.fromTypeAndAmount(MineableResourceType.COAL, 2);
+        MineableResource resourceCoal = MineableResource.fromTypeAndAmount(MineableResourceType.COAL, 2);
+        MineableResource resourceIron = MineableResource.fromTypeAndAmount(MineableResourceType.IRON, 2);
 
-        Assertions.assertEquals(2, emptyResource.add(resourceAdd).getAmount());
+        Assertions.assertEquals(2, emptyResource.add(resourceCoal).getAmount());
 
-
-        robot.storeResources(resourceAdd);
+        robot.storeResources(resourceCoal);
         Assertions.assertEquals(2, robot.getInventory().getUsedCapacity());
-        robot.storeResources(resourceAdd);
+        robot.storeResources(resourceCoal);
         Assertions.assertEquals(4, robot.getInventory().getUsedCapacity());
-        robot.storeResources(resourceAdd);
+        robot.storeResources(resourceCoal);
         Assertions.assertEquals(6, robot.getInventory().getUsedCapacity());
+        robot.storeResources(resourceIron);
+        Assertions.assertEquals(8, robot.getInventory().getUsedCapacity());
 
         assertFalse(robot.isFull());
-        MineableResource fillMax = MineableResource.fromTypeAndAmount(MineableResourceType.COAL, 14);
+        MineableResource fillMax = MineableResource.fromTypeAndAmount(MineableResourceType.COAL, 12);
         robot.storeResources(fillMax);
         assertTrue(robot.isFull());
     }

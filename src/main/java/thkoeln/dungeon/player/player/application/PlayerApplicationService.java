@@ -163,7 +163,6 @@ public class PlayerApplicationService {
         }
     }
 
-
     public void cleanupAfterFinishingGame() {
         logger.info("Cleaning up player ...");
         Player player = queryAndIfNeededCreatePlayer();
@@ -189,14 +188,15 @@ public class PlayerApplicationService {
         Integer transaction = event.getTransactionAmount();
 
         if (transaction > 0)
-            player.depositInBank(transaction);
+            player.depositInBank(Money.from(transaction));
         else
-            player.withdrawFromBank(transaction);
+            player.withdrawFromBank(Money.from(transaction * -1));
 
         playerRepository.save(player);
         logger.info("Bank account updated to {} money.", event.getBalance());
         logger.info("Upgrade Budget: {}", player.getUpgradeBudget());
         logger.info("New Robots Budget: {}", player.getNewRobotsBudget());
+        logger.info("New Misc Budget: {}", player.getMiscBudget());
     }
 
     @Async
@@ -210,6 +210,7 @@ public class PlayerApplicationService {
             Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
             gameServiceRESTAdapter.sendPostRequestForCommand(command);
             player.setNewRobotsBudget(player.getNewRobotsBudget().decreaseBy(Money.from(100 * count)));
+            logger.info("Bought {} robots", count);
         }
         //TODO: only get your own robots instead of all
         Iterable<Robot> robots = robotRepository.findAll();

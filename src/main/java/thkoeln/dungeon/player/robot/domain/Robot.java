@@ -7,13 +7,13 @@ import lombok.Setter;
 import thkoeln.dungeon.player.core.domainprimitives.DomainPrimitiveException;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
-import thkoeln.dungeon.player.core.domainprimitives.location.CompassDirection;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.domainprimitives.robot.Inventory;
+import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
 import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.player.domain.Player;
@@ -37,11 +37,13 @@ public class Robot {
     @ManyToOne
     private Planet planet;
 
-    @Embedded
-    private Money budget = Money.zero();
-
     private Integer energy;
+    private Integer maxEnergy;
     private Integer health;
+    private Integer maxHealth;
+
+    @Embedded
+    private RobotType type;
 
     @Embedded
     private Command nextCommand;
@@ -85,6 +87,7 @@ public class Robot {
     }
 
     public void chooseNextCommand() {
+        //TODO: Check health and heal if necessary
         if (canMine() && !canMineBetterResources()) {
             mine();
         } else {
@@ -92,6 +95,9 @@ public class Robot {
                 moveToNextUnexploredPlanet();
             if (!canMove())
                 setNextCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
+            if (canMine() && canMineBetterResources() && !inventory.isEmpty()) {
+                setNextCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
+            }
         }
     }
 
@@ -120,7 +126,7 @@ public class Robot {
     }
 
     private void chooseNextUpgrade() {
-        List<CapabilityType> priorities = List.of(CapabilityType.MINING, CapabilityType.MINING_SPEED, CapabilityType.STORAGE, CapabilityType.HEALTH);
+        List<CapabilityType> priorities = getUpgradePriorities();
         Capability selected = null;
 
         for (CapabilityType type : priorities) {
@@ -142,13 +148,6 @@ public class Robot {
         }
 
         nextUpgrade = selected;
-    }
-
-    public boolean moveToNearestPlanetWithResources() {
-        List<Planet> path = planet.getPathToNearestPlanetWithResources();
-        if (path.isEmpty()) return false;
-        setMoveCommand(path.get(0));
-        return true;
     }
 
     public boolean moveToNearestPlanetWithBestMineableResources() {
@@ -181,10 +180,6 @@ public class Robot {
         List<Planet> planets = planet.getNeighbors();
         Planet random = planets.get(new Random().nextInt(planets.size()));
         nextCommand = Command.createMove(this.getRobotId(), random.getPlanetId(), this.player.getGameId(), this.player.getPlayerId());
-    }
-
-    public void move(CompassDirection direction) {
-        planet = planet.getNeighbor(direction);
     }
 
     public void move(Planet planet) {
@@ -232,5 +227,25 @@ public class Robot {
         if (toChange == null) return;
         stats.remove(toChange);
         stats.add(toChange.nextLevel());
+    }
+
+    public List<CapabilityType> getUpgradePriorities(){
+        return switch (type) {
+            case Scout -> List.of(
+                    CapabilityType.ENERGY_REGEN,
+                    CapabilityType.MAX_ENERGY
+            );
+            case Miner -> List.of(
+                    CapabilityType.MINING,
+                    CapabilityType.MINING_SPEED,
+                    CapabilityType.STORAGE,
+                    CapabilityType.ENERGY_REGEN,
+                    CapabilityType.MAX_ENERGY,
+                    CapabilityType.HEALTH);
+            case Warrior -> List.of(
+                    CapabilityType.DAMAGE,
+                    CapabilityType.ENERGY_REGEN,
+                    CapabilityType.MAX_ENERGY);
+        };
     }
 }

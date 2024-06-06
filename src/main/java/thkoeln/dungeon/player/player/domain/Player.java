@@ -36,12 +36,15 @@ public class Player {
     private Money bankAccount = Money.zero();
     @Setter(AccessLevel.PUBLIC)
     @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "upgrade_amount"))
+    @AttributeOverride(name = "amount", column = @Column(name = "upgrade_budget"))
     private Money upgradeBudget = Money.zero();
     @Setter(AccessLevel.PUBLIC)
     @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "robot_amount"))
+    @AttributeOverride(name = "amount", column = @Column(name = "robot_budget"))
     private Money newRobotsBudget = Money.zero();
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "misc_budget"))
+    private Money miscBudget = Money.zero();
 
 
     @Setter(AccessLevel.PUBLIC)
@@ -81,17 +84,23 @@ public class Player {
         newRobotsBudget = newRobotsBudget.increaseBy(money);
     }
 
-    public void depositInBank(Integer balance) {
-        bankAccount = bankAccount.increaseBy(Money.from(balance));
+    public void depositInBank(Money balance) {
+        bankAccount = bankAccount.increaseBy(balance);
+        Money change;
+        if (miscBudget.getAmount() < 500) {
+            change = balance.getPercentage(20);
+            miscBudget = miscBudget.increaseBy(change);
+            balance.decreaseBy(change);
+        }
 
-        Integer split = balance / 3;
-
-        upgradeBudget = upgradeBudget.increaseBy(Money.from(split));
-        newRobotsBudget = newRobotsBudget.increaseBy(Money.from(split));
+        change = balance.getPercentage(50);
+        upgradeBudget = upgradeBudget.increaseBy(change);
+        balance.decreaseBy(change);
+        newRobotsBudget = newRobotsBudget.increaseBy(balance);
     }
 
-    public void withdrawFromBank(Integer balance) {
-        bankAccount = bankAccount.decreaseBy(Money.from(balance * -1));
+    public void withdrawFromBank(Money balance) {
+        bankAccount = bankAccount.decreaseBy(balance);
     }
 
     @Override

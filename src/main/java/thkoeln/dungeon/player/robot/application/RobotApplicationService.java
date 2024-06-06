@@ -109,6 +109,7 @@ public class RobotApplicationService {
         Robot robot = getRobot(event.getRobotId());
         //TODO: better upgrading
         robot.upgradeCapability(CapabilityType.valueOf(event.getUpgrade()));
+        updateFromDto(robot, event.getRobotDto());
         log.info("Upgrading {}: {}", robot.getRobotId(), event.getUpgrade());
         choseNextTask(robot);
     }
@@ -123,6 +124,12 @@ public class RobotApplicationService {
         log.info("Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
 
         return new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getEnergy());
+    }
+
+    private void updateFromDto(Robot robot, RobotDto dto) {
+        robot.changeInventorySize(dto.getInventory().getMaxStorage());
+        robot.setMaxEnergy(dto.getMaxEnergy());
+        robot.setMaxHealth(dto.getMaxHealth());
     }
 
     private void choseNextTask(Robot robot) {

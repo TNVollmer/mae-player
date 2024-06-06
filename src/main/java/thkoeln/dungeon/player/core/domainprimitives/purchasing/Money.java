@@ -31,6 +31,12 @@ public class Money {
         return ( this.amount / price.amount );
     }
 
+    public Money getPercentage(Integer percent) {
+        if (percent == null) throw new DomainPrimitiveException("percent == null");
+        if (percent < 0) throw new DomainPrimitiveException("percent < 0");
+        return Money.from((int) (amount * (percent / 100)));
+    }
+
     public Money decreaseBy( Money moneyDue ) {
         if ( moneyDue == null ) throw new DomainPrimitiveException( "amountDue == null" );
         if ( moneyDue.greaterThan( this ) ) {
