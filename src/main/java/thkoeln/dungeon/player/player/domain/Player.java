@@ -89,14 +89,14 @@ public class Player {
         Money change;
         if (miscBudget.getAmount() < 500) {
             change = balance.getPercentage(20);
-            miscBudget = miscBudget.increaseBy(change);
-            balance.decreaseBy(change);
+            this.miscBudget = miscBudget.increaseBy(change);
+            balance = balance.decreaseBy(change);
         }
 
         change = balance.getPercentage(50);
-        upgradeBudget = upgradeBudget.increaseBy(change);
-        balance.decreaseBy(change);
-        newRobotsBudget = newRobotsBudget.increaseBy(balance);
+        this.upgradeBudget = upgradeBudget.increaseBy(change);
+        balance = balance.decreaseBy(change);
+        this.newRobotsBudget = newRobotsBudget.increaseBy(balance);
     }
 
     public void withdrawFromBank(Money balance) {

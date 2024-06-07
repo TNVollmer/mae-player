@@ -34,7 +34,7 @@ public class Money {
     public Money getPercentage(Integer percent) {
         if (percent == null) throw new DomainPrimitiveException("percent == null");
         if (percent < 0) throw new DomainPrimitiveException("percent < 0");
-        return Money.from((int) (amount * (percent / 100)));
+        return Money.from((int) (amount * ((float) percent / 100)));
     }
 
     public Money decreaseBy( Money moneyDue ) {
