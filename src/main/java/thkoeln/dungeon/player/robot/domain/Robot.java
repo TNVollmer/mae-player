@@ -14,7 +14,6 @@ import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.domainprimitives.robot.Inventory;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
-import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.player.domain.Player;
 
@@ -42,8 +41,7 @@ public class Robot {
     private Integer health;
     private Integer maxHealth;
 
-    @Embedded
-    private RobotType type;
+    private RobotType robotType;
 
     @Embedded
     private Command nextCommand;
@@ -58,7 +56,6 @@ public class Robot {
     private Capability nextUpgrade;
 
     private boolean isAlive = true;
-    private Activity currentActivity = Activity.IDLE;
 
 
     public Robot(UUID robotId, Player player, Planet planet, Integer inventorySize, Integer energy) {
@@ -71,6 +68,7 @@ public class Robot {
 
         this.energy = energy;
 
+        this.robotType = RobotType.Miner;
         chooseNextUpgrade();
     }
 
@@ -230,7 +228,7 @@ public class Robot {
     }
 
     public List<CapabilityType> getUpgradePriorities(){
-        return switch (type) {
+        return switch (robotType) {
             case Scout -> List.of(
                     CapabilityType.ENERGY_REGEN,
                     CapabilityType.MAX_ENERGY

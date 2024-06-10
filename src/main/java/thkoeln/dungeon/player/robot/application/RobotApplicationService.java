@@ -39,7 +39,6 @@ public class RobotApplicationService {
         this.playerRepository = playerRepository;
     }
 
-    @Async
     @EventListener(RobotSpawnedEvent.class)
     public void onRobotSpawned(RobotSpawnedEvent event) {
         Robot robot = createFromDto(event.getRobotDto());

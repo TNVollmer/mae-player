@@ -27,7 +27,6 @@ public class PlanetApplicationService {
         this.planetRepository = planetRepository;
     }
 
-    @Async
     @EventListener(PlanetDiscoveredEvent.class)
     public void onPlanetDiscovered(PlanetDiscoveredEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());
