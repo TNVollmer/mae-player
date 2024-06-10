@@ -9,11 +9,14 @@ import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRestoredAttributesEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotUpgradedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.fight.RobotAttackedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceMinedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.mine.RobotResourceRemovedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.move.RobotMovedEvent;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevealedDto;
+import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
 import thkoeln.dungeon.player.planet.domain.Planet;
@@ -49,6 +52,12 @@ public class RobotApplicationService {
     }
 
     @Async
+    @EventListener(RobotsRevealedEvent.class)
+    public void onRobotsRevealed(RobotsRevealedEvent event) {
+
+    }
+
+    @Async
     @EventListener(RobotMovedEvent.class)
     public void onRobotMoved(RobotMovedEvent event) {
         Robot robot = getRobot(event.getRobotId());
@@ -67,6 +76,15 @@ public class RobotApplicationService {
     public void onRobotRegenerated(RobotRegeneratedEvent event) {
         Robot robot = getRobot(event.getRobotId());
         robot.setEnergy(event.getAvailableEnergy());
+        choseNextTask(robot);
+    }
+
+    @Async
+    @EventListener(RobotRestoredAttributesEvent.class)
+    public void onRobotAttributesRestored(RobotRestoredAttributesEvent event) {
+        Robot robot = getRobot(event.getRobotId());
+        robot.setEnergy(event.getAvailableEnergy());
+        robot.setHealth(event.getAvailableHealth());
         choseNextTask(robot);
     }
 
@@ -129,6 +147,7 @@ public class RobotApplicationService {
         robot.changeInventorySize(dto.getInventory().getMaxStorage());
         robot.setMaxEnergy(dto.getMaxEnergy());
         robot.setMaxHealth(dto.getMaxHealth());
+        robot.setDamage(dto.getAttackDamage());
     }
 
     private void choseNextTask(Robot robot) {

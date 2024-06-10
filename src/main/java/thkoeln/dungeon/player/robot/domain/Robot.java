@@ -40,6 +40,7 @@ public class Robot {
     private Integer maxEnergy;
     private Integer health;
     private Integer maxHealth;
+    private Integer damage;
 
     private RobotType robotType;
 
@@ -68,7 +69,9 @@ public class Robot {
 
         this.energy = energy;
 
-        this.robotType = RobotType.Miner;
+        this.robotType = RobotDecisionMaker.getNextRobotType();
+        RobotDecisionMaker.addRobot(robotType);
+
         chooseNextUpgrade();
     }
 
@@ -124,7 +127,7 @@ public class Robot {
     }
 
     private void chooseNextUpgrade() {
-        List<CapabilityType> priorities = getUpgradePriorities();
+        List<CapabilityType> priorities = RobotDecisionMaker.getUpgradePriorities(robotType);
         Capability selected = null;
 
         for (CapabilityType type : priorities) {
@@ -225,25 +228,5 @@ public class Robot {
         if (toChange == null) return;
         stats.remove(toChange);
         stats.add(toChange.nextLevel());
-    }
-
-    public List<CapabilityType> getUpgradePriorities(){
-        return switch (robotType) {
-            case Scout -> List.of(
-                    CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY
-            );
-            case Miner -> List.of(
-                    CapabilityType.MINING,
-                    CapabilityType.MINING_SPEED,
-                    CapabilityType.STORAGE,
-                    CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY,
-                    CapabilityType.HEALTH);
-            case Warrior -> List.of(
-                    CapabilityType.DAMAGE,
-                    CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY);
-        };
     }
 }
