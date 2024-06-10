@@ -1,57 +1,28 @@
-image: docker:20.10.16
-services:
-  - docker:20.10.16-dind
-
 include:
   - project: "the-microservice-dungeon/devops-team/common-ci-cd"
     ref: "main"
-    file: "helm/package-publish.yaml"
-
-variables:
-  # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:latest
-  PATH_TO_CHART: "helm-chart"
-  CHART_NAME: "baba-player"
+    file:
+      - "helm/package-publish.yaml"
+      - "container/image-dockerfile-publish.yaml"
 
 stages:
-  - build
-  - build_container_image
+  - build_container_push
   - helm
 
-maven-build:
-  image: maven:latest
-  stage: build
-  script: "mvn clean package -B"
-  artifacts:
-    paths:
-      - target/*.jar
+variables:
+  PATH_TO_CHART: "helm-chart"
+  CHART_NAME: "player-skeleton-java-springboot" # ! TODO: replace with your player-name
+  CI_MSD_CONTAINER_REGISTRY: "registry.gitlab.com/the-microservice-dungeon/devops-team/msd-image-registry/player-skeleton-java-springboot" # ! TODO: replace player-skeleton-java-springboot with your player-name
 
 
-#---------------------------------------------------------------------------------------------------------
-# This version of the docker build requires that the Gitlab Runner on the TH Köln High Performance Cluster
-# is configured be used. See FIXME for more details.
-#---------------------------------------------------------------------------------------------------------
-docker-build:
-  stage: build_container_image
-  script:
-    - docker login "$CI_REGISTRY" --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD"
-    - docker build -t $IMAGE_TAG .
-    - docker push $IMAGE_TAG
+# build stage (build from Dockerfile and push to msd registry, access token is needed)
+container-image-publish:
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
 
-#---------------------------------------------------------------------------------------------------------
-# This version of the docker build can be run with any Gitlab Runner, also with the Shared Runner
-# See FIXME for more details.
-#---------------------------------------------------------------------------------------------------------
-# docker-build:
-#   stage: build_container_image
-#  script:
-#    - docker login "$CI_REGISTRY" --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD"
-#    - docker build -t $IMAGE_TAG .
-#    - docker push $IMAGE_TAG
-
-
+# build and push helm chart to our registry (no access token is needed)
 helm-package-publish:
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
@@ -59,3 +30,4 @@ helm-package-publish:
         - ${PATH_TO_CHART}/**/*
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: always
+

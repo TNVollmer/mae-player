@@ -1,53 +1,54 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.name }}-deployment
-  namespace: {{ .Values.name }}
+  name: {{ include "player-skeleton-java-springboot.fullname" . }}
   labels:
-    app: {{ .Values.name }}
+    {{- include "player-skeleton-java-springboot.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas | int }}
   selector:
     matchLabels:
-      app: {{ .Values.name }}
+      {{- include "player-skeleton-java-springboot.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}
+        {{- include "player-skeleton-java-springboot.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ include "player-skeleton-java-springboot.serviceAccountName" . }}
       containers:
-        - name: {{ .Values.name }}
-          {{- if .Values.image.tag }}
-          image: {{ .Values.image.name }}:{{ .Values.image.tag }}
-          {{- else }}
-          image: {{ .Values.image.name }}:latest
-          {{- end }}
-          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.Version }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.env.EXTERNAL_ENDPOINT_PORT | int }}
-              protocol: TCP
-              name: {{ .Values.serviceName }}
+          {{- range .Values.service.ports }}
+          - name: {{ .name | lower }}
+            containerPort: {{ .port }}
+            protocol: {{ .protocol }}
+            {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "player-skeleton-java-springboot.fullname" . }}
+          {{- if .Values.env }}
           env:
-            - name: GAME_HOST
-              value: "{{ .Values.env.GAME_HOST }}"
-            - name: RABBITMQ_HOST
-              value: "{{ .Values.env.RABBITMQ_HOST }}"
-            - name: RABBITMQ_PORT
-              value: "{{ .Values.env.RABBITMQ_PORT }}"
-            - name: RABBITMQ_USERNAME
-              value: "{{ .Values.env.RABBITMQ_USERNAME }}"
-            - name: RABBITMQ_PASSWORD
-              value: "{{ .Values.env.RABBITMQ_PASSWORD }}"
-            - name: INTERNAL_ENDPOINT_PORT
-              value: "{{ .Values.env.INTERNAL_ENDPOINT_PORT  }}"
-            - name: EXTERNAL_ENDPOINT_PORT
-              value: "{{ .Values.env.EXTERNAL_ENDPOINT_PORT  }}"
-            - name: LOGGING_LEVEL
-              value: "{{ .Values.env.LOGGING_LEVEL }}"
+          {{- toYaml .Values.env | nindent 12 }}
+          {{- end }}
           volumeMounts:
-            - mountPath: /app/logs
-              name: logs-volume
+            - mountPath: {{ .Values.logVol.mountPath }}
+              name: {{ .Values.logVol.name }}
       volumes:
-        - name: logs-volume
+        - name: {{ .Values.logVol.name }}
           emptyDir:
-            sizeLimit: 500Mi
+            sizeLimit: {{ .Values.logVol.sizeLimit }}
+
