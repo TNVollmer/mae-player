@@ -101,6 +101,12 @@ public class Player {
 
     public void withdrawFromBank(Money balance) {
         bankAccount = bankAccount.decreaseBy(balance);
+
+        Money budgets = miscBudget.increaseBy(upgradeBudget).increaseBy(newRobotsBudget);
+        if (bankAccount.greaterThan(budgets)) {
+            Money leak = bankAccount.decreaseBy(budgets);
+            upgradeBudget = upgradeBudget.increaseBy(leak);
+        }
     }
 
     @Override
