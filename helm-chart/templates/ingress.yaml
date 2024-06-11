@@ -1,9 +1,9 @@
 {{- if eq .Values.ingress.enabled true }}
-  {{- $fullname := include "player-skeleton-java-springboot.fullname" . -}}
+  {{- $fullname := include "player-tom.fullname" . -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "player-skeleton-java-springboot.fullname" . }}
+  name: {{ include "player-tom.fullname" . }}
 spec:
   rules:
     {{- range .Values.ingress.hosts }}

@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "player-skeleton-java-springboot.name" -}}
+{{- define "player-tom.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "player-skeleton-java-springboot.fullname" -}}
+{{- define "player-tom.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "player-skeleton-java-springboot.chart" -}}
+{{- define "player-tom.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "player-skeleton-java-springboot.labels" -}}
-helm.sh/chart: {{ include "player-skeleton-java-springboot.chart" . }}
-{{ include "player-skeleton-java-springboot.selectorLabels" . }}
+{{- define "player-tom.labels" -}}
+helm.sh/chart: {{ include "player-tom.chart" . }}
+{{ include "player-tom.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "player-skeleton-java-springboot.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "player-skeleton-java-springboot.name" . }}
+{{- define "player-tom.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "player-tom.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "player-skeleton-java-springboot.serviceAccountName" -}}
+{{- define "player-tom.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "player-skeleton-java-springboot.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "player-tom.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

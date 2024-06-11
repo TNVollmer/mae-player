@@ -1,5 +1,5 @@
 apiVersion: v2
-name: player-skeleton-java-springboot
+name: player-tom
 description: Helm Chart for the java spring skeleton player
 
 # A chart can be either an 'application' or a 'library' chart.
