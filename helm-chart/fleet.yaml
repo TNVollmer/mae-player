@@ -1,7 +1,7 @@
-namespace: player-tom
+namespace: "player-tom"
 helm:
-  releaseName: player-tom
-  targetNamespace: player-tom
+  releaseName: "player-tom"
+  targetNamespace: "player-tom"
   repo: "https://gitlab.com/api/v4/projects/42239222/packages/helm/stable"
   chart: "player-tom"
   values:
