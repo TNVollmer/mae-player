@@ -62,14 +62,17 @@ public class Robot {
     private boolean isAlive = true;
 
 
-    public Robot(UUID robotId, Player player, Planet planet, Integer inventorySize, Integer energy) {
+    public Robot(UUID robotId, Player player, Planet planet, Integer inventorySize, Integer maxEnergy, Integer maxHealth) {
         this.robotId = robotId;
         this.player = player;
         this.planet = planet;
 
         this.inventory = Inventory.fromCapacity(inventorySize);
 
-        this.energy = energy;
+        this.maxEnergy = maxEnergy;
+        this.energy = maxEnergy;
+        this.maxHealth = maxHealth;
+        this.health = maxHealth;
 
         this.robotType = RobotDecisionMaker.getNextRobotType();
         RobotDecisionMaker.addRobot(robotType);
@@ -113,6 +116,7 @@ public class Robot {
                 queueFirst(Command.createRegeneration(getRobotId(), getPlayer().getGameId(), getPlayer().getPlayerId()));
             else {
                 List<Planet> neighbours = getPlanet().getNeighbors();
+                if (neighbours.isEmpty()) return;
                 Planet random = neighbours.get(new Random().nextInt(neighbours.size()));
                 queueCommand(Command.createMove(getRobotId(), random.getPlanetId(), getPlayer().getGameId(), getPlayer().getPlayerId()));
             }

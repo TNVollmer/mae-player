@@ -59,7 +59,7 @@ public class RobotApplicationService {
             planet.setResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(dto.getPlanet().getResourceType()), 1));
             log.info("Due to Robot discovered set Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
         }
-        Robot robot =  new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getEnergy());
+        Robot robot =  new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getMaxEnergy(), dto.getMaxHealth());
         planetRepository.save(robot.getPlanet());
         choseNextTask(robot);
         log.info("Robot {} ({}) spawned!", robot.getRobotId(), robot.getRobotType());
@@ -71,9 +71,10 @@ public class RobotApplicationService {
         List<UUID> ids = getAllRobotIDs();
         List<Robot> warriors = robotRepository.findByRobotType(RobotType.Warrior);
         RobotRevealedDto[] revealedRobots = event.getRobots();
-        log.info("{} Robots revealed", revealedRobots.length);
+        Integer count = 0;
         for (RobotRevealedDto robotRevealedDto : revealedRobots) {
             if (ids.contains(robotRevealedDto.getRobotId())) continue;
+            count++;
             for (Robot robot : warriors) {
                 if (!robot.hasCommand() || robot.getCommandType() != CommandType.MOVEMENT) continue;
                 if (robot.getPlanet().getPlanetId() == robotRevealedDto.getPlanetId()) {
@@ -84,6 +85,7 @@ public class RobotApplicationService {
                 }
             }
         }
+        log.info("{} Robots revealed / {} are enemies", revealedRobots.length, count);
         robotRepository.saveAll(warriors);
     }
 
@@ -99,7 +101,7 @@ public class RobotApplicationService {
         robot.move(planet);
         robot.setEnergy(event.getRemainingEnergy());
         choseNextTask(robot);
-        log.info("Robot {} ({}) moved to Planet {}", robot.getId(), robot.getRobotType(), planet.getId());
+        log.info("Robot {} ({}) has {} Energy left and moved to Planet {}", robot.getId(), robot.getRobotType(), robot.getEnergy(), planet.getId());
     }
 
     @Async
@@ -108,7 +110,7 @@ public class RobotApplicationService {
         Robot robot = getRobot(event.getRobotId());
         robot.setEnergy(event.getAvailableEnergy());
         choseNextTask(robot);
-        log.info("Robot {} ({}): regenerated", robot.getId(), robot.getRobotType());
+        log.info("Robot {} ({}): regenerated to {} Energy", robot.getId(), robot.getRobotType(), robot.getEnergy());
     }
 
     @Async
@@ -188,6 +190,8 @@ public class RobotApplicationService {
 
     private void choseNextTask(Robot robot) {
         if (!robot.hasCommand()) robot.chooseNextCommand();
+        if (robot.getCommandType() == CommandType.MOVEMENT && !robot.canMove())
+            robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
         robotRepository.save(robot);
         log.info("Robot {} ({}) Next Command: {}", robot.getRobotId(), robot.getRobotType(), robot.getCommandType());
     }

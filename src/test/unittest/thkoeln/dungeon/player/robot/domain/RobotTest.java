@@ -22,16 +22,16 @@ public class RobotTest {
     public void setup() {
         player = Player.ownPlayer("test", "test@test.test");
         RobotDecisionMaker.clear();
-        robot = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 100);
+        robot = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 20, 100);
     }
 
     @Test
     public void testTypeSetting() {
-        Robot robotMiner1 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 100);
-        Robot robotMiner2 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 100);
-        Robot robotMiner3 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 100);
+        Robot robotMiner1 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 20, 100);
+        Robot robotMiner2 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 20, 100);
+        Robot robotMiner3 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 20, 100);
 
-        Robot robotWarrior1 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 100);
+        Robot robotWarrior1 = new Robot(UUID.randomUUID(), player, new Planet(UUID.randomUUID()), 20, 20, 100);
 
         Assertions.assertEquals(RobotType.Scout, robot.getRobotType());
         Assertions.assertEquals(RobotType.Miner, robotMiner1.getRobotType());
