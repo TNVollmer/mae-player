@@ -46,9 +46,15 @@ public class TradingApplicationService {
                 player.decreaseMiscBudget(Money.from(event.getTotalPrice()));
                 break;
         }
+        playerRepository.save(player);
         if (event.getRobotId() == null)
-            log.info("Bought {} Robots", event.getAmount());
+            log.info("Bought {} Robots for {}", event.getAmount(), event.getTotalPrice());
         else
-            log.info("{} bought: {} ({})", event.getRobotId(), event.getName(), event.getType());
+            log.info("{} bought: {} ({}) for {}", event.getRobotId(), event.getName(), event.getType(), event.getTotalPrice());
+
+        log.info("Bank account updated to {} money.", player.getBankAccount());
+        log.info("Upgrade Budget: {}", player.getUpgradeBudget());
+        log.info("New Robots Budget: {}", player.getNewRobotsBudget());
+        log.info("New Misc Budget: {}", player.getMiscBudget());
     }
 }

@@ -11,12 +11,12 @@ import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.domainprimitives.robot.Inventory;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.player.domain.Player;
-import thkoeln.dungeon.player.robot.domain.strategies.TaskSelection;
 
 import java.util.*;
 
@@ -47,7 +47,7 @@ public class Robot {
 
     private RobotType robotType;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Command> commandQueue = new ArrayList<>();
 
     @Embedded
@@ -90,16 +90,31 @@ public class Robot {
     }
 
     public void chooseNextCommand() {
-        //TODO: Check health and heal if necessary
-        if (canMine() && !canMineBetterResources()) {
-            mine();
+        //TODO: move to a strategy
+        if (health < (maxHealth/2)) {
+            queueFirst(Command.createItemPurchase(ItemType.HEALTH_RESTORE, 1, robotId, player.getGameId(), player.getPlayerId()));
+        }else if (robotType == RobotType.Miner) {
+            if (canMine() && !canMineBetterResources()) {
+                mine();
+            } else {
+                if (!moveToNearestPlanetWithBestMineableResources())
+                    moveToNextUnexploredPlanet();
+                if (!canMove())
+                    queueCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
+                if (canMine() && canMineBetterResources() && !inventory.isEmpty()) {
+                    queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
+                }
+            }
+        } else if (robotType == RobotType.Scout) {
+            if (!moveToNextUnexploredPlanet())
+                setRobotType(RobotDecisionMaker.getNextRobotType());
         } else {
-            if (!moveToNearestPlanetWithBestMineableResources())
-                moveToNextUnexploredPlanet();
             if (!canMove())
-                queueCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
-            if (canMine() && canMineBetterResources() && !inventory.isEmpty()) {
-                queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
+                queueFirst(Command.createRegeneration(getRobotId(), getPlayer().getGameId(), getPlayer().getPlayerId()));
+            else {
+                List<Planet> neighbours = getPlanet().getNeighbors();
+                Planet random = neighbours.get(new Random().nextInt(neighbours.size()));
+                queueCommand(Command.createMove(getRobotId(), random.getPlanetId(), getPlayer().getGameId(), getPlayer().getPlayerId()));
             }
         }
     }
@@ -162,7 +177,6 @@ public class Robot {
                     selected = capability;
             }
         }
-
         nextUpgrade = selected;
     }
 
@@ -197,6 +211,7 @@ public class Robot {
     public void executeOnAttackBehaviour() {
         //TODO: use onAttackStrategie?
         if (robotType == RobotType.Miner) {
+            commandQueue.clear();
             List<Planet> planets = planet.getNeighbors();
             Planet random = planets.get(new Random().nextInt(planets.size()));
             queueCommand(Command.createMove(this.getRobotId(), random.getPlanetId(), this.player.getGameId(), this.player.getPlayerId()));

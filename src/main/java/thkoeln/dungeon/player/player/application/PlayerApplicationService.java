@@ -175,6 +175,7 @@ public class PlayerApplicationService {
         logger.info("Cleaned up after finishing game.");
     }
 
+    @Async
     @EventListener(BankInitializedEvent.class)
     public void bankInitialized( BankInitializedEvent event ) {
         logger.info("Bank initialized with {} money.", event.getBalance());
@@ -183,6 +184,7 @@ public class PlayerApplicationService {
         playerRepository.save(player);
     }
 
+    @Async
     @EventListener(BankAccountTransactionBookedEvent.class)
     public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
         Player player = queryAndIfNeededCreatePlayer();

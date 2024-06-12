@@ -70,8 +70,9 @@ public class RobotApplicationService {
     public void onRobotsRevealed(RobotsRevealedEvent event) {
         List<UUID> ids = getAllRobotIDs();
         List<Robot> warriors = robotRepository.findByRobotType(RobotType.Warrior);
-
-        for (RobotRevealedDto robotRevealedDto : event.getRobots()) {
+        RobotRevealedDto[] revealedRobots = event.getRobots();
+        log.info("{} Robots revealed", revealedRobots.length);
+        for (RobotRevealedDto robotRevealedDto : revealedRobots) {
             if (ids.contains(robotRevealedDto.getRobotId())) continue;
             for (Robot robot : warriors) {
                 if (!robot.hasCommand() || robot.getCommandType() != CommandType.MOVEMENT) continue;
@@ -98,7 +99,7 @@ public class RobotApplicationService {
         robot.move(planet);
         robot.setEnergy(event.getRemainingEnergy());
         choseNextTask(robot);
-        log.info("Robot {} ({}) moved to {}", robot.getId(), robot.getRobotType(), planet.getId());
+        log.info("Robot {} ({}) moved to Planet {}", robot.getId(), robot.getRobotType(), planet.getId());
     }
 
     @Async
@@ -137,6 +138,7 @@ public class RobotApplicationService {
         Robot robot = getRobot(event.getRobotId());
         robot.removeResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getRemovedResource()), event.getRemovedAmount()));
         choseNextTask(robot);
+        log.info("Robot {} ({}) resource removed: {} {}", robot.getId(), robot.getRobotType(), event.getRemovedAmount(), event.getRemovedResource());
     }
 
     @Async
