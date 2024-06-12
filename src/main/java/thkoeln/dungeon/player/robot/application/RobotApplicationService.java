@@ -5,9 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.domainprimitives.command.Command;
+import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
+import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRestoredAttributesEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotUpgradedEvent;
@@ -24,8 +27,11 @@ import thkoeln.dungeon.player.planet.domain.PlanetRepository;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
+import thkoeln.dungeon.player.robot.domain.RobotDecisionMaker;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -44,17 +50,40 @@ public class RobotApplicationService {
 
     @EventListener(RobotSpawnedEvent.class)
     public void onRobotSpawned(RobotSpawnedEvent event) {
-        Robot robot = createFromDto(event.getRobotDto());
+        RobotDto dto = event.getRobotDto();
+        UUID id = dto.getId();
+        Player player = playerRepository.findAll().get(0);
+        Planet planet = getPlanet(dto.getPlanet().getPlanetId());
+        planet.setMovementDifficulty(dto.getPlanet().getMovementDifficulty());
+        if (planet.getResources() == null && dto.getPlanet().getResourceType() != null) {
+            planet.setResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(dto.getPlanet().getResourceType()), 1));
+            log.info("Due to Robot discovered set Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
+        }
+        Robot robot =  new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getEnergy());
         planetRepository.save(robot.getPlanet());
-        //TODO: assign robot type
         choseNextTask(robot);
-        log.info("Robot {} spawned!", robot.getRobotId());
+        log.info("Robot {} ({}) spawned!", robot.getRobotId(), robot.getRobotType());
     }
 
     @Async
     @EventListener(RobotsRevealedEvent.class)
     public void onRobotsRevealed(RobotsRevealedEvent event) {
+        List<UUID> ids = getAllRobotIDs();
+        List<Robot> warriors = robotRepository.findByRobotType(RobotType.Warrior);
 
+        for (RobotRevealedDto robotRevealedDto : event.getRobots()) {
+            if (ids.contains(robotRevealedDto.getRobotId())) continue;
+            for (Robot robot : warriors) {
+                if (!robot.hasCommand() || robot.getCommandType() != CommandType.MOVEMENT) continue;
+                if (robot.getPlanet().getPlanetId() == robotRevealedDto.getPlanetId()) {
+                    robot.queueFirst(
+                            Command.createFight(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId(), robotRevealedDto.getRobotId())
+                    );
+                    log.info("Robot {} ({}) now attacks {}", robot.getId(), robot.getRobotType(), robotRevealedDto.getRobotId());
+                }
+            }
+        }
+        robotRepository.saveAll(warriors);
     }
 
     @Async
@@ -69,6 +98,7 @@ public class RobotApplicationService {
         robot.move(planet);
         robot.setEnergy(event.getRemainingEnergy());
         choseNextTask(robot);
+        log.info("Robot {} ({}) moved to {}", robot.getId(), robot.getRobotType(), planet.getId());
     }
 
     @Async
@@ -77,6 +107,7 @@ public class RobotApplicationService {
         Robot robot = getRobot(event.getRobotId());
         robot.setEnergy(event.getAvailableEnergy());
         choseNextTask(robot);
+        log.info("Robot {} ({}): regenerated", robot.getId(), robot.getRobotType());
     }
 
     @Async
@@ -86,19 +117,18 @@ public class RobotApplicationService {
         robot.setEnergy(event.getAvailableEnergy());
         robot.setHealth(event.getAvailableHealth());
         choseNextTask(robot);
+        log.info("Robot {} ({}): attributes restored!", robot.getId(), robot.getRobotType());
     }
 
     @Async
     @EventListener(RobotResourceMinedEvent.class)
     public void onRobotResourceMined(RobotResourceMinedEvent event) {
         Robot robot = getRobot(event.getRobotId());
-
         MineableResource minedResource = MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getMinedResource()), event.getMinedAmount());
         robot.storeResources(minedResource);
-        log.info("Robot {} mined: {} {}", robot.getId(), event.getMinedAmount(), event.getMinedResource());
-        log.info("Inventory: {}", robot.getInventory().getUsedCapacity());
-
         choseNextTask(robot);
+        log.info("Robot {} ({}) mined: {} {}", robot.getId(), robot.getRobotType(), event.getMinedAmount(), event.getMinedResource());
+        log.info("Robot {} ({}): Inventory: {}", robot.getId(), robot.getRobotType(), robot.getInventory().getUsedCapacity());
     }
 
     @Async
@@ -112,48 +142,52 @@ public class RobotApplicationService {
     @Async
     @EventListener(RobotAttackedEvent.class)
     public void onRobotAttacked(RobotAttackedEvent event) {
-        Robot attacker = getRobot(event.getAttacker().getRobotId());
-        Robot target = getRobot(event.getTarget().getRobotId());
-        target.setHealth(event.getTarget().getAvailableHealth());
+        List<UUID> ids = getAllRobotIDs();
 
-        //TODO: get player and check if target is once own robot
-        //if (target.getPlayer() == )
-        target.escape();
+        if (ids.contains(event.getAttacker().getRobotId())) {
+            Robot attacker = getRobot(event.getAttacker().getRobotId());
+            choseNextTask(attacker);
+            log.info("Robot {} ({}) attacked {}", attacker.getId(), attacker.getRobotType(), "");
+        }
+
+        if (ids.contains(event.getTarget().getRobotId())) {
+            Robot target = getRobot(event.getTarget().getRobotId());
+            target.setHealth(event.getTarget().getAvailableHealth());
+            if (target.isAlive())
+                target.executeOnAttackBehaviour();
+            else {
+                robotRepository.delete(target);
+                RobotDecisionMaker.removeRobot(target.getRobotType());
+            }
+        }
     }
 
+    @Async
     @EventListener(RobotUpgradedEvent.class)
     public void onRobotUpgrade(RobotUpgradedEvent event) {
+        RobotDto dto = event.getRobotDto();
         Robot robot = getRobot(event.getRobotId());
-        //TODO: better upgrading
         robot.upgradeCapability(CapabilityType.valueOf(event.getUpgrade()));
-        updateFromDto(robot, event.getRobotDto());
-        log.info("Upgrading {}: {}", robot.getRobotId(), event.getUpgrade());
-        choseNextTask(robot);
-    }
-
-    private Robot createFromDto(RobotDto dto) {
-        UUID id = dto.getId();
-        Player player = playerRepository.findByPlayerId(dto.getPlayer()).get();
-        Planet planet = getPlanet(dto.getPlanet().getPlanetId());
-        planet.setMovementDifficulty(dto.getPlanet().getMovementDifficulty());
-        if (planet.getResources() == null && dto.getPlanet().getResourceType() != null)
-            planet.setResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(dto.getPlanet().getResourceType()), 1));
-        log.info("Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
-
-        return new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getEnergy());
-    }
-
-    private void updateFromDto(Robot robot, RobotDto dto) {
         robot.changeInventorySize(dto.getInventory().getMaxStorage());
         robot.setMaxEnergy(dto.getMaxEnergy());
         robot.setMaxHealth(dto.getMaxHealth());
         robot.setDamage(dto.getAttackDamage());
+        choseNextTask(robot);
+        log.info("Robot {} ({}) Upgrading: {}", robot.getRobotId(), robot.getRobotType(), event.getUpgrade());
+    }
+
+    private List<UUID> getAllRobotIDs() {
+        List<UUID> ids = new ArrayList<>();
+        for (Robot robot : robotRepository.findAll()) {
+            ids.add(robot.getRobotId());
+        }
+        return ids;
     }
 
     private void choseNextTask(Robot robot) {
         if (!robot.hasCommand()) robot.chooseNextCommand();
         robotRepository.save(robot);
-        log.info("Next Command for {}: {}", robot.getRobotId(), robot.getCommandType());
+        log.info("Robot {} ({}) Next Command: {}", robot.getRobotId(), robot.getRobotType(), robot.getCommandType());
     }
 
     private Robot getRobot(UUID robotId) {

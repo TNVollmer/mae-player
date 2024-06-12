@@ -87,26 +87,38 @@ public class Player {
     public void depositInBank(Money balance) {
         bankAccount = bankAccount.increaseBy(balance);
         Money change;
-        if (miscBudget.getAmount() < 500) {
+        if (miscBudget.getAmount() < 1000) {
             change = balance.getPercentage(20);
             this.miscBudget = miscBudget.increaseBy(change);
             balance = balance.decreaseBy(change);
         }
 
-        change = balance.getPercentage(50);
+        change = balance.getPercentage(70);
         this.upgradeBudget = upgradeBudget.increaseBy(change);
         balance = balance.decreaseBy(change);
         this.newRobotsBudget = newRobotsBudget.increaseBy(balance);
     }
 
     public void withdrawFromBank(Money balance) {
-        bankAccount = bankAccount.decreaseBy(balance);
+        this.bankAccount = bankAccount.decreaseBy(balance);
 
-        Money budgets = miscBudget.increaseBy(upgradeBudget).increaseBy(newRobotsBudget);
-        if (bankAccount.greaterThan(budgets)) {
-            Money leak = bankAccount.decreaseBy(budgets);
-            upgradeBudget = upgradeBudget.increaseBy(leak);
-        }
+//        Money budgets = miscBudget.increaseBy(upgradeBudget).increaseBy(newRobotsBudget);
+//        if (bankAccount.greaterThan(budgets)) {
+//            Money leak = bankAccount.decreaseBy(budgets);
+//            upgradeBudget = upgradeBudget.increaseBy(leak);
+//        }
+    }
+
+    public void decreaseMiscBudget(Money money) {
+        this.miscBudget = miscBudget.decreaseBy(money);
+    }
+
+    public void decreaseUpgradeBudget(Money money) {
+        this.upgradeBudget = upgradeBudget.decreaseBy(money);
+    }
+
+    public void decreaseRobotBudget(Money money) {
+        this.newRobotsBudget = newRobotsBudget.decreaseBy(money);
     }
 
     @Override

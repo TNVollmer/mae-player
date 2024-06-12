@@ -2,6 +2,10 @@ package thkoeln.dungeon.player.robot.domain;
 
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
+import thkoeln.dungeon.player.robot.domain.strategies.MinerTaskSelection;
+import thkoeln.dungeon.player.robot.domain.strategies.ScoutTaskSelection;
+import thkoeln.dungeon.player.robot.domain.strategies.TaskSelection;
+import thkoeln.dungeon.player.robot.domain.strategies.WarriorTaskSelection;
 
 import java.util.List;
 
@@ -30,10 +34,26 @@ public class RobotDecisionMaker {
             minerCount++;
     }
 
+    public static void removeRobot(RobotType type) {
+        totalRobotCount--;
+        if (type == RobotType.Scout)
+            scoutCount--;
+        else if (type == RobotType.Miner)
+            minerCount--;
+    }
+
     public static void clear() {
         totalRobotCount = 0;
         scoutCount = 0;
         minerCount = 0;
+    }
+
+    public static TaskSelection getTaskSelectionByRobotType(RobotType type) {
+        return switch (type) {
+            case Scout -> new ScoutTaskSelection();
+            case Miner -> new MinerTaskSelection();
+            case Warrior -> new WarriorTaskSelection();
+        };
     }
 
     public static List<CapabilityType> getUpgradePriorities(RobotType type){

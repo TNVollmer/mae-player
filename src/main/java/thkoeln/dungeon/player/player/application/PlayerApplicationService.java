@@ -23,8 +23,11 @@ import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
+import thkoeln.dungeon.player.robot.domain.Shop;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import static thkoeln.dungeon.player.game.domain.GameStatus.CREATED;
 
@@ -172,7 +175,6 @@ public class PlayerApplicationService {
         logger.info("Cleaned up after finishing game.");
     }
 
-    @Async
     @EventListener(BankInitializedEvent.class)
     public void bankInitialized( BankInitializedEvent event ) {
         logger.info("Bank initialized with {} money.", event.getBalance());
@@ -181,7 +183,6 @@ public class PlayerApplicationService {
         playerRepository.save(player);
     }
 
-    @Async
     @EventListener(BankAccountTransactionBookedEvent.class)
     public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
         Player player = queryAndIfNeededCreatePlayer();
@@ -210,27 +211,23 @@ public class PlayerApplicationService {
             Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
             gameServiceRESTAdapter.sendPostRequestForCommand(command);
             player.setNewRobotsBudget(player.getNewRobotsBudget().decreaseBy(Money.from(100 * count)));
-            logger.info("Bought {} robots", count);
+            logger.info("Buying {} robots", count);
         }
-        //TODO: only get your own robots instead of all
         Iterable<Robot> robots = robotRepository.findAll();
         Integer robotCount = 0;
+        Money budget = player.getUpgradeBudget();
         for (Robot robot : robots) {
             robotCount++;
-            Money budget = player.getUpgradeBudget();
             if (robot.canBuyUpgrade(budget)) {
                 Capability upgrade = robot.buyUpgrade();
                 Command command = Command.createUpgrade(upgrade, robot.getRobotId(), player.getGameId(), player.getPlayerId());
-                player.setUpgradeBudget(budget.decreaseBy(upgrade.getUpgradePrice()));
+                budget = budget.decreaseBy(Shop.getPriceForItem(upgrade.toStringForCommand()));
                 gameServiceRESTAdapter.sendPostRequestForCommand(command);
             } else {
-                if (!robot.hasCommand()) {
-                    logger.info("chose command for {}", robot.getRobotId());
-                    robot.chooseNextCommand();
-                }
-                if (robot.hasCommand())
+                if (!robot.hasCommand())
+                    choseForIdleRobots(robot);
+                else
                     gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
-                else logger.info("{} is idle", robot.getRobotId());
             }
         }
 
@@ -238,5 +235,11 @@ public class PlayerApplicationService {
         playerRepository.save(player);
         logger.info("Robot Count: {}", robotCount);
         logger.info("Commands send!");
+    }
+
+    @Async
+    public void choseForIdleRobots(Robot robot) {
+        logger.info("chose command for {}", robot.getRobotId());
+        robot.chooseNextCommand();
     }
 }

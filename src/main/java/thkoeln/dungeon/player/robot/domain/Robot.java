@@ -16,6 +16,7 @@ import thkoeln.dungeon.player.core.domainprimitives.robot.Inventory;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.player.domain.Player;
+import thkoeln.dungeon.player.robot.domain.strategies.TaskSelection;
 
 import java.util.*;
 
@@ -42,10 +43,12 @@ public class Robot {
     private Integer maxHealth;
     private Integer damage;
 
+    private Integer energyReserve = 10;
+
     private RobotType robotType;
 
-    @Embedded
-    private Command nextCommand;
+    @ElementCollection
+    private List<Command> commandQueue = new ArrayList<>();
 
     @Embedded
     private Inventory inventory;
@@ -65,7 +68,6 @@ public class Robot {
         this.planet = planet;
 
         this.inventory = Inventory.fromCapacity(inventorySize);
-        this.nextCommand = null;
 
         this.energy = energy;
 
@@ -95,24 +97,37 @@ public class Robot {
             if (!moveToNearestPlanetWithBestMineableResources())
                 moveToNextUnexploredPlanet();
             if (!canMove())
-                setNextCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
+                queueCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
             if (canMine() && canMineBetterResources() && !inventory.isEmpty()) {
-                setNextCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
+                queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
             }
         }
     }
 
+    public void queueFirst(Command command) {
+        List<Command> commands = new ArrayList<>();
+        commands.add(command);
+        if (!commandQueue.isEmpty())
+            commands.addAll(commandQueue);
+        commandQueue = commands;
+    }
+
+    public void queueCommand(Command command) {
+        commandQueue.add(command);
+    }
+
     public boolean hasCommand() {
-        return nextCommand != null;
+        return !commandQueue.isEmpty();
     }
 
     public CommandType getCommandType() {
-        return hasCommand() ? nextCommand.getCommandType() : null;
+        return hasCommand() ? commandQueue.get(0).getCommandType() : null;
     }
 
     public Command getNextCommand() {
-        Command command = nextCommand;
-        nextCommand = null;
+        if (!hasCommand()) return null;
+        Command command = commandQueue.get(0);
+        commandQueue.remove(0);
         return command;
     }
 
@@ -158,29 +173,34 @@ public class Robot {
     public boolean moveToNearestPlanetWithResource(MineableResourceType type) {
         List<Planet> path = planet.getPathToNearestPlanetWithResource(type);
         if (path.isEmpty()) return false;
-        setMoveCommand(path.get(0));
+        queueMovements(path);
         return true;
     }
 
     public boolean moveToNextUnexploredPlanet() {
         List<Planet> path = planet.getPathToNearestUnexploredPlanet();
         if (path.isEmpty()) return false;
-        setMoveCommand(path.get(0));
+        queueMovements(path);
         return true;
     }
 
-    private void setMoveCommand(Planet toPlanet) {
-        nextCommand = Command.createMove(robotId, toPlanet.getPlanetId(), player.getGameId(), player.getPlayerId());
+    private void queueMovements(List<Planet> path) {
+        for (Planet toPlanet : path) {
+            queueCommand(Command.createMove(robotId, toPlanet.getPlanetId(), player.getGameId(), player.getPlayerId()));
+        }
     }
 
     public boolean canMove() {
-        return (energy - 10) > planet.getMovementDifficulty();
+        return (energy - energyReserve) > planet.getMovementDifficulty();
     }
 
-    public void escape() {
-        List<Planet> planets = planet.getNeighbors();
-        Planet random = planets.get(new Random().nextInt(planets.size()));
-        nextCommand = Command.createMove(this.getRobotId(), random.getPlanetId(), this.player.getGameId(), this.player.getPlayerId());
+    public void executeOnAttackBehaviour() {
+        //TODO: use onAttackStrategie?
+        if (robotType == RobotType.Miner) {
+            List<Planet> planets = planet.getNeighbors();
+            Planet random = planets.get(new Random().nextInt(planets.size()));
+            queueCommand(Command.createMove(this.getRobotId(), random.getPlanetId(), this.player.getGameId(), this.player.getPlayerId()));
+        }
     }
 
     public void move(Planet planet) {
@@ -189,9 +209,9 @@ public class Robot {
 
     public void mine() {
         if (isFull())
-            nextCommand = Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0));
+            queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
         else
-            nextCommand = Command.createMining(robotId, planet.getPlanetId(), player.getGameId(), player.getPlayerId());
+            queueCommand(Command.createMining(robotId, planet.getPlanetId(), player.getGameId(), player.getPlayerId()));
     }
 
     public boolean canMine() {
