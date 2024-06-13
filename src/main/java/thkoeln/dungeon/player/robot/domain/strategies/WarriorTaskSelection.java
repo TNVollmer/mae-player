@@ -10,7 +10,7 @@ import java.util.Random;
 public class WarriorTaskSelection implements TaskSelection {
     @Override
     public void queueNextTask(Robot robot) {
-        if (!robot.canMove())
+        if (robot.canNotMove())
             robot.queueFirst(
                     Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId())
             );

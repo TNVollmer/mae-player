@@ -51,6 +51,7 @@ public class PlanetApplicationService {
         log.info("Discovered Planet {} with {} and Movement Difficulty of {}", planet.getPlanetId(), planet.getResources(), planet.getMovementDifficulty());
     }
 
+    @Async
     @EventListener(ResourceMinedEvent.class)
     public void onResourceMined(ResourceMinedEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());

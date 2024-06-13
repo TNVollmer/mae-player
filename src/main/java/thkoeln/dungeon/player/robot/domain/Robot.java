@@ -98,7 +98,7 @@ public class Robot {
             } else {
                 if (!moveToNearestPlanetWithBestMineableResources())
                     moveToNextUnexploredPlanet();
-                if (!canMove())
+                if (canNotMove())
                     queueCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
                 if (canMine() && canMineBetterResources() && !inventory.isEmpty()) {
                     queueSellingResources();
@@ -108,7 +108,7 @@ public class Robot {
             if (!moveToNextUnexploredPlanet())
                 setRobotType(RobotDecisionMaker.getNextRobotType());
         } else {
-            if (!canMove())
+            if (canNotMove())
                 queueFirst(Command.createRegeneration(getRobotId(), getPlayer().getGameId(), getPlayer().getPlayerId()));
             else {
                 List<Planet> neighbours = getPlanet().getNeighbors();
@@ -204,8 +204,8 @@ public class Robot {
         }
     }
 
-    public boolean canMove() {
-        return (energy - energyReserve) > planet.getMovementDifficulty();
+    public boolean canNotMove() {
+        return (energy - energyReserve) <= planet.getMovementDifficulty();
     }
 
     public void executeOnAttackBehaviour() {
@@ -213,6 +213,7 @@ public class Robot {
         if (robotType == RobotType.Miner) {
             commandQueue.clear();
             List<Planet> planets = planet.getNeighbors();
+            if (planets.isEmpty()) return;
             Planet random = planets.get(new Random().nextInt(planets.size()));
             queueCommand(Command.createMove(this.getRobotId(), random.getPlanetId(), this.player.getGameId(), this.player.getPlayerId()));
         }

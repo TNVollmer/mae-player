@@ -191,7 +191,7 @@ public class RobotApplicationService {
 
     private void choseNextTask(Robot robot) {
         if (!robot.hasCommand()) robot.chooseNextCommand();
-        if (robot.getCommandType() == CommandType.MOVEMENT && !robot.canMove())
+        if (robot.getCommandType() == CommandType.MOVEMENT && robot.canNotMove())
             robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
         robotRepository.save(robot);
         log.info("Robot {} ({}) Next Command: {}", robot.getRobotId(), robot.getRobotType(), robot.getCommandType());

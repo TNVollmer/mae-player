@@ -11,7 +11,7 @@ public class MinerTaskSelection implements TaskSelection {
         } else {
             if (!robot.moveToNearestPlanetWithBestMineableResources())
                 robot.moveToNextUnexploredPlanet();
-            if (!robot.canMove())
+            if (robot.canNotMove())
                 robot.queueCommand(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
             if (robot.canMine() && robot.canMineBetterResources() && !robot.getInventory().isEmpty()) {
                 robot.queueCommand(Command.createSelling(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId(), robot.getInventory().getResources().get(0)));

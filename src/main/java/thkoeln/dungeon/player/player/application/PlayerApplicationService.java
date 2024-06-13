@@ -213,7 +213,6 @@ public class PlayerApplicationService {
         if (count > 0) {
             Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
             gameServiceRESTAdapter.sendPostRequestForCommand(command);
-            player.setNewRobotsBudget(player.getNewRobotsBudget().decreaseBy(Money.from(100 * count)));
             logger.info("Buying {} robots", count);
         }
         Iterable<Robot> robots = robotRepository.findAll();
@@ -235,7 +234,6 @@ public class PlayerApplicationService {
         }
 
         robotRepository.saveAll(robots);
-        playerRepository.save(player);
         logger.info("Robot Count: {}", robotCount);
         logger.info("Commands send!");
     }

@@ -131,8 +131,4 @@ public class Planet {
     public boolean hasResources() {
         return resources != null && !resources.isEmpty();
     }
-
-    public void minedResource(MineableResource resource) {
-        this.resources = this.resources.subtract(resource);
-    }
 }
