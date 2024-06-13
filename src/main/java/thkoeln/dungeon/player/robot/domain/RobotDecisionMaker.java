@@ -12,7 +12,7 @@ import java.util.List;
 public class RobotDecisionMaker {
 
     private final static Integer maxScouts = 1;
-    private final static Integer minerPercentage = 70;
+    private final static Integer minerPercentage = 60;
 
     private static Integer totalRobotCount = 0;
     private static Integer scoutCount = 0;

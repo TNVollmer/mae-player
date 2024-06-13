@@ -58,22 +58,23 @@ public class Inventory {
         return amount;
     }
 
-    public Inventory addMineableResource(MineableResource addedResource) {
-        List<MineableResource> mineableResourceList = new ArrayList<>();
+    private List<MineableResourceType> getResourceTypesInInventory() {
+        List<MineableResourceType> types = new ArrayList<>();
         for (MineableResource resource : resources) {
-            if (resource.getType() != addedResource.getType()) mineableResourceList.add(resource);
-            if (resource.getType() == addedResource.getType()) mineableResourceList.add(resource.add(addedResource));
+            types.add(resource.getType());
         }
-        return Inventory.fromCapacityAndResources(capacity, mineableResourceList);
+        return types;
     }
 
-    public Inventory removeMineableResource(MineableResource subtractResource) {
+    public Inventory setMineableResource(MineableResource setResource) {
         List<MineableResource> mineableResourceList = new ArrayList<>();
-        for (MineableResource resource : resources) {
-            if (resource.getType() != subtractResource.getType()) mineableResourceList.add(resource);
-            if (resource.getType() == subtractResource.getType()) mineableResourceList.add(resource.subtract(subtractResource));
+        if (getResourceTypesInInventory().contains(setResource.getType())) {
+            for (MineableResource resource: resources) {
+                if (resource.getType() != setResource.getType())
+                    mineableResourceList.add(resource);
+            }
         }
+        mineableResourceList.add(setResource);
         return Inventory.fromCapacityAndResources(capacity, mineableResourceList);
     }
-
 }

@@ -82,7 +82,7 @@ public class RobotApplicationService {
                     robot.queueFirst(
                             Command.createFight(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId(), robotRevealedDto.getRobotId())
                     );
-                    log.info("Robot {} ({}) now attacks {}", robot.getId(), robot.getRobotType(), robotRevealedDto.getRobotId());
+                    log.info("Robot {} ({}) now attacks {}", robot.getRobotId(), robot.getRobotType(), robotRevealedDto.getRobotId());
                 }
             }
         }
@@ -102,7 +102,7 @@ public class RobotApplicationService {
         robot.move(planet);
         robot.setEnergy(event.getRemainingEnergy());
         choseNextTask(robot);
-        log.info("Robot {} ({}) has {} Energy left and moved to Planet {}", robot.getId(), robot.getRobotType(), robot.getEnergy(), planet.getId());
+        log.info("Robot {} ({}) has {} Energy left and moved to Planet {}", robot.getRobotId(), robot.getRobotType(), robot.getEnergy(), planet.getId());
     }
 
     @Async
@@ -111,7 +111,7 @@ public class RobotApplicationService {
         Robot robot = getRobot(event.getRobotId());
         robot.setEnergy(event.getAvailableEnergy());
         choseNextTask(robot);
-        log.info("Robot {} ({}): regenerated to {} Energy", robot.getId(), robot.getRobotType(), robot.getEnergy());
+        log.info("Robot {} ({}): regenerated to {} Energy", robot.getRobotId(), robot.getRobotType(), robot.getEnergy());
     }
 
     @Async
@@ -121,27 +121,26 @@ public class RobotApplicationService {
         robot.setEnergy(event.getAvailableEnergy());
         robot.setHealth(event.getAvailableHealth());
         choseNextTask(robot);
-        log.info("Robot {} ({}): attributes restored!", robot.getId(), robot.getRobotType());
+        log.info("Robot {} ({}): attributes restored!", robot.getRobotId(), robot.getRobotType());
     }
 
     @Async
     @EventListener(RobotResourceMinedEvent.class)
     public void onRobotResourceMined(RobotResourceMinedEvent event) {
         Robot robot = getRobot(event.getRobotId());
-        MineableResource minedResource = MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getMinedResource()), event.getMinedAmount());
-        robot.storeResources(minedResource);
+        robot.setResourceInInventory(event.getResourceInventory().getResource());
         choseNextTask(robot);
-        log.info("Robot {} ({}) mined: {} {}", robot.getId(), robot.getRobotType(), event.getMinedAmount(), event.getMinedResource());
-        log.info("Robot {} ({}): Inventory: {}", robot.getId(), robot.getRobotType(), robot.getInventory().getUsedCapacity());
+        log.info("Robot {} ({}) mined: {} {}", robot.getRobotId(), robot.getRobotType(), event.getMinedAmount(), event.getMinedResource());
+        log.info("Robot {} ({}): Inventory: {}", robot.getRobotId(), robot.getRobotType(), robot.getInventory().getUsedCapacity());
     }
 
     @Async
     @EventListener(RobotResourceRemovedEvent.class)
     public void onResourceRemoved(RobotResourceRemovedEvent event) {
         Robot robot = getRobot(event.getRobotId());
-        robot.removeResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getRemovedResource()), event.getRemovedAmount()));
+        robot.setResourceInInventory(event.getResourceInventory().getResource());
         choseNextTask(robot);
-        log.info("Robot {} ({}) resource removed: {} {}", robot.getId(), robot.getRobotType(), event.getRemovedAmount(), event.getRemovedResource());
+        log.info("Robot {} ({}) resource removed: {} {}", robot.getRobotId(), robot.getRobotType(), event.getRemovedAmount(), event.getRemovedResource());
     }
 
     @Async
@@ -151,8 +150,9 @@ public class RobotApplicationService {
 
         if (ids.contains(event.getAttacker().getRobotId())) {
             Robot attacker = getRobot(event.getAttacker().getRobotId());
+            attacker.setEnergy(event.getAttacker().getAvailableEnergy());
             choseNextTask(attacker);
-            log.info("Robot {} ({}) attacked {}", attacker.getId(), attacker.getRobotType(), "");
+            log.info("Robot {} ({}) attacked {}", attacker.getRobotId(), attacker.getRobotType(), "");
         }
 
         if (ids.contains(event.getTarget().getRobotId())) {

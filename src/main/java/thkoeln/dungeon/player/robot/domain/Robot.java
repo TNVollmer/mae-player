@@ -84,19 +84,15 @@ public class Robot {
         this.inventory = Inventory.fromCapacityAndResources(size, this.inventory.getResources());
     }
 
-    public void storeResources(MineableResource resource) {
-        this.inventory = inventory.addMineableResource(resource);
-    }
-
-    public void removeResources(MineableResource resource) {
-        this.inventory = inventory.removeMineableResource(resource);
+    public void setResourceInInventory(MineableResource resource) {
+        this.inventory = inventory.setMineableResource(resource);
     }
 
     public void chooseNextCommand() {
         //TODO: move to a strategy
         if (health < (maxHealth/2)) {
             queueFirst(Command.createItemPurchase(ItemType.HEALTH_RESTORE, 1, robotId, player.getGameId(), player.getPlayerId()));
-        }else if (robotType == RobotType.Miner) {
+        } else if (robotType == RobotType.Miner) {
             if (canMine() && !canMineBetterResources()) {
                 mine();
             } else {
@@ -105,7 +101,7 @@ public class Robot {
                 if (!canMove())
                     queueCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
                 if (canMine() && canMineBetterResources() && !inventory.isEmpty()) {
-                    queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
+                    queueSellingResources();
                 }
             }
         } else if (robotType == RobotType.Scout) {
@@ -228,9 +224,15 @@ public class Robot {
 
     public void mine() {
         if (isFull())
-            queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
+            queueSellingResources();
         else
             queueCommand(Command.createMining(robotId, planet.getPlanetId(), player.getGameId(), player.getPlayerId()));
+    }
+
+    private void queueSellingResources() {
+        for (MineableResource resource : inventory.getResources()) {
+            queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), resource));
+        }
     }
 
     public boolean canMine() {
