@@ -107,6 +107,7 @@ public class GameApplicationService {
         robotRepository.deleteAll();
         planetRepository.deleteAll();
         RobotDecisionMaker.clear();
+        log.info("Cleared all Data!");
     }
 
     /**

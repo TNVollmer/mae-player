@@ -55,9 +55,13 @@ public class PlanetApplicationService {
     @EventListener(ResourceMinedEvent.class)
     public void onResourceMined(ResourceMinedEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());
-        planet.minedResource(MineableResource.fromTypeAndAmount(planet.getResources().getType(), event.getMinedAmount()));
+        if (planet.getResources() == null)
+            planet.setResources(MineableResource.fromTypeAndAmount(event.getResource().getResourceType(), event.getResource().getCurrentAmount()));
+        else
+            planet.minedResource(MineableResource.fromTypeAndAmount(planet.getResources().getType(), event.getMinedAmount()));
 
         planetRepository.save(planet);
+        log.info("Planet {} has {} left", planet.getPlanetId(), planet.getResources());
     }
 
     private Planet getPlanetOrCreate(UUID planetId) {
