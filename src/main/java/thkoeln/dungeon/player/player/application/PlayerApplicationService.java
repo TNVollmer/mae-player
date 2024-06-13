@@ -188,18 +188,19 @@ public class PlayerApplicationService {
     @EventListener(BankAccountTransactionBookedEvent.class)
     public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
         Player player = queryAndIfNeededCreatePlayer();
+        Integer totalBalance = event.getBalance();
         Integer transaction = event.getTransactionAmount();
+        player.setBankAccount(Money.from(totalBalance));
 
-        if (transaction > 0)
+        if (transaction > 0) {
             player.depositInBank(Money.from(transaction));
-        else
-            player.withdrawFromBank(Money.from(transaction * -1));
-
+            logger.info("Increased Bank account by {} to {} money.", transaction, event.getBalance());
+            logger.info("Upgrade Budget: {}", player.getUpgradeBudget());
+            logger.info("New Robots Budget: {}", player.getNewRobotsBudget());
+            logger.info("New Misc Budget: {}", player.getMiscBudget());
+        } else
+            logger.info("Decreased Bank account by {} to {} money.", (transaction * - 1), totalBalance);
         playerRepository.save(player);
-        logger.info("Bank account updated to {} money.", event.getBalance());
-        logger.info("Upgrade Budget: {}", player.getUpgradeBudget());
-        logger.info("New Robots Budget: {}", player.getNewRobotsBudget());
-        logger.info("New Misc Budget: {}", player.getMiscBudget());
     }
 
     @Async

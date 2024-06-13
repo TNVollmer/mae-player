@@ -32,6 +32,7 @@ public class Player {
     private String email;
     private UUID playerId;
 
+    @Setter
     @Embedded
     private Money bankAccount = Money.zero();
     @Setter(AccessLevel.PUBLIC)
@@ -85,7 +86,6 @@ public class Player {
     }
 
     public void depositInBank(Money balance) {
-        bankAccount = bankAccount.increaseBy(balance);
         Money change;
         if (miscBudget.getAmount() < 1000) {
             change = balance.getPercentage(20);
@@ -93,20 +93,10 @@ public class Player {
             balance = balance.decreaseBy(change);
         }
 
-        change = balance.getPercentage(70);
+        change = balance.getPercentage(60);
         this.upgradeBudget = upgradeBudget.increaseBy(change);
         balance = balance.decreaseBy(change);
         this.newRobotsBudget = newRobotsBudget.increaseBy(balance);
-    }
-
-    public void withdrawFromBank(Money balance) {
-        this.bankAccount = bankAccount.decreaseBy(balance);
-
-//        Money budgets = miscBudget.increaseBy(upgradeBudget).increaseBy(newRobotsBudget);
-//        if (bankAccount.greaterThan(budgets)) {
-//            Money leak = bankAccount.decreaseBy(budgets);
-//            upgradeBudget = upgradeBudget.increaseBy(leak);
-//        }
     }
 
     public void decreaseMiscBudget(Money money) {
