@@ -11,6 +11,9 @@ import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.game.domain.GameException;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
+import thkoeln.dungeon.player.planet.domain.PlanetRepository;
+import thkoeln.dungeon.player.robot.domain.RobotDecisionMaker;
+import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,16 +24,20 @@ public class GameApplicationService {
     private final GameRepository gameRepository;
     private final GameServiceRESTAdapter gameServiceRESTAdapter;
     private final Environment environment;
+    private final RobotRepository robotRepository;
+    private final PlanetRepository planetRepository;
 
     ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
-    public GameApplicationService( GameRepository gameRepository,
-                                   GameServiceRESTAdapter gameServiceRESTAdapter,
-                                   Environment environment ) {
+    public GameApplicationService(GameRepository gameRepository,
+                                  GameServiceRESTAdapter gameServiceRESTAdapter,
+                                  Environment environment, RobotRepository robotRepository, PlanetRepository planetRepository) {
         this.gameRepository = gameRepository;
         this.gameServiceRESTAdapter = gameServiceRESTAdapter;
         this.environment = environment;
+        this.robotRepository = robotRepository;
+        this.planetRepository = planetRepository;
     }
 
 
@@ -96,6 +103,11 @@ public class GameApplicationService {
         changeGameStatus( gameId, GameStatus.STARTED );
     }
 
+    public void endGame(UUID gameId) {
+        robotRepository.deleteAll();
+        planetRepository.deleteAll();
+        RobotDecisionMaker.clear();
+    }
 
     /**
      * We received notice (by event) that the current game has finished.
