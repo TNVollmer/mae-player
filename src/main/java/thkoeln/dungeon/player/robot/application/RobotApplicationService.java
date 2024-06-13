@@ -76,8 +76,9 @@ public class RobotApplicationService {
             if (ids.contains(robotRevealedDto.getRobotId())) continue;
             count++;
             for (Robot robot : warriors) {
-                if (!robot.hasCommand() || robot.getCommandType() != CommandType.MOVEMENT) continue;
+                if (robot.hasCommand() && robot.getCommandType() != CommandType.MOVEMENT) continue;
                 if (robot.getPlanet().getPlanetId() == robotRevealedDto.getPlanetId()) {
+                    log.info("Enemy Robot {} is on the same Planet as {}", robotRevealedDto.getRobotId(), robot.getRobotId());
                     robot.queueFirst(
                             Command.createFight(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId(), robotRevealedDto.getRobotId())
                     );

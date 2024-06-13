@@ -48,14 +48,14 @@ public class PlanetApplicationService {
         planetRepository.saveAll(neighbours);
         planetRepository.save(planet);
 
-        log.info("Discovered Planet {} with {}", planet.getPlanetId(), planet.getResources());
+        log.info("Discovered Planet {} with {} and Movement Difficulty of {}", planet.getPlanetId(), planet.getResources(), planet.getMovementDifficulty());
     }
 
-    @Async
     @EventListener(ResourceMinedEvent.class)
     public void onResourceMined(ResourceMinedEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());
-        if (planet.getResources() == null)
+        log.info("mining on planet {} with {}", planet.getPlanetId(), planet.getResources());
+        if (planet.getResources() == null || planet.getResources().getType() == null)
             planet.setResources(MineableResource.fromTypeAndAmount(event.getResource().getResourceType(), event.getResource().getCurrentAmount()));
         else
             planet.minedResource(MineableResource.fromTypeAndAmount(planet.getResources().getType(), event.getMinedAmount()));
