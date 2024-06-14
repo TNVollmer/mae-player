@@ -59,8 +59,8 @@ public class RobotApplicationService {
             planet.setResources(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(dto.getPlanet().getResourceType()), 1));
             log.info("Due to Robot discovered set Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
         }
+        planetRepository.save(planet);
         Robot robot =  new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getMaxEnergy(), dto.getMaxHealth());
-        planetRepository.save(robot.getPlanet());
         choseNextTask(robot);
         log.info("Robot {} ({}) spawned!", robot.getRobotId(), robot.getRobotType());
     }
@@ -138,7 +138,7 @@ public class RobotApplicationService {
     @EventListener(RobotResourceRemovedEvent.class)
     public void onResourceRemoved(RobotResourceRemovedEvent event) {
         Robot robot = getRobot(event.getRobotId());
-        robot.setResourceInInventory(event.getResourceInventory().getResource());
+        robot.setResourceInInventory(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getRemovedResource()), event.getRemovedAmount()));
         choseNextTask(robot);
         log.info("Robot {} ({}) resource removed: {} {}", robot.getRobotId(), robot.getRobotType(), event.getRemovedAmount(), event.getRemovedResource());
     }
