@@ -55,12 +55,6 @@ public class Capability {
         return allBaseCapabilities;
     }
 
-    public Money getUpgradePrice() {
-        Integer[] prices = {50, 300, 1500, 400, 15000};
-        if (isMaximumLevel()) return null;
-        return Money.from(prices[level]);
-    }
-
     /**
      * @return Same capability, one level higher, in case the max is not yet reached. Otherwise null is returned.
      */
@@ -86,7 +80,11 @@ public class Capability {
     }
 
     public String toStringForCommand() {
-        return type.name() + "_" + level;
+        return type.toStringForUpgrading() + "_" + level;
+    }
+
+    public String toStringForUpgrading() {
+        return type.toString() + "_" + level;
     }
 
     @Override

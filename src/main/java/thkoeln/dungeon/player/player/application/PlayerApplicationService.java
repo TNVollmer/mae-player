@@ -221,9 +221,9 @@ public class PlayerApplicationService {
         for (Robot robot : robots) {
             robotCount++;
             if (robot.canBuyUpgrade(budget)) {
-                Capability upgrade = robot.buyUpgrade();
+                Capability upgrade = robot.getQueuedUpgrade();
                 Command command = Command.createUpgrade(upgrade, robot.getRobotId(), player.getGameId(), player.getPlayerId());
-                budget = budget.decreaseBy(Shop.getPriceForItem(upgrade.toStringForCommand()));
+                budget = budget.decreaseBy(robot.getUpgradePrice());
                 gameServiceRESTAdapter.sendPostRequestForCommand(command);
             } else {
                 if (!robot.hasCommand())

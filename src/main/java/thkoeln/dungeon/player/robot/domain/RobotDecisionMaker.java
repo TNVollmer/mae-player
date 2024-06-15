@@ -63,8 +63,8 @@ public class RobotDecisionMaker {
                     CapabilityType.MAX_ENERGY
             );
             case Miner -> List.of(
-                    CapabilityType.MINING,
                     CapabilityType.MINING_SPEED,
+                    CapabilityType.MINING,
                     CapabilityType.STORAGE,
                     CapabilityType.ENERGY_REGEN,
                     CapabilityType.MAX_ENERGY,

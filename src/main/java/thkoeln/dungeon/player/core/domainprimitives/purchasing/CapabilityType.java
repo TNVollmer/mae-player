@@ -16,7 +16,7 @@ public enum CapabilityType {
         stringValue = s;
     }
 
-    public String toString() {
+    public String toStringForUpgrading() {
         return stringValue;
     }
 }

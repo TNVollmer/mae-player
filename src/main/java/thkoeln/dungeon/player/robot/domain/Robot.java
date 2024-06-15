@@ -58,6 +58,7 @@ public class Robot {
 
     @Embedded
     private Capability nextUpgrade;
+    private Money upgradePrice;
 
     private boolean isAlive = true;
 
@@ -147,16 +148,15 @@ public class Robot {
     }
 
     public boolean canBuyUpgrade(Money budget) {
-        return budget.greaterEqualThan(nextUpgrade.getUpgradePrice());
+        if (upgradePrice == null) return false;
+        return budget.greaterEqualThan(upgradePrice);
     }
 
-    public Capability buyUpgrade() {
-        Capability upgrade = nextUpgrade.nextLevel();
-        chooseNextUpgrade();
-        return upgrade;
+    public Capability getQueuedUpgrade() {
+        return nextUpgrade.nextLevel();
     }
 
-    private void chooseNextUpgrade() {
+    public void chooseNextUpgrade() {
         List<CapabilityType> priorities = RobotDecisionMaker.getUpgradePriorities(robotType);
         Capability selected = null;
 
@@ -177,7 +177,14 @@ public class Robot {
                     selected = capability;
             }
         }
-        nextUpgrade = selected;
+
+        if (selected != null) {
+            nextUpgrade = selected.nextLevel();
+            upgradePrice = Shop.getPriceForItem(nextUpgrade.toStringForUpgrading());
+        } else {
+            nextUpgrade = null;
+            upgradePrice = null;
+        }
     }
 
     public boolean moveToNearestPlanetWithBestMineableResources() {
