@@ -153,13 +153,14 @@ public class RobotApplicationService {
             Robot attacker = getRobot(event.getAttacker().getRobotId());
             attacker.setEnergy(event.getAttacker().getAvailableEnergy());
             choseNextTask(attacker);
-            log.info("Robot {} ({}) attacked {}", attacker.getRobotId(), attacker.getRobotType(), "");
+            log.info("Robot {} ({}) attacked {}", attacker.getRobotId(), attacker.getRobotType(), event.getTarget().getRobotId());
         }
 
         if (ids.contains(event.getTarget().getRobotId())) {
             Robot target = getRobot(event.getTarget().getRobotId());
+            log.info("Robot {} ({}) was attacked by {}", target.getRobotId(), target.getRobotType(), event.getAttacker().getRobotId());
             target.setHealth(event.getTarget().getAvailableHealth());
-            if (target.isAlive())
+            if (event.getTarget().getAlive())
                 target.executeOnAttackBehaviour();
             else {
                 robotRepository.delete(target);
@@ -191,11 +192,13 @@ public class RobotApplicationService {
     }
 
     private void choseNextTask(Robot robot) {
-        if (!robot.hasCommand()) robot.chooseNextCommand();
+        if (robot.hasCommand()) robot.removeCommand();
+        if (!robot.hasCommand() && robot.getPlanet().isExplored())
+            robot.chooseNextCommand();
         if (robot.getCommandType() == CommandType.MOVEMENT && robot.canNotMove())
             robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
         robotRepository.save(robot);
-        log.info("Robot {} ({}) Next Command: {}", robot.getRobotId(), robot.getRobotType(), robot.getCommandType());
+        log.info("Robot {} ({}) Next Command: {} (Queue size: {})", robot.getRobotId(), robot.getRobotType(), robot.getCommandType(), robot.getQueueSize());
     }
 
     private Robot getRobot(UUID robotId) {

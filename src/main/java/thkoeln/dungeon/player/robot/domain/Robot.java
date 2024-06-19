@@ -141,9 +141,19 @@ public class Robot {
 
     public Command getNextCommand() {
         if (!hasCommand()) return null;
-        Command command = commandQueue.get(0);
+        return commandQueue.get(0);
+    }
+
+    public void removeCommand() {
         commandQueue.remove(0);
-        return command;
+    }
+
+    public Integer getQueueSize() {
+        return commandQueue.size();
+    }
+
+    public void clearQueue() {
+        commandQueue.clear();
     }
 
     public boolean canBuyUpgrade(Money budget) {
@@ -152,7 +162,7 @@ public class Robot {
     }
 
     public Capability getQueuedUpgrade() {
-        return nextUpgrade.nextLevel();
+        return nextUpgrade;
     }
 
     public void chooseNextUpgrade() {
@@ -238,7 +248,8 @@ public class Robot {
 
     private void queueSellingResources() {
         for (MineableResource resource : inventory.getResources()) {
-            queueCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), resource));
+            if (!resource.isEmpty())
+                queueFirst(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), resource));
         }
     }
 

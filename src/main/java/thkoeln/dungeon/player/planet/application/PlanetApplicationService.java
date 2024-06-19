@@ -11,6 +11,8 @@ import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighbours
 import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.planet.domain.PlanetRepository;
+import thkoeln.dungeon.player.robot.domain.Robot;
+import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +23,12 @@ import java.util.UUID;
 public class PlanetApplicationService {
 
     private final PlanetRepository planetRepository;
+    private final RobotRepository robotRepository;
 
     @Autowired
-    public PlanetApplicationService(PlanetRepository planetRepository) {
+    public PlanetApplicationService(PlanetRepository planetRepository, RobotRepository robotRepository) {
         this.planetRepository = planetRepository;
+        this.robotRepository = robotRepository;
     }
 
     @EventListener(PlanetDiscoveredEvent.class)
@@ -46,6 +50,14 @@ public class PlanetApplicationService {
         }
         planets.add(planet);
         planetRepository.saveAll(planets);
+
+        List<Robot> robots = robotRepository.findByPlanet(planet);
+        log.info("{} Robots are on Planet {}", robots.size(), planet.getPlanetId());
+        for (Robot robot : robots) {
+            if (robot.hasCommand()) continue;
+            robot.chooseNextCommand();
+            robotRepository.save(robot);
+        }
 
         log.info("Discovered Planet {} with {} and Movement Difficulty of {}", planet.getPlanetId(), planet.getResources(), planet.getMovementDifficulty());
     }

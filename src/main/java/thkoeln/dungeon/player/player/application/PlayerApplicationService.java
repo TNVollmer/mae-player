@@ -27,6 +27,8 @@ import thkoeln.dungeon.player.robot.domain.Robot;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
 import thkoeln.dungeon.player.robot.domain.Shop;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import static thkoeln.dungeon.player.game.domain.GameStatus.CREATED;
@@ -210,6 +212,8 @@ public class PlayerApplicationService {
     }
 
     private void handelRoundStart() {
+        Instant start = Instant.now();
+
         Player player = queryAndIfNeededCreatePlayer();
         buyRobots(player);
         Integer robotCount = 0;
@@ -224,8 +228,10 @@ public class PlayerApplicationService {
                 else choseForIdleRobots(robot);
             }
         }
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
         logger.info("Robot Count: {}", robotCount);
-        logger.info("Commands send!");
+        logger.info("Commands send! Took {} ms", timeElapsed);
     }
 
     @Async
