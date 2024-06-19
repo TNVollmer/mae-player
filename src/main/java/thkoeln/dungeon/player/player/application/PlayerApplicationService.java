@@ -206,7 +206,6 @@ public class PlayerApplicationService {
     @Async
     @EventListener(RoundStatusEvent.class)
     public void updateRoundStatus( RoundStatusEvent event ) {
-        if (!event.getRoundStatus().equals(RoundStatusType.STARTED)) return;
         if (event.getRoundStatus().equals(RoundStatusType.STARTED)) handelRoundStart();
     }
 
