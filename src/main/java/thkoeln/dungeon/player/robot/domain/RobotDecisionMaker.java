@@ -14,38 +14,22 @@ public class RobotDecisionMaker {
     private final static Integer maxScouts = 1;
     private final static Integer minerPercentage = 60;
 
-    private static Integer totalRobotCount = 0;
-    private static Integer scoutCount = 0;
-    private static Integer minerCount = 0;
+    public static RobotType getNextRobotType(Iterable<Robot> robots) {
+        int totalRobotCount = 1;
+        int scoutCount = 0;
+        int minerCount = 0;
 
-    public static RobotType getNextRobotType() {
+        for (Robot robot : robots) {
+            totalRobotCount += 1;
+            if (robot.getRobotType() == RobotType.Scout) scoutCount += 1;
+            if (robot.getRobotType() == RobotType.Miner) minerCount += 1;
+        }
+
         if (scoutCount < maxScouts) return RobotType.Scout;
 
-        Integer percentage = (int) (((float) minerCount / (float) totalRobotCount) * 100);
+        int percentage = (int) (((float) minerCount / (float) totalRobotCount) * 100);
         if (percentage < minerPercentage) return RobotType.Miner;
         return RobotType.Warrior;
-    }
-
-    public static void addRobot(RobotType type) {
-        totalRobotCount++;
-        if (type == RobotType.Scout)
-            scoutCount++;
-        else if (type == RobotType.Miner)
-            minerCount++;
-    }
-
-    public static void removeRobot(RobotType type) {
-        totalRobotCount--;
-        if (type == RobotType.Scout)
-            scoutCount--;
-        else if (type == RobotType.Miner)
-            minerCount--;
-    }
-
-    public static void clear() {
-        totalRobotCount = 0;
-        scoutCount = 0;
-        minerCount = 0;
     }
 
     public static TaskSelection getTaskSelectionByRobotType(RobotType type) {
@@ -60,7 +44,8 @@ public class RobotDecisionMaker {
         return switch (type) {
             case Scout -> List.of(
                     CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY
+                    CapabilityType.MAX_ENERGY,
+                    CapabilityType.HEALTH
             );
             case Miner -> List.of(
                     CapabilityType.MINING_SPEED,
@@ -72,7 +57,8 @@ public class RobotDecisionMaker {
             case Warrior -> List.of(
                     CapabilityType.DAMAGE,
                     CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY);
+                    CapabilityType.MAX_ENERGY,
+                    CapabilityType.HEALTH);
         };
     }
 

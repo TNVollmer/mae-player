@@ -63,7 +63,7 @@ public class Robot {
     private boolean isAlive = true;
 
 
-    public Robot(UUID robotId, Player player, Planet planet, Integer inventorySize, Integer maxEnergy, Integer maxHealth) {
+    public Robot(UUID robotId, Player player, Planet planet, RobotType robotType, Integer inventorySize, Integer maxEnergy, Integer maxHealth) {
         this.robotId = robotId;
         this.player = player;
         this.planet = planet;
@@ -75,8 +75,7 @@ public class Robot {
         this.maxHealth = maxHealth;
         this.health = maxHealth;
 
-        this.robotType = RobotDecisionMaker.getNextRobotType();
-        RobotDecisionMaker.addRobot(robotType);
+        this.robotType = robotType;
 
         chooseNextUpgrade();
     }
@@ -107,7 +106,7 @@ public class Robot {
             }
         } else if (robotType == RobotType.Scout) {
             if (!moveToNextUnexploredPlanet())
-                setRobotType(RobotDecisionMaker.getNextRobotType());
+                setRobotType(RobotType.Warrior);
         } else {
             if (canNotMove())
                 queueFirst(Command.createRegeneration(getRobotId(), getPlayer().getGameId(), getPlayer().getPlayerId()));

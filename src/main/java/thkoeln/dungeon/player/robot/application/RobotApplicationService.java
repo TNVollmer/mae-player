@@ -60,7 +60,8 @@ public class RobotApplicationService {
             log.info("Due to Robot discovered set Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
         }
         planetRepository.save(planet);
-        Robot robot =  new Robot(id, player, planet, dto.getInventory().getMaxStorage(), dto.getMaxEnergy(), dto.getMaxHealth());
+        RobotType type = RobotDecisionMaker.getNextRobotType(robotRepository.findAll());
+        Robot robot =  new Robot(id, player, planet, type, dto.getInventory().getMaxStorage(), dto.getMaxEnergy(), dto.getMaxHealth());
         choseNextTask(robot);
         log.info("Robot {} ({}) spawned!", robot.getRobotId(), robot.getRobotType());
     }
@@ -162,7 +163,6 @@ public class RobotApplicationService {
                 target.executeOnAttackBehaviour();
             else {
                 robotRepository.delete(target);
-                RobotDecisionMaker.removeRobot(target.getRobotType());
             }
         }
     }
