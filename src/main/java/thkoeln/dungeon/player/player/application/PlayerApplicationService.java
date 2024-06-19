@@ -27,7 +27,6 @@ import thkoeln.dungeon.player.robot.domain.Shop;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import static thkoeln.dungeon.player.game.domain.GameStatus.CREATED;
 
@@ -207,40 +206,62 @@ public class PlayerApplicationService {
     @EventListener(RoundStatusEvent.class)
     public void updateRoundStatus( RoundStatusEvent event ) {
         if (!event.getRoundStatus().equals(RoundStatusType.STARTED)) return;
+        if (event.getRoundStatus().equals(RoundStatusType.STARTED)) handelRoundStart();
 
+    private void handelRoundStart() {
         Player player = queryAndIfNeededCreatePlayer();
-        int count = player.getNewRobotsBudget().canBuyThatManyFor(Money.from(100));
-        if (count > 0) {
-            Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
-            gameServiceRESTAdapter.sendPostRequestForCommand(command);
-            logger.info("Buying {} robots", count);
-        }
-        Iterable<Robot> robots = robotRepository.findAll();
+        buyRobots(player);
         Integer robotCount = 0;
         Money budget = player.getUpgradeBudget();
-        for (Robot robot : robots) {
+        for (Robot robot : robotRepository.findAll()) {
             robotCount++;
             if (robot.canBuyUpgrade(budget)) {
-                Capability upgrade = robot.getQueuedUpgrade();
-                Command command = Command.createUpgrade(upgrade, robot.getRobotId(), player.getGameId(), player.getPlayerId());
                 budget = budget.decreaseBy(robot.getUpgradePrice());
-                gameServiceRESTAdapter.sendPostRequestForCommand(command);
+                sendUpgrade(robot);
             } else {
-                if (!robot.hasCommand())
-                    choseForIdleRobots(robot);
-                else
-                    gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
+                if (robot.hasCommand()) sendCommand(robot);
+                else choseForIdleRobots(robot);
             }
         }
-
-        robotRepository.saveAll(robots);
         logger.info("Robot Count: {}", robotCount);
         logger.info("Commands send!");
     }
 
     @Async
+    public void buyRobots(Player player) {
+        Money price = Shop.getPriceForItem("ROBOT");
+        int count = player.getNewRobotsBudget().canBuyThatManyFor(price != null ? price : Money.from(100));
+        if (count < 1) return;
+        Command command = Command.createRobotPurchase(count, player.getGameId(), player.getPlayerId());
+        gameServiceRESTAdapter.sendPostRequestForCommand(command);
+        logger.info("Buying {} robots", count);
+    }
+
+    @Async
+    public void sendUpgrade(Robot robot) {
+        Capability upgrade = robot.getQueuedUpgrade();
+        Command command = Command.createUpgrade(upgrade, robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId());
+        gameServiceRESTAdapter.sendPostRequestForCommand(command);
+        logger.info("Buying Upgrade {} for {} ({})", upgrade.toStringForUpgrade(), robot.getRobotId(), robot.getRobotType());
+    }
+
+    @Async
+    public void sendCommand(Robot robot) {
+        try {
+            gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
+            logger.info("Sending {} for Robot {} ({})", robot.getCommandType(), robot.getRobotId(), robot.getRobotType());
+        } catch (RESTAdapterException ignored) {
+            CommandType type = robot.getCommandType();
+            robot.removeCommand();
+            robotRepository.save(robot);
+            logger.warn("Command {} for Robot {} ({}) failed! ", type, robot.getRobotId(), robot.getRobotType());
+        }
+    }
+
+    @Async
     public void choseForIdleRobots(Robot robot) {
-        logger.info("chose command for {}", robot.getRobotId());
         robot.chooseNextCommand();
+        robotRepository.save(robot);
+        logger.info("Preventing Idling for: {} ({}) with {}", robot.getRobotId(), robot.getRobotType(), robot.getCommandType());
     }
 }
