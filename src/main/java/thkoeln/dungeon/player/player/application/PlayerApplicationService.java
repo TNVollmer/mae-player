@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
+import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
@@ -17,6 +18,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankAccountTransactionBookedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.player.core.restadapter.RESTAdapterException;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.player.domain.Player;
@@ -25,7 +27,6 @@ import thkoeln.dungeon.player.robot.domain.Robot;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
 import thkoeln.dungeon.player.robot.domain.Shop;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static thkoeln.dungeon.player.game.domain.GameStatus.CREATED;
@@ -207,6 +208,7 @@ public class PlayerApplicationService {
     public void updateRoundStatus( RoundStatusEvent event ) {
         if (!event.getRoundStatus().equals(RoundStatusType.STARTED)) return;
         if (event.getRoundStatus().equals(RoundStatusType.STARTED)) handelRoundStart();
+    }
 
     private void handelRoundStart() {
         Player player = queryAndIfNeededCreatePlayer();
