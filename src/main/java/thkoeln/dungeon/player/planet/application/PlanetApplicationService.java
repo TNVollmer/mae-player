@@ -37,16 +37,15 @@ public class PlanetApplicationService {
             if (planet.getResources() != resource) planet.setResources(resource);
         }
 
-        List<Planet> neighbours = new ArrayList<>();
+        List<Planet> planets = new ArrayList<>();
         for (PlanetNeighboursDto neighboursDto : event.getNeighbours()) {
             Planet neighbour = getPlanetOrCreate(neighboursDto.getId());
             planet.addNeighbor(neighbour, neighboursDto.getDirection());
             neighbour.addNeighbor(planet, neighboursDto.getDirection().getOppositeDirection());
-            neighbours.add(neighbour);
+            planets.add(neighbour);
         }
-
-        planetRepository.saveAll(neighbours);
-        planetRepository.save(planet);
+        planets.add(planet);
+        planetRepository.saveAll(planets);
 
         log.info("Discovered Planet {} with {} and Movement Difficulty of {}", planet.getPlanetId(), planet.getResources(), planet.getMovementDifficulty());
     }
