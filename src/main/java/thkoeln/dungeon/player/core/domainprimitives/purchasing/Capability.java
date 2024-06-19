@@ -80,11 +80,11 @@ public class Capability {
     }
 
     public String toStringForCommand() {
-        return type.toStringForUpgrading() + "_" + level;
+        return type.name() + "_" + level;
     }
 
-    public String toStringForUpgrading() {
-        return type.toString() + "_" + level;
+    public String toStringForUpgrade() {
+        return type.forUpgrade() + "_" + level;
     }
 
     @Override

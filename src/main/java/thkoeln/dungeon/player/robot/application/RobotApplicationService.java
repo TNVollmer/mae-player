@@ -178,6 +178,7 @@ public class RobotApplicationService {
         robot.setMaxHealth(dto.getMaxHealth());
         robot.setDamage(dto.getAttackDamage());
         robot.chooseNextUpgrade();
+        robotRepository.save(robot);
         log.info("Robot {} ({}) Upgrading: {}", robot.getRobotId(), robot.getRobotType(), event.getUpgrade());
     }
 

@@ -180,7 +180,7 @@ public class Robot {
 
         if (selected != null) {
             nextUpgrade = selected.nextLevel();
-            upgradePrice = Shop.getPriceForItem(nextUpgrade.toStringForUpgrading());
+            upgradePrice = Shop.getPriceForItem(nextUpgrade.toStringForUpgrade());
         } else {
             nextUpgrade = null;
             upgradePrice = null;
