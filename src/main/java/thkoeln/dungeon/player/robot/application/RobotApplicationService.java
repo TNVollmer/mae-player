@@ -160,9 +160,10 @@ public class RobotApplicationService {
             Robot target = getRobot(event.getTarget().getRobotId());
             log.info("Robot {} ({}) was attacked by {}", target.getRobotId(), target.getRobotType(), event.getAttacker().getRobotId());
             target.setHealth(event.getTarget().getAvailableHealth());
-            if (event.getTarget().getAlive())
+            if (event.getTarget().getAlive()) {
                 target.executeOnAttackBehaviour();
-            else {
+                robotRepository.save(target);
+            } else {
                 robotRepository.delete(target);
             }
         }
