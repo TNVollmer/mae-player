@@ -80,6 +80,7 @@ public class RobotApplicationService {
                 if (robot.hasCommand() && robot.getCommandType() != CommandType.MOVEMENT) continue;
                 if (robot.getPlanet().getPlanetId() == robotRevealedDto.getPlanetId()) {
                     log.info("Enemy Robot {} is on the same Planet as {}", robotRevealedDto.getRobotId(), robot.getRobotId());
+                    robot.clearQueue();
                     robot.queueFirst(
                             Command.createFight(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId(), robotRevealedDto.getRobotId())
                     );
