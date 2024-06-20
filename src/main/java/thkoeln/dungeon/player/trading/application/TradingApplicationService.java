@@ -31,7 +31,6 @@ public class TradingApplicationService {
         log.info("Updated prices or not...");
     }
 
-    @Async
     @EventListener(TradableBoughtEvent.class)
     public void onTradableBoughtEvent(TradableBoughtEvent event) {
         Player player = playerRepository.findAll().get(0);
