@@ -139,7 +139,7 @@ public class RobotApplicationService {
     @EventListener(RobotResourceRemovedEvent.class)
     public void onResourceRemoved(RobotResourceRemovedEvent event) {
         Robot robot = getRobot(event.getRobotId());
-        robot.setResourceInInventory(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getRemovedResource()), event.getRemovedAmount()));
+        robot.setResourceInInventory(MineableResource.fromTypeAndAmount(MineableResourceType.valueOf(event.getRemovedResource()), 0));
         choseNextTask(robot);
         log.info("Robot {} ({}) resource removed: {} {}", robot.getRobotId(), robot.getRobotType(), event.getRemovedAmount(), event.getRemovedResource());
     }
