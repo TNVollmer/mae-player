@@ -64,7 +64,7 @@ public class PlanetApplicationService {
 
     @Async
     @EventListener(ResourceMinedEvent.class)
-    public void onResourceMined(ResourceMinedEvent event) {
+    public void onPlanetResourceMined(ResourceMinedEvent event) {
         Planet planet = getPlanetOrCreate(event.getPlanetId());
         planet.setResources(MineableResource.fromTypeAndAmount(event.getResource().getResourceType(), event.getResource().getCurrentAmount()));
         planetRepository.save(planet);
