@@ -82,7 +82,9 @@ public class Player {
     public void initBank(Integer balance) {
         Money money = Money.from(balance);
         bankAccount = bankAccount.increaseBy(money);
+        upgradeBudget = Money.zero();
         newRobotsBudget = newRobotsBudget.increaseBy(money);
+        miscBudget = Money.zero();
     }
 
     public void depositInBank(Money balance) {
