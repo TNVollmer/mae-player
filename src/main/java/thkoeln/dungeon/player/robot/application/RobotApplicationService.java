@@ -132,8 +132,8 @@ public class RobotApplicationService {
         Robot robot = getRobot(event.getRobotId());
         robot.setResourceInInventory(event.getResourceInventory().getResource());
         choseNextTask(robot);
-        log.info("Robot {} ({}) mined: {} {}", robot.getRobotId(), robot.getRobotType(), event.getMinedAmount(), event.getMinedResource());
-        log.info("Robot {} ({}): Inventory: {}", robot.getRobotId(), robot.getRobotType(), robot.getInventory().getUsedCapacity());
+        log.info("Robot {} ({}) mined: {} {}, Inventory: {}",
+                robot.getRobotId(), robot.getRobotType(), event.getMinedAmount(), event.getMinedResource(), robot.getInventory().getUsedCapacity());
     }
 
     @Async
