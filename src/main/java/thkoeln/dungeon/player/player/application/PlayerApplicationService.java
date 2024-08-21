@@ -186,7 +186,6 @@ public class PlayerApplicationService {
         playerRepository.save(player);
     }
 
-    @Async
     @EventListener(BankAccountTransactionBookedEvent.class)
     public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
         Player player = queryAndIfNeededCreatePlayer();
