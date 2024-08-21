@@ -28,7 +28,7 @@ public class Planet {
 
     private UUID planetId;
 
-    private Integer movementDifficulty;
+    private Integer movementDifficulty = 1;
 
     private boolean isExplored = false;
 
