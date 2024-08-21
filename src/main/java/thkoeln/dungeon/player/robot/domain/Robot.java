@@ -13,6 +13,7 @@ import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.domainprimitives.robot.CommandQueue;
 import thkoeln.dungeon.player.core.domainprimitives.robot.Inventory;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
 import thkoeln.dungeon.player.planet.domain.Planet;
@@ -47,8 +48,7 @@ public class Robot {
 
     private RobotType robotType;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<Command> commandQueue = new ArrayList<>();
+    private CommandQueue commandQueue = CommandQueue.emptyQueue();
 
     @Embedded
     private Inventory inventory;
@@ -120,15 +120,11 @@ public class Robot {
     }
 
     public void queueFirst(Command command) {
-        List<Command> commands = new ArrayList<>();
-        commands.add(command);
-        if (!commandQueue.isEmpty())
-            commands.addAll(commandQueue);
-        commandQueue = commands;
+        commandQueue = commandQueue.queueAsFirstCommand(command);
     }
 
     public void queueCommand(Command command) {
-        commandQueue.add(command);
+        commandQueue = commandQueue.queueCommand(command);
     }
 
     public boolean hasCommand() {
@@ -136,24 +132,23 @@ public class Robot {
     }
 
     public CommandType getCommandType() {
-        return hasCommand() ? commandQueue.get(0).getCommandType() : null;
+        return commandQueue.getNextType();
     }
 
     public Command getNextCommand() {
-        if (!hasCommand()) return null;
-        return commandQueue.get(0);
+        return commandQueue.getCommand();
     }
 
     public void removeCommand() {
-        commandQueue.remove(0);
+        commandQueue = commandQueue.getPolledQueue();
     }
 
     public Integer getQueueSize() {
-        return commandQueue.size();
+        return commandQueue.getSize();
     }
 
     public void clearQueue() {
-        commandQueue.clear();
+        commandQueue = CommandQueue.emptyQueue();
     }
 
     public boolean canBuyUpgrade(Money budget) {
@@ -227,7 +222,7 @@ public class Robot {
     public void executeOnAttackBehaviour() {
         //TODO: use onAttackStrategie?
         if (robotType == RobotType.Miner) {
-            commandQueue.clear();
+            clearQueue();
             List<Planet> planets = planet.getNeighbors();
             if (planets.isEmpty()) return;
             Planet random = planets.get(new Random().nextInt(planets.size()));

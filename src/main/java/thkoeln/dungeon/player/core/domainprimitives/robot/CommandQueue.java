@@ -3,27 +3,26 @@ package thkoeln.dungeon.player.core.domainprimitives.robot;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
 
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 
 @Embeddable
+@EqualsAndHashCode
 public class CommandQueue {
 
     @ElementCollection(targetClass = Command.class, fetch = FetchType.EAGER)
-    private final Queue<Command> queue;
+    private final List<Command> queue;
 
     protected CommandQueue() {
-        this.queue = new PriorityQueue<>();
+        this.queue = new ArrayList<>();
     }
 
-    protected CommandQueue(Queue<Command> queue) {
-        this.queue = new PriorityQueue<>(queue);
+    protected CommandQueue(List<Command> queue) {
+        this.queue = new ArrayList<>(queue);
     }
 
     public static CommandQueue emptyQueue() {
@@ -34,27 +33,31 @@ public class CommandQueue {
         return queue.isEmpty();
     }
 
+    public Integer getSize() {
+        return queue.size();
+    }
+
     public CommandType getNextType() {
-        return queue.peek() != null ? queue.peek().getCommandType() : null;
+        return !isEmpty() ? queue.get(0).getCommandType() : null;
     }
 
     public Command getCommand() {
-        return queue.peek();
+        return !isEmpty() ? queue.get(0) : null;
     }
 
     public CommandQueue getPolledQueue() {
-        queue.poll();
+        queue.remove(0);
         return new CommandQueue(queue);
     }
 
     public CommandQueue queueCommand(Command command) {
-        Queue<Command> newQueue = new PriorityQueue<>(queue);
+        List<Command> newQueue = new ArrayList<>(queue);
         newQueue.add(command);
         return new CommandQueue(newQueue);
     }
 
     public CommandQueue queueAsFirstCommand(Command command) {
-        Queue<Command> newQueue = new PriorityQueue<>();
+        List<Command> newQueue = new ArrayList<>();
         newQueue.add(command);
         newQueue.addAll(queue);
         return new CommandQueue(newQueue);
