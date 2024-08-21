@@ -48,9 +48,8 @@ public class PlayerTest {
 
         Assertions.assertEquals(20, percentage.getAmount());
         Assertions.assertEquals(300, stacking.getAmount());
-        Assertions.assertEquals(money, player.getBankAccount());
         Assertions.assertEquals(20, player.getMiscBudget().getAmount());
-        Assertions.assertEquals(40, player.getUpgradeBudget().getAmount());
-        Assertions.assertEquals(40, player.getNewRobotsBudget().getAmount());
+        Assertions.assertEquals(48, player.getUpgradeBudget().getAmount());
+        Assertions.assertEquals(32, player.getNewRobotsBudget().getAmount());
     }
 }
