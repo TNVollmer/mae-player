@@ -92,6 +92,11 @@ public class Planet {
         return searchInMap((Planet planet) -> planet == endPoint);
     }
 
+    /**
+     * Get the path to the nearest matching planet
+     * @param condition the condition the planet has to fulfill
+     * @return the path to the first matching planet as a List of Planets
+     */
     private List<Planet> searchInMap(Predicate<Planet> condition) {
         HashMap<Planet, List<Planet>> graph = new HashMap<>();
         graph.put(this, new ArrayList<>());
