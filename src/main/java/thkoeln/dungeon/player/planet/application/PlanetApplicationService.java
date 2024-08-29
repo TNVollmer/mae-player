@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
@@ -56,6 +57,8 @@ public class PlanetApplicationService {
         for (Robot robot : robots) {
             if (robot.hasCommand()) continue;
             robot.chooseNextCommand();
+            if (robot.canNotMove())
+                robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
             robotRepository.save(robot);
         }
 
