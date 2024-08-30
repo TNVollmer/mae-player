@@ -29,6 +29,10 @@ public class GameServiceRESTAdapter {
     private final Logger logger = LoggerFactory.getLogger( GameServiceRESTAdapter.class );
     @Value("${dungeon.game.host}")
     private String gameServiceUrlString;
+    @Value("${dungeon.robot.host}")
+    private String robotServiceUrlString;
+    @Value("${dungeon.trading.host}")
+    private String tradingServiceUrlString;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -116,7 +120,14 @@ public class GameServiceRESTAdapter {
 
     public UUID sendPostRequestForCommand( Command command ) {
         logger.debug( "Try to send command  " + command );
-        String urlString = gameServiceUrlString + "/commands";
+        //String urlString = gameServiceUrlString + "/commands";
+        String urlString;
+        switch (command.getCommandType()) {
+            case BUYING, SELLING -> urlString = tradingServiceUrlString + "/commands";
+            case BATTLE, MINING, MOVEMENT, REGENERATE -> urlString = robotServiceUrlString + "/command";
+            default -> urlString = gameServiceUrlString + "/command";
+        }
+
         CommandAnswerDto commandAnswerDto;
         try {
             ObjectMapper objectMapper = new ObjectMapper();

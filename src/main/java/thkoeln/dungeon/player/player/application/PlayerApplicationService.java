@@ -184,6 +184,7 @@ public class PlayerApplicationService {
         Player player = queryAndIfNeededCreatePlayer();
         player.initBank(event.getBalance());
         playerRepository.save(player);
+        buyRobots(player);
     }
 
     @EventListener(BankAccountTransactionBookedEvent.class)
