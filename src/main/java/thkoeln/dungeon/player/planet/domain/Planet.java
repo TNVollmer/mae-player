@@ -48,6 +48,35 @@ public class Planet {
         this.planetId = planetId;
     }
 
+    /**
+     * Get the path to the nearest matching planet
+     * @param condition the condition the planet has to fulfill
+     * @return the path to the first matching planet as a List of Planets
+     */
+    private List<Planet> searchInMap(Predicate<Planet> condition) {
+        HashMap<Planet, List<Planet>> graph = new HashMap<>();
+        graph.put(this, new ArrayList<>());
+        List<Planet> visited = new ArrayList<>();
+        visited.add(this);
+
+        while (!graph.isEmpty()) {
+            Planet current = graph.keySet().iterator().next();
+
+            for (Planet planet : current.getNeighbors()) {
+                if (visited.contains(planet)) continue;
+                visited.add(planet);
+
+                List<Planet> directions = new ArrayList<>(graph.get(current));
+                directions.add(planet);
+                graph.put(planet, directions);
+
+                if (condition.test(planet)) return graph.get(planet);
+            }
+            graph.remove(current);
+        }
+        return new ArrayList<>();
+    }
+
     public void addNeighbor(Planet neighbor, CompassDirection direction) {
         switch (direction) {
             case NORTH -> northNeighbor = neighbor;
@@ -90,35 +119,6 @@ public class Planet {
 
     public List<Planet> getPathToPlanet(Planet endPoint) {
         return searchInMap((Planet planet) -> planet == endPoint);
-    }
-
-    /**
-     * Get the path to the nearest matching planet
-     * @param condition the condition the planet has to fulfill
-     * @return the path to the first matching planet as a List of Planets
-     */
-    private List<Planet> searchInMap(Predicate<Planet> condition) {
-        HashMap<Planet, List<Planet>> graph = new HashMap<>();
-        graph.put(this, new ArrayList<>());
-        List<Planet> visited = new ArrayList<>();
-        visited.add(this);
-
-        while (!graph.isEmpty()) {
-            Planet current = graph.keySet().iterator().next();
-
-            for (Planet planet : current.getNeighbors()) {
-                if (visited.contains(planet)) continue;
-                visited.add(planet);
-
-                List<Planet> directions = new ArrayList<>(graph.get(current));
-                directions.add(planet);
-                graph.put(planet, directions);
-
-                if (condition.test(planet)) return graph.get(planet);
-            }
-            graph.remove(current);
-        }
-        return new ArrayList<>();
     }
 
     public void explore() {

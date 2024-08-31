@@ -11,7 +11,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.trading.TradableBoughtE
 import thkoeln.dungeon.player.core.events.concreteevents.trading.TradablePricesEvent;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
-import thkoeln.dungeon.player.robot.domain.Shop;
+import thkoeln.dungeon.player.trading.domain.Shop;
 
 @Service
 public class TradingApplicationService {

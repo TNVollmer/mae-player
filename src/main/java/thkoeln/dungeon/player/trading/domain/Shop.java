@@ -1,4 +1,4 @@
-package thkoeln.dungeon.player.robot.domain;
+package thkoeln.dungeon.player.trading.domain;
 
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.TradeableItem;

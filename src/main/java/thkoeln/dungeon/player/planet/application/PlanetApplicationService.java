@@ -51,18 +51,10 @@ public class PlanetApplicationService {
         }
         planets.add(planet);
         planetRepository.saveAll(planets);
-
-        List<Robot> robots = robotRepository.findByPlanet(planet);
-        log.info("{} Robots are on Planet {}", robots.size(), planet.getPlanetId());
-        for (Robot robot : robots) {
-            if (robot.hasCommand()) continue;
-            robot.chooseNextCommand();
-            if (robot.canNotMove())
-                robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
-            robotRepository.save(robot);
-        }
-
         log.info("Discovered Planet {} with {} and Movement Difficulty of {}", planet.getPlanetId(), planet.getResources(), planet.getMovementDifficulty());
+
+        //due to the delayed exploration of planets is it necessary to check if a robot on this planet needs a command
+        checkForCommands(planet);
     }
 
     @Async
@@ -78,4 +70,15 @@ public class PlanetApplicationService {
         return planetRepository.findByPlanetId(planetId).orElse(new Planet(planetId));
     }
 
+    private void checkForCommands(Planet planet) {
+        List<Robot> robots = robotRepository.findByPlanet(planet);
+        log.info("{} Robots are on Planet {}", robots.size(), planet.getPlanetId());
+        for (Robot robot : robots) {
+            if (robot.hasCommand()) continue;
+            robot.chooseNextCommand();
+            if (robot.canNotMove())
+                robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
+            robotRepository.save(robot);
+        }
+    }
 }

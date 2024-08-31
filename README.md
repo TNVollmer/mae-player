@@ -55,9 +55,15 @@ These are the priorities for each type:
 | Miner   | MINING_SPEED, MINING, STORAGE, ENERGY_REGEN, MAX_ENERGY, HEALTH |
 | Warrior | DAMAGE, ENERGY_REGEN, MAX_ENERGY, HEALTH                        |
 
+Upgrades like commands are queued in order to reduce time needed on round start
+
 ### Commands
 
 To reduce the time needed at round start, has every robot its own command queue. This queue is filled, if the queue is empty, after the robot completed its previous command (at the end of events like `RobotMovedEvent`)
+
+## Map
+
+Each planet knows its neighboring planets. To find a path to a planet, a breadth-first search is used.
 
 ## On Game Start
 
