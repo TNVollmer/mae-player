@@ -12,7 +12,6 @@ import thkoeln.dungeon.player.game.domain.GameException;
 import thkoeln.dungeon.player.game.domain.GameRepository;
 import thkoeln.dungeon.player.game.domain.GameStatus;
 import thkoeln.dungeon.player.planet.domain.PlanetRepository;
-import thkoeln.dungeon.player.robot.domain.RobotDecisionMaker;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
 import java.util.List;
