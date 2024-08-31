@@ -37,4 +37,10 @@ public class MineableResourcesTest {
         });
     }
 
+    @Test
+    public void testAddResources() {
+        MineableResource gold_test = gold12_1.add(gold12_2);
+        Assertions.assertEquals(MineableResource.fromTypeAndAmount(MineableResourceType.GOLD, 24),gold_test);
+    }
+
 }

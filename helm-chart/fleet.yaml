@@ -1,0 +1,98 @@
+namespace: "player-tom"
+helm:
+  releaseName: "player-tom"
+  targetNamespace: "player-tom"
+  repo: "https://gitlab.com/api/v4/projects/42239222/packages/helm/stable"
+  chart: "player-tom"
+  values:
+    nameOverride: ""
+    fullnameOverride: ""
+    replicas: 1
+
+    image:
+      registry: "registry.gitlab.com/the-microservice-dungeon/devops-team/msd-image-registry"
+      name: "player-tom"
+      # set for specific version, if not set, value is Chart version
+      # tag: latest
+      pullPolicy: Always
+
+
+    serviceAccount:
+      # Specifies whether a service account should be created
+      create: true
+      # Annotations to add to the service account
+      annotations: {}
+      # The name of the service account to use.
+      # If not set and create is true, a name is generated using the fullname template
+      name: ""
+
+    service:
+      ports:
+        - name: http
+          port: 1234 # ! TODO: change container port, this port is for access across services (and ingress)
+          targetPort: 1235 # ! TODO: change target port to port your application/service runs on
+          protocol: TCP
+          type: ClusterIP
+
+      lb:
+        enabled: false
+
+    ingress:
+      enabled: false # ! TODO: enable if needed, on local use loadbalancer service.lb
+
+
+    # ! TODO: Readiness Probe remove '{}' and uncomment, if you use an health check endpoint
+    readinessProbe: { }
+    #  httpGet:
+    #    path: /actuator/health # ! TODO: change to health check endpoint
+    #    port: http
+    #  initialDelaySeconds: 10
+    #  periodSeconds: 10
+    #  failureThreshold: 3
+    #  successThreshold: 1
+
+    # ! TODO: Liveness Probe remove '{}' and uncomment, if you use an health check endpoint
+    livenessProbe: { }
+    #  httpGet:
+    #    path: /actuator/health # ! TODO: change to health check endpoint
+    #    port: http
+    #  initialDelaySeconds: 40
+    #  periodSeconds: 10
+    #  failureThreshold: 3
+    #  successThreshold: 1
+
+    # ! TODO: Tweak resources to your needs
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "1G"
+        cpu: "2"
+
+    # temp volume for logs
+    logVol:
+      name: logs-volume
+      mountPath: /app/logs
+      sizeLimit: 500Mi
+
+    configmap:
+      data:
+        RABBITMQ_HOST: "rabbitmq-service.rabbitmq.svc.cluster.msd"
+        RABBITMQ_PORT: "5672"
+        RABBITMQ_USER: "admin"
+        RABBITMQ_PASSWORD: "admin"
+        GAME_HOST: "http://game.game.svc.cluster.msd:8080"
+
+    # ! TODO: change/update env values to your player environment variables
+    env:
+      - name: INTERNAL_ENDPOINT_PORT
+        value: "1235"  # ! TODO: substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port (port of internal application same as service.ports.targetPort)
+      - name: EXTERNAL_ENDPOINT_PORT
+        value: "1234" # ! TODO: change when needed (port of internal cluster communication same as service.ports.port)
+      - name: PLAYER_NAME
+        value: "player-tom"  # ! TODO: substitute with correct player name
+      - name: PLAYER_EMAIL
+        value: "player-tom@example.com"  # ! TODO: substitute with correct player email
+      - name: DEV_MODE
+        value: "false"

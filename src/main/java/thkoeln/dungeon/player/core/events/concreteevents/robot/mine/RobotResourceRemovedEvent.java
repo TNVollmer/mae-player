@@ -22,6 +22,6 @@ public class RobotResourceRemovedEvent extends AbstractEvent {
         if ( robotId == null ) return false;
         if ( removedAmount <= 0 ) return false;
         if ( removedResource == null ) return false;
-        return true;
+        return resourceInventory.isValid();
     }
 }

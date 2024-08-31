@@ -1,12 +1,12 @@
 
 
-nameOverride: ""  # ! TODO: update to your player name (otherwise templated default is loaded: see Chart.name)
+nameOverride: "player-tom"  # ! TODO: update to your player name (otherwise templated default is loaded: see Chart.name)
 fullnameOverride: ""
 replicas: 1
 
 image:
   registry: "registry.gitlab.com/the-microservice-dungeon/devops-team/msd-image-registry"
-  name: "player-skeleton-java-springboot"  # ! TODO: change this to your image name
+  name: "player-tom"  # ! TODO: change this to your image name
   # set for specific version, if not set, value is Chart.version
   tag: latest
   pullPolicy: Always
@@ -24,8 +24,8 @@ serviceAccount:
 service:
   ports:
     - name: http
-      port: 8080 # ! TODO: change container port, this port is for access across services (and ingress)
-      targetPort: 8999 # ! TODO: change target port to port your application/service runs on
+      port: 1234 # ! TODO: change container port, this port is for access across services (and ingress)
+      targetPort: 1235 # ! TODO: change target port to port your application/service runs on
       protocol: TCP
       type: ClusterIP
 
@@ -33,7 +33,7 @@ service:
     enabled: true
     ports:
       - port: 31090 # same as lbPort
-        targetPort: 8080 # same as service.ports.port
+        targetPort: 1234 # same as service.ports.port
         lbPort: 31090
         protocol: TCP
         type: LoadBalancer
@@ -44,7 +44,7 @@ ingress:
     - hostname: player-skeleton-java-springboot.msd.dungeon-space.de  # ! TODO: Change this to your ingress hostname, if you need one
       path: /
       classname: nginx
-      port: 8080 # same as service.ports.port
+      port: 1234 # same as service.ports.port
       pathType: Prefix
 
 
@@ -94,13 +94,13 @@ configmap:
 # ! TODO: change/update env values to your player environment variables
 env:
   - name: INTERNAL_ENDPOINT_PORT
-    value: "8999"  # ! TODO: substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port (port of internal application same as service.ports.targetPort)
+    value: "1235"  # ! TODO: substitute with correct port that the backend listens on; EXTERNAL_ENDPOINT_PORT will be mapped on this port (port of internal application same as service.ports.targetPort)
   - name: EXTERNAL_ENDPOINT_PORT
-    value: "8080" # ! TODO: change when needed (port of internal cluster communication same as service.ports.port)
+    value: "1234" # ! TODO: change when needed (port of internal cluster communication same as service.ports.port)
   - name: PLAYER_NAME
-    value: "player-skeleton-java-springboot"  # ! TODO: substitute with correct player name
+    value: "player-tom"  # ! TODO: substitute with correct player name
   - name: PLAYER_EMAIL
-    value: "player-skeleton-java-springboot@msd.com"  # ! TODO: substitute with correct player email
+    value: "player-tom@example.com"  # ! TODO: substitute with correct player email
   - name: DEV_MODE
     value: "false"
 

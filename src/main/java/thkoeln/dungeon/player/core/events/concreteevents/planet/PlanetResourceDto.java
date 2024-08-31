@@ -1,5 +1,6 @@
 package thkoeln.dungeon.player.core.events.concreteevents.planet;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceTyp
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PlanetResourceDto {
+    @JsonAlias("type")
     private MineableResourceType resourceType;
     private Integer maxAmount;
     private Integer currentAmount;

@@ -29,7 +29,7 @@ public class Inventory {
     }
 
     public static Inventory fromCapacity(Integer capacity) {
-        if (capacity == null || capacity < 0) throw new DomainPrimitiveException("Invalid Parameter for Inventory!");
+        if (capacity == null || capacity <= 0) throw new DomainPrimitiveException("Invalid Parameter for Inventory!");
         List<MineableResource> resources = new ArrayList<>();
         for (MineableResourceType type : MineableResourceType.values()) {
             resources.add(MineableResource.empty(type));
@@ -38,7 +38,7 @@ public class Inventory {
     }
 
     public static Inventory fromCapacityAndResources(Integer capacity, List<MineableResource> resources) {
-        if (capacity == null || capacity < 0 || resources == null) throw new DomainPrimitiveException("Invalid Parameter for Inventory!");
+        if (capacity == null || capacity <= 0 || resources == null) throw new DomainPrimitiveException("Invalid Parameter for Inventory!");
         return new Inventory(capacity, resources);
     }
 
@@ -58,22 +58,22 @@ public class Inventory {
         return amount;
     }
 
-    public Inventory addMineableResource(MineableResource addedResource) {
-        List<MineableResource> mineableResourceList = new ArrayList<>();
+    private List<MineableResourceType> getResourceTypesInInventory() {
+        List<MineableResourceType> types = new ArrayList<>();
         for (MineableResource resource : resources) {
-            if (resource.getType() != addedResource.getType()) mineableResourceList.add(resource);
-            if (resource.getType() == addedResource.getType()) mineableResourceList.add(resource.add(addedResource));
+            types.add(resource.getType());
         }
-        return Inventory.fromCapacityAndResources(capacity, mineableResourceList);
+        return types;
     }
 
-    public Inventory removeMineableResource(MineableResource subtractResource) {
+    public Inventory setMineableResource(MineableResource setResource) {
         List<MineableResource> mineableResourceList = new ArrayList<>();
-        for (MineableResource resource : resources) {
-            if (resource.getType() != subtractResource.getType()) mineableResourceList.add(resource);
-            if (resource.getType() == subtractResource.getType()) mineableResourceList.add(resource.subtract(subtractResource));
+        for (MineableResource resource: resources) {
+            if (resource.getType() != setResource.getType())
+                mineableResourceList.add(resource);
         }
+        if (!setResource.isEmpty())
+            mineableResourceList.add(setResource);
         return Inventory.fromCapacityAndResources(capacity, mineableResourceList);
     }
-
 }

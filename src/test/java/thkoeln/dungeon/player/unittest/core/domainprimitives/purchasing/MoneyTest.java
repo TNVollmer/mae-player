@@ -73,4 +73,10 @@ public class MoneyTest {
         } );
     }
 
+    @Test
+    public void testPercentage() {
+        Assertions.assertEquals(2, m20.getPercentage(10).getAmount());
+        Assertions.assertEquals(4, m20.getPercentage(20).getAmount());
+    }
+
 }

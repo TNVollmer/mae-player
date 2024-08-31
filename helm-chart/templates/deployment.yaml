@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "player-skeleton-java-springboot.fullname" . }}
+  name: {{ include "player-tom.fullname" . }}
   labels:
-    {{- include "player-skeleton-java-springboot.labels" . | nindent 4 }}
+    {{- include "player-tom.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas | int }}
   selector:
     matchLabels:
-      {{- include "player-skeleton-java-springboot.selectorLabels" . | nindent 6 }}
+      {{- include "player-tom.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "player-skeleton-java-springboot.selectorLabels" . | nindent 8 }}
+        {{- include "player-tom.selectorLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ include "player-skeleton-java-springboot.serviceAccountName" . }}
+      serviceAccountName: {{ include "player-tom.serviceAccountName" . }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.Version }}"
@@ -39,7 +39,7 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ include "player-skeleton-java-springboot.fullname" . }}
+                name: {{ include "player-tom.fullname" . }}
           {{- if .Values.env }}
           env:
           {{- toYaml .Values.env | nindent 12 }}

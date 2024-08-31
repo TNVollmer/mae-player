@@ -3,10 +3,7 @@ package thkoeln.dungeon.player.player.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
-import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
-import thkoeln.dungeon.player.player.domain.Player;
 
 import java.util.UUID;
 
@@ -29,7 +26,7 @@ public class PlayerTest {
         assertFalse( player.isRegistered() );
 
         // when / then
-        player.assignPlayerId( UUID.randomUUID() );
+        player.setPlayerId( UUID.randomUUID() );
         assertTrue( player.isRegistered() );
 
         // when / then
@@ -45,14 +42,14 @@ public class PlayerTest {
 
         Money money = Money.from(100);
         Money percentage = money.getPercentage(20);
-
-        Assertions.assertEquals(20, percentage.getAmount());
+        Money stacking = money.increaseBy(money).increaseBy(money);
 
         player.depositInBank(money);
 
-        Assertions.assertEquals(money, player.getBankAccount());
+        Assertions.assertEquals(20, percentage.getAmount());
+        Assertions.assertEquals(300, stacking.getAmount());
         Assertions.assertEquals(20, player.getMiscBudget().getAmount());
-        Assertions.assertEquals(40, player.getUpgradeBudget().getAmount());
-        Assertions.assertEquals(40, player.getNewRobotsBudget().getAmount());
+        Assertions.assertEquals(48, player.getUpgradeBudget().getAmount());
+        Assertions.assertEquals(32, player.getNewRobotsBudget().getAmount());
     }
 }

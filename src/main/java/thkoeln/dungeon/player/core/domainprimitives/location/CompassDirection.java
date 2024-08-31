@@ -11,45 +11,28 @@ public enum CompassDirection {
     WEST;
 
     public CompassDirection getOppositeDirection() {
-        switch (this) {
-            case NORTH:
-                return SOUTH;
-            case EAST:
-                return WEST;
-            case SOUTH:
-                return NORTH;
-            case WEST:
-                return EAST;
-        }
-        return null;
+        return switch (this) {
+            case NORTH -> SOUTH;
+            case EAST -> WEST;
+            case SOUTH -> NORTH;
+            case WEST -> EAST;
+        };
     }
 
     public int xOffset() {
-        switch (this) {
-            case NORTH:
-                return 0;
-            case EAST:
-                return 1;
-            case SOUTH:
-                return 0;
-            case WEST:
-                return -1;
-        }
-        return 0;
+        return switch (this) {
+            case NORTH, SOUTH -> 0;
+            case EAST -> 1;
+            case WEST -> -1;
+        };
     }
 
     public int yOffset() {
-        switch (this) {
-            case NORTH:
-                return 1;
-            case EAST:
-                return 0;
-            case SOUTH:
-                return -1;
-            case WEST:
-                return 0;
-        }
-        return 0;
+        return switch (this) {
+            case NORTH -> 1;
+            case EAST, WEST -> 0;
+            case SOUTH -> -1;
+        };
     }
 
     public List<CompassDirection> ninetyDegrees() {

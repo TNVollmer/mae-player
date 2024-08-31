@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "player-skeleton-java-springboot.fullname" . }}-lb
+  name: {{ include "player-tom.fullname" . }}-lb
   labels:
-    {{- include "player-skeleton-java-springboot.labels" . | nindent 4 }}
+    {{- include "player-tom.labels" . | nindent 4 }}
 spec:
   {{- range .Values.service.lb.ports }}
   type: {{ .type }}
@@ -15,5 +15,5 @@ spec:
       protocol: {{ .protocol }}
   {{- end }}
   selector:
-    {{- include "player-skeleton-java-springboot.selectorLabels" . | nindent 4 }}
+    {{- include "player-tom.selectorLabels" . | nindent 4 }}
     {{- end }}

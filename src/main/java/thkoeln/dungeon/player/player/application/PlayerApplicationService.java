@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import thkoeln.dungeon.player.core.domainprimitives.command.Command;
+import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
 import thkoeln.dungeon.player.core.events.concreteevents.game.GameStatusEvent;
@@ -17,13 +18,17 @@ import thkoeln.dungeon.player.core.events.concreteevents.game.RoundStatusType;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankAccountTransactionBookedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.trading.BankInitializedEvent;
 import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
+import thkoeln.dungeon.player.core.restadapter.RESTAdapterException;
 import thkoeln.dungeon.player.game.application.GameApplicationService;
 import thkoeln.dungeon.player.game.domain.Game;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
+import thkoeln.dungeon.player.trading.domain.Shop;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import static thkoeln.dungeon.player.game.domain.GameStatus.CREATED;
@@ -181,62 +186,88 @@ public class PlayerApplicationService {
         playerRepository.save(player);
     }
 
-    @Async
     @EventListener(BankAccountTransactionBookedEvent.class)
     public void updateBankAccount( BankAccountTransactionBookedEvent event ) {
         Player player = queryAndIfNeededCreatePlayer();
+        Integer totalBalance = event.getBalance();
         Integer transaction = event.getTransactionAmount();
+        player.setBankAccount(Money.from(totalBalance));
 
-        if (transaction > 0)
+        if (transaction > 0) {
             player.depositInBank(Money.from(transaction));
-        else
-            player.withdrawFromBank(Money.from(transaction * -1));
-
+            logger.info("Increased Bank account by {} to {} money.", transaction, event.getBalance());
+            logger.info("Upgrade Budget: {}", player.getUpgradeBudget());
+            logger.info("New Robots Budget: {}", player.getNewRobotsBudget());
+            logger.info("New Misc Budget: {}", player.getMiscBudget());
+        } else
+            logger.info("Decreased Bank account by {} to {} money.", (transaction * - 1), totalBalance);
         playerRepository.save(player);
-        logger.info("Bank account updated to {} money.", event.getBalance());
-        logger.info("Upgrade Budget: {}", player.getUpgradeBudget());
-        logger.info("New Robots Budget: {}", player.getNewRobotsBudget());
-        logger.info("New Misc Budget: {}", player.getMiscBudget());
     }
 
     @Async
     @EventListener(RoundStatusEvent.class)
     public void updateRoundStatus( RoundStatusEvent event ) {
-        if (!event.getRoundStatus().equals(RoundStatusType.STARTED)) return;
+        if (event.getRoundStatus().equals(RoundStatusType.STARTED)) handelRoundStart();
+    }
+
+    private void handelRoundStart() {
+        Instant start = Instant.now();
 
         Player player = queryAndIfNeededCreatePlayer();
-        int count = player.getNewRobotsBudget().canBuyThatManyFor(Money.from(100));
-        if (count > 0) {
-            Command command = Command.createRobotPurchase(count, event.getGameId(), player.getPlayerId());
-            gameServiceRESTAdapter.sendPostRequestForCommand(command);
-            player.setNewRobotsBudget(player.getNewRobotsBudget().decreaseBy(Money.from(100 * count)));
-            logger.info("Bought {} robots", count);
-        }
-        //TODO: only get your own robots instead of all
-        Iterable<Robot> robots = robotRepository.findAll();
+        buyRobots(player);
         Integer robotCount = 0;
-        for (Robot robot : robots) {
+        Money budget = player.getUpgradeBudget();
+        for (Robot robot : robotRepository.findAll()) {
             robotCount++;
-            Money budget = player.getUpgradeBudget();
             if (robot.canBuyUpgrade(budget)) {
-                Capability upgrade = robot.buyUpgrade();
-                Command command = Command.createUpgrade(upgrade, robot.getRobotId(), player.getGameId(), player.getPlayerId());
-                player.setUpgradeBudget(budget.decreaseBy(upgrade.getUpgradePrice()));
-                gameServiceRESTAdapter.sendPostRequestForCommand(command);
+                budget = budget.decreaseBy(robot.getUpgradePrice());
+                sendUpgrade(robot);
             } else {
-                if (!robot.hasCommand()) {
-                    logger.info("chose command for {}", robot.getRobotId());
-                    robot.chooseNextCommand();
-                }
-                if (robot.hasCommand())
-                    gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
-                else logger.info("{} is idle", robot.getRobotId());
+                if (robot.hasCommand()) sendCommand(robot);
+                else choseForIdleRobots(robot);
             }
         }
-
-        robotRepository.saveAll(robots);
-        playerRepository.save(player);
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis();
         logger.info("Robot Count: {}", robotCount);
-        logger.info("Commands send!");
+        logger.info("Commands send! Took {} ms", timeElapsed);
+    }
+
+    @Async
+    public void buyRobots(Player player) {
+        Money price = Shop.getPriceForItem("ROBOT");
+        int count = player.getNewRobotsBudget().canBuyThatManyFor(price != null ? price : Money.from(100));
+        if (count < 1) return;
+        Command command = Command.createRobotPurchase(count, player.getGameId(), player.getPlayerId());
+        gameServiceRESTAdapter.sendPostRequestForCommand(command);
+        logger.info("Buying {} robots", count);
+    }
+
+    @Async
+    public void sendUpgrade(Robot robot) {
+        Capability upgrade = robot.getQueuedUpgrade();
+        Command command = Command.createUpgrade(upgrade, robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId());
+        gameServiceRESTAdapter.sendPostRequestForCommand(command);
+        logger.info("Buying Upgrade {} for {} ({})", upgrade.toStringForUpgrade(), robot.getRobotId(), robot.getRobotType());
+    }
+
+    @Async
+    public void sendCommand(Robot robot) {
+        try {
+            gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
+            logger.info("Sending {} for Robot {} ({})", robot.getCommandType(), robot.getRobotId(), robot.getRobotType());
+        } catch (RESTAdapterException ignored) {
+            CommandType type = robot.getCommandType();
+            robot.removeCommand();
+            robotRepository.save(robot);
+            logger.warn("Command {} for Robot {} ({}) failed! ", type, robot.getRobotId(), robot.getRobotType());
+        }
+    }
+
+    @Async
+    public void choseForIdleRobots(Robot robot) {
+        robot.chooseNextCommand();
+        robotRepository.save(robot);
+        logger.info("Preventing Idling for: {} ({}) with {}", robot.getRobotId(), robot.getRobotType(), robot.getCommandType());
     }
 }

@@ -11,12 +11,15 @@ import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.ItemType;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.Money;
+import thkoeln.dungeon.player.core.domainprimitives.robot.CommandQueue;
 import thkoeln.dungeon.player.core.domainprimitives.robot.Inventory;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
-import thkoeln.dungeon.player.core.domainprimitives.status.Activity;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.player.domain.Player;
+import thkoeln.dungeon.player.robot.domain.strategies.TaskSelection;
+import thkoeln.dungeon.player.trading.domain.Shop;
 
 import java.util.*;
 
@@ -41,12 +44,13 @@ public class Robot {
     private Integer maxEnergy;
     private Integer health;
     private Integer maxHealth;
+    private Integer damage;
 
-    @Embedded
-    private RobotType type;
+    private Integer energyReserve = 10;
 
-    @Embedded
-    private Command nextCommand;
+    private RobotType robotType;
+
+    private CommandQueue commandQueue = CommandQueue.emptyQueue();
 
     @Embedded
     private Inventory inventory;
@@ -56,77 +60,32 @@ public class Robot {
 
     @Embedded
     private Capability nextUpgrade;
+    private Money upgradePrice;
 
     private boolean isAlive = true;
-    private Activity currentActivity = Activity.IDLE;
 
 
-    public Robot(UUID robotId, Player player, Planet planet, Integer inventorySize, Integer energy) {
+    public Robot(UUID robotId, Player player, Planet planet, RobotType robotType, Integer inventorySize, Integer maxEnergy, Integer maxHealth) {
         this.robotId = robotId;
         this.player = player;
         this.planet = planet;
 
         this.inventory = Inventory.fromCapacity(inventorySize);
-        this.nextCommand = null;
 
-        this.energy = energy;
+        this.maxEnergy = maxEnergy;
+        this.energy = maxEnergy;
+        this.maxHealth = maxHealth;
+        this.health = maxHealth;
 
+        this.robotType = robotType;
         chooseNextUpgrade();
     }
 
-    public void changeInventorySize(Integer size) {
-        this.inventory = Inventory.fromCapacityAndResources(size, this.inventory.getResources());
-    }
-
-    public void storeResources(MineableResource resource) {
-        this.inventory = inventory.addMineableResource(resource);
-    }
-
-    public void removeResources(MineableResource resource) {
-        this.inventory = inventory.removeMineableResource(resource);
-    }
-
-    public void chooseNextCommand() {
-        //TODO: Check health and heal if necessary
-        if (canMine() && !canMineBetterResources()) {
-            mine();
-        } else {
-            if (!moveToNearestPlanetWithBestMineableResources())
-                moveToNextUnexploredPlanet();
-            if (!canMove())
-                setNextCommand(Command.createRegeneration(getRobotId(), player.getGameId(), player.getPlayerId()));
-            if (canMine() && canMineBetterResources() && !inventory.isEmpty()) {
-                setNextCommand(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0)));
-            }
-        }
-    }
-
-    public boolean hasCommand() {
-        return nextCommand != null;
-    }
-
-    public CommandType getCommandType() {
-        return hasCommand() ? nextCommand.getCommandType() : null;
-    }
-
-    public Command getNextCommand() {
-        Command command = nextCommand;
-        nextCommand = null;
-        return command;
-    }
-
-    public boolean canBuyUpgrade(Money budget) {
-        return budget.greaterEqualThan(nextUpgrade.getUpgradePrice());
-    }
-
-    public Capability buyUpgrade() {
-        Capability upgrade = nextUpgrade.nextLevel();
-        chooseNextUpgrade();
-        return upgrade;
-    }
-
-    private void chooseNextUpgrade() {
-        List<CapabilityType> priorities = getUpgradePriorities();
+    /**
+     * Chooses the next upgrade based on the robot type
+     */
+    public void chooseNextUpgrade() {
+        List<CapabilityType> priorities = RobotDecisionMaker.getUpgradePriorities(robotType);
         Capability selected = null;
 
         for (CapabilityType type : priorities) {
@@ -147,73 +106,13 @@ public class Robot {
             }
         }
 
-        nextUpgrade = selected;
-    }
-
-    public boolean moveToNearestPlanetWithBestMineableResources() {
-        return moveToNearestPlanetWithResource(MineableResourceType.getBestType(getLevel(CapabilityType.MINING)));
-    }
-
-    public boolean moveToNearestPlanetWithResource(MineableResourceType type) {
-        List<Planet> path = planet.getPathToNearestPlanetWithResource(type);
-        if (path.isEmpty()) return false;
-        setMoveCommand(path.get(0));
-        return true;
-    }
-
-    public boolean moveToNextUnexploredPlanet() {
-        List<Planet> path = planet.getPathToNearestUnexploredPlanet();
-        if (path.isEmpty()) return false;
-        setMoveCommand(path.get(0));
-        return true;
-    }
-
-    private void setMoveCommand(Planet toPlanet) {
-        nextCommand = Command.createMove(robotId, toPlanet.getPlanetId(), player.getGameId(), player.getPlayerId());
-    }
-
-    public boolean canMove() {
-        return (energy - 10) > planet.getMovementDifficulty();
-    }
-
-    public void escape() {
-        List<Planet> planets = planet.getNeighbors();
-        Planet random = planets.get(new Random().nextInt(planets.size()));
-        nextCommand = Command.createMove(this.getRobotId(), random.getPlanetId(), this.player.getGameId(), this.player.getPlayerId());
-    }
-
-    public void move(Planet planet) {
-        this.planet = planet;
-    }
-
-    public void mine() {
-        if (isFull())
-            nextCommand = Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), inventory.getResources().get(0));
-        else
-            nextCommand = Command.createMining(robotId, planet.getPlanetId(), player.getGameId(), player.getPlayerId());
-    }
-
-    public boolean canMine() {
-        return planet.hasResources() && planet.getResources().getType().canMineBeMinedBy(getLevel(CapabilityType.MINING));
-    }
-
-    public boolean canMineBetterResources() {
-        return planet.getResources().getType().canMineBetterResources(getLevel(CapabilityType.MINING));
-    }
-
-    public boolean isFull() {
-        return this.inventory.isFull();
-    }
-
-    public Integer getLevel(CapabilityType type) {
-        return getCapability(type).getLevel();
-    }
-
-    public Capability getCapability(CapabilityType type) {
-        for (Capability capability : stats) {
-            if (capability.getType() == type) return  capability;
+        if (selected != null) {
+            nextUpgrade = selected.nextLevel();
+            upgradePrice = Shop.getPriceForItem(nextUpgrade.toStringForUpgrade());
+        } else {
+            nextUpgrade = null;
+            upgradePrice = null;
         }
-        throw new DomainPrimitiveException("Stat missing");
     }
 
     public void upgradeCapability(CapabilityType type) {
@@ -229,23 +128,137 @@ public class Robot {
         stats.add(toChange.nextLevel());
     }
 
-    public List<CapabilityType> getUpgradePriorities(){
-        return switch (type) {
-            case Scout -> List.of(
-                    CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY
-            );
-            case Miner -> List.of(
-                    CapabilityType.MINING,
-                    CapabilityType.MINING_SPEED,
-                    CapabilityType.STORAGE,
-                    CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY,
-                    CapabilityType.HEALTH);
-            case Warrior -> List.of(
-                    CapabilityType.DAMAGE,
-                    CapabilityType.ENERGY_REGEN,
-                    CapabilityType.MAX_ENERGY);
-        };
+    public boolean moveToNextUnexploredPlanet() {
+        List<Planet> path = planet.getPathToNearestUnexploredPlanet();
+        if (path.isEmpty()) return false;
+        queueMovements(path);
+        return true;
+    }
+
+    /**
+     * Chooses the next command(s) based on the robot type but prioritizes healing if health is below half
+     */
+    public void chooseNextCommand() {
+        if (health < (maxHealth/2)) {
+            queueFirst(Command.createItemPurchase(ItemType.HEALTH_RESTORE, 1, robotId, player.getGameId(), player.getPlayerId()));
+        } else {
+            RobotDecisionMaker.getTaskSelectionByRobotType(robotType).queueNextTask(this);
+        }
+    }
+
+    public void executeOnAttackBehaviour() {
+        RobotDecisionMaker.getTaskSelectionByRobotType(robotType).onAttackAction(this);
+    }
+
+    public boolean moveToNearestPlanetWithBestMineableResources() {
+        return moveToNearestPlanetWithResource(MineableResourceType.getBestType(getLevel(CapabilityType.MINING)));
+    }
+
+    public boolean moveToNearestPlanetWithResource(MineableResourceType type) {
+        List<Planet> path = planet.getPathToNearestPlanetWithResource(type);
+        if (path.isEmpty()) return false;
+        queueMovements(path);
+        return true;
+    }
+
+    public void mine() {
+        if (isFull())
+            queueSellingResources();
+        else
+            queueCommand(Command.createMining(robotId, planet.getPlanetId(), player.getGameId(), player.getPlayerId()));
+    }
+
+    private void queueSellingResources() {
+        for (MineableResource resource : inventory.getResources()) {
+            if (!resource.isEmpty())
+                queueFirst(Command.createSelling(robotId, player.getGameId(), player.getPlayerId(), resource));
+        }
+    }
+
+    private void queueMovements(List<Planet> path) {
+        for (Planet toPlanet : path) {
+            queueCommand(Command.createMove(robotId, toPlanet.getPlanetId(), player.getGameId(), player.getPlayerId()));
+        }
+    }
+
+    public boolean canBuyUpgrade(Money budget) {
+        if (upgradePrice == null) return false;
+        return budget.greaterEqualThan(upgradePrice);
+    }
+
+    public boolean hasCommand() {
+        return !commandQueue.isEmpty();
+    }
+
+    public CommandType getCommandType() {
+        return commandQueue.getNextType();
+    }
+
+    public Command getNextCommand() {
+        return commandQueue.getCommand();
+    }
+
+    public Integer getQueueSize() {
+        return commandQueue.getSize();
+    }
+
+    public void queueFirst(Command command) {
+        commandQueue = commandQueue.queueAsFirstCommand(command);
+    }
+
+    public void queueCommand(Command command) {
+        commandQueue = commandQueue.queueCommand(command);
+    }
+
+    public void removeCommand() {
+        commandQueue = commandQueue.getPolledQueue();
+    }
+
+    public void clearQueue() {
+        commandQueue = CommandQueue.emptyQueue();
+    }
+
+    public Capability getQueuedUpgrade() {
+        return nextUpgrade;
+    }
+
+    public boolean canNotMove() {
+        return (energy - energyReserve) <= planet.getMovementDifficulty();
+    }
+
+    public void move(Planet planet) {
+        this.planet = planet;
+    }
+
+    public boolean canMine() {
+        return planet.hasResources() && planet.getResources().getType().canMineBeMinedBy(getLevel(CapabilityType.MINING));
+    }
+
+    public boolean canMineBetterResources() {
+        return planet.getResources().getType().canMineBetterResources(getLevel(CapabilityType.MINING));
+    }
+
+    public boolean isFull() {
+        return this.inventory.isFull();
+    }
+
+    public void changeInventorySize(Integer size) {
+        this.inventory = Inventory.fromCapacityAndResources(size, this.inventory.getResources());
+    }
+
+    //to ensure the inventory is correct resources are always completely replaced instead of calculating the new amount
+    public void setResourceInInventory(MineableResource resource) {
+        this.inventory = inventory.setMineableResource(resource);
+    }
+
+    public Integer getLevel(CapabilityType type) {
+        return getCapability(type).getLevel();
+    }
+
+    public Capability getCapability(CapabilityType type) {
+        for (Capability capability : stats) {
+            if (capability.getType() == type) return  capability;
+        }
+        throw new DomainPrimitiveException("Stat missing");
     }
 }
