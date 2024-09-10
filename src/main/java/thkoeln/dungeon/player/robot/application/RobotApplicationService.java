@@ -9,6 +9,7 @@ import thkoeln.dungeon.player.core.domainprimitives.command.Command;
 import thkoeln.dungeon.player.core.domainprimitives.command.CommandType;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.domainprimitives.location.MineableResourceType;
+import thkoeln.dungeon.player.core.domainprimitives.purchasing.Capability;
 import thkoeln.dungeon.player.core.domainprimitives.purchasing.CapabilityType;
 import thkoeln.dungeon.player.core.domainprimitives.robot.RobotType;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.change.RobotRegeneratedEvent;
@@ -22,6 +23,7 @@ import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotRevea
 import thkoeln.dungeon.player.core.events.concreteevents.robot.reveal.RobotsRevealedEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotDto;
 import thkoeln.dungeon.player.core.events.concreteevents.robot.spawn.RobotSpawnedEvent;
+import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.planet.domain.PlanetRepository;
 import thkoeln.dungeon.player.player.domain.Player;
@@ -40,12 +42,14 @@ public class RobotApplicationService {
     private final RobotRepository robotRepository;
     private final PlanetRepository planetRepository;
     private final PlayerRepository playerRepository;
+    private final GameServiceRESTAdapter gameServiceRESTAdapter;
 
     @Autowired
-    public RobotApplicationService(RobotRepository robotRepository, PlanetRepository planetRepository, PlayerRepository playerRepository) {
+    public RobotApplicationService(RobotRepository robotRepository, PlanetRepository planetRepository, PlayerRepository playerRepository, GameServiceRESTAdapter gameServiceRESTAdapter) {
         this.robotRepository = robotRepository;
         this.planetRepository = planetRepository;
         this.playerRepository = playerRepository;
+        this.gameServiceRESTAdapter = gameServiceRESTAdapter;
     }
 
     @EventListener(RobotSpawnedEvent.class)
@@ -181,7 +185,9 @@ public class RobotApplicationService {
         robot.setMaxHealth(dto.getMaxHealth());
         robot.setDamage(dto.getAttackDamage());
         robot.chooseNextUpgrade();
+        robot.clearQueue();
         robotRepository.save(robot);
+        choseNextTask(robot);
         log.info("Robot {} ({}) Upgrading: {}", robot.getRobotId(), robot.getRobotType(), event.getUpgrade());
     }
 
@@ -201,6 +207,14 @@ public class RobotApplicationService {
             robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
         robotRepository.save(robot);
         log.info("Robot {} ({}) Next Command: {} (Queue size: {})", robot.getRobotId(), robot.getRobotType(), robot.getCommandType(), robot.getQueueSize());
+
+        if (robot.getPlayer().getUpgradeBudget().greaterEqualThan(robot.getUpgradePrice())) {
+            Capability upgrade = robot.getQueuedUpgrade();
+            Command command = Command.createUpgrade(upgrade, robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId());
+            gameServiceRESTAdapter.sendPostRequestForCommand(command);
+            return;
+        }
+        if (robot.hasCommand()) gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
     }
 
     private Robot getRobot(UUID robotId) {

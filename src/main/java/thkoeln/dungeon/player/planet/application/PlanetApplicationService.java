@@ -10,6 +10,7 @@ import thkoeln.dungeon.player.core.domainprimitives.location.MineableResource;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetDiscoveredEvent;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.PlanetNeighboursDto;
 import thkoeln.dungeon.player.core.events.concreteevents.planet.ResourceMinedEvent;
+import thkoeln.dungeon.player.core.restadapter.GameServiceRESTAdapter;
 import thkoeln.dungeon.player.planet.domain.Planet;
 import thkoeln.dungeon.player.planet.domain.PlanetRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
@@ -25,11 +26,13 @@ public class PlanetApplicationService {
 
     private final PlanetRepository planetRepository;
     private final RobotRepository robotRepository;
+    private final GameServiceRESTAdapter gameServiceRESTAdapter;
 
     @Autowired
-    public PlanetApplicationService(PlanetRepository planetRepository, RobotRepository robotRepository) {
+    public PlanetApplicationService(PlanetRepository planetRepository, RobotRepository robotRepository, GameServiceRESTAdapter gameServiceRESTAdapter) {
         this.planetRepository = planetRepository;
         this.robotRepository = robotRepository;
+        this.gameServiceRESTAdapter = gameServiceRESTAdapter;
     }
 
     @EventListener(PlanetDiscoveredEvent.class)
@@ -79,6 +82,9 @@ public class PlanetApplicationService {
             if (robot.canNotMove())
                 robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
             robotRepository.save(robot);
+
+            if (robot.hasCommand())
+                gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
         }
     }
 }
