@@ -8,7 +8,11 @@ public enum CapabilityType {
     MAX_ENERGY("ME", "MAX_ENERGY"),
     MINING("MI", "MINING"),
     MINING_SPEED("MS", "MINING_SPEED"),
-    STORAGE("S", "STORAGE");
+    STORAGE("S", "STORAGE"),
+    MOVEMENT_SPEED("MOS", "MOVEMENT_SPEED"),
+    ATTACK_SPEED("AS", "ATTACK_SPEED"),
+    MINING_EFFICIENCY("MIE", "MINING_EFFICIENCY"),
+    ENERGY_REGEN_SPEED("ERS", "ENERGY_REGEN_SPEED");
 
     private final String stringValue;
     private final String shopValue;
