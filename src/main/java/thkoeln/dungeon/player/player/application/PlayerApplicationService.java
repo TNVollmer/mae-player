@@ -179,11 +179,12 @@ public class PlayerApplicationService {
 
     @Async
     @EventListener(BankInitializedEvent.class)
-    public void bankInitialized( BankInitializedEvent event ) {
+    public void bankInitialized( BankInitializedEvent event ) throws InterruptedException {
         logger.info("Bank initialized with {} money.", event.getBalance());
         Player player = queryAndIfNeededCreatePlayer();
         player.initBank(event.getBalance());
         playerRepository.save(player);
+        Thread.sleep(100);
         buyRobots(player);
     }
 
