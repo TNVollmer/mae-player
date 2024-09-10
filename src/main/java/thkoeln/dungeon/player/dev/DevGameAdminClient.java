@@ -71,7 +71,7 @@ public class DevGameAdminClient {
             throw new DungeonPlayerRuntimeException( DEV_PREFIX + "Invalid number of games found. That should not happen" );
         var game = gameDtos.get( 0 );
         startGame( game.getGameId() );
-        setRoundDuration( game.getGameId(), ROUND_DURATION );
+        //setRoundDuration( game.getGameId(), ROUND_DURATION );
         log.info( DEV_PREFIX + "Game started." );
     }
 
