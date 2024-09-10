@@ -43,6 +43,7 @@ public class RobotDecisionMaker {
     public static List<CapabilityType> getUpgradePriorities(RobotType type){
         return switch (type) {
             case Scout -> List.of(
+                    CapabilityType.MOVEMENT_SPEED,
                     CapabilityType.ENERGY_REGEN,
                     CapabilityType.MAX_ENERGY,
                     CapabilityType.HEALTH
