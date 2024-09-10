@@ -124,8 +124,8 @@ public class GameServiceRESTAdapter {
         String urlString;
         switch (command.getCommandType()) {
             case BUYING, SELLING -> urlString = tradingServiceUrlString + "/commands";
-            case BATTLE, MINING, MOVEMENT, REGENERATE -> urlString = robotServiceUrlString + "/command";
-            default -> urlString = gameServiceUrlString + "/command";
+            case BATTLE, MINING, MOVEMENT, REGENERATE -> urlString = robotServiceUrlString + "/commands";
+            default -> urlString = gameServiceUrlString + "/commands";
         }
 
         CommandAnswerDto commandAnswerDto;
