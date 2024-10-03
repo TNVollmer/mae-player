@@ -85,7 +85,7 @@ public class Robot {
      * Chooses the next upgrade based on the robot type
      */
     public void chooseNextUpgrade() {
-        List<CapabilityType> priorities = RobotDecisionMaker.getUpgradePriorities(robotType);
+        List<CapabilityType> priorities = robotType.upgradeOrder();
         Capability selected = null;
 
         for (CapabilityType type : priorities) {

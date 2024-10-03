@@ -27,12 +27,13 @@ import thkoeln.dungeon.player.planet.domain.PlanetRepository;
 import thkoeln.dungeon.player.player.domain.Player;
 import thkoeln.dungeon.player.player.domain.PlayerRepository;
 import thkoeln.dungeon.player.robot.domain.Robot;
-import thkoeln.dungeon.player.robot.domain.RobotDecisionMaker;
 import thkoeln.dungeon.player.robot.domain.RobotRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static thkoeln.dungeon.player.core.domainprimitives.robot.RobotType.*;
 
 @Service
 @Slf4j
@@ -60,7 +61,7 @@ public class RobotApplicationService {
             log.info("Due to Robot discovered set Planet {} Resources: {}", planet.getPlanetId(), planet.getResources());
         }
         planetRepository.save(planet);
-        RobotType type = RobotDecisionMaker.getNextRobotType(robotRepository.findAll());
+        RobotType type = nextRobotType();
         Robot robot =  new Robot(id, player, planet, type, dto.getInventory().getMaxStorage(), dto.getMaxEnergy(), dto.getMaxHealth());
         choseNextTask(robot);
         log.info("Robot {} ({}) spawned!", robot.getRobotId(), robot.getRobotType());
@@ -70,7 +71,7 @@ public class RobotApplicationService {
     @EventListener(RobotsRevealedEvent.class)
     public void onRobotsRevealed(RobotsRevealedEvent event) {
         List<UUID> ids = getAllRobotIDs();
-        List<Robot> warriors = robotRepository.findByRobotType(RobotType.Warrior);
+        List<Robot> warriors = robotRepository.findByRobotType(WARRIOR);
         RobotRevealedDto[] revealedRobots = event.getRobots();
         Integer count = 0;
         for (RobotRevealedDto robotRevealedDto : revealedRobots) {
@@ -201,6 +202,24 @@ public class RobotApplicationService {
             robot.queueFirst(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
         robotRepository.save(robot);
         log.info("Robot {} ({}) Next Command: {} (Queue size: {})", robot.getRobotId(), robot.getRobotType(), robot.getCommandType(), robot.getQueueSize());
+    }
+
+    private RobotType nextRobotType() {
+        int robotCount = robotRepository.countBy();
+        int scoutCount = robotRepository.countAllByRobotType(SCOUT);
+        int minerCount = robotRepository.countAllByRobotType(MINER);
+        int warriorCount = robotRepository.countAllByRobotType(WARRIOR);
+
+        if (robotCount == 0 || scoutCount < SCOUT.maxCount() && (scoutCount * 100 / robotCount) < SCOUT.percentage())
+            return SCOUT;
+
+        if ((minerCount * 100 / robotCount) < MINER.percentage())
+            return MINER;
+
+        if ((warriorCount * 100 / robotCount) < WARRIOR.percentage() && robotCount >= WARRIOR.createAfter())
+            return WARRIOR;
+
+        return RobotType.getDefaultType();
     }
 
     private Robot getRobot(UUID robotId) {

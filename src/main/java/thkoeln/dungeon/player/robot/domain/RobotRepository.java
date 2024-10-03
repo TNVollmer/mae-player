@@ -12,4 +12,6 @@ public interface RobotRepository extends CrudRepository<Robot, UUID> {
     Optional<Robot> findByRobotId(UUID id);
     List<Robot> findByRobotType(RobotType type);
     List<Robot> findByPlanet(Planet planet);
+    Integer countAllByRobotType(RobotType type);
+    Integer countBy();
 }

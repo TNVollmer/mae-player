@@ -8,7 +8,7 @@ public class ScoutTaskSelection implements TaskSelection {
     @Override
     public void queueNextTask(Robot robot) {
         if (!robot.moveToNextUnexploredPlanet())
-            robot.setRobotType(RobotType.Warrior);
+            robot.setRobotType(RobotType.WARRIOR);
         if (robot.canNotMove())
             robot.queueCommand(Command.createRegeneration(robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId()));
     }
