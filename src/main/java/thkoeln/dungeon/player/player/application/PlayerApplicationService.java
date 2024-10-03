@@ -30,6 +30,7 @@ import thkoeln.dungeon.player.trading.domain.Shop;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static thkoeln.dungeon.player.game.domain.GameStatus.CREATED;
 
@@ -214,17 +215,19 @@ public class PlayerApplicationService {
         Instant start = Instant.now();
 
         Player player = queryAndIfNeededCreatePlayer();
-        buyRobots(player);
+        CompletableFuture.runAsync(() -> buyRobots(player));
         Integer robotCount = 0;
         Money budget = player.getUpgradeBudget();
         for (Robot robot : robotRepository.findAll()) {
             robotCount++;
             if (robot.canBuyUpgrade(budget)) {
                 budget = budget.decreaseBy(robot.getUpgradePrice());
-                sendUpgrade(robot);
+                CompletableFuture.runAsync(() -> sendUpgrade(robot));
             } else {
-                if (robot.hasCommand()) sendCommand(robot);
-                else choseForIdleRobots(robot);
+                CompletableFuture.runAsync(() -> {
+                    if (robot.hasCommand()) sendCommand(robot);
+                    else choseForIdleRobots(robot);
+                });
             }
         }
         Instant finish = Instant.now();
@@ -233,7 +236,6 @@ public class PlayerApplicationService {
         logger.info("Commands send! Took {} ms", timeElapsed);
     }
 
-    @Async
     public void buyRobots(Player player) {
         Money price = Shop.getPriceForItem("ROBOT");
         int count = player.getNewRobotsBudget().canBuyThatManyFor(price != null ? price : Money.from(100));
@@ -243,7 +245,6 @@ public class PlayerApplicationService {
         logger.info("Buying {} robots", count);
     }
 
-    @Async
     public void sendUpgrade(Robot robot) {
         Capability upgrade = robot.getQueuedUpgrade();
         Command command = Command.createUpgrade(upgrade, robot.getRobotId(), robot.getPlayer().getGameId(), robot.getPlayer().getPlayerId());
@@ -251,7 +252,6 @@ public class PlayerApplicationService {
         logger.info("Buying Upgrade {} for {} ({})", upgrade.toStringForUpgrade(), robot.getRobotId(), robot.getRobotType());
     }
 
-    @Async
     public void sendCommand(Robot robot) {
         try {
             gameServiceRESTAdapter.sendPostRequestForCommand(robot.getNextCommand());
@@ -264,7 +264,6 @@ public class PlayerApplicationService {
         }
     }
 
-    @Async
     public void choseForIdleRobots(Robot robot) {
         robot.chooseNextCommand();
         robotRepository.save(robot);
