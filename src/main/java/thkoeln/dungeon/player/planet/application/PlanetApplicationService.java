@@ -46,7 +46,6 @@ public class PlanetApplicationService {
         for (PlanetNeighboursDto neighboursDto : event.getNeighbours()) {
             Planet neighbour = getPlanetOrCreate(neighboursDto.getId());
             planet.addNeighbor(neighbour, neighboursDto.getDirection());
-            neighbour.addNeighbor(planet, neighboursDto.getDirection().getOppositeDirection());
             planets.add(neighbour);
         }
         planets.add(planet);
