@@ -17,7 +17,7 @@ public class DungeonPlayerMainApplication {
     public static void main(String[] args) {
 
         log.info("Player-Tom");
-        log.info("Version: 1.0");
+        log.info("Version: 1.1");
 
         SpringApplication.run(DungeonPlayerMainApplication.class, args);
     }
