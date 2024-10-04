@@ -162,6 +162,9 @@ public class Robot {
         return true;
     }
 
+    /**
+     * Queues mining as next command unless sell threshold is reached
+     */
     public void mine() {
         if (shouldSell())
             queueSellingResources();
@@ -173,6 +176,9 @@ public class Robot {
         queueSellingResources();
     }
 
+    /**
+     * Queues selling all resources in the inventory as next command(s)
+     */
     private void queueSellingResources() {
         for (MineableResource resource : inventory.getResources()) {
             if (!resource.isEmpty())
@@ -180,6 +186,10 @@ public class Robot {
         }
     }
 
+    /**
+     * Queues movement commands based on the given path
+     * @param path a list of planets which makes a movement path
+     */
     private void queueMovements(List<Planet> path) {
         for (Planet toPlanet : path) {
             queueCommand(Command.createMove(robotId, toPlanet.getPlanetId(), player.getGameId(), player.getPlayerId()));

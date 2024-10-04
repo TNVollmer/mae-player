@@ -1,9 +1,11 @@
 # Java Player for the microservice dungeon
 
-This player is based of the java player skeleton from Tobias Hund and Stefan Bente
+This player is based of the [java player skeleton](https://gitlab.com/the-microservice-dungeon/player-teams/skeletons/player-java-springboot) from Tobias Hund and Stefan Bente
 
 Requirements:
 - Java 17
+
+[Gitlab Version (with pipeline)](https://gitlab.com/TNVollmer/mea-java-player)
 
 ## Concept
 
@@ -47,15 +49,38 @@ Warriors randomly move from planet to planet and attack enemy robots if they are
 Each robot type has their own priority for upgrading capabilities. Those Priorities will all be raised by one level, so that no capability has a level difference greater than one.
 When the capabilities are maxed out the robot will upgrade the remaining capabilities in the same way as prioritised ones.
 
-These are the priorities for each type:
-
-| Type    | Priority                                                        |
-|---------|-----------------------------------------------------------------|
-| Scout   | ENERGY_REGEN, MAX_ENERGY, HEALTH                                |
-| Miner   | MINING_SPEED, MINING, STORAGE, ENERGY_REGEN, MAX_ENERGY, HEALTH |
-| Warrior | DAMAGE, ENERGY_REGEN, MAX_ENERGY, HEALTH                        |
+Priorities are settable, see [Customization](#customization)
 
 Upgrades like commands are queued in order to reduce time needed on round start
+
+### Customization
+
+This player offers some variety for customisation in `application.properties`
+
+````properties
+# Choose between MINER, SCOUT and WARRIOR
+robot.defaultType=MINER
+
+# The maximum count of robots for the type
+robot.minerMaxCount=0
+robot.scoutMaxCount=4
+robot.warriorMaxCount=10
+
+# The percentage of the robot type until the maximum count is reached
+robot.minerPercentage=70
+robot.scoutPercentage=30
+robot.warriorPercentage=20
+
+# After how many total robots the type will be created
+robot.createMinersAfter=0
+robot.createScoutsAfter=0
+robot.createWarriorsAfter=10
+
+# Prioritized upgrades, will be upgraded in the given order
+robot.scoutUpgradeOrder=ENERGY_REGEN,MAX_ENERGY,HEALTH
+robot.minerUpgradeOrder=MINING_SPEED,MINING,STORAGE,ENERGY_REGEN,MAX_ENERGY,HEALTH
+robot.warriorUpgradeOrder=DAMAGE,ENERGY_REGEN,MAX_ENERGY,HEALTH
+````
 
 ### Commands
 
@@ -68,4 +93,9 @@ Each planet knows its neighboring planets. To find a path to a planet, a breadth
 ## On Game Start
 
 Instead of the usual money management the player uses all money to create robots.
-In case of 500 the player will buy 5 robots. Those robots consist of one scout, three miners and one warrior.
+In case of 500 the player will buy 5 robots. Those robots consist of at least one scout and miners and warriors, depending on what percentages are set.
+
+## Known Issue
+
+Due to how this player is designed to keep the database, it is possible to experience some issues in the late game (about 50+ robots), in which the player can't keep up with the time needed to send commands and the available time to do so.
+This may also cause issues with the money management or the robot behaviour itself.
