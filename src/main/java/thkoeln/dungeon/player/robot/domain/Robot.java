@@ -47,6 +47,7 @@ public class Robot {
     private Integer damage;
 
     private Integer energyReserve = 10;
+    private Integer sellPercentage = 50;
 
     private RobotType robotType;
 
@@ -162,10 +163,14 @@ public class Robot {
     }
 
     public void mine() {
-        if (isFull())
+        if (shouldSell())
             queueSellingResources();
         else
             queueCommand(Command.createMining(robotId, planet.getPlanetId(), player.getGameId(), player.getPlayerId()));
+    }
+
+    public void sellInventory() {
+        queueSellingResources();
     }
 
     private void queueSellingResources() {
@@ -240,6 +245,10 @@ public class Robot {
 
     public boolean isFull() {
         return this.inventory.isFull();
+    }
+
+    public boolean shouldSell() {
+        return this.inventory.getUsedCapacity() * 100 / this.inventory.getCapacity() > this.sellPercentage;
     }
 
     public void changeInventorySize(Integer size) {
