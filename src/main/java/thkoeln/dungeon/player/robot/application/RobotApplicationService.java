@@ -204,7 +204,7 @@ public class RobotApplicationService {
         log.info("Robot {} ({}) Next Command: {} (Queue size: {})", robot.getRobotId(), robot.getRobotType(), robot.getCommandType(), robot.getQueueSize());
     }
 
-    private RobotType nextRobotType() {
+    public RobotType nextRobotType() {
         int robotCount = robotRepository.countBy();
         int scoutCount = robotRepository.countAllByRobotType(SCOUT);
         int minerCount = robotRepository.countAllByRobotType(MINER);
@@ -222,7 +222,7 @@ public class RobotApplicationService {
         return RobotType.getDefaultType();
     }
 
-    private Robot getRobot(UUID robotId) {
+    public Robot getRobot(UUID robotId) {
         return robotRepository.findByRobotId(robotId).orElseThrow(() -> new RuntimeException("No robot found with id: " + robotId));
     }
 
